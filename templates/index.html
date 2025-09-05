@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>KingAutoChat Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<audio id="notif-sound" src="/static/notify.mp3" preload="auto"></audio>
+<div class="container">
+    <h1>KingAutoChat Dashboard</h1>
+    <div class="top-bar">
+        <label>LINE Account:</label>
+        <select id="account-select">
+            {% for acc in accounts %}
+            <option value="{{ acc[0] }}">{{ acc[1] }}</option>
+            {% endfor %}
+        </select>
+        <button id="refresh-btn">รีเฟรช</button>
+        <a href="/logout" style="margin-left:auto;color:red;">Logout</a>
+    </div>
+
+    <div id="chat-window" class="chat-window"></div>
+
+    <div class="reply-area">
+        <select id="template-select">
+            <option value="">-- เลือก Template --</option>
+            {% for temp in templates %}
+            <option value="{{ temp[2] }}">{{ temp[2] }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" id="reply-user" placeholder="User ID ลูกค้า">
+        <input type="text" id="reply-input" placeholder="พิมพ์ข้อความ...">
+        <button id="send-btn">ส่งข้อความ</button>
+    </div>
+
+    <div class="template-manage">
+        <h3>จัดการ Template</h3>
+        <input type="text" id="new-template" placeholder="ข้อความ Template">
+        <button id="add-template-btn">เพิ่ม Template</button>
+        <ul id="template-list"></ul>
+    </div>
+
+    {% if super_admin %}
+    <div class="account-manage">
+        <h3>เพิ่ม LINE Account</h3>
+        <input type="text" id="new-account-name" placeholder="ชื่อบัญชี">
+        <input type="text" id="new-account-token" placeholder="Channel Access Token">
+        <button id="add-account-btn">เพิ่มบัญชี</button>
+    </div>
+    <div class="admin-link">
+        <a href="/admin">จัดการ Admin</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const accountSelect = document.getElementById('account-select');
+const chatWindow = document.getElementById('chat-window');
+const templateSelect = document.getElementById('template-select');
+const replyInput = document.getElementById('reply-input');
+const replyUser = document.getElementById('reply-user');
+const sendBtn = document.getElementById('send-btn');
+const refreshBtn = document.getElementById('refresh-btn');
+const notifSound = document.getElementById('notif-sound');
+
+const newTemplateInput = document.getElementById('new-template');
+const addTemplateBtn = document.getElementById('add-template-btn');
+const newAccountName = document.getElementById('new-account-name');
+const newAccountToken = document.getElementById('new-account-token');
+const addAccountBtn = document.getElementById('add-account-btn');
+
+let lastMessageCount = 0;
+
+function loadMessages(){
+    const acc = accountSelect.value;
+    fetch(`/messages/${acc}`).then(res=>res.json()).then(data=>{
+        if(data.length > lastMessageCount && lastMessageCount>0){
+            notifSound.play();
+        }
+        lastMessageCount = data.length;
+
+        chatWindow.innerHTML = '';
+        data.reverse().forEach(m=>{
+            const div = document.createElement('div');
+            div.className = 'chat-bubble';
+            div.innerHTML = `<b>${m[0]}</b>: ${m[1]} <span class="time">${m[2]}</span>`;
+            chatWindow.appendChild(div);
+        });
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+}
+
+accountSelect.addEventListener('change', loadMessages);
+refreshBtn.addEventListener('click', loadMessages);
+
+templateSelect.addEventListener('change', ()=>{
+    if(templateSelect.value){
+        replyInput.value = templateSelect.value;
+    }
+});
+
+sendBtn.addEventListener('click', ()=>{
+    const acc = accountSelect.value;
+    const user = replyUser.value;
+    const msg = replyInput.value;
+    if(!user || !msg) return alert("กรอก User ID และข้อความ");
+    fetch(`/send_message/${acc}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({user_id:user,message:msg})
+    }).then(res=>res.json()).then(res=>{
+        if(res.status=='ok'){
+            replyInput.value='';
+            loadMessages();
+        }
+    });
+});
+
+// เพิ่ม Template
+addTemplateBtn?.addEventListener('click', ()=>{
+    const acc = accountSelect.value;
+    const text = newTemplateInput.value;
+    if(!text) return;
+    fetch('/add_template',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({account_id:acc, template:text})
+    }).then(res=>res.json()).then(res=>{
+        if(res.status=='ok'){
+            newTemplateInput.value='';
+            alert('เพิ่ม Template เรียบร้อย');
+            location.reload();
+        }
+    });
+});
+
+// เพิ่ม Account
+addAccountBtn?.addEventListener('click', ()=>{
+    const name = newAccountName.value;
+    const token = newAccountToken.value;
+    if(!name || !token) return alert('กรอกชื่อบัญชีและ Token');
+    fetch('/add_account',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({account_name:name, channel_token:token})
+    }).then(res=>res.json()).then(res=>{
+        if(res.status=='ok'){
+            alert('เพิ่มบัญชีเรียบร้อย');
+            location.reload();
+        }
+    });
+});
+
+loadMessages();
+setInterval(loadMessages,5000);
+</script>
+</body>
+</html>

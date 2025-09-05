@@ -1,0 +1,16 @@
+body{font-family:sans-serif;background:#f2f3f5;margin:0;padding:0;}
+.container{max-width:1200px;margin:auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.top-bar{display:flex;align-items:center;margin-bottom:10px;}
+.chat-window{border:1px solid #ccc;padding:10px;height:400px;overflow-y:scroll;background:#fafafa;margin-bottom:10px;}
+.chat-bubble{padding:8px;margin:5px 0;border-radius:5px;background:#e0f7fa;}
+.chat-bubble .time{font-size:0.8em;color:#999;margin-left:10px;}
+.reply-area{display:flex;gap:5px;margin-bottom:20px;}
+.reply-area input, .reply-area select{flex:1;padding:8px;border-radius:5px;border:1px solid #ccc;}
+.reply-area button{padding:8px 12px;background:#4CAF50;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+.reply-area button:hover{opacity:0.9;}
+.template-manage input{padding:5px;margin-right:5px;border-radius:5px;border:1px solid #ccc;}
+.template-manage button{padding:5px 10px;}
+.template-manage ul{list-style:none;padding:0;}
+.template-manage li{padding:5px;border-bottom:1px solid #ccc;}
+.account-manage input{padding:5px;margin-right:5px;border-radius:5px;border:1px solid #ccc;}
+.account-manage button{padding:5px 10px;}
