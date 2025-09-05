@@ -16,7 +16,7 @@ main{flex:1;display:flex;overflow:hidden;}
 .sidebar{width:250px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;}
 .sidebar h2{padding:15px;text-align:center;background:#f0f0f0;font-size:1.1rem;border-bottom:1px solid #ddd;}
 .user-list{flex:1;overflow-y:auto;}
-.user-list button{width:100%;padding:10px;border:none;border-bottom:1px solid #eee;background:none;text-align:left;cursor:pointer;transition:background 0.2s;display:flex;justify-content:space-between;align-items:center;}
+.user-list button{width:100%;padding:10px;border:none;border-bottom:1px solid #eee;background:none;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:0.2s;}
 .user-list button:hover{background:#f0f0f0;}
 .user-list .badge{background:#4B6CF7;color:white;padding:2px 6px;border-radius:5px;font-size:0.8rem;}
 .user-list button .badge-new{background:red;color:white;font-size:0.7rem;padding:2px 5px;border-radius:50%;margin-left:5px;}
@@ -39,7 +39,6 @@ main{flex:1;display:flex;overflow:hidden;}
 </style>
 </head>
 <body>
-
 <header>
   <img src="https://img.icons8.com/color/48/000000/chat.png" alt="Logo">
   <h1>KingAutoChat Admin</h1>
@@ -58,7 +57,6 @@ main{flex:1;display:flex;overflow:hidden;}
     <h2 id="sidebarTitle">ผู้ใช้แชท</h2>
     <div class="user-list" id="userList"></div>
   </div>
-
   <div class="chat-window">
     <div class="chat-header" id="chatHeader">เลือกผู้ใช้เพื่อเริ่มแชท</div>
     <div class="chat-messages" id="chatMessages"></div>
@@ -182,6 +180,5 @@ function formatTime(timestamp){
   return `${date.getHours()}:${date.getMinutes().toString().padStart(2,'0')}`;
 }
 </script>
-
 </body>
 </html>
