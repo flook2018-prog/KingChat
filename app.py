@@ -1,86 +1,85 @@
-from flask import Flask, render_template, request, jsonify
-from flask_socketio import SocketIO, emit
-import json
-import os
-from time import time
+from flask import Flask, request, jsonify, render_template
+from flask_socketio import SocketIO
+import sqlite3, time
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret!')
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-# โหลด LINE OA accounts
-with open('config.json', encoding='utf-8') as f:
-    line_accounts = json.load(f)
+DB_PATH = 'chat.db'
 
-# เก็บข้อความลูกค้า
-clients = {}  # {userId: {messages:[], oaName, userName, unread}}
+def get_db():
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# หน้า Admin
+db = get_db()
+
+# สร้าง table ถ้ายังไม่มี
+db.execute('''CREATE TABLE IF NOT EXISTS clients (
+    userId TEXT PRIMARY KEY,
+    userName TEXT,
+    oaName TEXT,
+    assignedAdmin TEXT,
+    username TEXT,
+    regDate TEXT,
+    note TEXT
+)''')
+db.execute('''CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId TEXT,
+    sender TEXT,
+    text TEXT,
+    time INTEGER,
+    FOREIGN KEY(userId) REFERENCES clients(userId)
+)''')
+db.commit()
+
+clients = {}  # เก็บข้อมูล session client ใน memory
+
 @app.route('/')
 def index():
-    try:
-        return render_template('index.html')
-    except Exception as e:
-        return f"Template error: {e}", 500
+    return render_template('index.html')
 
-# รับ Webhook LINE OA
-@app.route('/webhook/<oa_id>', methods=['POST'])
-def webhook(oa_id):
-    data = request.json
-    events = data.get('events', [])
-    for event in events:
-        if event.get('type')=='message' and event['message']['type']=='text':
-            userId = event['source']['userId']
-            userName = 'User'
-            oaName = next((x['name'] for x in line_accounts if x['id']==oa_id), 'OA')
-            if userId not in clients:
-                clients[userId] = {'messages':[], 'oaName':oaName, 'userName':userName, 'unread':True}
-            msg_time = int(time()*1000)
-            clients[userId]['messages'].append({
-                'sender':'customer',
-                'text':event['message']['text'],
-                'userName':userName,
-                'oaName':oaName,
-                'time': msg_time
-            })
-            clients[userId]['unread'] = True
-            socketio.emit('newMessage',{
-                'userId':userId,
-                'sender':'customer',
-                'text':event['message']['text'],
-                'userName':userName,
-                'oaName':oaName,
-                'time': msg_time
-            })
-    return jsonify({'status':'ok'})
+@app.route('/history_api/<userId>')
+def history_api(userId):
+    cur = db.execute('SELECT * FROM messages WHERE userId=? ORDER BY time ASC', (userId,))
+    messages = cur.fetchall()
+    msgs = [{'sender':m['sender'],'text':m['text'],'time':m['time']} for m in messages]
+    return jsonify({'messages': msgs})
 
-# รับข้อความจาก Admin
 @socketio.on('sendMessage')
-def handle_send_message(data):
-    userId = data.get('userId')
-    text = data.get('text')
+def handle_sendMessage(data):
+    userId = data['userId']
+    text = data['text']
+    msg_time = int(time.time()*1000)
+    # Save to memory
     if userId in clients:
-        msg_time = int(time()*1000)
-        clients[userId]['messages'].append({
-            'sender':'admin',
-            'text':text,
-            'userName':'Admin',
-            'oaName':clients[userId]['oaName'],
-            'time': msg_time
-        })
-        emit('newMessage',{
-            'userId':userId,
-            'sender':'admin',
-            'text':text,
-            'userName':'Admin',
-            'oaName':clients[userId]['oaName'],
-            'time': msg_time
-        }, broadcast=True)
+        clients[userId]['messages'].append({'sender':'admin','text':text})
+    # Save to DB
+    db.execute('INSERT INTO messages (userId,sender,text,time) VALUES (?,?,?,?)',
+               (userId,'admin',text,msg_time))
+    db.commit()
+    socketio.emit('newMessage', {'userId':userId,'sender':'admin','text':text,'time':msg_time})
+
+@socketio.on('assignCase')
+def handle_assignCase(data):
+    userId = data['userId']
+    adminName = data['adminName']
+    if userId in clients:
+        clients[userId]['assignedAdmin'] = adminName
+        db.execute('UPDATE clients SET assignedAdmin=? WHERE userId=?', (adminName,userId))
+        db.commit()
+        socketio.emit('updateCase', {'userId':userId,'assignedAdmin':adminName})
+
+@socketio.on('updateProfileNote')
+def handle_updateNote(data):
+    userId = data['userId']
+    note = data['note']
+    if userId in clients:
+        clients[userId]['profile']['note'] = note
+        db.execute('UPDATE clients SET note=? WHERE userId=?', (note,userId))
+        db.commit()
+        socketio.emit('updateNote', {'userId':userId,'note':note})
 
 if __name__ == '__main__':
-    import eventlet
-    import eventlet.wsgi
-    from werkzeug.middleware.proxy_fix import ProxyFix
-
-    app.wsgi_app = ProxyFix(app.wsgi_app)
-    socketio.run(app, host='0.0.0.0', port=int(os.getenv('PORT', 5000)), debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000)
