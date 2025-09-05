@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
-import json
-import os
+import json, os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -11,38 +10,16 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # ข้อมูลจำลอง
 # ----------------------------
 admins = ["Admin1", "Admin2", "Admin3"]
-line_settings = {}
-cases = []  # เก็บเคสทั้งหมด
-chat_history = {}  # เก็บประวัติแชท per case
+cases = []  # เคสทั้งหมด
+chat_history = {}  # chat per case
+customer_profiles = {}  # เก็บโปรไฟล์ลูกค้า
 
 # ----------------------------
-# หน้า index สำหรับแอดมิน
+# หน้าแอดมิน
 # ----------------------------
 @app.route('/')
 def index():
     return render_template('index.html', admins=admins, cases=cases)
-
-# ----------------------------
-# หน้า Settings Line OA
-# ----------------------------
-@app.route('/settings')
-def settings():
-    # โหลดค่าเดิมถ้ามี
-    if os.path.exists('line_settings.json'):
-        with open('line_settings.json','r',encoding='utf-8') as f:
-            global line_settings
-            line_settings = json.load(f)
-    return render_template('settings.html', settings=line_settings)
-
-@app.route('/save_line_settings', methods=['POST'])
-def save_line_settings():
-    global line_settings
-    data = request.json
-    line_settings = data
-    # บันทึกลงไฟล์
-    with open('line_settings.json', 'w', encoding='utf-8') as f:
-        json.dump(line_settings, f, ensure_ascii=False, indent=4)
-    return jsonify({'success': True})
 
 # ----------------------------
 # API รับเคสใหม่
@@ -59,12 +36,18 @@ def new_case():
     }
     cases.append(case)
     chat_history[case_id] = []
-    # แจ้ง frontend
+    # เก็บข้อมูลลูกค้า
+    customer_profiles[case_id] = {
+        "photo": data.get("photo","https://via.placeholder.com/80"),
+        "username": data.get("username","-"),
+        "notes": data.get("notes","-")
+    }
     socketio.emit('new_case', case)
+    socketio.emit('update_profile', {"case_id": case_id, "profile": customer_profiles[case_id]})
     return jsonify({"success": True, "case": case})
 
 # ----------------------------
-# Assign เคสให้แอดมิน
+# Assign เคส
 # ----------------------------
 @app.route('/assign_case', methods=['POST'])
 def assign_case():
@@ -79,17 +62,15 @@ def assign_case():
     return jsonify({"success": True})
 
 # ----------------------------
-# รับแชทจากลูกค้า
+# รับข้อความลูกค้า
 # ----------------------------
 @app.route('/incoming_message', methods=['POST'])
 def incoming_message():
-    # จาก Line OA หรือ API
     data = request.json
     case_id = data.get("case_id")
     message = data.get("message")
-    chat_entry = {"from": "customer", "message": message}
-    if case_id in chat_history:
-        chat_history[case_id].append(chat_entry)
+    chat_entry = {"from":"customer", "message":message}
+    chat_history.setdefault(case_id, []).append(chat_entry)
     socketio.emit('new_message', {"case_id": case_id, "message": chat_entry})
     return jsonify({"success": True})
 
@@ -101,15 +82,13 @@ def send_message():
     data = request.json
     case_id = data.get("case_id")
     message = data.get("message")
-    chat_entry = {"from": "admin", "message": message}
-    if case_id in chat_history:
-        chat_history[case_id].append(chat_entry)
-    # ส่ง realtime กลับ frontend
+    chat_entry = {"from":"admin", "message":message}
+    chat_history.setdefault(case_id, []).append(chat_entry)
     socketio.emit('new_message', {"case_id": case_id, "message": chat_entry})
     return jsonify({"success": True})
 
 # ----------------------------
-# หน้าแชทย้อนหลัง
+# แชทย้อนหลัง
 # ----------------------------
 @app.route('/history/<int:case_id>')
 def history(case_id):
