@@ -1,158 +1,116 @@
-from flask import Flask, render_template, request, jsonify, abort
+from flask import Flask, render_template, request, jsonify, redirect
+from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
-from datetime import datetime
-import sqlite3
 import os
 
-# Line SDK
-from linebot import LineBotApi, WebhookHandler
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from linebot.exceptions import InvalidSignatureError
-
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SECRET_KEY'] = 'secret123'
+db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-DB_FILE = 'kingautochat.db'
+# Models
+class Case(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_name = db.Column(db.String(100))
+    line_oa = db.Column(db.String(50))
+    status = db.Column(db.String(20))  # unassigned / assigned
+    admin = db.Column(db.String(50))
+    note = db.Column(db.String(200))
+    messages = db.relationship('Message', backref='case', lazy=True)
 
-# --- Line OA config ---
-LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "YOUR_CHANNEL_SECRET")
-LINE_CHANNEL_TOKEN = os.getenv("LINE_CHANNEL_TOKEN", "YOUR_CHANNEL_TOKEN")
-line_bot_api = LineBotApi(LINE_CHANNEL_TOKEN)
-handler = WebhookHandler(LINE_CHANNEL_SECRET)
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, db.ForeignKey('case.id'), nullable=False)
+    sender = db.Column(db.String(20))  # customer/admin
+    content = db.Column(db.String(500))
 
-# --- DB Init ---
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS cases (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_name TEXT,
-            line_oa TEXT,
-            status TEXT,
-            admin_name TEXT,
-            created_at TEXT
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS chat_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            case_id INTEGER,
-            sender TEXT,
-            message TEXT,
-            timestamp TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+class LineOA(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    channel_id = db.Column(db.String(100))
+    secret = db.Column(db.String(100))
+    access_token = db.Column(db.String(200))
 
-init_db()
+db.create_all()
 
-# --- Routes ---
+# Routes
 @app.route('/')
 def index():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('SELECT * FROM cases ORDER BY created_at DESC')
-    rows = c.fetchall()
-    cases = []
-    for r in rows:
-        cases.append({
-            'id': r[0], 'customer_name': r[1], 'line_oa': r[2],
-            'status': r[3], 'admin_name': r[4] if r[4] else ''
-        })
-    conn.close()
+    cases = Case.query.all()
     return render_template('index.html', cases=cases)
 
-@app.route('/assign_case', methods=['POST'])
-def assign_case():
-    data = request.json
-    case_id = data['case_id']
-    admin_name = data['admin_name']
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('UPDATE cases SET status=?, admin_name=? WHERE id=?', ('assigned', admin_name, case_id))
-    conn.commit()
-    conn.close()
+@app.route('/assign_case/<int:case_id>', methods=['POST'])
+def assign_case(case_id):
+    case = Case.query.get(case_id)
+    admin_name = request.form.get('admin')
+    case.status = "assigned"
+    case.admin = admin_name
+    db.session.commit()
+    return jsonify({'status':'ok','admin':admin_name})
+
+@app.route('/update_note/<int:case_id>', methods=['POST'])
+def update_note(case_id):
+    case = Case.query.get(case_id)
+    data = request.get_json()
+    case.note = data.get('note','')
+    db.session.commit()
+    socketio.emit('note_updated', {'case_id':case_id,'note':case.note}, broadcast=True)
     return jsonify({'status':'ok'})
 
-@app.route('/history')
-def history():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('SELECT DISTINCT line_oa FROM cases')
-    lines = [r[0] for r in c.fetchall()]
-    c.execute('SELECT * FROM cases ORDER BY created_at DESC')
-    cases = [{'id':r[0],'customer_name':r[1],'line_oa':r[2]} for r in c.fetchall()]
-    c.execute('''
-        SELECT m.id, m.case_id, c.customer_name, c.line_oa, m.sender, m.message, m.timestamp 
-        FROM chat_messages m
-        JOIN cases c ON m.case_id=c.id
-        ORDER BY m.timestamp DESC
-    ''')
-    chats = [{'id':r[0],'case_id':r[1],'customer_name':r[2],'line_oa':r[3],'sender':r[4],'message':r[5],'date':r[6]} for r in c.fetchall()]
-    conn.close()
-    return render_template('history.html', cases=cases, lines=lines, chats=chats)
+@app.route('/line_settings', methods=['GET','POST'])
+def line_settings():
+    if request.method=='POST':
+        data = request.form
+        name = data.get('name')
+        oa = LineOA.query.filter_by(name=name).first()
+        if not oa:
+            oa = LineOA(name=name)
+            db.session.add(oa)
+        oa.channel_id = data.get('channel_id')
+        oa.secret = data.get('secret')
+        oa.access_token = data.get('access_token')
+        db.session.commit()
+        return redirect('/line_settings')
+    oas = LineOA.query.all()
+    return render_template('line_settings.html', oas=oas)
 
-@app.route('/history/<int:case_id>')
-def history_case(case_id):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('SELECT sender, message FROM chat_messages WHERE case_id=? ORDER BY timestamp ASC', (case_id,))
-    messages = [{'sender':r[0],'message':r[1]} for r in c.fetchall()]
-    conn.close()
-    return jsonify({'messages': messages})
+@app.route('/line_webhook/<int:oa_id>', methods=['POST'])
+def line_webhook(oa_id):
+    oa = LineOA.query.get(oa_id)
+    if not oa:
+        return "OA not found", 404
+    data = request.get_json()
+    for event in data.get('events',[]):
+        if event['type']=='message' and event['message']['type']=='text':
+            user_id = event['source'].get('userId')
+            msg = event['message']['text']
+            case = Case(customer_name=user_id,line_oa=oa.name,status="unassigned")
+            db.session.add(case)
+            db.session.commit()
+            message = Message(case_id=case.id,sender='customer',content=msg)
+            db.session.add(message)
+            db.session.commit()
+            socketio.emit('new_message',{
+                'case_id':case.id,
+                'message':msg,
+                'from':'customer'
+            })
+    return "ok"
 
-# --- SocketIO ---
+# SocketIO events
 @socketio.on('send_message')
-def handle_message(data):
+def handle_send_message(data):
     case_id = data['case_id']
-    sender = data['sender']
-    message = data['message']
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # save to DB
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('INSERT INTO chat_messages (case_id, sender, message, timestamp) VALUES (?,?,?,?)',
-              (case_id, sender, message, timestamp))
-    conn.commit()
-    conn.close()
-    # broadcast to all clients
-    emit('receive_message', {'case_id': case_id, 'sender': sender, 'message': message}, broadcast=True)
+    msg = data['message']
+    message = Message(case_id=case_id,sender='admin',content=msg)
+    db.session.add(message)
+    db.session.commit()
+    emit('new_message',{
+        'case_id':case_id,
+        'message':msg,
+        'from':'admin'
+    }, broadcast=True)
 
-# --- Line OA Webhook ---
-@app.route('/line_webhook/<oa_name>', methods=['POST'])
-def line_webhook(oa_name):
-    signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
-    return 'OK'
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_line_message(event):
-    customer_name = event.source.user_id
-    message_text = event.message.text
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    oa_name = "LINE_OA"  # สามารถใช้ URL parameter /line_webhook/<oa_name> มาปรับได้
-
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT id FROM cases WHERE customer_name=? AND line_oa=?", (customer_name, oa_name))
-    row = c.fetchone()
-    if row:
-        case_id = row[0]
-    else:
-        c.execute("INSERT INTO cases (customer_name, line_oa, status, created_at) VALUES (?,?,?,?)",
-                  (customer_name, oa_name, 'new', timestamp))
-        case_id = c.lastrowid
-    c.execute("INSERT INTO chat_messages (case_id, sender, message, timestamp) VALUES (?,?,?,?)",
-              (case_id, 'customer', message_text, timestamp))
-    conn.commit()
-    conn.close()
-    socketio.emit('receive_message', {'case_id': case_id, 'sender':'customer', 'message': message_text})
-
-if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+if __name__=='__main__':
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT',5000)))
