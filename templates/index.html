@@ -1,155 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>KingAutoChat</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KingAutoChat Admin</title>
 <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <style>
-body { margin:0;font-family:sans-serif; }
-.sidebar button { width:100%;padding:5px;margin-bottom:2px;position:relative;text-align:left; }
-.badge { background:#4B6CF7;color:white;padding:2px 4px;border-radius:3px;margin-left:5px;font-size:10px; }
-.badge-new { background:red;color:white;padding:2px 4px;border-radius:3px;margin-left:5px;font-size:10px; }
-.chat-messages div { margin-bottom:5px; }
+body{font-family:sans-serif;margin:0;padding:0;background:#f0f2f5;}
+.container{display:flex;height:100vh;}
+.sidebar{width:300px;background:#fff;border-right:1px solid #ddd;overflow-y:auto;}
+.main{flex:1;display:flex;flex-direction:column;}
+.chat-header{padding:10px;background:#eee;border-bottom:1px solid #ccc;}
+.chat-body{flex:1;padding:10px;overflow-y:auto;background:#fafafa;}
+.chat-message{margin:5px 0;padding:8px;border-radius:5px;max-width:60%;}
+.chat-message.customer{background:#fff;align-self:flex-start;}
+.chat-message.admin{background:#d1f7c4;align-self:flex-end;}
+.chat-input{display:flex;padding:10px;border-top:1px solid #ccc;background:#eee;}
+.chat-input input{flex:1;padding:8px;}
+.chat-input button{padding:8px;}
+.case-item{padding:10px;border-bottom:1px solid #ddd;cursor:pointer;}
+.case-item.assigned{background:#f0f0f0;}
 </style>
 </head>
 <body>
-<main style="display:flex;overflow:hidden; height:100vh;">
-  <!-- Sidebar -->
-  <div class="sidebar" style="width:250px;border-right:1px solid #ddd;padding:10px;">
-    <h2>ผู้ใช้แชท</h2>
-    <select id="filterOA"><option value="all">ทุก LINE OA</option></select>
-    <select id="filterAdmin"><option value="all">ทุก Admin</option></select>
-    <input type="text" id="searchUser" placeholder="ค้นหาลูกค้า..." style="width:100%;margin-top:5px;">
-    <div class="user-list" id="userList" style="margin-top:10px;"></div>
-  </div>
-
-  <!-- Chat Window -->
-  <div class="chat-window" style="flex:1;display:flex;flex-direction:column;">
-    <div class="chat-header" id="chatHeader" style="padding:10px;border-bottom:1px solid #ddd;">เลือกผู้ใช้เพื่อเริ่มแชท</div>
-    <div class="chat-messages" id="chatMessages" style="flex:1;overflow-y:auto;padding:10px;background:#f0f0f0;"></div>
-    <div class="chat-input" style="padding:10px;border-top:1px solid #ddd;display:flex;">
-      <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ..." style="flex:1;margin-right:5px;">
-      <button id="sendBtn">ส่ง</button>
+<div class="container">
+    <div class="sidebar">
+        <h3>Cases</h3>
+        <div id="case-list">
+            {% for c in cases %}
+            <div class="case-item {% if c.status=='assigned' %}assigned{% endif %}" data-id="{{c.id}}">
+                {{c.customer_name}} | {{c.line_oa}} <br> Admin: {{c.admin_name}}
+            </div>
+            {% endfor %}
+        </div>
     </div>
-  </div>
-
-  <!-- Profile + History Panel -->
-  <div class="right-panel" style="width:300px;border-left:1px solid #ddd;display:flex;flex-direction:column;">
-    <!-- Profile -->
-    <div class="profile-panel" style="padding:10px;border-bottom:1px solid #ddd;">
-      <h3>ข้อมูลลูกค้า</h3>
-      <div><b>ชื่อ:</b> <span id="profileName">-</span></div>
-      <div><b>ยูสเซอร์:</b> <span id="profileUser">-</span></div>
-      <div><b>วันที่สมัคร:</b> <span id="profileReg">-</span></div>
-      <div><b>หมายเหตุ:</b></div>
-      <textarea id="profileNote" rows="4" style="width:100%;"></textarea>
-      <button id="saveNote" style="margin-top:5px;background:#4B6CF7;color:white;border:none;padding:5px 10px;border-radius:5px;">บันทึก</button>
+    <div class="main">
+        <div class="chat-header">Chat</div>
+        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
-
-    <!-- History -->
-    <div class="history-panel" style="flex:1;overflow-y:auto;padding:10px;background:#fff;">
-      <h3>ประวัติแชทย้อนหลัง</h3>
-      <div id="historyMessages"></div>
-    </div>
-  </div>
-</main>
+</div>
 
 <script>
 const socket = io();
-let clients = {};
-let currentUserId = null;
+let currentCaseId = null;
 
-const filterOA = document.getElementById('filterOA');
-const filterAdmin = document.getElementById('filterAdmin');
-const searchUser = document.getElementById('searchUser');
-const userList = document.getElementById('userList');
-const chatMessages = document.getElementById('chatMessages');
-const chatHeader = document.getElementById('chatHeader');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
-const profileNote = document.getElementById('profileNote');
-const saveNote = document.getElementById('saveNote');
-
-sendBtn.addEventListener('click',()=>{
-    const text = chatInput.value.trim();
-    if(text && currentUserId){
-        socket.emit('sendMessage',{userId:currentUserId,text});
-        chatInput.value='';
-    }
-});
-saveNote.addEventListener('click',()=>{
-    if(currentUserId){
-        const note = profileNote.value;
-        socket.emit('updateProfileNote',{userId:currentUserId,note});
-    }
-});
-
-function addMessage(userId,sender,text){
+function addMessage(sender, text){
     const div = document.createElement('div');
-    div.style.textAlign = sender==='admin'?'right':'left';
-    div.textContent = `${sender}: ${text}`;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    div.classList.add('chat-message');
+    div.classList.add(sender);
+    div.textContent = text;
+    document.getElementById('chat-body').appendChild(div);
+    div.scrollIntoView();
 }
 
-function updateUserList(){
-    userList.innerHTML='';
-    const oaFilter = filterOA.value;
-    const adminFilter = filterAdmin.value;
-    const searchText = searchUser.value.toLowerCase();
-    for(const userId in clients){
-        const client = clients[userId];
-        if(oaFilter!=='all' && client.oaName!==oaFilter) continue;
-        if(adminFilter!=='all' && client.assignedAdmin!==adminFilter) continue;
-        if(searchText && !client.userName.toLowerCase().includes(searchText)) continue;
-
-        const btn = document.createElement('button');
-        let label = client.userName;
-        if(client.assignedAdmin) label += ` - [${client.assignedAdmin}]`;
-        btn.textContent = label;
-
-        const badge = document.createElement('span');
-        badge.classList.add('badge');
-        badge.textContent = client.oaName;
-        btn.appendChild(badge);
-
-        btn.addEventListener('click',()=>{
-            if(!client.assignedAdmin){
-                const adminName = prompt("กรอกชื่อแอดมินที่จะรับเคส:");
-                if(adminName) socket.emit('assignCase',{userId,adminName});
-            }
-            selectUser(userId);
+document.querySelectorAll('.case-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+        currentCaseId = el.getAttribute('data-id');
+        fetch('/history/'+currentCaseId).then(r=>r.json()).then(data=>{
+            const chatBody = document.getElementById('chat-body');
+            chatBody.innerHTML='';
+            data.messages.forEach(m=>{
+                addMessage(m.sender=='customer'?'customer':'admin', m.message);
+            });
         });
-        userList.appendChild(btn);
-    }
-}
-
-function selectUser(userId){
-    currentUserId = userId;
-    const client = clients[userId];
-    chatHeader.textContent = `${client.userName} (${client.oaName})`;
-    chatMessages.innerHTML='';
-    client.messages.forEach(m=>addMessage(userId,m.sender,m.text));
-    document.getElementById('profileName').textContent = client.userName;
-    document.getElementById('profileUser').textContent = client.profile.username;
-    document.getElementById('profileReg').textContent = client.profile.regDate;
-    document.getElementById('profileNote').value = client.profile.note;
-
-    fetch(`/history_api/${userId}`).then(res=>res.json()).then(data=>{
-        const hist = document.getElementById('historyMessages');
-        hist.innerHTML='';
-        data.messages.forEach(m=>{
-            const div = document.createElement('div');
-            div.style.marginBottom='5px';
-            div.innerHTML = `<b>${m.sender}</b> [${new Date(m.time).toLocaleString()}]: ${m.text}`;
-            hist.appendChild(div);
-        });
+        // Assign case to admin
+        const adminName = prompt('Enter your admin name:');
+        if(adminName){
+            fetch('/assign_case',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({case_id:currentCaseId, admin_name:adminName})
+            }).then(()=>el.classList.add('assigned'));
+        }
     });
+});
+
+function sendMessage(){
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if(!text || !currentCaseId) return;
+    socket.emit('send_message',{case_id:currentCaseId,sender:'admin',message:text});
+    addMessage('admin', text);
+    input.value='';
 }
 
-filterOA.addEventListener('change', updateUserList);
-filterAdmin.addEventListener('change', updateUserList);
-searchUser.addEventListener('input', updateUserList);
+socket.on('receive_message', data=>{
+    if(data.case_id==currentCaseId && data.sender=='customer'){
+        addMessage('customer', data.message);
+    }
+});
 </script>
 </body>
 </html>
