@@ -1,159 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta charset="utf-8">
-<title>KingAutoChat Dashboard</title>
-<link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KingAutoChat Admin</title>
+<link rel="icon" href="https://img.icons8.com/color/48/000000/chat.png" type="image/x-icon">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family: Arial,sans-serif;}
+body{background:#f4f5f7;color:#333;height:100vh;display:flex;flex-direction:column;}
+
+header{
+  display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#4B6CF7;color:white;
+}
+header img{width:40px;height:40px;}
+header h1{font-size:1.5rem;margin-left:10px;flex:1;}
+header select{padding:5px 10px;border-radius:5px;border:none;font-size:1rem;}
+
+main{flex:1;display:flex;overflow:hidden;}
+
+/* Sidebar */
+.sidebar{
+  width:250px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;
+}
+.sidebar h2{
+  padding:15px;text-align:center;background:#f0f0f0;font-size:1.1rem;border-bottom:1px solid #ddd;
+}
+.account-list{
+  flex:1;overflow-y:auto;
+}
+.account-list button{
+  width:100%;padding:10px;border:none;border-bottom:1px solid #eee;background:none;text-align:left;cursor:pointer;transition:background 0.2s;
+}
+.account-list button:hover{background:#f0f0f0;}
+
+/* Chat Window */
+.chat-window{flex:1;display:flex;flex-direction:column;background:#fff;}
+.chat-header{
+  padding:15px;border-bottom:1px solid #ddd;font-weight:bold;background:#f9f9f9;display:flex;justify-content:space-between;
+}
+.chat-messages{
+  flex:1;padding:15px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+}
+.message{
+  display:flex;flex-direction:column;max-width:70%;
+}
+.message.customer{align-self:flex-start;} /* ลูกค้าอยู่ซ้าย */
+.message.admin{align-self:center;} /* แอดมินอยู่กลาง */
+.message .sender{font-weight:bold;margin-bottom:2px;}
+.message .text{padding:8px 12px;border-radius:10px;}
+.message.customer .text{background:#f1f1f1;}
+.message.admin .text{background:#4B6CF7;color:white;}
+
+.chat-input{display:flex;padding:10px;border-top:1px solid #ddd;background:#f9f9f9;}
+.chat-input input{flex:1;padding:10px;border-radius:5px;border:1px solid #ccc;font-size:1rem;}
+.chat-input button{margin-left:10px;padding:10px 15px;background:#4B6CF7;color:white;border:none;border-radius:5px;cursor:pointer;}
+
+.account-list::-webkit-scrollbar, .chat-messages::-webkit-scrollbar{width:6px;}
+.account-list::-webkit-scrollbar-thumb, .chat-messages::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
+
+@media (max-width:768px){
+  main{flex-direction:column;}
+  .sidebar{width:100%;height:150px;flex-direction:row;overflow-x:auto;}
+  .account-list{display:flex;flex-direction:row;}
+  .account-list button{flex:0 0 auto;width:auto;}
+  .chat-window{flex:1;}
+}
+</style>
 </head>
 <body>
-<audio id="notif-sound" src="/static/notify.mp3" preload="auto"></audio>
-<div class="container">
-    <h1>KingAutoChat Dashboard</h1>
-    <div class="top-bar">
-        <label>LINE Account:</label>
-        <select id="account-select">
-            {% for acc in accounts %}
-            <option value="{{ acc[0] }}">{{ acc[1] }}</option>
-            {% endfor %}
-        </select>
-        <button id="refresh-btn">รีเฟรช</button>
-        <a href="/logout" style="margin-left:auto;color:red;">Logout</a>
-    </div>
 
-    <div id="chat-window" class="chat-window"></div>
+<header>
+  <img src="https://img.icons8.com/color/48/000000/chat.png" alt="Logo">
+  <h1>KingAutoChat Admin</h1>
+  <select id="langSelect">
+    <option value="th">ไทย</option>
+    <option value="en">English</option>
+    <option value="jp">日本語</option>
+    <option value="cn">中文</option>
+    <option value="es">Español</option>
+    <option value="fr">Français</option>
+  </select>
+</header>
 
-    <div class="reply-area">
-        <select id="template-select">
-            <option value="">-- เลือก Template --</option>
-            {% for temp in templates %}
-            <option value="{{ temp[2] }}">{{ temp[2] }}</option>
-            {% endfor %}
-        </select>
-        <input type="text" id="reply-user" placeholder="User ID ลูกค้า">
-        <input type="text" id="reply-input" placeholder="พิมพ์ข้อความ...">
-        <button id="send-btn">ส่งข้อความ</button>
+<main>
+  <div class="sidebar">
+    <h2 id="sidebarTitle">บัญชี Line</h2>
+    <div class="account-list" id="accountList">
+      <button data-account="1">Line Official 1</button>
+      <button data-account="2">Line Official 2</button>
+      <button data-account="3">Line Official 3</button>
     </div>
+  </div>
 
-    <div class="template-manage">
-        <h3>จัดการ Template</h3>
-        <input type="text" id="new-template" placeholder="ข้อความ Template">
-        <button id="add-template-btn">เพิ่ม Template</button>
-        <ul id="template-list"></ul>
+  <div class="chat-window">
+    <div class="chat-header" id="chatHeader">เลือกบัญชีเพื่อเริ่มแชท</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ...">
+      <button id="sendBtn">ส่ง</button>
     </div>
-
-    {% if super_admin %}
-    <div class="account-manage">
-        <h3>เพิ่ม LINE Account</h3>
-        <input type="text" id="new-account-name" placeholder="ชื่อบัญชี">
-        <input type="text" id="new-account-token" placeholder="Channel Access Token">
-        <button id="add-account-btn">เพิ่มบัญชี</button>
-    </div>
-    <div class="admin-link">
-        <a href="/admin">จัดการ Admin</a>
-    </div>
-    {% endif %}
-</div>
+  </div>
+</main>
 
 <script>
-const accountSelect = document.getElementById('account-select');
-const chatWindow = document.getElementById('chat-window');
-const templateSelect = document.getElementById('template-select');
-const replyInput = document.getElementById('reply-input');
-const replyUser = document.getElementById('reply-user');
-const sendBtn = document.getElementById('send-btn');
-const refreshBtn = document.getElementById('refresh-btn');
-const notifSound = document.getElementById('notif-sound');
+const translations = {
+  th:{sidebar:'บัญชี Line', input:'พิมพ์ข้อความ...', send:'ส่ง', header:'เลือกบัญชีเพื่อเริ่มแชท', customer:'ลูกค้า', admin:'คุณ'},
+  en:{sidebar:'Line Accounts', input:'Type a message...', send:'Send', header:'Select an account to start chat', customer:'Customer', admin:'You'},
+  jp:{sidebar:'ラインアカウント', input:'メッセージを入力...', send:'送信', header:'アカウントを選択してチャットを開始', customer:'お客様', admin:'あなた'},
+  cn:{sidebar:'Line账户', input:'输入消息...', send:'发送', header:'选择一个账户开始聊天', customer:'客户', admin:'您'},
+  es:{sidebar:'Cuentas Line', input:'Escribe un mensaje...', send:'Enviar', header:'Seleccione una cuenta para comenzar a chatear', customer:'Cliente', admin:'Tú'},
+  fr:{sidebar:'Comptes Line', input:'Tapez un message...', send:'Envoyer', header:'Sélectionnez un compte pour démarrer le chat', customer:'Client', admin:'Vous'}
+};
 
-const newTemplateInput = document.getElementById('new-template');
-const addTemplateBtn = document.getElementById('add-template-btn');
-const newAccountName = document.getElementById('new-account-name');
-const newAccountToken = document.getElementById('new-account-token');
-const addAccountBtn = document.getElementById('add-account-btn');
+const langSelect = document.getElementById('langSelect');
+const sidebarTitle = document.getElementById('sidebarTitle');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const chatHeader = document.getElementById('chatHeader');
+const chatMessages = document.getElementById('chatMessages');
 
-let lastMessageCount = 0;
+// ภาษา
+langSelect.addEventListener('change',()=>{
+  const lang = langSelect.value;
+  sidebarTitle.textContent = translations[lang].sidebar;
+  chatInput.placeholder = translations[lang].input;
+  sendBtn.textContent = translations[lang].send;
+  chatHeader.textContent = translations[lang].header;
+});
 
-function loadMessages(){
-    const acc = accountSelect.value;
-    fetch(`/messages/${acc}`).then(res=>res.json()).then(data=>{
-        if(data.length > lastMessageCount && lastMessageCount>0){
-            notifSound.play();
-        }
-        lastMessageCount = data.length;
+// เลือกบัญชี
+document.querySelectorAll('.account-list button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const lang = langSelect.value;
+    chatHeader.textContent = `${translations[lang].header}: ${btn.textContent}`;
+    chatMessages.innerHTML='';
+    // ตัวอย่างข้อความจำลองลูกค้า
+    addCustomerMessage(translations[lang].customer, 'สวัสดีค่ะ!');
+  });
+});
 
-        chatWindow.innerHTML = '';
-        data.reverse().forEach(m=>{
-            const div = document.createElement('div');
-            div.className = 'chat-bubble';
-            div.innerHTML = `<b>${m[0]}</b>: ${m[1]} <span class="time">${m[2]}</span>`;
-            chatWindow.appendChild(div);
-        });
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    });
+// เพิ่มข้อความลูกค้า
+function addCustomerMessage(sender,text){
+  const div = document.createElement('div');
+  div.classList.add('message','customer');
+  div.innerHTML = `<div class="sender">${sender}</div><div class="text">${text}</div>`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-accountSelect.addEventListener('change', loadMessages);
-refreshBtn.addEventListener('click', loadMessages);
+// ส่งข้อความแอดมิน
+function sendMessage(){
+  const msg = chatInput.value.trim();
+  if(msg==='') return;
+  const lang = langSelect.value;
+  const div = document.createElement('div');
+  div.classList.add('message','admin');
+  div.innerHTML = `<div class="sender">${translations[lang].admin}</div><div class="text">${msg}</div>`;
+  chatMessages.appendChild(div);
+  chatInput.value='';
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-templateSelect.addEventListener('change', ()=>{
-    if(templateSelect.value){
-        replyInput.value = templateSelect.value;
-    }
-});
-
-sendBtn.addEventListener('click', ()=>{
-    const acc = accountSelect.value;
-    const user = replyUser.value;
-    const msg = replyInput.value;
-    if(!user || !msg) return alert("กรอก User ID และข้อความ");
-    fetch(`/send_message/${acc}`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({user_id:user,message:msg})
-    }).then(res=>res.json()).then(res=>{
-        if(res.status=='ok'){
-            replyInput.value='';
-            loadMessages();
-        }
-    });
-});
-
-// เพิ่ม Template
-addTemplateBtn?.addEventListener('click', ()=>{
-    const acc = accountSelect.value;
-    const text = newTemplateInput.value;
-    if(!text) return;
-    fetch('/add_template',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({account_id:acc, template:text})
-    }).then(res=>res.json()).then(res=>{
-        if(res.status=='ok'){
-            newTemplateInput.value='';
-            alert('เพิ่ม Template เรียบร้อย');
-            location.reload();
-        }
-    });
-});
-
-// เพิ่ม Account
-addAccountBtn?.addEventListener('click', ()=>{
-    const name = newAccountName.value;
-    const token = newAccountToken.value;
-    if(!name || !token) return alert('กรอกชื่อบัญชีและ Token');
-    fetch('/add_account',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({account_name:name, channel_token:token})
-    }).then(res=>res.json()).then(res=>{
-        if(res.status=='ok'){
-            alert('เพิ่มบัญชีเรียบร้อย');
-            location.reload();
-        }
-    });
-});
-
-loadMessages();
-setInterval(loadMessages,5000);
+sendBtn.addEventListener('click',sendMessage);
+chatInput.addEventListener('keypress',e=>{if(e.key==='Enter') sendMessage();});
 </script>
+
 </body>
 </html>
