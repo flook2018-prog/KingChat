@@ -6,9 +6,9 @@ from time import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret!')
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
-# โหลด LINE OA accounts จาก config.json
+# โหลด LINE OA accounts
 with open('config.json', encoding='utf-8') as f:
     line_accounts = json.load(f)
 
@@ -18,7 +18,10 @@ clients = {}  # {userId: {messages:[], oaName, userName, unread}}
 # หน้า Admin
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        return f"Template error: {e}", 500
 
 # รับ Webhook LINE OA
 @app.route('/webhook/<oa_id>', methods=['POST'])
@@ -75,4 +78,9 @@ def handle_send_message(data):
         }, broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+    import eventlet
+    import eventlet.wsgi
+    from werkzeug.middleware.proxy_fix import ProxyFix
+
+    app.wsgi_app = ProxyFix(app.wsgi_app)
+    socketio.run(app, host='0.0.0.0', port=int(os.getenv('PORT', 5000)), debug=True)
