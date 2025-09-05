@@ -1,0 +1,14 @@
+[
+  {
+    "id": "oa1",
+    "name": "Line Official 1",
+    "channelAccessToken": "ACCESS_TOKEN_1",
+    "channelSecret": "SECRET_1"
+  },
+  {
+    "id": "oa2",
+    "name": "Line Official 2",
+    "channelAccessToken": "ACCESS_TOKEN_2",
+    "channelSecret": "SECRET_2"
+  }
+]
