@@ -1,5 +1,6 @@
 Flask==2.3.3
 Flask-SocketIO==6.6.1
 eventlet==0.33.3
+Flask-SQLAlchemy==3.0.3
 requests==2.31.0
-line-bot-sdk==2.3.0
+gunicorn==21.2.0
