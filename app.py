@@ -2,18 +2,19 @@ from flask import Flask, render_template, request, redirect, jsonify
 from flask_socketio import SocketIO, emit
 import json
 import os
+import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# เก็บ Settings Line OA
+# LINE OA settings
 LINE_SETTINGS_FILE = "line_settings.json"
 if not os.path.exists(LINE_SETTINGS_FILE):
     with open(LINE_SETTINGS_FILE, "w") as f:
         json.dump({"virtual_id": "", "virtual_link": "", "status": "ยังไม่เชื่อม"}, f)
 
-# เก็บ Chat History
+# Chat history
 CHAT_HISTORY_FILE = "chat_history.json"
 if not os.path.exists(CHAT_HISTORY_FILE):
     with open(CHAT_HISTORY_FILE, "w") as f:
@@ -46,22 +47,35 @@ def settings():
 # SocketIO รับข้อความจากลูกค้า
 @socketio.on("customer_message")
 def handle_customer_message(data):
-    # บันทึกลง chat_history.json
+    user_id = data.get("user_id")
+    if not user_id:
+        return
     with open(CHAT_HISTORY_FILE) as f:
         chat_data = json.load(f)
-    user_id = data["user_id"]
     if user_id not in chat_data:
         chat_data[user_id] = []
+    # บันทึกเวลาข้อความ
+    data["timestamp"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     chat_data[user_id].append(data)
     with open(CHAT_HISTORY_FILE, "w") as f:
         json.dump(chat_data, f)
-
-    # ส่งเด้งไปหน้า Admin แบบเรียลไทม์
     emit("new_message", data, broadcast=True)
 
-# SocketIO ส่งข้อความจาก Admin ไปลูกค้า
+# SocketIO ส่งข้อความจาก Admin
 @socketio.on("admin_message")
 def handle_admin_message(data):
+    user_id = data.get("user_id")
+    if not user_id:
+        return
+    with open(CHAT_HISTORY_FILE) as f:
+        chat_data = json.load(f)
+    if user_id not in chat_data:
+        chat_data[user_id] = []
+    data["from_admin"] = True
+    data["timestamp"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    chat_data[user_id].append(data)
+    with open(CHAT_HISTORY_FILE, "w") as f:
+        json.dump(chat_data, f)
     emit("new_message", data, broadcast=True)
 
 # หน้า Profile Admin
