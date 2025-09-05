@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
-import sqlite3
+import os
 from utils import init_db, save_message, get_messages
+import eventlet
+
+# patch socket สำหรับ eventlet
+eventlet.monkey_patch()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*")
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # สร้าง DB และตารางถ้ายังไม่มี
 init_db()
@@ -27,4 +31,7 @@ def handle_send_message(data):
     emit('receive_message', {'id': msg_id, 'username': username, 'message': message}, broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    # ใช้ PORT ของ Railway หรือ default 5000
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Running on port {port}")
+    socketio.run(app, host='0.0.0.0', port=port)
