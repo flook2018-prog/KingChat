@@ -1,92 +1,69 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
-import json
 import os
-import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = 'supersecretkey'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# LINE OA settings
-LINE_SETTINGS_FILE = "line_settings.json"
-if not os.path.exists(LINE_SETTINGS_FILE):
-    with open(LINE_SETTINGS_FILE, "w") as f:
-        json.dump({"virtual_id": "", "virtual_link": "", "status": "ยังไม่เชื่อม"}, f)
-
-# Chat history
-CHAT_HISTORY_FILE = "chat_history.json"
-if not os.path.exists(CHAT_HISTORY_FILE):
-    with open(CHAT_HISTORY_FILE, "w") as f:
-        json.dump({}, f)
+# Database จำลอง (ใช้จริงต้องต่อ DB)
+customers = {}       # customer_id -> info
+chat_history = {}    # customer_id -> list of messages
+line_settings = {'virtual_id':'', 'virtual_link':'', 'status':'ไม่เชื่อมต่อ'}
 
 # หน้าแอดมินหลัก
-@app.route("/")
+@app.route('/')
 def index():
-    with open(LINE_SETTINGS_FILE) as f:
-        line_settings = json.load(f)
-    return render_template("index.html", line_settings=line_settings)
+    return render_template('index.html', customers=customers)
 
-# หน้า Setting Line OA
-@app.route("/settings", methods=["GET", "POST"])
+# หน้าโปรไฟล์ลูกค้า
+@app.route('/profile/<customer_id>')
+def profile(customer_id):
+    info = customers.get(customer_id, {})
+    history = chat_history.get(customer_id, [])
+    return render_template('profile.html', info=info, history=history)
+
+# หน้าแพทเทินข้อความ
+@app.route('/patterns')
+def patterns():
+    return render_template('patterns.html')
+
+# หน้า Settings Line OA
+@app.route('/settings', methods=['GET','POST'])
 def settings():
-    if request.method == "POST":
-        data = {
-            "virtual_id": request.form.get("virtual_id"),
-            "virtual_link": request.form.get("virtual_link"),
-            "status": "เชื่อมต่อแล้ว" if request.form.get("virtual_id") else "ยังไม่เชื่อม"
-        }
-        with open(LINE_SETTINGS_FILE, "w") as f:
-            json.dump(data, f)
-        return redirect("/settings")
+    global line_settings
+    if request.method == 'POST':
+        line_settings['virtual_id'] = request.form.get('virtual_id')
+        line_settings['virtual_link'] = request.form.get('virtual_link')
+        line_settings['status'] = 'เชื่อมต่อแล้ว'
+    return render_template('settings.html', line_settings=line_settings)
 
-    with open(LINE_SETTINGS_FILE) as f:
-        line_settings = json.load(f)
-    return render_template("settings.html", line_settings=line_settings)
+# รับข้อความจาก Admin ส่งลูกค้า
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    data = request.json
+    customer_id = data['customer_id']
+    message = data['message']
+    # บันทึกลง chat_history
+    if customer_id not in chat_history:
+        chat_history[customer_id] = []
+    chat_history[customer_id].append({'from':'admin','message':message})
+    # ส่งเรียลไทม์ให้หน้าแอดมิน
+    socketio.emit('new_message', {'customer_id':customer_id,'from':'admin','message':message})
+    return jsonify({'status':'ok'})
 
-# SocketIO รับข้อความจากลูกค้า
-@socketio.on("customer_message")
-def handle_customer_message(data):
-    user_id = data.get("user_id")
-    if not user_id:
-        return
-    with open(CHAT_HISTORY_FILE) as f:
-        chat_data = json.load(f)
-    if user_id not in chat_data:
-        chat_data[user_id] = []
-    # บันทึกเวลาข้อความ
-    data["timestamp"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    chat_data[user_id].append(data)
-    with open(CHAT_HISTORY_FILE, "w") as f:
-        json.dump(chat_data, f)
-    emit("new_message", data, broadcast=True)
+# รับข้อความจากลูกค้า (Webhook Line OA)
+@app.route('/receive_message', methods=['POST'])
+def receive_message():
+    data = request.json
+    customer_id = data['customer_id']
+    message = data['message']
+    if customer_id not in chat_history:
+        chat_history[customer_id] = []
+    chat_history[customer_id].append({'from':'customer','message':message})
+    # ส่งเรียลไทม์ให้หน้าแอดมิน
+    socketio.emit('new_message', {'customer_id':customer_id,'from':'customer','message':message})
+    return jsonify({'status':'ok'})
 
-# SocketIO ส่งข้อความจาก Admin
-@socketio.on("admin_message")
-def handle_admin_message(data):
-    user_id = data.get("user_id")
-    if not user_id:
-        return
-    with open(CHAT_HISTORY_FILE) as f:
-        chat_data = json.load(f)
-    if user_id not in chat_data:
-        chat_data[user_id] = []
-    data["from_admin"] = True
-    data["timestamp"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    chat_data[user_id].append(data)
-    with open(CHAT_HISTORY_FILE, "w") as f:
-        json.dump(chat_data, f)
-    emit("new_message", data, broadcast=True)
-
-# หน้า Profile Admin
-@app.route("/profile")
-def profile():
-    return render_template("profile.html")
-
-# หน้า Pattern Message
-@app.route("/pattern")
-def pattern():
-    return render_template("pattern.html")
-
-if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT',5000)))
