@@ -8,59 +8,41 @@
 </head>
 <body>
 <div class="navbar">
-    <a href="/">หน้าแชท</a>
-    <a href="/patterns">แพทเทินข้อความ</a>
-    <a href="/settings">ตั้งค่า Line OA</a>
+    <a href="/">แชท</a>
+    <a href="/settings" class="btn-settings">ตั้งค่า Line OA</a>
 </div>
 
-<div class="container">
-    <div class="chat-section">
-        <div id="chat-box"></div>
-        <div class="chat-input-container">
+<div class="chat-wrapper">
+    <!-- Sidebar ลูกค้า -->
+    <div class="chat-sidebar">
+        <h3>ลูกค้า</h3>
+        <ul id="client-list">
+            {% for cid, c in clients.items() %}
+            <li data-id="{{ cid }}" class="client-item">{{ c['name'] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- แชทหลัก -->
+    <div class="chat-main">
+        <div id="chat-messages" class="messages"></div>
+        <div class="chat-input-area">
             <input type="text" id="chat-input" placeholder="พิมพ์ข้อความ...">
-            <button id="send-btn" onclick="sendMessage()">ส่งข้อความ</button>
+            <button id="send-btn">ส่ง</button>
         </div>
     </div>
 
-    <div class="user-info" id="user-info">
-        <img src="/static/profile_placeholder.png" width="80" style="border-radius:50%;">
-        <h3 id="user-name">ชื่อ: ---</h3>
-        <p id="user-uid">ยูส: ---</p>
-        <p id="user-note">หมายเหตุ: ---</p>
+    <!-- โปรไฟล์ลูกค้า -->
+    <div class="chat-profile" id="profile-panel">
+        <h3>โปรไฟล์ลูกค้า</h3>
+        <div id="profile-info">
+            <p>ชื่อ: -</p>
+            <p>ยูส: -</p>
+            <p>หมายเหตุ: -</p>
+        </div>
     </div>
 </div>
 
-<script>
-var socket = io();
-var selectedCustomer = null;
-
-function selectCustomer(id, name) {
-    selectedCustomer = id;
-    document.getElementById('user-name').innerText = 'ชื่อ: ' + name;
-    // TODO: fetch info & history
-}
-
-function sendMessage(){
-    let input = document.getElementById('chat-input');
-    let msg = input.value.trim();
-    if(!msg || !selectedCustomer) return;
-    fetch('/send_message', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({customer_id:selectedCustomer,message:msg})
-    });
-    input.value='';
-}
-
-socket.on('new_message', function(data){
-    if(data.customer_id != selectedCustomer) return;
-    let box = document.getElementById('chat-box');
-    let div = document.createElement('div');
-    div.className = data.from=='customer'?'customer-msg':'admin-msg';
-    div.innerText = data.message;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-});
-</script>
+<script src="/static/chat.js"></script>
 </body>
 </html>
