@@ -4,67 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KingAutoChat Admin</title>
-<link rel="icon" href="https://img.icons8.com/color/48/000000/chat.png" type="image/x-icon">
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family: Arial,sans-serif;}
-body{background:#f4f5f7;color:#333;height:100vh;display:flex;flex-direction:column;}
-
-header{
-  display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#4B6CF7;color:white;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{display:flex;flex-direction:column;height:100vh;background:#f4f5f7;}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#4B6CF7;color:white;}
 header img{width:40px;height:40px;}
 header h1{font-size:1.5rem;margin-left:10px;flex:1;}
 header select{padding:5px 10px;border-radius:5px;border:none;font-size:1rem;}
-
 main{flex:1;display:flex;overflow:hidden;}
-
-/* Sidebar */
-.sidebar{
-  width:250px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;
-}
-.sidebar h2{
-  padding:15px;text-align:center;background:#f0f0f0;font-size:1.1rem;border-bottom:1px solid #ddd;
-}
-.account-list{
-  flex:1;overflow-y:auto;
-}
-.account-list button{
-  width:100%;padding:10px;border:none;border-bottom:1px solid #eee;background:none;text-align:left;cursor:pointer;transition:background 0.2s;
-}
-.account-list button:hover{background:#f0f0f0;}
-
-/* Chat Window */
+.sidebar{width:250px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;}
+.sidebar h2{padding:15px;text-align:center;background:#f0f0f0;font-size:1.1rem;border-bottom:1px solid #ddd;}
+.user-list{flex:1;overflow-y:auto;}
+.user-list button{width:100%;padding:10px;border:none;border-bottom:1px solid #eee;background:none;text-align:left;cursor:pointer;transition:background 0.2s;display:flex;justify-content:space-between;align-items:center;}
+.user-list button:hover{background:#f0f0f0;}
+.user-list .badge{background:#4B6CF7;color:white;padding:2px 6px;border-radius:5px;font-size:0.8rem;}
+.user-list button .badge-new{background:red;color:white;font-size:0.7rem;padding:2px 5px;border-radius:50%;margin-left:5px;}
+.user-list button .last-msg-time{font-size:0.7rem;color:#999;margin-left:5px;}
 .chat-window{flex:1;display:flex;flex-direction:column;background:#fff;}
-.chat-header{
-  padding:15px;border-bottom:1px solid #ddd;font-weight:bold;background:#f9f9f9;display:flex;justify-content:space-between;
-}
-.chat-messages{
-  flex:1;padding:15px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
-}
-.message{
-  display:flex;flex-direction:column;max-width:70%;
-}
-.message.customer{align-self:flex-start;} /* ลูกค้าอยู่ซ้าย */
-.message.admin{align-self:center;} /* แอดมินอยู่กลาง */
+.chat-header{padding:15px;border-bottom:1px solid #ddd;font-weight:bold;background:#f9f9f9;display:flex;justify-content:space-between;}
+.chat-messages{flex:1;padding:15px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.message{display:flex;flex-direction:column;max-width:70%;}
+.message.customer{align-self:flex-start;}
+.message.admin{align-self:center;}
 .message .sender{font-weight:bold;margin-bottom:2px;}
 .message .text{padding:8px 12px;border-radius:10px;}
 .message.customer .text{background:#f1f1f1;}
 .message.admin .text{background:#4B6CF7;color:white;}
-
 .chat-input{display:flex;padding:10px;border-top:1px solid #ddd;background:#f9f9f9;}
 .chat-input input{flex:1;padding:10px;border-radius:5px;border:1px solid #ccc;font-size:1rem;}
 .chat-input button{margin-left:10px;padding:10px 15px;background:#4B6CF7;color:white;border:none;border-radius:5px;cursor:pointer;}
-
-.account-list::-webkit-scrollbar, .chat-messages::-webkit-scrollbar{width:6px;}
-.account-list::-webkit-scrollbar-thumb, .chat-messages::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
-
-@media (max-width:768px){
-  main{flex-direction:column;}
-  .sidebar{width:100%;height:150px;flex-direction:row;overflow-x:auto;}
-  .account-list{display:flex;flex-direction:row;}
-  .account-list button{flex:0 0 auto;width:auto;}
-  .chat-window{flex:1;}
-}
+.user-list::-webkit-scrollbar, .chat-messages::-webkit-scrollbar{width:6px;}
+.user-list::-webkit-scrollbar-thumb, .chat-messages::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
 </style>
 </head>
 <body>
@@ -84,16 +55,12 @@ main{flex:1;display:flex;overflow:hidden;}
 
 <main>
   <div class="sidebar">
-    <h2 id="sidebarTitle">บัญชี Line</h2>
-    <div class="account-list" id="accountList">
-      <button data-account="1">Line Official 1</button>
-      <button data-account="2">Line Official 2</button>
-      <button data-account="3">Line Official 3</button>
-    </div>
+    <h2 id="sidebarTitle">ผู้ใช้แชท</h2>
+    <div class="user-list" id="userList"></div>
   </div>
 
   <div class="chat-window">
-    <div class="chat-header" id="chatHeader">เลือกบัญชีเพื่อเริ่มแชท</div>
+    <div class="chat-header" id="chatHeader">เลือกผู้ใช้เพื่อเริ่มแชท</div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input">
       <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ...">
@@ -103,66 +70,117 @@ main{flex:1;display:flex;overflow:hidden;}
 </main>
 
 <script>
+const socket = io();
+let currentUserId = null;
+let clients = {}; 
+
 const translations = {
-  th:{sidebar:'บัญชี Line', input:'พิมพ์ข้อความ...', send:'ส่ง', header:'เลือกบัญชีเพื่อเริ่มแชท', customer:'ลูกค้า', admin:'คุณ'},
-  en:{sidebar:'Line Accounts', input:'Type a message...', send:'Send', header:'Select an account to start chat', customer:'Customer', admin:'You'},
-  jp:{sidebar:'ラインアカウント', input:'メッセージを入力...', send:'送信', header:'アカウントを選択してチャットを開始', customer:'お客様', admin:'あなた'},
-  cn:{sidebar:'Line账户', input:'输入消息...', send:'发送', header:'选择一个账户开始聊天', customer:'客户', admin:'您'},
-  es:{sidebar:'Cuentas Line', input:'Escribe un mensaje...', send:'Enviar', header:'Seleccione una cuenta para comenzar a chatear', customer:'Cliente', admin:'Tú'},
-  fr:{sidebar:'Comptes Line', input:'Tapez un message...', send:'Envoyer', header:'Sélectionnez un compte pour démarrer le chat', customer:'Client', admin:'Vous'}
+  th:{sidebar:'ผู้ใช้แชท', input:'พิมพ์ข้อความ...', send:'ส่ง', header:'เลือกผู้ใช้เพื่อเริ่มแชท', customer:'ลูกค้า', admin:'คุณ'},
+  en:{sidebar:'Chat Users', input:'Type a message...', send:'Send', header:'Select user to start chat', customer:'Customer', admin:'You'},
+  jp:{sidebar:'チャットユーザー', input:'メッセージを入力...', send:'送信', header:'ユーザーを選択してチャットを開始', customer:'お客様', admin:'あなた'},
+  cn:{sidebar:'聊天用户', input:'输入消息...', send:'发送', header:'选择用户开始聊天', customer:'客户', admin:'您'},
+  es:{sidebar:'Usuarios de chat', input:'Escribe un mensaje...', send:'Enviar', header:'Selecciona usuario para chatear', customer:'Cliente', admin:'Tú'},
+  fr:{sidebar:'Utilisateurs du chat', input:'Tapez un message...', send:'Envoyer', header:'Sélectionnez un utilisateur pour commencer', customer:'Client', admin:'Vous'}
 };
 
 const langSelect = document.getElementById('langSelect');
-const sidebarTitle = document.getElementById('sidebarTitle');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
+const userList = document.getElementById('userList');
 const chatHeader = document.getElementById('chatHeader');
 const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
 
-// ภาษา
+function updateUserList(){
+  userList.innerHTML='';
+  for(const userId in clients){
+    const client = clients[userId];
+    const btn = document.createElement('button');
+    btn.textContent = client.userName;
+    
+    const badge = document.createElement('span');
+    badge.classList.add('badge');
+    badge.textContent = client.oaName;
+    btn.appendChild(badge);
+
+    if(client.unread && currentUserId!==userId){
+      const newBadge = document.createElement('span');
+      newBadge.classList.add('badge-new');
+      newBadge.textContent = '!';
+      btn.appendChild(newBadge);
+    }
+
+    if(client.messages.length>0){
+      const lastTime = document.createElement('span');
+      lastTime.classList.add('last-msg-time');
+      const lastMsg = client.messages[client.messages.length-1];
+      lastTime.textContent = formatTime(lastMsg.time);
+      btn.appendChild(lastTime);
+    }
+
+    btn.addEventListener('click',()=>{
+      selectUser(userId);
+    });
+    userList.appendChild(btn);
+  }
+}
+
+function selectUser(userId){
+  currentUserId = userId;
+  const client = clients[userId];
+  chatHeader.textContent = `${client.userName} (${client.oaName})`;
+  chatMessages.innerHTML='';
+  client.messages.forEach(m=>{
+    addMessage(userId,m.sender,m.text,m.userName,m.oaName);
+  });
+  client.unread = false;
+  updateUserList();
+}
+
+function addMessage(userId,sender,text,userName,oaName){
+  const div = document.createElement('div');
+  div.classList.add('message', sender==='customer'?'customer':'admin');
+  div.innerHTML = `<div class="sender">${sender==='customer'?translations[langSelect.value].customer:translations[langSelect.value].admin} - ${userName}</div><div class="text">${text}</div>`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+sendBtn.addEventListener('click',()=>{
+  const text = chatInput.value.trim();
+  if(text && currentUserId){
+    socket.emit('sendMessage',{userId:currentUserId,text});
+    chatInput.value='';
+  }
+});
+
 langSelect.addEventListener('change',()=>{
   const lang = langSelect.value;
-  sidebarTitle.textContent = translations[lang].sidebar;
+  document.getElementById('sidebarTitle').textContent = translations[lang].sidebar;
   chatInput.placeholder = translations[lang].input;
   sendBtn.textContent = translations[lang].send;
-  chatHeader.textContent = translations[lang].header;
+  if(currentUserId){
+    chatHeader.textContent = `${clients[currentUserId].userName} (${clients[currentUserId].oaName})`;
+  } else {
+    chatHeader.textContent = translations[lang].header;
+  }
 });
 
-// เลือกบัญชี
-document.querySelectorAll('.account-list button').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const lang = langSelect.value;
-    chatHeader.textContent = `${translations[lang].header}: ${btn.textContent}`;
-    chatMessages.innerHTML='';
-    // ตัวอย่างข้อความจำลองลูกค้า
-    addCustomerMessage(translations[lang].customer, 'สวัสดีค่ะ!');
-  });
+socket.on('newMessage',(data)=>{
+  const {userId,sender,text,userName,oaName,time} = data;
+  if(!clients[userId]){
+    clients[userId] = {messages:[], oaName, userName, unread:true};
+  }
+  clients[userId].messages.push({sender,text,userName,oaName,time:time||Date.now()});
+  if(sender==='customer' && currentUserId!==userId){
+    clients[userId].unread = true;
+  }
+  updateUserList();
+  if(currentUserId===userId) addMessage(userId,sender,text,userName,oaName);
 });
 
-// เพิ่มข้อความลูกค้า
-function addCustomerMessage(sender,text){
-  const div = document.createElement('div');
-  div.classList.add('message','customer');
-  div.innerHTML = `<div class="sender">${sender}</div><div class="text">${text}</div>`;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+function formatTime(timestamp){
+  const date = new Date(timestamp);
+  return `${date.getHours()}:${date.getMinutes().toString().padStart(2,'0')}`;
 }
-
-// ส่งข้อความแอดมิน
-function sendMessage(){
-  const msg = chatInput.value.trim();
-  if(msg==='') return;
-  const lang = langSelect.value;
-  const div = document.createElement('div');
-  div.classList.add('message','admin');
-  div.innerHTML = `<div class="sender">${translations[lang].admin}</div><div class="text">${msg}</div>`;
-  chatMessages.appendChild(div);
-  chatInput.value='';
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-sendBtn.addEventListener('click',sendMessage);
-chatInput.addEventListener('keypress',e=>{if(e.key==='Enter') sendMessage();});
 </script>
 
 </body>
