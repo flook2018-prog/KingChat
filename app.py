@@ -1,40 +1,40 @@
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
-import sqlite3, time
+import sqlite3, time, os
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 DB_PATH = 'chat.db'
 
 def get_db():
+    first_time = not os.path.exists(DB_PATH)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
+    if first_time:
+        # สร้าง table ถ้ายังไม่มี
+        conn.execute('''CREATE TABLE IF NOT EXISTS clients (
+            userId TEXT PRIMARY KEY,
+            userName TEXT,
+            oaName TEXT,
+            assignedAdmin TEXT,
+            username TEXT,
+            regDate TEXT,
+            note TEXT
+        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            userId TEXT,
+            sender TEXT,
+            text TEXT,
+            time INTEGER,
+            FOREIGN KEY(userId) REFERENCES clients(userId)
+        )''')
+        conn.commit()
     return conn
 
 db = get_db()
-
-# สร้าง table ถ้ายังไม่มี
-db.execute('''CREATE TABLE IF NOT EXISTS clients (
-    userId TEXT PRIMARY KEY,
-    userName TEXT,
-    oaName TEXT,
-    assignedAdmin TEXT,
-    username TEXT,
-    regDate TEXT,
-    note TEXT
-)''')
-db.execute('''CREATE TABLE IF NOT EXISTS messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId TEXT,
-    sender TEXT,
-    text TEXT,
-    time INTEGER,
-    FOREIGN KEY(userId) REFERENCES clients(userId)
-)''')
-db.commit()
-
-clients = {}  # เก็บข้อมูล session client ใน memory
+clients = {}
 
 @app.route('/')
 def index():
@@ -82,4 +82,4 @@ def handle_updateNote(data):
         socketio.emit('updateNote', {'userId':userId,'note':note})
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT",5000)))
