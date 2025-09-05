@@ -39,6 +39,7 @@ main{flex:1;display:flex;overflow:hidden;}
 </style>
 </head>
 <body>
+<audio id="notifSound" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
 <header>
   <img src="https://img.icons8.com/color/48/000000/chat.png" alt="Logo">
   <h1>KingAutoChat Admin</h1>
@@ -87,6 +88,17 @@ const chatHeader = document.getElementById('chatHeader');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
+const notifSound = document.getElementById('notifSound');
+
+function notifyCustomer(name, oaName, text){
+  if(Notification.permission === "granted"){
+    new Notification(`ข้อความใหม่จาก ${name} (${oaName})`, {
+      body: text,
+      icon: "https://img.icons8.com/color/48/000000/chat.png"
+    });
+  }
+  notifSound.play();
+}
 
 function updateUserList(){
   userList.innerHTML='';
@@ -94,30 +106,17 @@ function updateUserList(){
     const client = clients[userId];
     const btn = document.createElement('button');
     btn.textContent = client.userName;
-    
     const badge = document.createElement('span');
     badge.classList.add('badge');
     badge.textContent = client.oaName;
     btn.appendChild(badge);
-
     if(client.unread && currentUserId!==userId){
       const newBadge = document.createElement('span');
       newBadge.classList.add('badge-new');
       newBadge.textContent = '!';
       btn.appendChild(newBadge);
     }
-
-    if(client.messages.length>0){
-      const lastTime = document.createElement('span');
-      lastTime.classList.add('last-msg-time');
-      const lastMsg = client.messages[client.messages.length-1];
-      lastTime.textContent = formatTime(lastMsg.time);
-      btn.appendChild(lastTime);
-    }
-
-    btn.addEventListener('click',()=>{
-      selectUser(userId);
-    });
+    btn.addEventListener('click',()=>{ selectUser(userId); });
     userList.appendChild(btn);
   }
 }
@@ -127,9 +126,7 @@ function selectUser(userId){
   const client = clients[userId];
   chatHeader.textContent = `${client.userName} (${client.oaName})`;
   chatMessages.innerHTML='';
-  client.messages.forEach(m=>{
-    addMessage(userId,m.sender,m.text,m.userName,m.oaName);
-  });
+  client.messages.forEach(m=>addMessage(userId,m.sender,m.text,m.userName,m.oaName));
   client.unread = false;
   updateUserList();
 }
@@ -170,15 +167,13 @@ socket.on('newMessage',(data)=>{
   clients[userId].messages.push({sender,text,userName,oaName,time:time||Date.now()});
   if(sender==='customer' && currentUserId!==userId){
     clients[userId].unread = true;
+    notifyCustomer(userName, oaName, text);
   }
   updateUserList();
   if(currentUserId===userId) addMessage(userId,sender,text,userName,oaName);
 });
 
-function formatTime(timestamp){
-  const date = new Date(timestamp);
-  return `${date.getHours()}:${date.getMinutes().toString().padStart(2,'0')}`;
-}
+if(Notification.permission !== "granted") Notification.requestPermission();
 </script>
 </body>
 </html>
