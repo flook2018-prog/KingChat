@@ -1,0 +1,17 @@
+<h2>แพทเทิร์นข้อความ</h2>
+<form id="pattern_form">
+<input type="text" name="title" placeholder="หัวข้อ">
+<textarea name="content" placeholder="เนื้อหา"></textarea>
+<input type="file" name="images" multiple>
+<button type="submit">สร้าง</button>
+</form>
+
+<script>
+document.getElementById('pattern_form').onsubmit = async (e)=>{
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const res = await fetch('/add_pattern', {method:'POST', body:form});
+    const data = await res.json();
+    if(data.success) alert('สร้างแพทเทิร์นเรียบร้อย');
+}
+</script>
