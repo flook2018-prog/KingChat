@@ -1,56 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin Chat</title>
-<link rel="stylesheet" href="/static/style.css">
-<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">Admin Chat</div>
-    <select id="line-oa-select">
-        <option value="1">Line OA 1</option>
-        <option value="2">Line OA 2</option>
-    </select>
-    <button class="btn-settings">Settings</button>
-    <button id="toggle-theme">🌙</button>
-</div>
-
-<div class="chat-wrapper">
-    <!-- Sidebar ลูกค้า -->
-    <div class="chat-sidebar">
-        <input type="text" placeholder="Search client..." id="search-client">
-        <ul id="client-list">
-            {% for cid, c in clients.items() %}
-            <li data-id="{{ cid }}" class="client-item">{{ c['name'] }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Chat Main -->
-    <div class="chat-main">
-        <div id="chat-messages"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Type message...">
+    <div class="chat-container">
+        <div class="chat-header">Admin Chat</div>
+        <div id="chat-box" class="chat-box"></div>
+        <div class="chat-input">
+            <input type="text" id="username" placeholder="Username" value="Admin">
+            <input type="text" id="message" placeholder="Type a message...">
             <button id="send-btn">Send</button>
         </div>
     </div>
-
-    <!-- Profile Panel -->
-    <div class="chat-profile" id="profile-panel">
-        <h3>Client Profile</h3>
-        <div id="profile-info">
-            <p>Name: -</p>
-            <p>User: -</p>
-            <p>Note: -</p>
-        </div>
-        <textarea id="profile-note" placeholder="Add note..."></textarea>
-        <button id="save-note">Save Note</button>
-    </div>
-</div>
-
-<script src="/static/chat.js"></script>
+    <script src="/static/chat.js"></script>
 </body>
 </html>
