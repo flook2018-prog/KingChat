@@ -2,38 +2,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KingAutoChat Admin</title>
 <link rel="stylesheet" href="/static/style.css">
-<script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 </head>
 <body>
-<header>KingAutoChat Admin</header>
-<div class="container">
-  <div class="cases">
-    <h3>Cases</h3>
-    <div id="case_list"></div>
-  </div>
-  <div class="chat">
-    <div class="chat-messages" id="chat_messages"></div>
-    <div class="chat-input">
-      <input type="text" id="message_text" placeholder="พิมพ์ข้อความ...">
-      <input type="file" id="message_file">
-      <button onclick="sendMessage('text')">ส่งข้อความ</button>
-      <button onclick="sendMessage('image')">ส่งรูป</button>
-      <button onclick="sendMessage('sticker')">ส่งสติ๊กเกอร์</button>
-    </div>
-  </div>
-  <div class="customer-info" id="customer_info">
-    <h3>Customer Info</h3>
-    <div id="customer_detail"></div>
-  </div>
+<div class="navbar">
+    <a href="/">Chat</a>
+    <a href="/settings">Line OA Settings</a>
+    <a href="/profile">Profile</a>
+    <a href="/pattern">Pattern</a>
 </div>
 
-<script src="/static/main.js"></script>
+<div class="container">
+    <div class="chat-section">
+        <div id="chat-box"></div>
+        <input type="text" id="message-input" placeholder="พิมพ์ข้อความ...">
+        <button onclick="sendMessage()">ส่งข้อความ</button>
+    </div>
+    <div class="user-info">
+        <h3>ข้อมูลลูกค้า</h3>
+        <div id="user-profile">
+            <p>โปรไฟล์, รูป, ชื่อ, ยูส, หมายเหตุ จะขึ้นตรงนี้แบบเรียลไทม์</p>
+        </div>
+    </div>
+</div>
+
 <script>
-let cases = {{ cases | tojson }};
-let customers = {{ customers | tojson }};
+var socket = io();
+socket.on("new_message", function(msg){
+    const chatBox = document.getElementById("chat-box");
+    const div = document.createElement("div");
+    div.className = msg.from_admin ? "admin-msg" : "customer-msg";
+    div.innerHTML = `<b>${msg.username || 'ลูกค้า'}:</b> ${msg.message}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+function sendMessage(){
+    const input = document.getElementById("message-input");
+    const msg = input.value;
+    if(msg.trim() === "") return;
+    const data = {username: "Admin", message: msg, from_admin: true};
+    socket.emit("admin_message", data);
+    input.value = "";
+}
 </script>
 </body>
 </html>
