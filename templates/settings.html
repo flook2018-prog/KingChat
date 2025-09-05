@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KingAutoChat - Line OA Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg,#1f1c2c,#928dab); color: #fff; margin:0; padding:0; }
+  header { padding:1rem 2rem; font-size:1.5rem; font-weight:700; background: rgba(0,0,0,0.7); box-shadow: 0 4px 8px rgba(0,0,0,0.3);}
+  .container { padding: 2rem; max-width: 700px; margin:auto; background: rgba(255,255,255,0.05); border-radius: 15px; backdrop-filter: blur(10px);}
+  label { display:block; margin-top: 1rem; font-weight:600; }
+  input { width:100%; padding:0.8rem 1rem; border-radius:10px; border:none; margin-top:0.5rem; font-size:1rem; }
+  button { margin-top:1.5rem; padding:0.8rem 1.5rem; background:#1abc9c; border:none; border-radius:10px; color:#fff; font-weight:600; cursor:pointer; transition:0.2s; }
+  button:hover { background:#16a085; }
+  .status { margin-top:1rem; padding:0.8rem 1rem; border-radius:10px; background:rgba(0,0,0,0.3);}
+</style>
+</head>
+<body>
+<header>KingAutoChat - Line OA Settings</header>
+<div class="container">
+  <label>ชื่อ Line OA</label>
+  <input type="text" id="line-name" placeholder="TheKing888">
+
+  <label>Platform</label>
+  <input type="text" id="platform" value="LINE" readonly>
+
+  <label>Virtual ID</label>
+  <input type="text" id="virtual-id" placeholder="a63u39r9">
+
+  <label>Virtual Link</label>
+  <input type="text" id="virtual-link" placeholder="https://api.bloxchats.com/messages/webhook/a63u39r9">
+
+  <button onclick="saveSettings()">บันทึกการตั้งค่า</button>
+
+  <div class="status" id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
+</div>
+
+<script src="{{ url_for('static', filename='settings.js') }}"></script>
+</body>
+</html>
