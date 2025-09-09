@@ -34,12 +34,10 @@ interface QuickReply {
 
 export function LineOASettings() {
   const [lineOAs, setLineOAs] = useState<LineOA[]>([]);
-  const [connectionStatus, setConnectionStatus] = useState<{
-    isConnected: boolean;
-    lastChecked: Date | null;
-    tokenValid: boolean;
-  }>({
-  // Removed connectionStatus state
+  const [quickReplies, setQuickReplies] = useState<QuickReply[]>([
+    { id: '1', title: 'สวัสดี', message: 'สวัสดีครับ ยินดีที่ได้รู้จัก', category: 'ทักทาย' },
+    { id: '2', title: 'ขอบคุณ', message: 'ขอบคุณมากครับ', category: 'ขอบคุณ' },
+    { id: '3', title: 'เวลาทำการ', message: 'เวลาทำการ: จันทร์-ศุกร์ 9:00-18:00', category: 'ข้อมูล' },
     { id: '4', title: 'ติดต่อ', message: 'สามารถติดต่อได้ที่เบอร์ 02-123-4567', category: 'ข้อมูล' }
   ]);
 
@@ -131,74 +129,95 @@ export function LineOASettings() {
                       : 'text-orange-800 dark:text-orange-200'
                   }`}>
                     {connectionStatus.isConnected && connectionStatus.tokenValid 
-                      ? 'Line OA เชื่อมต่อแล้ว' 
-                      : 'Line OA ยังไม่ได้เชื่อมต่อ'
-                    }
-                  </h3>
-                  <p className={`text-sm ${
-                    connectionStatus.isConnected && connectionStatus.tokenValid 
-                      ? 'text-green-700 dark:text-green-300' 
-                      : 'text-orange-700 dark:text-orange-300'
-                  }`}>
-                    {connectionStatus.isConnected && connectionStatus.tokenValid 
-                      ? 'ระบบพร้อมรับแชทจากลูกค้า' 
-                      : 'กรุณาตั้งค่า Line OA เพื่อเริ่มใช้งาน'
-                    }
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={checkConnectionStatus}
-                  size="sm"
-                  variant="outline"
-                  className="text-gray-600 hover:text-gray-700"
-                >
-                  <RefreshCw className="size-4 mr-2" />
-                  รีเฟรช
-                </Button>
-                {!connectionStatus.isConnected || !connectionStatus.tokenValid ? (
-                  <Button 
-                    onClick={() => document.querySelector('[value="credentials"]')?.click()}
-                    size="sm"
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    <Settings className="size-4 mr-2" />
-                    เริ่มตั้งค่า
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => document.querySelector('[value="test"]')?.click()}
-                    size="sm"
-                    variant="outline"
-                    className="border-green-300 text-green-700 hover:bg-green-100"
-                  >
-                    <CheckCircle className="size-4 mr-2" />
-                    ทดสอบระบบ
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="setup" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 h-auto p-1">
-          <TabsTrigger value="setup" className="flex items-center gap-2 h-12 data-[state=active]:bg-green-100 data-[state=active]:text-green-800">
-            <Settings className="size-4" />
-            <span className="hidden sm:inline">ตั้งค่าเริ่มต้น</span>
-            <span className="sm:hidden">ตั้งค่า</span>
-          </TabsTrigger>
-          <TabsTrigger value="credentials" className="flex items-center gap-2 h-12 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-800">
-            <RefreshCw className="size-4" />
-            <span className="hidden sm:inline">จัดการ Token</span>
-            <span className="sm:hidden">Token</span>
-          </TabsTrigger>
-          <TabsTrigger value="line-oa" className="flex items-center gap-2 h-12 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800">
-            <MessageCircle className="size-4" />
-            <span className="hidden sm:inline">จัดการ Line OA</span>
-            <span className="sm:hidden">Line OA</span>
+                      return (
+                        <div className="p-6 space-y-6">
+                          <div className="space-y-4">
+                            <div>
+                              <h1 className="flex items-center gap-2">
+                                <Settings className="size-5" />
+                                ตั้งค่า Line Official Account
+                              </h1>
+                              <p className="text-muted-foreground mt-2">
+                                จัดการ Line OA และข้อความตอบกลับอัตโนมัติ
+                              </p>
+                            </div>
+                            {/* Webhook URL Card */}
+                            <Card className="border-2 border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800">
+                              <CardContent className="pt-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-10 rounded-full flex items-center justify-center bg-blue-200 dark:bg-blue-800">
+                                      <Info className="size-6 text-blue-600 dark:text-blue-200" />
+                                    </div>
+                                    <div>
+                                      <div className="font-medium">Webhook URL สำหรับนำไปใส่ใน LINE OA</div>
+                                      <div className="text-xs text-muted-foreground break-all">
+                                        {webhookUrl}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Button variant="outline" size="icon" onClick={copyWebhookUrl}>
+                                    <Copy className="size-4" />
+                                  </Button>
+                                </div>
+                                {copiedWebhook && (
+                                  <div className="text-green-600 mt-2">คัดลอก Webhook URL แล้ว</div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          </div>
+                          {/* ฟอร์มสำหรับ Channel ID และ Channel Secret */}
+                          <div className="mt-6">
+                            <Card>
+                              <CardHeader>
+                                <CardTitle>เพิ่ม Line OA</CardTitle>
+                                <CardDescription>กรอก Channel ID และ Channel Secret ของ Line OA ที่ต้องการเชื่อมต่อ</CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <form
+                                  onSubmit={e => {
+                                    e.preventDefault();
+                                    addLineOA();
+                                  }}
+                                  className="space-y-4"
+                                >
+                                  <div>
+                                    <Label htmlFor="oa-name">ชื่อ OA</Label>
+                                    <Input
+                                      id="oa-name"
+                                      value={newOA.name}
+                                      onChange={e => setNewOA({ ...newOA, name: e.target.value })}
+                                      placeholder="เช่น KingChat OA"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="oa-channel-id">Channel ID</Label>
+                                    <Input
+                                      id="oa-channel-id"
+                                      value={newOA.channelId}
+                                      onChange={e => setNewOA({ ...newOA, channelId: e.target.value })}
+                                      placeholder="1234567890"
+                                      required
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="oa-channel-secret">Channel Secret</Label>
+                                    <Input
+                                      id="oa-channel-secret"
+                                      value={newOA.channelSecret}
+                                      onChange={e => setNewOA({ ...newOA, channelSecret: e.target.value })}
+                                      placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                      required
+                                    />
+                                  </div>
+                                  <Button type="submit" className="w-full mt-2">เพิ่ม Line OA</Button>
+                                </form>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+                      );
           </TabsTrigger>
           <TabsTrigger value="quick-replies" className="flex items-center gap-2 h-12 data-[state=active]:bg-yellow-100 data-[state=active]:text-yellow-800">
             <Zap className="size-4" />
