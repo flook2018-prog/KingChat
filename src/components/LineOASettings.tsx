@@ -20,7 +20,6 @@ interface LineOA {
   name: string;
   channelId: string;
   channelSecret: string;
-  accessToken: string;
   webhookUrl: string;
   isActive: boolean;
   connectedAt: Date;
@@ -40,23 +39,14 @@ export function LineOASettings() {
     lastChecked: Date | null;
     tokenValid: boolean;
   }>({
-    isConnected: false,
-    lastChecked: null,
-    tokenValid: false
-  });
-
-  const [quickReplies, setQuickReplies] = useState<QuickReply[]>([
-    { id: '1', title: 'สวัสดี', message: 'สวัสดีครับ ยินดีที่ได้รู้จัก', category: 'ทักทาย' },
-    { id: '2', title: 'ขอบคุณ', message: 'ขอบคุณมากครับ', category: 'ขอบคุณ' },
-    { id: '3', title: 'เวลาทำการ', message: 'เวลาทำการ: จันทร์-ศุกร์ 9:00-18:00', category: 'ข้อมูล' },
+  // Removed connectionStatus state
     { id: '4', title: 'ติดต่อ', message: 'สามารถติดต่อได้ที่เบอร์ 02-123-4567', category: 'ข้อมูล' }
   ]);
 
   const [newOA, setNewOA] = useState({
     name: '',
     channelId: '',
-    channelSecret: '',
-    accessToken: ''
+    channelSecret: ''
   });
 
   const [newReply, setNewReply] = useState({
@@ -78,84 +68,32 @@ export function LineOASettings() {
   };
 
   const addLineOA = () => {
-    if (!newOA.name || !newOA.channelId || !newOA.channelSecret || !newOA.accessToken) return;
+    if (!newOA.name || !newOA.channelId || !newOA.channelSecret) return;
 
-    const oa: LineOA = {
-      id: Date.now().toString(),
-      ...newOA,
-      webhookUrl: webhookUrl,
-      isActive: true,
-      connectedAt: new Date()
-    };
-
-    setLineOAs([...lineOAs, oa]);
-    setNewOA({ name: '', channelId: '', channelSecret: '', accessToken: '' });
-    setIsAddingOA(false);
-  };
-
-  const toggleOAStatus = (id: string) => {
-    setLineOAs(lineOAs.map(oa => 
-      oa.id === id ? { ...oa, isActive: !oa.isActive } : oa
-    ));
-  };
-
-  const deleteOA = (id: string) => {
-    setLineOAs(lineOAs.filter(oa => oa.id !== id));
-  };
-
-  const addQuickReply = () => {
-    if (!newReply.title || !newReply.message) return;
-
-    const reply: QuickReply = {
-      id: Date.now().toString(),
-      ...newReply,
-      category: newReply.category || 'ทั่วไป'
-    };
-
-    setQuickReplies([...quickReplies, reply]);
-    setNewReply({ title: '', message: '', category: '' });
-    setIsAddingReply(false);
-  };
-
-  const deleteQuickReply = (id: string) => {
-    setQuickReplies(quickReplies.filter(reply => reply.id !== id));
-  };
-
-  const categories = [...new Set(quickReplies.map(reply => reply.category))];
-
-  // ตรวจสอบสถานะการเชื่อมต่อ
-  const checkConnectionStatus = async () => {
-    try {
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-ae50d4c0/health`, {
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setConnectionStatus({
-          isConnected: data.lineConfigured && data.environment.hasAccessToken,
-          lastChecked: new Date(),
-          tokenValid: data.environment.hasAccessToken && data.environment.accessTokenLength > 50
-        });
-      }
-    } catch (error) {
-      console.error('Failed to check connection status:', error);
-      setConnectionStatus({
-        isConnected: false,
-        lastChecked: new Date(),
-        tokenValid: false
-      });
-    }
-  };
-
-  // ตรวจสอบสถานะเมื่อ component โหลด
-  useEffect(() => {
-    checkConnectionStatus();
-  }, []);
-
-  return (
+        {/* Webhook URL Card */}
+        <Card className="border-2 border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800">
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-full flex items-center justify-center bg-blue-200 dark:bg-blue-800">
+                  <Info className="size-6 text-blue-600 dark:text-blue-200" />
+                </div>
+                <div>
+                  <div className="font-medium">Webhook URL สำหรับนำไปใส่ใน LINE OA</div>
+                  <div className="text-xs text-muted-foreground break-all">
+                    {webhookUrl}
+                  </div>
+                </div>
+              </div>
+              <Button variant="outline" size="icon" onClick={copyWebhookUrl}>
+                <Copy className="size-4" />
+              </Button>
+            </div>
+            {copiedWebhook && (
+              <div className="text-green-600 mt-2">คัดลอก Webhook URL แล้ว</div>
+            )}
+          </CardContent>
+        </Card>
     <div className="p-6 space-y-6">
       <div className="space-y-4">
         <div>
@@ -166,8 +104,7 @@ export function LineOASettings() {
           <p className="text-muted-foreground mt-2">
             จัดการ Line OA และข้อความตอบกลับอัตโนมัติ
           </p>
-        </div>
-        
+            {/* Removed Token management button */}
         {/* Connection Status Card */}
         <Card className={`border-2 ${connectionStatus.isConnected && connectionStatus.tokenValid 
           ? 'border-green-200 bg-green-50 dark:bg-green-950/30 dark:border-green-800' 
