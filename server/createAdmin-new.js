@@ -11,10 +11,11 @@ async function createAdmin() {
     // Sync the User model
     await User.sync();
 
-    // Check if admin already exists
+    // Check if super admin already exists
     const existingAdmin = await User.findOne({ where: { role: 'super_admin' } });
     if (existingAdmin) {
       console.log('❌ Super Admin user already exists:', existingAdmin.username);
+      console.log('📧 Email:', existingAdmin.email);
       return;
     }
 
@@ -34,19 +35,24 @@ async function createAdmin() {
         canManageAdmins: true
       })
     });
-    });
 
-    await admin.save();
-    console.log('✅ Admin user created successfully');
-    console.log('📧 Email: admin@kingchat.com');
+    console.log('✅ Super Admin user created successfully');
+    console.log('📧 Email: admin@kingchat.com'); 
     console.log('🔑 Username: admin');
     console.log('🔒 Password: admin123');
+    console.log('👑 Role: super_admin');
+    console.log('🆔 ID:', admin.id);
 
   } catch (error) {
     console.error('❌ Error creating admin:', error);
   } finally {
-    mongoose.connection.close();
+    process.exit(0);
   }
 }
 
-createAdmin();
+// Run the function
+if (require.main === module) {
+  createAdmin();
+}
+
+module.exports = createAdmin;

@@ -281,6 +281,9 @@ async function initializeDatabase() {
     
     console.log('✅ Database tables synchronized');
     
+    // Create default super admin if not exists
+    await createDefaultAdmin();
+    
     // Now load the API routes
     loadApiRoutes();
     
@@ -290,6 +293,46 @@ async function initializeDatabase() {
     
     // Retry after 30 seconds
     setTimeout(initializeDatabase, 30000);
+  }
+}
+
+// Create default super admin user
+async function createDefaultAdmin() {
+  try {
+    const { User } = require('./models/postgresql');
+    
+    // Check if super admin already exists
+    const existingAdmin = await User.findOne({ where: { role: 'super_admin' } });
+    if (existingAdmin) {
+      console.log('✅ Super Admin already exists:', existingAdmin.username);
+      return;
+    }
+
+    // Create super admin user
+    const admin = await User.create({
+      username: 'admin',
+      email: 'admin@kingchat.com',
+      password: 'admin123', // Will be hashed automatically by model hook
+      displayName: 'System Administrator',
+      role: 'super_admin',
+      isActive: true,
+      permissions: JSON.stringify({
+        canManageUsers: true,
+        canManageLineOA: true,
+        canViewAllChats: true,
+        canManageSettings: true,
+        canManageAdmins: true
+      })
+    });
+
+    console.log('✅ Super Admin created successfully!');
+    console.log('📧 Email: admin@kingchat.com'); 
+    console.log('🔑 Username: admin');
+    console.log('🔒 Password: admin123');
+    console.log('👑 Role: super_admin');
+
+  } catch (error) {
+    console.error('❌ Error creating default admin:', error.message);
   }
 }
 
