@@ -1,0 +1,528 @@
+<!DOCTY    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <link rel="stylesheet" href="../css/line-customers.css">
+    <link rel="stylesheet" href="../css/brand-animation.css">
+    <link rel="stylesheet" href="../css/responsive-ux.css">
+    <style>
+        /* ยกเนื้อหาให้ชิด navbar */
+        .main-content {
+            padding-top: var(--space-4) !important;
+            max-height: calc(100vh - var(--navbar-height)) !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .page-header {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: var(--space-4) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .page-content {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding-bottom: var(--space-4) !important;
+        }
+        
+        .customers-table-container {
+            max-height: calc(100vh - 200px) !important;
+            overflow-y: auto !important;
+        }
+    </style>ml>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายชื่อลูกค้า - KingChat</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <link rel="stylesheet" href="../css/line-customers.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="crown">👑</span>
+            <span class="brand-text">KingChat</span>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-item">
+                <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+            <div class="navbar-item">
+                <span>System Administrator</span>
+            </div>
+            <div class="dropdown navbar-item">
+                <button class="btn btn-ghost dropdown-toggle" id="userMenu">
+                    👤
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="#" class="dropdown-item">โปรไฟล์</a>
+                    <a href="#" class="dropdown-item">ตั้งค่า</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" id="logoutBtn">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <a href="../dashboard.html" class="menu-item">
+                <span class="menu-icon">🏠</span>
+                <span class="menu-text">หน้าหลัก</span>
+            </a>
+            <a href="lineoa.html" class="menu-item">
+                <span class="menu-icon">📱</span>
+                <span class="menu-text">จัดการ LINE OA</span>
+            </a>
+            <a href="customers.html" class="menu-item active">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">รายชื่อลูกค้า</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">แชท</span>
+            </a>
+            <a href="admin.html" class="menu-item">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">จัดการแอดมิน</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <span class="menu-icon">🔧</span>
+                <span class="menu-text">ตั้งค่า</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">รายชื่อลูกค้า</h1>
+            <p class="page-subtitle">จัดการข้อมูลลูกค้าและประวัติการสนทนา</p>
+        </div>
+
+        <!-- Customer Management Controls -->
+        <div class="content-card" style="margin-bottom: var(--space-6);">
+            <div class="card-header">
+                <h3 class="card-title">🛠️ เครื่องมือจัดการ</h3>
+                <button class="btn btn-primary" id="addCustomerBtn">
+                    ➕ เพิ่มลูกค้าใหม่
+                </button>
+            </div>
+            <div class="card-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="totalCustomers">0</div>
+                            <div class="stat-label">ลูกค้าทั้งหมด</div>
+                        </div>
+                        <div class="stat-trend positive">
+                            <span>+15</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🟢</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="onlineCustomers">0</div>
+                            <div class="stat-label">ออนไลน์</div>
+                        </div>
+                        <div class="stat-trend positive">
+                            <span>+3</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💬</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="newMessages">0</div>
+                            <div class="stat-label">ข้อความใหม่</div>
+                        </div>
+                        <div class="stat-trend positive">
+                            <span>+8</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="activeChats">0</div>
+                            <div class="stat-label">แชทกำลังพูด</div>
+                        </div>
+                        <div class="stat-trend neutral">
+                            <span>-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="content-card" style="margin-bottom: var(--space-6);">
+            <div class="card-content">
+                <div style="display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap;">
+                    <input type="text" class="form-control" placeholder="ค้นหาลูกค้า..." id="searchCustomer" style="flex: 1; min-width: 250px;">
+                    
+                    <select class="form-control" id="filterLineOA" style="width: 150px;">
+                        <option value="">ทุก LINE OA</option>
+                        <option value="line1">LINE OA 1</option>
+                        <option value="line2">LINE OA 2</option>
+                    </select>
+                    
+                    <select class="form-control" id="filterStatus" style="width: 120px;">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="online">ออนไลน์</option>
+                        <option value="offline">ออฟไลน์</option>
+                    </select>
+                    
+                    <select class="form-control" id="sortBy" style="width: 150px;">
+                        <option value="newest">ล่าสุด</option>
+                        <option value="oldest">เก่าที่สุด</option>
+                        <option value="name">เรียงตามชื่อ</option>
+                        <option value="activity">กิจกรรมล่าสุด</option>
+                    </select>
+                    
+                    <button class="btn btn-ghost" id="refreshBtn">🔄 รีเฟรช</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer List -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">👥 รายชื่อลูกค้า</h3>
+                <div class="card-actions">
+                    <span id="customerCount">0 ลูกค้า</span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ลูกค้า</th>
+                                <th>LINE OA</th>
+                                <th>สถานะ</th>
+                                <th>ข้อความล่าสุด</th>
+                                <th>เวลา</th>
+                                <th>การดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Customer Modal -->
+    <div class="modal" id="addCustomerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>เพิ่มลูกค้าใหม่</h3>
+                <button class="modal-close" id="closeAddCustomerModal">&times;</button>
+            </div>
+            <form id="addCustomerForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="customerName">ชื่อลูกค้า</label>
+                        <input type="text" id="customerName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="customerPhone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail">อีเมล</label>
+                        <input type="email" id="customerEmail" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerLineId">LINE ID</label>
+                        <input type="text" id="customerLineId" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerNotes">หมายเหตุ</label>
+                        <textarea id="customerNotes" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelAddCustomer">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary">เพิ่มลูกค้า</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        // Check authentication - wait for auth to be ready
+        function checkAuth() {
+            if (window.auth && window.auth.getToken && !window.auth.getToken()) {
+                window.location.href = '../login.html';
+            } else if (!window.auth) {
+                setTimeout(checkAuth, 100);
+            }
+        }
+        checkAuth();
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.logout();
+            window.location.href = '../login.html';
+        });
+
+        // User menu dropdown
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            const dropdown = document.getElementById('userDropdown');
+            if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Modal functionality
+        const addCustomerModal = document.getElementById('addCustomerModal');
+        const addCustomerBtn = document.getElementById('addCustomerBtn');
+        const closeAddCustomerModal = document.getElementById('closeAddCustomerModal');
+        const cancelAddCustomer = document.getElementById('cancelAddCustomer');
+
+        addCustomerBtn.addEventListener('click', () => {
+            addCustomerModal.style.display = 'flex';
+        });
+
+        [closeAddCustomerModal, cancelAddCustomer].forEach(btn => {
+            btn.addEventListener('click', () => {
+                addCustomerModal.style.display = 'none';
+                document.getElementById('addCustomerForm').reset();
+            });
+        });
+
+        // Load customers on page load
+        document.addEventListener('DOMContentLoaded', loadCustomers);
+
+        async function loadCustomers() {
+            try {
+                const customers = await api.get('/customers');
+                displayCustomers(customers);
+                updateStats(customers);
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                document.getElementById('customerTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center error">ไม่สามารถโหลดข้อมูลลูกค้าได้</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function displayCustomers(customers) {
+            const tbody = document.getElementById('customerTableBody');
+            const customerCount = document.getElementById('customerCount');
+            
+            customerCount.textContent = `${customers.length} ลูกค้า`;
+            
+            if (customers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center">ยังไม่มีข้อมูลลูกค้า</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <div class="chat-avatar">👤</div>
+                            <div>
+                                <div style="font-weight: 600;">${customer.displayName}</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">${customer.lineId || 'ไม่ระบุ LINE ID'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-secondary">${customer.lineOA || 'ไม่ระบุ'}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${customer.isOnline ? 'badge-success' : 'badge-secondary'}">
+                            ${customer.isOnline ? 'ออนไลน์' : 'ออฟไลน์'}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${customer.lastMessage || 'ยังไม่มีข้อความ'}
+                        </div>
+                    </td>
+                    <td>
+                        ${customer.lastActivity ? formatDate(customer.lastActivity) : 'ไม่ทราบ'}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: var(--space-2);">
+                            <button class="btn btn-ghost btn-sm" onclick="viewCustomer('${customer._id}')">👁️</button>
+                            <button class="btn btn-ghost btn-sm" onclick="chatCustomer('${customer._id}')">💬</button>
+                            <button class="btn btn-ghost btn-sm" onclick="editCustomer('${customer._id}')">✏️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats(customers) {
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('onlineCustomers').textContent = customers.filter(c => c.isOnline).length;
+            document.getElementById('newMessages').textContent = customers.filter(c => c.hasNewMessage).length;
+            document.getElementById('activeChats').textContent = customers.filter(c => c.isActive).length;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('th-TH');
+        }
+
+        // Add customer form submission
+        document.getElementById('addCustomerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                displayName: document.getElementById('customerName').value,
+                phone: document.getElementById('customerPhone').value,
+                email: document.getElementById('customerEmail').value,
+                lineId: document.getElementById('customerLineId').value,
+                notes: document.getElementById('customerNotes').value
+            };
+
+            try {
+                await api.post('/customers', formData);
+                addCustomerModal.style.display = 'none';
+                document.getElementById('addCustomerForm').reset();
+                loadCustomers(); // Reload customers
+                alert('เพิ่มลูกค้าสำเร็จ');
+            } catch (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+        });
+
+        // Customer action functions
+        function viewCustomer(customerId) {
+            // Redirect to customer detail page (to be created)
+            window.location.href = `customer-detail.html?id=${customerId}`;
+        }
+
+        function chatCustomer(customerId) {
+            window.location.href = `chat.html?customer=${customerId}`;
+        }
+
+        function editCustomer(customerId) {
+            // Get current customer data
+            const name = prompt('ชื่อลูกค้า:');
+            const phone = prompt('เบอร์โทรศัพท์:');
+            const email = prompt('อีเมล:');
+            
+            if (name) {
+                const updateData = { displayName: name };
+                if (phone) updateData.phone = phone;
+                if (email) updateData.email = email;
+                
+                api.put(`/customers/${customerId}`, updateData)
+                .then(() => {
+                    alert('อัปเดตข้อมูลลูกค้าสำเร็จ');
+                    loadCustomers(); // Reload list
+                }).catch(error => {
+                    alert('เกิดข้อผิดพลาด: ' + error.message);
+                });
+            }
+        }
+
+        // Search and filter functionality
+        document.getElementById('searchCustomer').addEventListener('input', debounce(filterCustomers, 300));
+        document.getElementById('filterLineOA').addEventListener('change', filterCustomers);
+        document.getElementById('filterStatus').addEventListener('change', filterCustomers);
+        document.getElementById('sortBy').addEventListener('change', filterCustomers);
+        document.getElementById('refreshBtn').addEventListener('click', loadCustomers);
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        async function filterCustomers() {
+            const searchTerm = document.getElementById('searchCustomer').value;
+            const lineOAFilter = document.getElementById('filterLineOA').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            try {
+                const params = new URLSearchParams();
+                if (searchTerm) params.append('search', searchTerm);
+                if (lineOAFilter) params.append('lineOA', lineOAFilter);
+                if (statusFilter) params.append('status', statusFilter);
+                if (sortBy) params.append('sort', sortBy);
+
+                const customers = await api.get(`/customers?${params.toString()}`);
+                displayCustomers(customers);
+                updateStats(customers);
+            } catch (error) {
+                console.error('Error filtering customers:', error);
+                document.getElementById('customerTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center error">เกิดข้อผิดพลาดในการค้นหา</td>
+                    </tr>
+                `;
+            }
+        }
+    </script>
+
+    <script src="../js/brand-animation.js"></script>
+    <script src="../js/loading.js"></script>
+    <script src="../js/keyboard-shortcuts.js"></script>
+    <script src="../js/auto-save.js"></script>
+    <script src="../js/breadcrumb.js"></script>
+    <script src="../js/mobile.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+    <script>
+        // Force create user menu after all scripts loaded
+        setTimeout(() => {
+            if (window.auth && window.auth.isAuthenticated()) {
+                console.log('Manually creating user menu...');
+                window.forceCreateUserMenu();
+            }
+        }, 500);
+    </script>
+</body>
+</html>

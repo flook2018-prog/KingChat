@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Admin Test</title>
+    <style>
+        body {
+            fon            });
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            log('🚀 MongoDB Admin Database Test loaded!', 'success');
+            log('Click buttons above to test MongoDB operations...', 'info');
+        });
+    </script>
+    
+    <script src="../js/auth.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+</body>
+</html>Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #00c73c, #06b5d4);
+            color: white;
+        }
+        .test-container {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        button {
+            background: #06b5d4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0589a3;
+        }
+        .log {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <h1>🗄️ MongoDB Admin Database Test</h1>
+    
+    <div class="test-container">
+        <h2>Database Operations</h2>
+        <button onclick="testLoadAdmins()">📥 Load Admins from MongoDB</button>
+        <button onclick="testCreateAdmin()">➕ Create Test Admin</button>
+        <button onclick="testSaveAdmins()">💾 Save All Admins</button>
+        <button onclick="clearLog()">🧹 Clear Log</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>Quick Actions</h2>
+        <button onclick="createSampleData()">🎲 Create Sample Data</button>
+        <button onclick="verifyDatabase()">✅ Verify Database</button>
+        <button onclick="showLocalStorage()">📱 Show localStorage</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>📊 Test Results</h2>
+        <div id="testLog" class="log">Ready to test MongoDB operations...\n</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            logElement.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = 'Log cleared...\n';
+        }
+
+        async function testLoadAdmins() {
+            try {
+                log('🔄 Testing load admins from MongoDB...', 'info');
+                
+                const response = await fetch('http://localhost:5001/api/admin/admin-users');
+                log(`📡 Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Loaded ${data.users.length} admins from MongoDB`, 'success');
+                    log(`📋 Data source: ${data.source}`, 'info');
+                    
+                    if (data.users.length > 0) {
+                        log('👥 Admin list:', 'info');
+                        data.users.forEach(admin => {
+                            log(`  - ${admin.username} (${admin.displayName}) - Role: ${admin.role}`, 'info');
+                        });
+                    } else {
+                        log('📭 No admins found in database', 'warning');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Error: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreateAdmin() {
+            try {
+                log('🔄 Testing create admin...', 'info');
+                
+                const adminData = {
+                    username: `testuser_${Date.now()}`,
+                    displayName: `Test User ${Date.now()}`,
+                    password: 'test123',
+                    role: 'user',
+                    permissions: ['view_dashboard', 'manage_customers']
+                };
+                
+                const response = await fetch('http://localhost:5001/api/admin/admin-users/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(adminData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Created admin: ${result.admin.username}`, 'success');
+                    log(`🆔 Admin ID: ${result.admin.id}`, 'info');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Create error: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Create network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSaveAdmins() {
+            try {
+                log('🔄 Testing save admins...', 'info');
+                
+                const sampleAdmins = [
+                    {
+                        username: 'admin',
+                        displayName: 'Main Administrator',
+                        password: 'admin123',
+                        role: 'admin',
+                        permissions: ['*'],
+                        status: 'online',
+                        isActive: true,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        username: 'manager',
+                        displayName: 'Customer Manager',
+                        password: 'manager123',
+                        role: 'manager',
+                        permissions: ['manage_customers', 'view_reports'],
+                        status: 'offline',
+                        isActive: true,
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                const response = await fetch('http://localhost:5001/api/admin/admin-users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        users: sampleAdmins,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Saved ${result.count} admins to MongoDB`, 'success');
+                    log(`📅 Timestamp: ${result.timestamp}`, 'info');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Save error: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Save network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function createSampleData() {
+            log('🎲 Creating sample admin data...', 'info');
+            await testSaveAdmins();
+            setTimeout(() => testLoadAdmins(), 1000);
+        }
+
+        async function verifyDatabase() {
+            log('✅ Starting database verification...', 'info');
+            await testLoadAdmins();
+            
+            // Check localStorage sync
+            setTimeout(() => {
+                const localData = localStorage.getItem('kingchat_admin_users');
+                if (localData) {
+                    try {
+                        const parsed = JSON.parse(localData);
+                        log(`📱 localStorage has ${parsed.length} admins`, 'info');
+                    } catch (e) {
+                        log(`❌ localStorage parse error: ${e.message}`, 'error');
+                    }
+                } else {
+                    log(`📭 No data in localStorage`, 'warning');
+                }
+            }, 1000);
+        }
+
+        function showLocalStorage() {
+            log('📱 Checking localStorage...', 'info');
+            const keys = ['kingchat_admin_users', 'kingchat_last_sync', 'kingchat_data_source'];
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    log(`${key}: ${value.length > 100 ? value.substring(0, 100) + '...' : value}`, 'info');
+                } else {
+                    log(`${key}: (not set)`, 'warning');
+                }
+            });
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            log('🚀 MongoDB Admin Database Test loaded!', 'success');
+            log('Click buttons above to test MongoDB operations...', 'info');
+        });
+    </script>
+    
+    <!-- Add auth and user menu scripts -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+</body>
+</html>

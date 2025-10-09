@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แชท - KingChat</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <link rel="stylesheet" href="../css/line-chat.css">
+    <link rel="stylesheet" href="../css/responsive-ux.css">
+    <style>
+        /* Chat Layout - Proper positioning */
+        .chat-container {
+            display: flex;
+            height: calc(100vh - var(--navbar-height));
+            margin-left: var(--sidebar-width);
+            margin-top: var(--navbar-height);
+            width: calc(100vw - var(--sidebar-width));
+            position: fixed;
+            left: 0;
+            top: var(--navbar-height);
+            right: 0;
+            overflow: hidden;
+            background: transparent;
+        }
+        
+        .chat-sidebar {
+            width: 320px;
+            min-width: 320px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100%;
+            max-height: calc(100vh - var(--navbar-height));
+        }
+        
+        /* Chat Right Panel - Customer Info */
+        .chat-right-panel {
+            width: 320px;
+            min-width: 320px;
+            max-width: 320px;
+            background: var(--bg-primary);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+            height: 100%;
+            max-height: calc(100vh - var(--navbar-height));
+        }
+        
+        .customer-profile {
+            padding: var(--space-4);
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .customer-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #00C851;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto var(--space-3);
+            color: white;
+        }
+        
+        .customer-name-large {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+            color: var(--text-primary);
+        }
+        
+        .customer-status {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .customer-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-4);
+            justify-content: center;
+        }
+        
+        .action-btn {
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .customer-details {
+            padding: var(--space-4);
+        }
+        
+        .detail-section {
+            margin-bottom: var(--space-4);
+        }
+        
+        .detail-title {
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-2) 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--font-size-sm);
+        }
+        
+        .detail-label {
+            color: var(--text-secondary);
+        }
+        
+        .detail-value {
+            color: var(--text-primary);
+        }
+        
+        /* แก้ไขขนาด chat-main ให้พอดี */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #E5F5FF; /* สีฟ้าอ่อนเหมือน LINE */
+            min-width: 0;
+            width: 100%;
+            height: calc(100vh - var(--navbar-height));
+            max-height: calc(100vh - var(--navbar-height));
+            overflow: hidden;
+        }
+        
+        /* Dark Mode - Chat Sidebar */
+        [data-theme="dark"] .chat-sidebar {
+            background: var(--bg-secondary);
+            border-right-color: #404040;
+        }
+        
+        [data-theme="dark"] .chat-right-panel {
+            background: var(--bg-secondary);
+            border-left-color: #404040;
+        }
+        
+        [data-theme="dark"] .customer-profile {
+            border-bottom-color: #404040;
+        }
+        
+        [data-theme="dark"] .customer-name-large,
+        [data-theme="dark"] .detail-title,
+        [data-theme="dark"] .detail-value {
+            color: #FFFFFF;
+        }
+        
+        [data-theme="dark"] .customer-status,
+        [data-theme="dark"] .detail-label {
+            color: #B0B0B0;
+        }
+        
+        [data-theme="dark"] .detail-item {
+            border-bottom-color: #404040;
+        }
+        
+        [data-theme="dark"] .action-btn,
+        [data-theme="dark"] .quick-action-btn {
+            background: #3A3A3A;
+            border-color: #505050;
+            color: #FFFFFF;
+        }
+        
+        [data-theme="dark"] .action-btn:hover,
+        [data-theme="dark"] .quick-action-btn:hover {
+            background: #505050;
+        }
+        
+        [data-theme="dark"] .chat-main {
+            background: #2A2A2A;
+        }
+        
+        [data-theme="dark"] .chat-messages {
+            background: #2A2A2A;
+        }
+        
+        [data-theme="dark"] .message-content {
+            background: #3A3A3A;
+            color: #FFFFFF;
+        }
+        
+        [data-theme="dark"] .message.sent .message-content {
+            background: #00C851;
+            color: white;
+        }
+        
+        [data-theme="dark"] .chat-input {
+            background: #3A3A3A;
+            border-top-color: #404040;
+        }
+        
+        [data-theme="dark"] .chat-input-field {
+            background: #2A2A2A;
+            border-color: #505050;
+            color: #FFFFFF;
+        }
+        
+        [data-theme="dark"] .chat-input-field::placeholder {
+            color: #B0B0B0;
+        }
+        
+        [data-theme="dark"] .quick-actions {
+            background: #3A3A3A;
+        }
+        
+        .chat-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-primary);
+        }
+        
+        /* Dark Mode - Chat Header */
+        [data-theme="dark"] .chat-header {
+            border-bottom-color: #404040;
+        }
+        
+        .chat-search {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Dark Mode - Chat Search */
+        [data-theme="dark"] .chat-search {
+            border-bottom-color: #404040;
+        }
+        
+        .chat-search input {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Dark Mode - Chat Search Input */
+        [data-theme="dark"] .chat-search input {
+            background: #3A3A3A;
+            border-color: #505050;
+            color: #FFFFFF;
+        }
+        
+        [data-theme="dark"] .chat-search input::placeholder {
+            color: #B0B0B0;
+        }
+        
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-2);
+        }
+        
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: var(--space-2);
+            color: var(--text-primary);
+        }
+        
+        /* Dark Mode - Chat Item */
+        [data-theme="dark"] .chat-item {
+            color: #FFFFFF;
+        }
+        
+        .chat-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+        
+        /* Dark Mode - Chat Item Hover */
+        [data-theme="dark"] .chat-item:hover {
+            background-color: #3A3A3A;
+        }
+        
+        .chat-item.active {
+            background-color: var(--primary);
+            color: var(--text-white);
+        }
+        
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-lg);
+        }
+        
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-preview {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: var(--space-1);
+        }
+        
+        .chat-time {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+        
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+        }
+        
+        .chat-main-header .chat-name {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .chat-main-header .chat-status {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: var(--font-size-sm);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: var(--space-4);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            background: #E5F5FF;
+        }
+        
+        .message {
+            display: flex;
+            gap: var(--space-2);
+            max-width: 85%;
+            align-items: flex-end;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message-content {
+            background: white;
+            padding: var(--space-3);
+            border-radius: 18px;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        
+        .message.sent .message-content {
+            background: #00C851; /* สีเขียว LINE */
+            color: white;
+        }
+        
+        .message-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+            text-align: right;
+        }
+        
+        .message.sent .message-time {
+            text-align: left;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .chat-input {
+            display: flex;
+            align-items: flex-end;
+            gap: var(--space-2);
+            padding: var(--space-4);
+            background: white;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .chat-input-field {
+            flex: 1;
+            min-height: 40px;
+            max-height: 120px;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            resize: none;
+            font-family: inherit;
+            font-size: var(--font-size-base);
+            line-height: 1.4;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .chat-send-btn {
+            width: 40px;
+            height: 40px;
+            background: #00C851;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-lg);
+        }
+        
+        .chat-send-btn:hover {
+            background: #00A644;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: var(--space-2);
+            padding: 0 var(--space-4) var(--space-2);
+            background: white;
+        }
+        
+        .quick-action-btn {
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .message-content {
+            background: var(--bg-primary);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .message.sent .message-content {
+            background: var(--primary);
+            color: var(--text-white);
+        }
+        
+        .message-time {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+        }
+        
+        .chat-input {
+            padding: var(--space-4);
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: var(--space-3);
+        }
+        
+        .chat-input {
+            padding: var(--space-4);
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: var(--space-3);
+            position: relative;
+            z-index: 1000; /* ให้สูงกว่า sidebar (999) */
+        }
+        
+        .chat-input-field {
+            flex: 1;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            resize: none;
+            max-height: 100px;
+        }
+        
+        .chat-send-btn {
+            padding: var(--space-3) var(--space-4);
+            background: var(--primary);
+            color: var(--text-white);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .chat-send-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            gap: var(--space-4);
+        }
+        
+        .empty-chat-icon {
+            font-size: 4rem;
+            opacity: 0.5;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .chat-right-panel {
+                width: 280px !important;
+                min-width: 280px !important;
+                max-width: 280px !important;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .chat-right-panel {
+                display: none !important;
+            }
+            .chat-main {
+                max-width: calc(100% - 320px) !important;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .chat-container {
+                margin-left: 0; /* ไม่ต้อง margin เมื่อ sidebar ซ่อน */
+                width: 100vw;
+            }
+            .chat-main {
+                max-width: calc(100% - 320px) !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                width: 100%;
+                position: absolute;
+                z-index: 100;
+                display: none;
+            }
+            .chat-main {
+                max-width: 100% !important;
+            }
+        }
+        
+        /* Fix any gaps and ensure full coverage */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        /* Ensure no gaps in flex layout */
+        .chat-container {
+            gap: 0;
+        }
+        
+        .chat-sidebar,
+        .chat-main,
+        .chat-right-panel {
+            border: none;
+            margin: 0;
+        }
+        
+        .chat-sidebar {
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .chat-right-panel {
+            border-left: 1px solid var(--border-color);
+        }
+        
+        /* Force chat-right-panel to be visible */
+        .chat-right-panel {
+            width: 320px !important;
+            min-width: 320px !important;
+            max-width: 320px !important;
+            background: var(--bg-primary) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+            border-left: 1px solid var(--border-color) !important;
+            z-index: 10 !important;
+            height: 100% !important;
+        }
+        
+        /* Force visibility at all screen sizes for testing */
+        @media (max-width: 1200px) {
+            .chat-right-panel {
+                display: flex !important;
+                width: 280px !important;
+                min-width: 280px !important;
+                max-width: 280px !important;
+            }
+            .chat-main {
+                max-width: calc(100% - 600px) !important;
+            }
+        }
+        
+        /* Debug: Add temporary background to see if panel exists */
+        .customer-profile {
+            background: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+            padding: var(--space-4) !important;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .customer-name-large,
+        .customer-status {
+            color: var(--text-primary) !important;
+        }
+        
+        [data-theme="dark"] .chat-right-panel {
+            background: var(--bg-secondary) !important;
+            border-left-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .customer-profile {
+            background: var(--bg-secondary) !important;
+            border-bottom-color: #404040;
+        }
+        
+        [data-theme="dark"] .customer-name-large,
+        [data-theme="dark"] .customer-status {
+            color: var(--text-primary) !important;
+        }
+        
+        /* Ensure main chat area doesn't overflow */
+        .chat-main {
+            flex: 1;
+            min-width: 0;
+            max-width: calc(100% - 640px); /* Total width minus both sidebars */
+        }
+        
+        /* Remove white space and make full screen */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .chat-container {
+            background: transparent;
+            gap: 0;
+        }
+        
+        .chat-main {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+        }
+        
+        /* Ensure messages area takes proper height - reduced more */
+        .chat-messages {
+            flex: 1;
+            padding: var(--space-4);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            background: #E5F5FF;
+            height: auto;
+            min-height: 0;
+            max-height: calc(100vh - var(--navbar-height) - 280px); /* More space for input */
+        }
+        
+        /* Ensure chat header is visible */
+        .chat-main-header {
+            flex-shrink: 0;
+            padding: var(--space-3) var(--space-4);
+            background: #00C851; /* สีเขียวของ LINE */
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            color: white;
+            height: 60px;
+            min-height: 60px;
+        }
+        
+        /* Fix input area position - prevent overflow */
+        .chat-input {
+            flex-shrink: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: var(--space-2) !important;
+            padding: var(--space-2) var(--space-3) !important; /* Reduced padding */
+            background: white !important;
+            border-top: 1px solid var(--border-color) !important;
+            min-height: 50px !important; /* Reduced height */
+            max-height: 60px !important;
+            width: 100% !important;
+            position: relative !important;
+            z-index: 10 !important;
+            box-sizing: border-box !important;
+            margin-bottom: 0 !important;
+        }
+        
+        .chat-input-field {
+            flex: 1 !important;
+            min-height: 35px !important; /* Reduced height */
+            max-height: 80px !important;
+            padding: var(--space-2) !important; /* Reduced padding */
+            border: 2px solid #00C851 !important;
+            border-radius: 20px !important;
+            resize: none !important;
+            font-family: inherit !important;
+            font-size: var(--font-size-sm) !important; /* Smaller font */
+            line-height: 1.3 !important;
+            background: #ffffff !important;
+            color: var(--text-primary) !important;
+            display: block !important;
+            width: 100% !important;
+            outline: none !important;
+            margin: 0 !important;
+        }
+        
+        .chat-input-field:focus {
+            border-color: #00A644 !important;
+            box-shadow: 0 0 0 2px rgba(0, 200, 81, 0.2) !important;
+        }
+        
+        .chat-send-btn {
+            width: 35px !important; /* Reduced size */
+            height: 35px !important;
+            background: #00C851 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 50% !important;
+            cursor: pointer !important;
+            transition: background-color 0.2s !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: var(--font-size-base) !important; /* Smaller font */
+            flex-shrink: 0 !important;
+            margin: 0 !important;
+        }
+        
+        .quick-actions {
+            flex-shrink: 0 !important;
+            display: flex !important;
+            gap: var(--space-1) !important; /* Reduced gap */
+            padding: var(--space-1) var(--space-3) !important; /* Reduced padding */
+            background: white !important;
+            min-height: 35px !important; /* Reduced height */
+            max-height: 40px !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="crown">👑</span>
+            <span class="brand-text">KingChat</span>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-item">
+                <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+            <div class="navbar-item">
+                <span>System Administrator</span>
+            </div>
+            <div class="dropdown navbar-item">
+                <button class="btn btn-ghost dropdown-toggle" id="userMenu">
+                    👤
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="#" class="dropdown-item">โปรไฟล์</a>
+                    <a href="#" class="dropdown-item">ตั้งค่า</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" id="logoutBtn">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <a href="../dashboard.html" class="menu-item">
+                <span class="menu-icon">🏠</span>
+                <span class="menu-text">หน้าหลัก</span>
+            </a>
+            <a href="lineoa.html" class="menu-item">
+                <span class="menu-icon">📱</span>
+                <span class="menu-text">จัดการ LINE OA</span>
+            </a>
+            <a href="customers.html" class="menu-item">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">รายชื่อลูกค้า</span>
+            </a>
+            <a href="chat.html" class="menu-item active">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">แชท</span>
+            </a>
+            <a href="admin.html" class="menu-item">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">จัดการแอดมิน</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <span class="menu-icon">🔧</span>
+                <span class="menu-text">ตั้งค่า</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="chat-container">
+        <!-- Chat Sidebar -->
+        <div class="chat-sidebar">
+            <div class="chat-header">
+                <h3>🗨️ แชทลูกค้า (4)</h3>
+                <button class="btn btn-ghost btn-sm">🔍</button>
+            </div>
+            
+            <div class="chat-search">
+                <input type="text" class="form-control" placeholder="ค้นหาลูกค้า..." id="searchChat">
+            </div>
+            
+            <div class="chat-list" id="chatList">
+                <div class="chat-item active">
+                    <div class="chat-avatar">🐻</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Melendez</div>
+                        <div class="chat-preview">คนดนร่าดร่า สาวน่าเวอร์เซอร์...</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">วันนี้</div>
+                        <div class="badge badge-primary">2</div>
+                    </div>
+                </div>
+                
+                <div class="chat-item">
+                    <div class="chat-avatar">👦</div>
+                    <div class="chat-info">
+                        <div class="chat-name">สคิกคร์</div>
+                        <div class="chat-preview">น้องสาว</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">เมื่อวาน</div>
+                    </div>
+                </div>
+                
+                <div class="chat-item">
+                    <div class="chat-avatar">👤</div>
+                    <div class="chat-info">
+                        <div class="chat-name">ลูกค้าใหม่</div>
+                        <div class="chat-preview">สวัสดีครับ ต้องการสอบถาม...</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">14:30</div>
+                        <div class="badge badge-primary">1</div>
+                    </div>
+                </div>
+                
+                <div class="chat-item">
+                    <div class="chat-avatar">👩</div>
+                    <div class="chat-info">
+                        <div class="chat-name">คุณสมใจ</div>
+                        <div class="chat-preview">ขอบคุณมากครับ</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">13:15</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Main -->
+        <div class="chat-main">
+            <div class="chat-main-header">
+                <div class="chat-avatar">👤</div>
+                <div class="chat-info">
+                    <div class="chat-name">Melendez</div>
+                    <div class="chat-status">🟢 ออนไลน์</div>
+                </div>
+                <div style="margin-left: auto;">
+                    <button class="btn btn-ghost btn-sm" style="color: white;">📞</button>
+                    <button class="btn btn-ghost btn-sm" style="color: white;">📋</button>
+                    <button class="btn btn-ghost btn-sm" style="color: white;">ℹ️</button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message">
+                    <div class="chat-avatar">�</div>
+                    <div>
+                        <div class="message-content">
+                            น้องสาวซื่อน้องมั่นน่าคิดน่าคิ่า น้องออเบสเซอร์น่าดร่า...Line
+                        </div>
+                        <div class="message-time">9:36 PM</div>
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="chat-avatar">�</div>
+                    <div>
+                        <div class="message-content">
+                            สคิกคร์
+                        </div>
+                        <div class="message-time">9:39 PM</div>
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="chat-avatar">�</div>
+                    <div>
+                        <div class="message-content">
+                            น้องสาว
+                        </div>
+                        <div class="message-time">3:29 PM</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <button class="quick-action-btn">📎 ไฟล์</button>
+                <button class="quick-action-btn">😊 สติกเกอร์</button>
+                <button class="quick-action-btn">🎵 เพลง</button>
+                <button class="quick-action-btn">📍 ตำแหน่ง</button>
+                <button class="quick-action-btn" style="background: #FF6B6B; color: white;">🔴 ปิดแชท</button>
+            </div>
+            
+            <div class="chat-input">
+                <textarea class="chat-input-field" placeholder="พิมพ์ข้อความสำหรับแฟนในฝัน... (Ctrl+↵ เพื่อขึ้นบรรทัดใหม่)" rows="1" id="messageInput"></textarea>
+                <button class="chat-send-btn" id="sendBtn">📤</button>
+                <button class="chat-send-btn" id="voiceBtn" style="background: #4CAF50; margin-left: 8px;">🎤</button>
+            </div>
+        </div>
+        
+        <!-- Chat Right Panel - Customer Info -->
+        <div class="chat-right-panel">
+            <div class="customer-profile">
+                <div class="customer-avatar-large">🐻</div>
+                <div class="customer-name-large">Melendez</div>
+                <div class="customer-status">ออนไลน์</div>
+                
+                <div class="customer-actions">
+                    <button class="action-btn">📞 โทร</button>
+                    <button class="action-btn">📧 อีเมล</button>
+                    <button class="action-btn">📋 โน้ต</button>
+                </div>
+            </div>
+            
+            <div class="customer-details">
+                <div class="detail-section">
+                    <div class="detail-title">ข้อมูลส่วนตัว</div>
+                    <div class="detail-item">
+                        <span class="detail-label">ชื่อ:</span>
+                        <span class="detail-value">Melendez</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">สถานะ:</span>
+                        <span class="detail-value">ออนไลน์</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">User:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">เบอร์โทร User:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-title">ข้อมูลการติดต่อ</div>
+                    <div class="detail-item">
+                        <span class="detail-label">บอร์ดโดย:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">เบอร์โทร:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">ที่อยู่:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-title">การจัดการ</div>
+                    <div class="detail-item">
+                        <span class="detail-label">แท็ก:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">หมายเหตุ:</span>
+                        <span class="detail-value">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">ผู้รับผิดชอบ:</span>
+                        <span class="detail-value">Melendez</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Dropdown menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenu = document.getElementById('userMenu');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenu && userDropdown) {
+                userMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function() {
+                    userDropdown.classList.remove('show');
+                });
+                
+                userDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Chat functionality
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Auto-resize textarea
+            if (messageInput) {
+                messageInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+                
+                // Send message on Enter (not Shift+Enter)
+                messageInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+            
+            if (sendBtn) {
+                sendBtn.addEventListener('click', sendMessage);
+            }
+            
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Add message to chat
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message sent';
+                    messageElement.innerHTML = `
+                        <div class="chat-avatar">👨‍💼</div>
+                        <div>
+                            <div class="message-content">${message}</div>
+                            <div class="message-time">${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'})}</div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(messageElement);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Clear input
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                }
+            }
+        });
+        
+        let socket;
+        
+        // Initialize Socket.io connection
+        function initSocketConnection() {
+            socket = io('http://localhost:5001');
+            
+            socket.on('connect', () => {
+                console.log('Connected to Socket.io server');
+                const urlParams = new URLSearchParams(window.location.search);
+                const customerId = urlParams.get('customer');
+                
+                if (customerId) {
+                    socket.emit('join_customer', customerId);
+                }
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from Socket.io server');
+            });
+
+            socket.on('message_received', (data) => {
+                // Add received message to chat
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCustomer = urlParams.get('customer');
+
+                if (data.customer === currentCustomer) {
+                    displayNewMessage(data);
+                }
+            });
+
+            socket.on('user_typing', (data) => {
+                showTypingIndicator(data.userDisplayName);
+            });
+
+            socket.on('message_error', (data) => {
+                console.error('Message error:', data.error);
+                alert('เกิดข้อผิดพลาดในการส่งข้อความ: ' + data.error);
+            });
+
+            socket.on('new_message', (data) => {
+                // Add received message to chat
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCustomer = urlParams.get('customer');
+                
+                if (data.customer === currentCustomer) {
+                    displayNewMessage(data);
+                }
+                
+                // Update chat list
+                updateChatList(data);
+            });
+
+            socket.on('customer_online', (data) => {
+                updateCustomerStatus(data.customerId, true);
+            });
+
+            socket.on('customer_offline', (data) => {
+                updateCustomerStatus(data.customerId, false);
+            });
+        }
+
+        function displayNewMessage(messageData) {
+            const container = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${messageData.sender === 'agent' ? 'sent' : ''}`;
+            messageElement.innerHTML = `
+                <div class="chat-avatar">${messageData.sender === 'agent' ? '👨‍💼' : '👤'}</div>
+                <div>
+                    <div class="message-content">${messageData.content}</div>
+                    <div class="message-time">${formatTime(messageData.createdAt)}</div>
+                </div>
+            `;
+            
+            container.appendChild(messageElement);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateChatList(messageData) {
+            // Update the chat list with new message preview
+            const chatItems = document.querySelectorAll('.chat-item');
+            chatItems.forEach(item => {
+                if (item.dataset.customerId === messageData.customer) {
+                    const preview = item.querySelector('.chat-preview');
+                    const time = item.querySelector('.chat-time');
+                    if (preview) preview.textContent = messageData.content;
+                    if (time) time.textContent = formatTime(messageData.createdAt);
+                }
+            });
+        }
+
+        function updateCustomerStatus(customerId, isOnline) {
+            const chatItems = document.querySelectorAll('.chat-item');
+            chatItems.forEach(item => {
+                if (item.dataset.customerId === customerId) {
+                    // Add/remove online indicator
+                    const avatar = item.querySelector('.chat-avatar');
+                    if (isOnline) {
+                        avatar.style.borderColor = '#10b981';
+                        avatar.style.borderWidth = '2px';
+                        avatar.style.borderStyle = 'solid';
+                    } else {
+                        avatar.style.border = 'none';
+                    }
+                }
+            });
+        }
+        
+        // Check authentication - wait for auth to be ready
+        function checkAuth() {
+            if (window.auth && window.auth.getToken && !window.auth.getToken()) {
+                window.location.href = '../login.html';
+            } else if (!window.auth) {
+                setTimeout(checkAuth, 100);
+            }
+        }
+        checkAuth();
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (window.auth && window.auth.logout) {
+                window.auth.logout();
+            }
+            window.location.href = '../login.html';
+        });
+
+        // User menu dropdown
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            const dropdown = document.getElementById('userDropdown');
+            if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Send message functionality
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const customerId = urlParams.get('customer');
+                
+                if (!customerId) {
+                    alert('กรุณาเลือกลูกค้าก่อนส่งข้อความ');
+                    return;
+                }
+
+                const messageData = {
+                    customer: customerId,
+                    content: message,
+                    sender: 'agent',
+                    type: 'text',
+                    createdAt: new Date().toISOString()
+                };
+
+                // Send via Socket.io for real-time
+                if (socket && socket.connected) {
+                    socket.emit('new_message', messageData);
+                } else {
+                    // Fallback: save directly via API if socket not connected
+                    api.sendMessage(messageData)
+                    .then(() => {
+                        console.log('Message sent via API fallback');
+                    }).catch(error => {
+                        console.error('Error sending message:', error);
+                        alert('เกิดข้อผิดพลาดในการส่งข้อความ');
+                    });
+                }
+
+                // Clear input
+                input.value = '';
+                input.style.height = 'auto';
+
+                // Add to UI immediately for better UX (will be replaced by socket response)
+                displayNewMessage(messageData);
+            }
+        }
+
+        function addMessageToUI(message, type = 'sent') {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.innerHTML = `
+                <div class="chat-avatar">${type === 'sent' ? '👨‍💼' : '👤'}</div>
+                <div>
+                    <div class="message-content">${message}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'})}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Load chat data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initSocketConnection();
+            loadChatData();
+        });
+
+        async function loadChatData() {
+            try {
+                // Load customers for chat list
+                const customers = await api.get('/customers?limit=10');
+                if (customers.customers) {
+                    displayChatList(customers.customers);
+                }
+                
+                // Load messages if customer is selected
+                const urlParams = new URLSearchParams(window.location.search);
+                const customerId = urlParams.get('customer');
+                if (customerId) {
+                    await loadMessages(customerId);
+                }
+            } catch (error) {
+                console.error('Error loading chat data:', error);
+            }
+        }
+
+        function displayChatList(customers) {
+            const chatList = document.getElementById('chatList');
+            if (customers.length === 0) {
+                chatList.innerHTML = '<div class="empty">ยังไม่มีการสนทนา</div>';
+                return;
+            }
+
+            chatList.innerHTML = customers.map((customer, index) => `
+                <div class="chat-item ${index === 0 ? 'active' : ''}" onclick="selectCustomer('${customer._id}')">
+                    <div class="chat-avatar">👤</div>
+                    <div class="chat-info">
+                        <div class="chat-name">${customer.displayName}</div>
+                        <div class="chat-preview">${customer.lastMessage || 'ยังไม่มีข้อความ'}</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">${customer.lastActivity ? formatTime(customer.lastActivity) : ''}</div>
+                        ${customer.unreadCount ? `<div class="badge badge-primary">${customer.unreadCount}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadMessages(customerId) {
+            try {
+                const messages = await api.get(`/messages?customer=${customerId}&limit=50`);
+                displayMessages(messages);
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('chatMessages').innerHTML = 
+                    '<div class="error">ไม่สามารถโหลดข้อความได้</div>';
+            }
+        }
+
+        function displayMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            if (!messages || messages.length === 0) {
+                container.innerHTML = '<div class="empty">ยังไม่มีข้อความ</div>';
+                return;
+            }
+
+            container.innerHTML = messages.map(message => `
+                <div class="message ${message.sender === 'agent' ? 'sent' : ''}">
+                    <div class="chat-avatar">${message.sender === 'agent' ? '👨‍💼' : '👤'}</div>
+                    <div>
+                        <div class="message-content">${message.content}</div>
+                        <div class="message-time">${formatTime(message.createdAt)}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function selectCustomer(customerId) {
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('customer', customerId);
+            window.history.pushState({}, '', url);
+            
+            // Load messages for selected customer
+            loadMessages(customerId);
+            
+            // Update active state
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('th-TH', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        function showTypingIndicator(userDisplayName) {
+            const container = document.getElementById('chatMessages');
+            const existingIndicator = container.querySelector('.typing-indicator');
+            
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            const indicator = document.createElement('div');
+            indicator.className = 'message typing-indicator';
+            indicator.innerHTML = `
+                <div class="chat-avatar">⌨️</div>
+                <div>
+                    <div class="message-content">${userDisplayName || 'กำลังพิมพ์'} <span class="typing-dots">...</span></div>
+                </div>
+            `;
+            
+            container.appendChild(indicator);
+            container.scrollTop = container.scrollHeight;
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.remove();
+                }
+            }, 3000);
+        }
+
+        function displayNewMessage(messageData) {
+            const container = document.getElementById('chatMessages');
+            const existingTyping = container.querySelector('.typing-indicator');
+            
+            if (existingTyping) {
+                existingTyping.remove();
+            }
+
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${messageData.direction === 'outgoing' ? 'sent' : ''}`;
+            messageElement.innerHTML = `
+                <div class="chat-avatar">${messageData.direction === 'outgoing' ? '👨‍💼' : '👤'}</div>
+                <div>
+                    <div class="message-content">${messageData.content.text || messageData.content}</div>
+                    <div class="message-time">${formatTime(messageData.timestamp || new Date())}</div>
+                </div>
+            `;
+            
+            container.appendChild(messageElement);
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+
+    <script src="../js/brand-animation.js"></script>
+    <script src="../js/chat-color-fix.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/loading.js"></script>
+    <script src="../js/keyboard-shortcuts.js"></script>
+    <script src="../js/auto-save.js"></script>
+    <script src="../js/breadcrumb.js"></script>
+    <script src="../js/mobile.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+    <script>
+        // Force create user menu and update display after all scripts loaded
+        setTimeout(() => {
+            if (window.auth && window.auth.isAuthenticated()) {
+                console.log('Manually updating user display...');
+                if (window.updateUserDisplay) window.updateUserDisplay();
+                if (window.forceCreateUserMenu) window.forceCreateUserMenu();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

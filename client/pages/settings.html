@@ -1,0 +1,562 @@
+<!DOCTY    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <link rel="stylesheet" href="../css/brand-animation.css">
+    <link rel="stylesheet" href="../css/responsive-ux.css">
+    <style>
+        /* ยกเนื้อหาให้ชิด navbar */
+        .main-content {
+            padding-top: var(--space-4) !important;
+            max-height: calc(100vh - var(--navbar-height)) !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .page-header {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: var(--space-4) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .page-content {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding-bottom: var(--space-4) !important;
+        }
+        
+        .settings-tabs-content {
+            max-height: calc(100vh - 250px) !important;
+            overflow-y: auto !important;
+        }
+    </style>tml>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตั้งค่าระบบ - KingChat</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="crown">👑</span>
+            <span class="brand-text">KingChat</span>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-item">
+                <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+            <div class="navbar-item">
+                <span>System Administrator</span>
+            </div>
+            <div class="dropdown navbar-item">
+                <button class="btn btn-ghost dropdown-toggle" id="userMenu">
+                    👤
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="#" class="dropdown-item">โปรไฟล์</a>
+                    <a href="#" class="dropdown-item">ตั้งค่า</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" id="logoutBtn">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <a href="../dashboard.html" class="menu-item">
+                <span class="menu-icon">🏠</span>
+                <span class="menu-text">หน้าหลัก</span>
+            </a>
+            <a href="lineoa.html" class="menu-item">
+                <span class="menu-icon">📱</span>
+                <span class="menu-text">จัดการ LINE OA</span>
+            </a>
+            <a href="customers.html" class="menu-item">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">รายชื่อลูกค้า</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">แชท</span>
+            </a>
+            <a href="admin.html" class="menu-item">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">จัดการแอดมิน</span>
+            </a>
+            <a href="settings.html" class="menu-item active">
+                <span class="menu-icon">🔧</span>
+                <span class="menu-text">ตั้งค่า</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">ตั้งค่าระบบ</h1>
+            <p class="page-subtitle">จัดการการตั้งค่าและการกำหนดค่าระบบ KingChat</p>
+        </div>
+
+        <!-- Settings Sections -->
+        <div class="content-grid">
+            <!-- General Settings -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">⚙️ การตั้งค่าทั่วไป</h3>
+                </div>
+                <div class="card-content">
+                    <form id="generalSettingsForm">
+                        <div class="form-group">
+                            <label for="systemName">ชื่อระบบ</label>
+                            <input type="text" id="systemName" class="form-control" value="KingChat">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="systemDescription">คำอธิบายระบบ</label>
+                            <textarea id="systemDescription" class="form-control" rows="3">ระบบจัดการลูกค้า LINE Official Account</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="timezone">เขตเวลา</label>
+                            <select id="timezone" class="form-control">
+                                <option value="Asia/Bangkok" selected>Asia/Bangkok (GMT+7)</option>
+                                <option value="UTC">UTC (GMT+0)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="language">ภาษาเริ่มต้น</label>
+                            <select id="language" class="form-control">
+                                <option value="th" selected>ไทย</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">บันทึกการตั้งค่า</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">🔔 การแจ้งเตือน</h3>
+                </div>
+                <div class="card-content">
+                    <form id="notificationSettingsForm">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="emailNotifications" class="form-check-input" checked>
+                                <label for="emailNotifications" class="form-check-label">แจ้งเตือนทางอีเมล</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="pushNotifications" class="form-check-input" checked>
+                                <label for="pushNotifications" class="form-check-label">แจ้งเตือนแบบ Push</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="smsNotifications" class="form-check-input">
+                                <label for="smsNotifications" class="form-check-label">แจ้งเตือนทาง SMS</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notificationFrequency">ความถี่การแจ้งเตือน</label>
+                            <select id="notificationFrequency" class="form-control">
+                                <option value="immediate" selected>ทันที</option>
+                                <option value="hourly">ทุกชั่วโมง</option>
+                                <option value="daily">รายวัน</option>
+                                <option value="weekly">รายสัปดาห์</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">บันทึกการตั้งค่า</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- LINE Settings -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">📱 การตั้งค่า LINE</h3>
+                </div>
+                <div class="card-content">
+                    <form id="lineSettingsForm">
+                        <div class="form-group">
+                            <label for="defaultReplyMessage">ข้อความตอบกลับอัตโนมัติ</label>
+                            <textarea id="defaultReplyMessage" class="form-control" rows="3">สวัสดีครับ! ขอบคุณที่ติดต่อเรา เราจะตอบกลับให้เร็วที่สุดครับ</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="autoReply" class="form-check-input" checked>
+                                <label for="autoReply" class="form-check-label">เปิดใช้การตอบกลับอัตโนมัติ</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="richmenu" class="form-check-input">
+                                <label for="richmenu" class="form-check-label">เปิดใช้ Rich Menu</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="businessHours">เวลาทำการ</label>
+                            <div style="display: flex; gap: var(--space-3); align-items: center;">
+                                <input type="time" id="startTime" class="form-control" value="09:00">
+                                <span>ถึง</span>
+                                <input type="time" id="endTime" class="form-control" value="18:00">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">บันทึกการตั้งค่า</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">🔒 ความปลอดภัย</h3>
+                </div>
+                <div class="card-content">
+                    <form id="securitySettingsForm">
+                        <div class="form-group">
+                            <label for="sessionTimeout">เวลาหมดอายุเซสชัน (นาที)</label>
+                            <input type="number" id="sessionTimeout" class="form-control" value="60" min="15" max="480">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="maxLoginAttempts">จำนวนครั้งการเข้าสู่ระบบสูงสุด</label>
+                            <input type="number" id="maxLoginAttempts" class="form-control" value="5" min="3" max="10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="twoFactorAuth" class="form-check-input">
+                                <label for="twoFactorAuth" class="form-check-label">เปิดใช้การยืนยันตัวตนแบบ 2 ขั้นตอน</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="ipWhitelist" class="form-check-input">
+                                <label for="ipWhitelist" class="form-check-label">จำกัด IP ที่สามารถเข้าถึงได้</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">บันทึกการตั้งค่า</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Database Settings -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">🗄️ ฐานข้อมูล</h3>
+                </div>
+                <div class="card-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">💾</div>
+                            <div class="stat-content">
+                                <div class="stat-number">1.2 GB</div>
+                                <div class="stat-label">ขนาดฐานข้อมูล</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-number">15,247</div>
+                                <div class="stat-label">จำนวนข้อความ</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: var(--space-4); display: flex; gap: var(--space-3);">
+                        <button class="btn btn-primary" id="backupBtn">สำรองข้อมูล</button>
+                        <button class="btn btn-ghost" id="optimizeBtn">ปรับปรุงฐานข้อมูล</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Messages -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">⚡ ข้อความด่วน</h3>
+                    <button class="btn btn-primary btn-sm" id="addQuickMessageBtn">เพิ่มข้อความ</button>
+                </div>
+                <div class="card-content">
+                    <div id="quickMessagesList">
+                        <div class="quick-message-item">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">สวัสดี</div>
+                                <div style="color: var(--text-secondary); font-size: var(--font-size-sm);">สวัสดีครับ! ยินดีให้บริการครับ</div>
+                            </div>
+                            <div style="display: flex; gap: var(--space-2);">
+                                <button class="btn btn-ghost btn-sm">✏️</button>
+                                <button class="btn btn-ghost btn-sm">🗑️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-message-item">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">ขอบคุณ</div>
+                                <div style="color: var(--text-secondary); font-size: var(--font-size-sm);">ขอบคุณมากครับ! หากมีคำถามเพิ่มเติมสามารถสอบถามได้ครับ</div>
+                            </div>
+                            <div style="display: flex; gap: var(--space-2);">
+                                <button class="btn btn-ghost btn-sm">✏️</button>
+                                <button class="btn btn-ghost btn-sm">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        // Check authentication - wait for auth to be ready
+        function checkAuth() {
+            if (window.auth && window.auth.getToken && !window.auth.getToken()) {
+                window.location.href = '../login.html';
+            } else if (!window.auth) {
+                setTimeout(checkAuth, 100);
+            }
+        }
+        checkAuth();
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (window.auth && window.auth.logout) {
+                window.auth.logout();
+            }
+            window.location.href = '../login.html';
+        });
+
+        // User menu dropdown
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            const dropdown = document.getElementById('userDropdown');
+            if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Load settings on page load
+        document.addEventListener('DOMContentLoaded', loadSettings);
+
+        async function loadSettings() {
+            try {
+                const settings = await api.get('/settings');
+                populateSettingsForm(settings);
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        function populateSettingsForm(settings) {
+            // General settings
+            if (settings.general) {
+                document.getElementById('systemName').value = settings.general.systemName || 'KingChat';
+                document.getElementById('systemDescription').value = settings.general.systemDescription || 'ระบบจัดการลูกค้า LINE Official Account';
+                document.getElementById('timezone').value = settings.general.timezone || 'Asia/Bangkok';
+                document.getElementById('language').value = settings.general.language || 'th';
+            }
+
+            // Notification settings
+            if (settings.notifications) {
+                document.getElementById('emailNotifications').checked = settings.notifications.email !== false;
+                document.getElementById('pushNotifications').checked = settings.notifications.push !== false;
+                document.getElementById('smsNotifications').checked = settings.notifications.sms === true;
+                document.getElementById('notificationFrequency').value = settings.notifications.frequency || 'immediate';
+            }
+
+            // LINE settings
+            if (settings.line) {
+                document.getElementById('defaultReplyMessage').value = settings.line.autoReplyMessage || 'สวัสดีครับ! ขอบคุณที่ติดต่อเรา เราจะตอบกลับให้เร็วที่สุดครับ';
+                document.getElementById('autoReply').checked = settings.line.autoReply !== false;
+                document.getElementById('richmenu').checked = settings.line.richMenu === true;
+                document.getElementById('startTime').value = settings.line.businessHours?.start || '09:00';
+                document.getElementById('endTime').value = settings.line.businessHours?.end || '18:00';
+            }
+
+            // Security settings
+            if (settings.security) {
+                document.getElementById('sessionTimeout').value = settings.security.sessionTimeout || 60;
+                document.getElementById('maxLoginAttempts').value = settings.security.maxLoginAttempts || 5;
+                document.getElementById('twoFactorAuth').checked = settings.security.twoFactorAuth === true;
+                document.getElementById('ipWhitelist').checked = settings.security.ipWhitelist === true;
+            }
+        }
+
+        // Form submissions
+        document.getElementById('generalSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveSettings('general', {
+                systemName: document.getElementById('systemName').value,
+                systemDescription: document.getElementById('systemDescription').value,
+                timezone: document.getElementById('timezone').value,
+                language: document.getElementById('language').value
+            });
+        });
+
+        document.getElementById('notificationSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveSettings('notifications', {
+                email: document.getElementById('emailNotifications').checked,
+                push: document.getElementById('pushNotifications').checked,
+                sms: document.getElementById('smsNotifications').checked,
+                frequency: document.getElementById('notificationFrequency').value
+            });
+        });
+
+        document.getElementById('lineSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveSettings('line', {
+                autoReplyMessage: document.getElementById('defaultReplyMessage').value,
+                autoReply: document.getElementById('autoReply').checked,
+                richMenu: document.getElementById('richmenu').checked,
+                businessHours: {
+                    start: document.getElementById('startTime').value,
+                    end: document.getElementById('endTime').value
+                }
+            });
+        });
+
+        document.getElementById('securitySettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveSettings('security', {
+                sessionTimeout: parseInt(document.getElementById('sessionTimeout').value),
+                maxLoginAttempts: parseInt(document.getElementById('maxLoginAttempts').value),
+                twoFactorAuth: document.getElementById('twoFactorAuth').checked,
+                ipWhitelist: document.getElementById('ipWhitelist').checked
+            });
+        });
+
+        async function saveSettings(category, data) {
+            try {
+                // Convert data object to settings array format
+                const settings = Object.entries(data).map(([key, value]) => ({
+                    key: `${category}.${key}`,
+                    value: value,
+                    category: category,
+                    description: `${category} setting: ${key}`
+                }));
+
+                await api.updateSettingsBulk(settings);
+                alert(`บันทึกการตั้งค่า${getCategoryName(category)}สำเร็จ`);
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('เกิดข้อผิดพลาดในการบันทึกการตั้งค่า: ' + error.message);
+            }
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                general: 'ทั่วไป',
+                notifications: 'การแจ้งเตือน',
+                line: ' LINE',
+                security: 'ความปลอดภัย'
+            };
+            return names[category] || '';
+        }
+
+        // Database actions
+        document.getElementById('backupBtn').addEventListener('click', () => {
+            if (confirm('คุณต้องการสำรองข้อมูลหรือไม่?')) {
+                alert('กำลังสำรองข้อมูล... (จะแจ้งเตือนเมื่อเสร็จสิ้น)');
+            }
+        });
+
+        document.getElementById('optimizeBtn').addEventListener('click', () => {
+            if (confirm('คุณต้องการปรับปรุงฐานข้อมูลหรือไม่?')) {
+                alert('กำลังปรับปรุงฐานข้อมูล... (จะแจ้งเตือนเมื่อเสร็จสิ้น)');
+            }
+        });
+
+        // Quick message management
+        document.getElementById('addQuickMessageBtn').addEventListener('click', () => {
+            const title = prompt('ชื่อข้อความด่วน:');
+            const message = prompt('เนื้อหาข้อความ:');
+            
+            if (title && message) {
+                alert('เพิ่มข้อความด่วนสำเร็จ');
+                // Add to list logic here
+            }
+        });
+
+        // Add styles for quick message items
+        const style = document.createElement('style');
+        style.textContent = `
+            .quick-message-item {
+                display: flex;
+                align-items: center;
+                gap: var(--space-3);
+                padding: var(--space-3);
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                margin-bottom: var(--space-3);
+                background: var(--bg-secondary);
+            }
+            
+            .quick-message-item:hover {
+                background: var(--bg-tertiary);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <script src="../js/brand-animation.js"></script>
+    <script src="../js/loading.js"></script>
+    <script src="../js/keyboard-shortcuts.js"></script>
+    <script src="../js/auto-save.js"></script>
+    <script src="../js/breadcrumb.js"></script>
+    <script src="../js/mobile.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+    <script>
+        // Force create user menu and update display after all scripts loaded
+        setTimeout(() => {
+            if (window.auth && window.auth.isAuthenticated()) {
+                console.log('Manually updating user display...');
+                if (window.updateUserDisplay) window.updateUserDisplay();
+                if (window.forceCreateUserMenu) window.forceCreateUserMenu();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

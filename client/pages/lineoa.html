@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการ LINE OA - KingChat</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <link rel="stylesheet" href="../css/brand-animation.css">
+    <link rel="stylesheet" href="../css/responsive-ux.css">
+    <style>
+        /* ยกเนื้อหาให้ชิด navbar */
+        .main-content {
+            padding-top: var(--space-4) !important;
+            max-height: calc(100vh - var(--navbar-height)) !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .page-header {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: var(--space-4) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .page-content {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding-bottom: var(--space-4) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="crown">👑</span>
+            <span class="brand-text">KingChat</span>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-item">
+                <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+            <div class="navbar-item">
+                <span>System Administrator</span>
+            </div>
+            <div class="dropdown navbar-item">
+                <button class="btn btn-ghost dropdown-toggle" id="userMenu">
+                    👤
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="#" class="dropdown-item">โปรไฟล์</a>
+                    <a href="#" class="dropdown-item">ตั้งค่า</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" id="logoutBtn">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <a href="../dashboard.html" class="menu-item">
+                <span class="menu-icon">🏠</span>
+                <span class="menu-text">หน้าหลัก</span>
+            </a>
+            <a href="lineoa.html" class="menu-item active">
+                <span class="menu-icon">📱</span>
+                <span class="menu-text">จัดการ LINE OA</span>
+            </a>
+            <a href="customers.html" class="menu-item">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">รายชื่อลูกค้า</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">แชท</span>
+            </a>
+            <a href="admin.html" class="menu-item">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">จัดการแอดมิน</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <span class="menu-icon">🔧</span>
+                <span class="menu-text">ตั้งค่า</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">จัดการ LINE OA</h1>
+            <p class="page-subtitle">เชื่อมต่อและจัดการบัญชี LINE Official Account ของคุณ</p>
+        </div>
+
+        <!-- LINE OA Management Controls -->
+        <div class="content-card" style="margin-bottom: var(--space-6);">
+            <div class="card-header">
+                <h3 class="card-title">🛠️ เครื่องมือจัดการ</h3>
+                <button class="btn btn-primary" id="addLineOABtn">
+                    ➕ เพิ่มบัญชี LINE OA
+                </button>
+            </div>
+            <div class="card-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🟢</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="connectedAccounts">0</div>
+                            <div class="stat-label">เชื่อมต่อแล้ว</div>
+                        </div>
+                        <div class="stat-trend positive">
+                            <span>+2</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🔴</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="disconnectedAccounts">0</div>
+                            <div class="stat-label">ยังไม่เชื่อมต่อ</div>
+                        </div>
+                        <div class="stat-trend negative">
+                            <span>-1</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="totalMessages">0</div>
+                            <div class="stat-label">ข้อความทั้งหมด</div>
+                        </div>
+                        <div class="stat-trend positive">
+                            <span>+58</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="errorAccounts">0</div>
+                            <div class="stat-label">มีปัญหา</div>
+                        </div>
+                        <div class="stat-trend neutral">
+                            <span>-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LINE OA List -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">📱 รายการบัญชี LINE OA</h3>
+                <div class="card-actions">
+                    <input type="text" class="form-control" placeholder="ค้นหาบัญชี..." id="searchLineOA" style="width: 200px;">
+                    <select class="form-control" id="filterStatus" style="width: 150px;">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="connected">เชื่อมต่อแล้ว</option>
+                        <option value="disconnected">ยังไม่เชื่อมต่อ</option>
+                        <option value="error">มีปัญหา</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="lineoa-grid" id="lineoaList">
+                    <div class="lineoa-item">
+                        <div class="lineoa-avatar">📱</div>
+                        <div class="lineoa-info">
+                            <div class="lineoa-name">ยังไม่มีบัญชี LINE OA</div>
+                            <div class="lineoa-status disconnected">ไม่ได้เชื่อมต่อ</div>
+                        </div>
+                        <div class="lineoa-actions">
+                            <button class="btn btn-primary btn-sm" id="connectFirstAccount">เชื่อมต่อ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add LINE OA Modal -->
+    <div class="modal" id="addLineOAModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>เพิ่มบัญชี LINE OA</h3>
+                <button class="modal-close" id="closeAddLineOAModal">&times;</button>
+            </div>
+            <form id="addLineOAForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="accountName">ชื่อบัญชี</label>
+                        <input type="text" id="accountName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="channelId">Channel ID</label>
+                        <input type="text" id="channelId" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="channelSecret">Channel Secret</label>
+                        <input type="password" id="channelSecret" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="accessToken">Channel Access Token</label>
+                        <textarea id="accessToken" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelAddLineOA">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary">เพิ่มบัญชี</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        // Check authentication - wait for auth to be ready
+        function checkAuth() {
+            if (window.auth && window.auth.getToken && !window.auth.getToken()) {
+                window.location.href = '../login.html';
+            } else if (!window.auth) {
+                setTimeout(checkAuth, 100);
+            }
+        }
+        checkAuth();
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.logout();
+            window.location.href = '../login.html';
+        });
+
+        // User menu dropdown
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            const dropdown = document.getElementById('userDropdown');
+            if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Modal functionality
+        const addLineOAModal = document.getElementById('addLineOAModal');
+        const addLineOABtn = document.getElementById('addLineOABtn');
+        const closeAddLineOAModal = document.getElementById('closeAddLineOAModal');
+        const cancelAddLineOA = document.getElementById('cancelAddLineOA');
+
+        addLineOABtn.addEventListener('click', () => {
+            addLineOAModal.style.display = 'flex';
+        });
+
+        [closeAddLineOAModal, cancelAddLineOA].forEach(btn => {
+            btn.addEventListener('click', () => {
+                addLineOAModal.style.display = 'none';
+                document.getElementById('addLineOAForm').reset();
+            });
+        });
+
+        // Load LINE OA accounts on page load
+        document.addEventListener('DOMContentLoaded', loadLineOAAccounts);
+
+        async function loadLineOAAccounts() {
+            try {
+                const accounts = await api.get('/lineoa');
+                displayLineOAAccounts(accounts);
+                updateStats(accounts);
+            } catch (error) {
+                console.error('Error loading LINE OA accounts:', error);
+                document.getElementById('lineoaList').innerHTML = `
+                    <div class="error">ไม่สามารถโหลดข้อมูลบัญชี LINE OA ได้</div>
+                `;
+            }
+        }
+
+        function displayLineOAAccounts(accounts) {
+            const container = document.getElementById('lineoaList');
+            
+            if (accounts.length === 0) {
+                container.innerHTML = `
+                    <div class="lineoa-item">
+                        <div class="lineoa-avatar">📱</div>
+                        <div class="lineoa-info">
+                            <div class="lineoa-name">ยังไม่มีบัญชี LINE OA</div>
+                            <div class="lineoa-status disconnected">ไม่ได้เชื่อมต่อ</div>
+                        </div>
+                        <div class="lineoa-actions">
+                            <button class="btn btn-primary btn-sm" onclick="document.getElementById('addLineOABtn').click()">เชื่อมต่อ</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = accounts.map(account => `
+                <div class="lineoa-item">
+                    <div class="lineoa-avatar">📱</div>
+                    <div class="lineoa-info">
+                        <div class="lineoa-name">${account.name}</div>
+                        <div class="lineoa-status ${account.status}">${getStatusText(account.status)}</div>
+                    </div>
+                    <div class="lineoa-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="editAccount('${account._id}')">✏️</button>
+                        <button class="btn btn-ghost btn-sm" onclick="testConnection('${account._id}')">🔗</button>
+                        <button class="btn btn-ghost btn-sm" onclick="deleteAccount('${account._id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(accounts) {
+            document.getElementById('connectedAccounts').textContent = accounts.filter(a => a.status === 'connected').length;
+            document.getElementById('disconnectedAccounts').textContent = accounts.filter(a => a.status === 'disconnected').length;
+            document.getElementById('errorAccounts').textContent = accounts.filter(a => a.status === 'error').length;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'connected': 'เชื่อมต่อแล้ว',
+                'disconnected': 'ยังไม่เชื่อมต่อ',
+                'error': 'มีปัญหา'
+            };
+            return statusMap[status] || 'ไม่ทราบสถานะ';
+        }
+
+        // Add LINE OA form submission
+        document.getElementById('addLineOAForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('accountName').value,
+                channelId: document.getElementById('channelId').value,
+                channelSecret: document.getElementById('channelSecret').value,
+                accessToken: document.getElementById('accessToken').value
+            };
+
+            try {
+                await api.post('/lineoa', formData);
+                addLineOAModal.style.display = 'none';
+                document.getElementById('addLineOAForm').reset();
+                loadLineOAAccounts(); // Reload accounts
+                alert('เพิ่มบัญชี LINE OA สำเร็จ');
+            } catch (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+        });
+
+        // Edit, test, and delete functions
+        function editAccount(accountId) {
+            // Find account data (in real app, fetch from API)
+            const name = prompt('ชื่อบัญชี:');
+            const channelId = prompt('Channel ID:');
+            
+            if (name && channelId) {
+                // Update account via API
+                api.put(`/lineoa/${accountId}`, {
+                    name: name,
+                    channelId: channelId
+                }).then(() => {
+                    alert('อัปเดตบัญชีสำเร็จ');
+                    loadLineOAAccounts(); // Reload list
+                }).catch(error => {
+                    alert('เกิดข้อผิดพลาด: ' + error.message);
+                });
+            }
+        }
+
+        function testConnection(accountId) {
+            alert('กำลังทดสอบการเชื่อมต่อ...');
+            // In real implementation, call API to test LINE connection
+            setTimeout(() => {
+                alert('ทดสอบการเชื่อมต่อเสร็จสิ้น');
+            }, 2000);
+        }
+
+        function deleteAccount(accountId) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบบัญชีนี้?')) {
+                api.delete(`/lineoa/${accountId}`)
+                .then(() => {
+                    alert('ลบบัญชีสำเร็จ');
+                    loadLineOAAccounts(); // Reload list
+                }).catch(error => {
+                    alert('เกิดข้อผิดพลาด: ' + error.message);
+                });
+            }
+        }
+    </script>
+
+    <script src="../js/brand-animation.js"></script>
+    <script src="../js/loading.js"></script>
+    <script src="../js/keyboard-shortcuts.js"></script>
+    <script src="../js/auto-save.js"></script>
+    <script src="../js/breadcrumb.js"></script>
+    <script src="../js/mobile.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+    <script>
+        // Force create user menu and update display after all scripts loaded
+        setTimeout(() => {
+            if (window.auth && window.auth.isAuthenticated()) {
+                console.log('Manually updating user display...');
+                if (window.updateUserDisplay) window.updateUserDisplay();
+                if (window.forceCreateUserMenu) window.forceCreateUserMenu();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "kingchat-frontend",
+  "version": "1.0.0",
+  "description": "KingChat Frontend - LINE OA Customer Service Management System",
+  "main": "frontend-server.js",
+  "scripts": {
+    "start": "node frontend-server.js",
+    "dev": "node frontend-server.js",
+    "serve": "node frontend-server.js"
+  },
+  "keywords": [
+    "kingchat",
+    "line",
+    "customer-service",
+    "chat",
+    "frontend"
+  ],
+  "author": "KingChat Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
