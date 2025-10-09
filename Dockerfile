@@ -14,7 +14,7 @@ RUN npm ci --only=production
 COPY server/ ./
 
 # Copy client source code for static serving
-COPY client/ ../client/
+COPY client/ ./client/
 
 # Create uploads directory if needed
 RUN mkdir -p uploads
