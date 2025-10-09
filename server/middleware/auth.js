@@ -10,7 +10,8 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET || 'railway-default-secret-change-in-production';
+    const decoded = jwt.verify(token, jwtSecret);
     
     // Try to find user in appropriate collection based on userType
     let user;

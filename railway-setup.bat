@@ -11,12 +11,18 @@ echo.
 echo 🔧 Environment Variables to set in Railway:
 echo.
 echo NODE_ENV=production
-echo PORT=5001
-echo JWT_SECRET=your-super-secret-jwt-key-here
-echo DATABASE_URL=postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway
+echo PORT=8080
+echo JWT_SECRET=your-super-secret-jwt-key-make-it-at-least-32-characters-long
+echo MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/kingchat
 echo CORS_ORIGIN=https://kingchat.up.railway.app
 echo FRONTEND_URL=https://kingchat.up.railway.app
 echo RAILWAY_ENVIRONMENT=production
+echo.
+echo 🚨 IMPORTANT: You MUST set up MongoDB Atlas!
+echo Railway provides PostgreSQL, but this app uses MongoDB.
+echo 1. Create MongoDB Atlas account (free tier available)
+echo 2. Create a cluster and get connection string
+echo 3. Set MONGODB_URI in Railway environment variables
 echo.
 
 echo 📝 Next Steps:

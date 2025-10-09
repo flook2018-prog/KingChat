@@ -18,6 +18,8 @@ console.log('   NODE_ENV:', process.env.NODE_ENV);
 console.log('   PORT:', process.env.PORT);
 console.log('   JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
 console.log('   MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
+console.log('   DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT ? 'SET' : 'NOT SET');
 
 // Initialize Express app
 const app = express();
@@ -95,25 +97,42 @@ const io = socketIO(server, {
 
 // Connect to Database (MongoDB or PostgreSQL)
 const connectDatabase = async () => {
-  if (process.env.DATABASE_URL || process.env.POSTGRES_URL) {
-    // Use PostgreSQL for Railway
-    console.log('🐘 Connecting to PostgreSQL...');
+  // For Railway, prioritize DATABASE_URL or MONGODB_URI
+  const dbUrl = process.env.DATABASE_URL || process.env.MONGODB_URI;
+  
+  if (!dbUrl) {
+    console.log('⚠️  No database URL provided, using default MongoDB');
     try {
-      // Note: For now, we'll continue using MongoDB
-      // In the future, you can implement PostgreSQL with Sequelize here
-      await mongoose.connect(process.env.MONGODB_URI || process.env.DATABASE_URL);
-      console.log('✅ Connected to Database');
+      await mongoose.connect('mongodb://localhost:27017/kingchat');
+      console.log('✅ Connected to local MongoDB');
     } catch (err) {
-      console.error('❌ Database connection error:', err);
+      console.error('❌ Local MongoDB connection error:', err.message);
+      console.log('💡 Make sure MongoDB is running or set DATABASE_URL/MONGODB_URI');
+    }
+    return;
+  }
+
+  if (dbUrl.startsWith('postgresql://') || dbUrl.startsWith('postgres://')) {
+    console.log('🐘 PostgreSQL detected - Converting to MongoDB Atlas for compatibility...');
+    // For now, we'll need MongoDB. In production, you should use MongoDB Atlas
+    if (process.env.MONGODB_URI && process.env.MONGODB_URI !== process.env.DATABASE_URL) {
+      try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('✅ Connected to MongoDB Atlas');
+      } catch (err) {
+        console.error('❌ MongoDB Atlas connection error:', err.message);
+      }
+    } else {
+      console.log('❌ PostgreSQL not yet supported. Please set MONGODB_URI to MongoDB Atlas connection string');
     }
   } else {
-    // Use MongoDB for local development
+    // MongoDB connection string
     console.log('🍃 Connecting to MongoDB...');
     try {
-      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kingchat');
+      await mongoose.connect(dbUrl);
       console.log('✅ Connected to MongoDB');
     } catch (err) {
-      console.error('❌ MongoDB connection error:', err);
+      console.error('❌ MongoDB connection error:', err.message);
     }
   }
 };
@@ -284,9 +303,20 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT,
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
+
+// Warning for missing environment variables
+if (!process.env.JWT_SECRET) {
+  console.log('⚠️  WARNING: JWT_SECRET not set. Using default (change in production!)');
+}
+
+if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
+  console.log('⚠️  WARNING: No database URL set. Add MONGODB_URI environment variable');
+}
 
 server.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 KingChat Server running on port ${PORT}`);

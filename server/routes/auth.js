@@ -103,9 +103,10 @@ router.post('/login', async (req, res) => {
     await user.save();
 
     // Generate JWT token
+    const jwtSecret = process.env.JWT_SECRET || 'railway-default-secret-change-in-production';
     const token = jwt.sign(
       { userId: user._id, userType },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '24h' }
     );
 
