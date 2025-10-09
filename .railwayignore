@@ -1,0 +1,9 @@
+# Railway ignore file
+.git/
+.vscode/
+*.md
+.env
+node_modules/
+.gitignore
+*.log
+Dockerfile-simple

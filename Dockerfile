@@ -1,20 +1,18 @@
-# Simple Dockerfile for Railway
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy everything
 COPY . .
 
-# Set working directory to server
 WORKDIR /app/server
 
-# Install dependencies
 RUN npm install --production
 
-# Expose port
+RUN apk add --no-cache curl
+
 EXPOSE 8080
 
-# Start the application
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:8080/ || exit 1
+
 CMD ["node", "server-simple.js"]
