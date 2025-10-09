@@ -91,38 +91,66 @@ app.get('/health', (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   console.log('🌐 Serving static files from client directory');
-  app.use(express.static(path.join(__dirname, './client')));
+  
+  // Debug: Log current directory and check if client exists
+  console.log('📂 Current working directory:', process.cwd());
+  console.log('📁 __dirname:', __dirname);
+  
+  const clientPath = path.join(__dirname, 'client');
+  console.log('🗂️  Client path:', clientPath);
+  
+  // Check if client directory exists
+  const fs = require('fs');
+  if (fs.existsSync(clientPath)) {
+    console.log('✅ Client directory found');
+    app.use(express.static(clientPath));
+  } else {
+    console.log('❌ Client directory not found, trying alternative paths...');
+    const altPaths = [
+      path.join(process.cwd(), 'client'),
+      path.join(__dirname, '..', 'client'),
+      '/app/client'
+    ];
+    
+    for (const altPath of altPaths) {
+      console.log(`🔍 Checking: ${altPath}`);
+      if (fs.existsSync(altPath)) {
+        console.log(`✅ Found client at: ${altPath}`);
+        app.use(express.static(altPath));
+        global.clientPath = altPath;
+        break;
+      }
+    }
+  }
   
   app.get('/login', (req, res) => {
-    const filePath = path.join(__dirname, './client/login.html');
+    const filePath = global.clientPath ? 
+      path.join(global.clientPath, 'login.html') : 
+      path.join(clientPath, 'login.html');
+    
     console.log('📁 Trying to serve login.html from:', filePath);
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        console.error('❌ Error serving login.html:', err);
-        res.status(404).json({ error: 'Login page not found' });
-      }
-    });
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      console.error('❌ login.html not found at:', filePath);
+      res.status(404).json({ error: 'Login page not found' });
+    }
   });
   
   app.get('/dashboard', (req, res) => {
-    const filePath = path.join(__dirname, './client/dashboard.html');
+    const filePath = global.clientPath ? 
+      path.join(global.clientPath, 'dashboard.html') : 
+      path.join(clientPath, 'dashboard.html');
+    
     console.log('📁 Trying to serve dashboard.html from:', filePath);
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        console.error('❌ Error serving dashboard.html:', err);
-        res.status(404).json({ error: 'Dashboard page not found' });
-      }
-    });
-  });
-  
-  // Catch all route for client-side routing
-  app.get('*', (req, res) => {
-    const filePath = path.join(__dirname, './client/login.html');
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        res.status(404).json({ error: 'Page not found' });
-      }
-    });
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      console.error('❌ dashboard.html not found at:', filePath);
+      res.status(404).json({ error: 'Dashboard page not found' });
+    }
   });
 }
 
