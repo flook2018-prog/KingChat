@@ -39,8 +39,8 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# Client files (not needed for backend)
-client/
+# Client files are NOW NEEDED for static serving in production
+# client/
 
 # Development files
 .vscode/
