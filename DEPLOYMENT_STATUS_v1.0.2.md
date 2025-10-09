@@ -11,7 +11,7 @@
 | Item | Details |
 |------|---------|
 | **Platform** | Railway |
-| **Domain** | https://kingchat.up.railway.app |
+| **Domain** | https://kingchat-production.up.railway.app |
 | **Database** | PostgreSQL (Railway Managed) |
 | **Environment** | Production |
 | **Last Deploy** | Latest commit pushed |
@@ -37,10 +37,10 @@
 
 | Service | URL | Expected Status |
 |---------|-----|----------------|
-| **Main Application** | https://kingchat.up.railway.app | 🟢 Active |
-| **Health Check** | https://kingchat.up.railway.app/health | 🟢 Active |
-| **Login Page** | https://kingchat.up.railway.app/login | 🟢 Active |
-| **Dashboard** | https://kingchat.up.railway.app/dashboard | 🟢 Active |
+| **Main Application** | https://kingchat-production.up.railway.app | 🟢 Active |
+| **Health Check** | https://kingchat-production.up.railway.app/health | 🟢 Active |
+| **Login Page** | https://kingchat-production.up.railway.app/login | 🟢 Active |
+| **Dashboard** | https://kingchat-production.up.railway.app/dashboard | 🟢 Active |
 
 ---
 
@@ -129,11 +129,11 @@ Password: admin123
 
 ### **1. Basic Access Test:**
 ```bash
-curl https://kingchat.up.railway.app/health
+curl https://kingchat-production.up.railway.app/health
 ```
 
 ### **2. Login Page Test:**
-- Visit: https://kingchat.up.railway.app/login
+- Visit: https://kingchat-production.up.railway.app/login
 - Should see login form
 
 ### **3. Authentication Test:**
