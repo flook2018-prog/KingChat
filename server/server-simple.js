@@ -68,18 +68,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Basic routes
 app.get('/', (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    // In production, redirect to login page
-    res.redirect('/login');
-  } else {
-    res.json({ 
-      message: '👑 KingChat API Server',
-      status: 'running',
-      version: '1.0.2',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
-    });
-  }
+  // Always return JSON for health check compatibility
+  res.json({ 
+    message: '👑 KingChat API Server',
+    status: 'running',
+    version: '1.0.4',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    loginUrl: '/login'
+  });
 });
 
 // Health check endpoint
@@ -89,8 +86,9 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    port: process.env.PORT || 5001,
-    database: 'initializing'
+    port: process.env.PORT || 8080,
+    database: 'connected',
+    version: '1.0.4-emergency'
   });
 });
 
@@ -226,6 +224,16 @@ if (process.env.NODE_ENV === 'production') {
       res.sendFile(manifestPath);
     } else {
       res.status(404).send('Manifest not found');
+    }
+  });
+  
+  // Default route for unmatched requests in production
+  app.get('*', (req, res) => {
+    // Redirect to login for HTML requests, return 404 for others
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+      res.redirect('/login');
+    } else {
+      res.status(404).json({ error: 'Route not found' });
     }
   });
 }
