@@ -102,14 +102,30 @@ if (process.env.NODE_ENV === 'production') {
   console.log('📂 Current working directory:', process.cwd());
   console.log('📁 __dirname:', __dirname);
   
-  const clientPath = path.join(__dirname, 'client');
-  console.log('🗂️  Client path:', clientPath);
+  // Try multiple client paths
+  const clientPaths = [
+    path.join(__dirname, 'client'),           // server/client
+    path.join(__dirname, '..', 'client'),     // ../client
+    path.join(process.cwd(), 'client'),       // /app/client
+    '/app/client'                             // absolute path
+  ];
   
-  // Check if client directory exists
+  let foundClientPath = null;
   const fs = require('fs');
-  if (fs.existsSync(clientPath)) {
+  
+  for (const clientPath of clientPaths) {
+    console.log(`🔍 Checking client path: ${clientPath}`);
+    if (fs.existsSync(clientPath)) {
+      console.log(`✅ Found client directory at: ${clientPath}`);
+      foundClientPath = clientPath;
+      break;
+    }
+  }
+  
+  if (foundClientPath) {
     console.log('✅ Client directory found');
-    app.use(express.static(clientPath));
+    app.use(express.static(foundClientPath));
+    global.clientPath = foundClientPath;
   } else {
     console.log('❌ Client directory not found, trying alternative paths...');
     const altPaths = [

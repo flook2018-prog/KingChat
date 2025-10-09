@@ -1,0 +1,16 @@
+{
+  "name": "kingchat",
+  "version": "1.0.3",
+  "description": "KingChat LINE OA Customer Service Management System",
+  "main": "server/server-simple.js",
+  "scripts": {
+    "start": "cd server && node server-simple.js",
+    "build": "echo 'No build step required'",
+    "dev": "cd server && node server-simple.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "workspaces": ["server"]
+}

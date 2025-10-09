@@ -1,27 +1,25 @@
-# Use Node.js 18 LTS
+# Simple Dockerfile for Railway
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY server/package*.json ./
+# Copy everything first
+COPY . .
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies in server directory
+WORKDIR /app/server
+RUN npm install --production
 
-# Copy server source code (now includes client files)
-COPY server/ ./
-
-# Create uploads directory if needed
-RUN mkdir -p uploads
+# Create symlink for client access
+RUN ln -sf /app/client /app/server/client || echo "Client link created"
 
 # Expose port
-EXPOSE $PORT
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:$PORT/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # Start the application
 CMD ["node", "server-simple.js"]
