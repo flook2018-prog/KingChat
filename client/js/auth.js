@@ -1,8 +1,13 @@
 // Authentication utilities
+console.log('🔐 Loading auth.js...');
+
 class AuthManager {
   constructor() {
-    this.token = localStorage.getItem('authToken');
+    console.log('🔐 AuthManager constructor');
+    this.token = localStorage.getItem('authToken') || localStorage.getItem('token');
     this.user = this.getStoredUser();
+    console.log('🔐 Token found:', !!this.token);
+    console.log('🔐 User found:', !!this.user);
   }
 
   // Get stored user data
@@ -13,17 +18,21 @@ class AuthManager {
 
   // Store authentication data
   setAuth(token, user) {
+    console.log('🔐 Setting auth data:', { token: !!token, user: !!user });
     this.token = token;
     this.user = user;
     localStorage.setItem('authToken', token);
+    localStorage.setItem('token', token); // Add both keys for compatibility
     localStorage.setItem('userData', JSON.stringify(user));
   }
 
   // Clear authentication data
   clearAuth() {
+    console.log('🔐 Clearing auth data');
     this.token = null;
     this.user = null;
     localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('userData');
   }
 

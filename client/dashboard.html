@@ -263,6 +263,54 @@
     </main>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Add loading indicator and error handling
+        window.addEventListener('load', function() {
+            console.log('✅ Dashboard page loaded successfully');
+        });
+        
+        window.addEventListener('error', function(e) {
+            console.error('❌ Page error:', e.error);
+            console.log('Error details:', {
+                message: e.message,
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno
+            });
+        });
+        
+        // Check if scripts load properly
+        setTimeout(function() {
+            console.log('🔍 Checking page state...');
+            
+            // Check authentication
+            const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+            if (!token) {
+                console.log('❌ No authentication token found, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (typeof auth === 'undefined' || typeof api === 'undefined') {
+                console.error('❌ Critical scripts failed to load');
+                document.body.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: red;">
+                        <h2>⚠️ การโหลดหน้าเว็บมีปัญหา</h2>
+                        <p>กรุณารอสักครู่แล้วลองรีเฟรชหน้าใหม่</p>
+                        <button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            🔄 รีเฟรชหน้า
+                        </button>
+                        <br><br>
+                        <button onclick="localStorage.clear(); window.location.href='login.html'" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            🔑 กลับไปหน้า Login
+                        </button>
+                    </div>
+                `;
+            } else {
+                console.log('✅ All scripts loaded successfully');
+            }
+        }, 3000);
+    </script>
     <script src="js/brand-animation.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
