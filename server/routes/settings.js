@@ -1,13 +1,13 @@
 const express = require('express');
 const { auth, requireRole } = require('../middleware/auth');
-const Settings = require('../models/Settings');
+const { Settings } = require('../models/postgresql');
 
 const router = express.Router();
 
 // Get all settings
 router.get('/', auth, async (req, res) => {
   try {
-    const settings = await Settings.find();
+    const settings = await Settings.findAll();
     res.json(settings);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

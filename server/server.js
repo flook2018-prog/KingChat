@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -12,12 +11,14 @@ const ngrok = require('ngrok');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+// Import database configuration
+const { testConnection } = require('./config/database');
+
 // Debug environment variables
 console.log('🔧 Environment check:');
 console.log('   NODE_ENV:', process.env.NODE_ENV);
 console.log('   PORT:', process.env.PORT);
 console.log('   JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
-console.log('   MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 console.log('   DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
 console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT ? 'SET' : 'NOT SET');
 
@@ -95,45 +96,29 @@ const io = socketIO(server, {
   }
 });
 
-// Connect to Database (MongoDB or PostgreSQL)
+// Database connection
 const connectDatabase = async () => {
-  // For Railway, prioritize DATABASE_URL or MONGODB_URI
-  const dbUrl = process.env.DATABASE_URL || process.env.MONGODB_URI;
-  
-  if (!dbUrl) {
-    console.log('⚠️  No database URL provided, using default MongoDB');
-    try {
-      await mongoose.connect('mongodb://localhost:27017/kingchat');
-      console.log('✅ Connected to local MongoDB');
-    } catch (err) {
-      console.error('❌ Local MongoDB connection error:', err.message);
-      console.log('💡 Make sure MongoDB is running or set DATABASE_URL/MONGODB_URI');
-    }
-    return;
-  }
-
-  if (dbUrl.startsWith('postgresql://') || dbUrl.startsWith('postgres://')) {
-    console.log('🐘 PostgreSQL detected - Converting to MongoDB Atlas for compatibility...');
-    // For now, we'll need MongoDB. In production, you should use MongoDB Atlas
-    if (process.env.MONGODB_URI && process.env.MONGODB_URI !== process.env.DATABASE_URL) {
-      try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log('✅ Connected to MongoDB Atlas');
-      } catch (err) {
-        console.error('❌ MongoDB Atlas connection error:', err.message);
-      }
-    } else {
-      console.log('❌ PostgreSQL not yet supported. Please set MONGODB_URI to MongoDB Atlas connection string');
-    }
-  } else {
-    // MongoDB connection string
-    console.log('🍃 Connecting to MongoDB...');
-    try {
-      await mongoose.connect(dbUrl);
-      console.log('✅ Connected to MongoDB');
-    } catch (err) {
-      console.error('❌ MongoDB connection error:', err.message);
-    }
+  try {
+    await testConnection();
+    console.log('✅ PostgreSQL database connected successfully');
+    
+    // Initialize database tables
+    const { Admin, User, Customer, Message, Settings, LineOA } = require('./models/postgresql');
+    console.log('📝 Synchronizing database tables...');
+    
+    await Admin.sync({ alter: process.env.NODE_ENV === 'development' });
+    await User.sync({ alter: process.env.NODE_ENV === 'development' });
+    await LineOA.sync({ alter: process.env.NODE_ENV === 'development' });
+    await Customer.sync({ alter: process.env.NODE_ENV === 'development' });
+    await Message.sync({ alter: process.env.NODE_ENV === 'development' });
+    await Settings.sync({ alter: process.env.NODE_ENV === 'development' });
+    
+    console.log('✅ Database tables synchronized');
+    
+  } catch (err) {
+    console.error('❌ PostgreSQL connection failed:', err);
+    console.error('   Please check your DATABASE_URL environment variable');
+    process.exit(1);
   }
 };
 

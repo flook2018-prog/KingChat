@@ -1,13 +1,13 @@
 const express = require('express');
 const { auth } = require('../middleware/auth');
-const LineOA = require('../models/LineOA');
+const { LineOA } = require('../models/postgresql');
 
 const router = express.Router();
 
 // Get all LINE OA accounts
 router.get('/', auth, async (req, res) => {
   try {
-    const accounts = await LineOA.find();
+    const accounts = await LineOA.findAll();
     res.json(accounts);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

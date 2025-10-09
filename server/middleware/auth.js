@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const Admin = require('../models/Admin');
+const { User, Admin } = require('../models/postgresql');
 
 const auth = async (req, res, next) => {
   try {
@@ -16,9 +15,13 @@ const auth = async (req, res, next) => {
     // Try to find user in appropriate collection based on userType
     let user;
     if (decoded.userType === 'admin') {
-      user = await Admin.findById(decoded.userId).select('-password');
+      user = await Admin.findByPk(decoded.userId, {
+        attributes: { exclude: ['password'] }
+      });
     } else {
-      user = await User.findById(decoded.userId).select('-password');
+      user = await User.findByPk(decoded.userId, {
+        attributes: { exclude: ['password'] }
+      });
     }
     
     if (!user) {

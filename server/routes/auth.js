@@ -1,7 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const Admin = require('../models/Admin');
+const { User, Admin } = require('../models/postgresql');
 const { auth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -18,7 +17,12 @@ router.post('/register', auth, async (req, res) => {
 
     // Check if user already exists
     const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
+      where: {
+        [require('sequelize').Op.or]: [
+          { email },
+          { username }
+        ]
+      }
     });
 
     if (existingUser) {
@@ -26,15 +30,13 @@ router.post('/register', auth, async (req, res) => {
     }
 
     // Create new user
-    const user = new User({
+    const user = await User.create({
       username,
       email,
       password,
       displayName,
       role: role || 'agent'
     });
-
-    await user.save();
 
     res.status(201).json({
       message: 'User created successfully',
@@ -58,12 +60,12 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     // Try to find user in User collection first
-    let user = await User.findOne({ username });
+    let user = await User.findOne({ where: { username } });
     let userType = 'user';
     
     // If not found in User collection, try Admin collection
     if (!user) {
-      user = await Admin.findOne({ username });
+      user = await Admin.findOne({ where: { username } });
       userType = 'admin';
     }
     
@@ -105,7 +107,7 @@ router.post('/login', async (req, res) => {
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'railway-default-secret-change-in-production';
     const token = jwt.sign(
-      { userId: user._id, userType },
+      { userId: user.id, userType },
       jwtSecret,
       { expiresIn: '24h' }
     );
@@ -113,7 +115,7 @@ router.post('/login', async (req, res) => {
     res.json({
       token,
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
         displayName: user.displayName,
@@ -163,23 +165,25 @@ router.put('/profile', auth, async (req, res) => {
 
     let user;
     if (req.userType === 'admin') {
-      user = await Admin.findByIdAndUpdate(
-        req.user._id,
-        updates,
-        { new: true }
-      ).select('-password');
+      user = await Admin.findByPk(req.user.userId);
+      Object.assign(user, updates);
+      await user.save();
+      user = await Admin.findByPk(req.user.userId, {
+        attributes: { exclude: ['password'] }
+      });
     } else {
-      user = await User.findByIdAndUpdate(
-        req.user._id,
-        updates,
-        { new: true }
-      ).select('-password');
+      user = await User.findByPk(req.user.userId);
+      Object.assign(user, updates);
+      await user.save();
+      user = await User.findByPk(req.user.userId, {
+        attributes: { exclude: ['password'] }
+      });
     }
 
     res.json({
       message: 'Profile updated successfully',
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
         displayName: user.displayName,
@@ -201,9 +205,9 @@ router.put('/change-password', auth, async (req, res) => {
 
     let user;
     if (req.userType === 'admin') {
-      user = await Admin.findById(req.user._id);
+      user = await Admin.findByPk(req.user.userId);
     } else {
-      user = await User.findById(req.user._id);
+      user = await User.findByPk(req.user.userId);
     }
     
     // Verify current password

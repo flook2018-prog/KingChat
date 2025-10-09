@@ -1,14 +1,15 @@
 const express = require('express');
 const { auth, requireRole } = require('../middleware/auth');
-const User = require('../models/User');
-const Admin = require('../models/Admin');
+const { User, Admin } = require('../models/postgresql');
 
 const router = express.Router();
 
 // Get all users (admin only)
 router.get('/users', auth, requireRole(['admin']), async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -21,14 +22,19 @@ router.post('/users', auth, requireRole(['admin']), async (req, res) => {
     const { username, email, password, displayName, role } = req.body;
 
     const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
+      where: {
+        [require('sequelize').Op.or]: [
+          { email },
+          { username }
+        ]
+      }
     });
 
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const user = new User({
+    const user = await User.create({
       username,
       email,
       password,
@@ -36,12 +42,10 @@ router.post('/users', auth, requireRole(['admin']), async (req, res) => {
       role: role || 'agent'
     });
 
-    await user.save();
-
     res.status(201).json({
       message: 'User created successfully',
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
         displayName: user.displayName,
@@ -57,11 +61,13 @@ router.post('/users', auth, requireRole(['admin']), async (req, res) => {
 router.get('/users/:id', auth, async (req, res) => {
   try {
     // Users can view their own profile, admins can view any profile
-    if (req.params.id !== req.user._id.toString() && req.user.role !== 'admin') {
+    if (req.params.id !== req.user.userId.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] }
+    });
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -77,7 +83,7 @@ router.get('/users/:id', auth, async (req, res) => {
 router.put('/users/:id', auth, async (req, res) => {
   try {
     // Users can update their own profile, admins can update any profile
-    if (req.params.id !== req.user._id.toString() && req.user.role !== 'admin') {
+    if (req.params.id !== req.user.userId.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -95,7 +101,7 @@ router.put('/users/:id', auth, async (req, res) => {
       permissions 
     } = req.body;
 
-    const user = await User.findById(req.params.id);
+    const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -145,16 +151,17 @@ router.put('/users/:id', auth, async (req, res) => {
 // Delete user (admin only)
 router.delete('/users/:id', auth, requireRole(['admin']), async (req, res) => {
   try {
-    if (req.params.id === req.user._id.toString()) {
+    if (req.params.id === req.user.userId.toString()) {
       return res.status(400).json({ error: 'Cannot delete your own account' });
     }
 
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByPk(req.params.id);
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    await user.destroy();
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -162,13 +169,15 @@ router.delete('/users/:id', auth, requireRole(['admin']), async (req, res) => {
 });
 
 // Admin management endpoints (for client-side admin manager)
-// Get admin users from MongoDB
+// Get admin users from PostgreSQL
 router.get('/admin-users', async (req, res) => {
   try {
-    console.log('📋 Loading admin users from MongoDB...');
+    console.log('📋 Loading admin users from PostgreSQL...');
     
     // Get all admins from database
-    const admins = await Admin.find().select('-password'); // Don't send passwords
+    const admins = await Admin.findAll({
+      attributes: { exclude: ['password'] }
+    });
     
     console.log(`✅ Found ${admins.length} admins in database`);
     
@@ -268,16 +277,16 @@ router.post('/admin-users/create', async (req, res) => {
     }
     
     // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ username: username.trim() });
+    const existingAdmin = await Admin.findOne({ where: { username: username.trim() } });
     if (existingAdmin) {
       return res.status(400).json({ error: 'Admin with this username already exists' });
     }
     
     // Create new admin
-    const newAdmin = new Admin({
+    const newAdmin = await Admin.create({
       username: username.trim(),
       displayName: displayName.trim(),
-      password: password, // Will be hashed by pre-save middleware
+      password: password, // Will be hashed by pre-save hook
       email: `${username.trim()}@kingchat.com`,
       role: role || 'user',
       permissions: permissions || [],
@@ -285,18 +294,17 @@ router.post('/admin-users/create', async (req, res) => {
       isActive: true
     });
     
-    const savedAdmin = await newAdmin.save();
-    console.log(`✅ Created new admin: ${savedAdmin.username}`);
+    console.log(`✅ Created new admin: ${newAdmin.username}`);
     
     res.status(201).json({
       message: 'Admin created successfully',
       admin: {
-        id: savedAdmin._id.toString(),
-        username: savedAdmin.username,
-        displayName: savedAdmin.displayName,
-        role: savedAdmin.role,
-        permissions: savedAdmin.permissions,
-        createdAt: savedAdmin.createdAt
+        id: newAdmin.id.toString(),
+        username: newAdmin.username,
+        displayName: newAdmin.displayName,
+        role: newAdmin.role,
+        permissions: newAdmin.permissions,
+        createdAt: newAdmin.createdAt
       }
     });
     
@@ -324,11 +332,13 @@ router.delete('/admin-users/:id', async (req, res) => {
     const adminId = req.params.id;
     
     // Find and delete admin
-    const deletedAdmin = await Admin.findByIdAndDelete(adminId);
+    const deletedAdmin = await Admin.findByPk(adminId);
     
     if (!deletedAdmin) {
       return res.status(404).json({ error: 'Admin not found' });
     }
+    
+    await deletedAdmin.destroy();
     
     console.log(`✅ Deleted admin: ${deletedAdmin.username}`);
     

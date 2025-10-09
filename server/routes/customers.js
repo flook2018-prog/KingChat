@@ -1,6 +1,6 @@
 const express = require('express');
 const { auth } = require('../middleware/auth');
-const Customer = require('../models/Customer');
+const { Customer } = require('../models/postgresql');
 
 const router = express.Router();
 
