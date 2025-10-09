@@ -15,20 +15,27 @@
    - OR use MongoDB Atlas (recommended)
 
 4. **Configure Environment Variables**
-   Copy these variables to your Railway project:
+   Set these variables in your Railway project dashboard:
 
    ```bash
    NODE_ENV=production
    PORT=5001
    JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-random
-   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/kingchat
-   CORS_ORIGIN=https://your-frontend-domain.com
-   FRONTEND_URL=https://your-frontend-domain.com
+   
+   # Use Railway PostgreSQL (recommended) or MongoDB Atlas
+   DATABASE_URL=postgresql://postgres:your-password@postgres.railway.internal:5432/railway
+   # OR for MongoDB:
+   # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/kingchat
+   
+   # CORS Configuration
+   CORS_ORIGIN=https://kingchat.up.railway.app
+   FRONTEND_URL=https://kingchat.up.railway.app
+   RAILWAY_ENVIRONMENT=production
    ```
 
 5. **Deploy**
    - Railway will automatically build and deploy your app
-   - Your backend will be available at: `https://your-app-name.up.railway.app`
+   - Your backend will be available at: `https://kingchat.up.railway.app`
 
 ## Frontend Deployment Options
 

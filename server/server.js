@@ -60,7 +60,8 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5001',
-      'https://kingchat.up.railway.app', // Replace with your Railway domain
+      'https://kingchat.up.railway.app',
+      'https://kingchat-production.up.railway.app', // Railway preview deployments
       process.env.CORS_ORIGIN,
       process.env.FRONTEND_URL
     ].filter(Boolean);
@@ -92,10 +93,32 @@ const io = socketIO(server, {
   }
 });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kingchat')
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// Connect to Database (MongoDB or PostgreSQL)
+const connectDatabase = async () => {
+  if (process.env.DATABASE_URL || process.env.POSTGRES_URL) {
+    // Use PostgreSQL for Railway
+    console.log('🐘 Connecting to PostgreSQL...');
+    try {
+      // Note: For now, we'll continue using MongoDB
+      // In the future, you can implement PostgreSQL with Sequelize here
+      await mongoose.connect(process.env.MONGODB_URI || process.env.DATABASE_URL);
+      console.log('✅ Connected to Database');
+    } catch (err) {
+      console.error('❌ Database connection error:', err);
+    }
+  } else {
+    // Use MongoDB for local development
+    console.log('🍃 Connecting to MongoDB...');
+    try {
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kingchat');
+      console.log('✅ Connected to MongoDB');
+    } catch (err) {
+      console.error('❌ MongoDB connection error:', err);
+    }
+  }
+};
+
+connectDatabase();
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -112,6 +135,48 @@ app.use('/api/lineoa', lineOARoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/settings', settingsRoutes);
+
+// Serve static files from client directory (for Railway deployment)
+if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
+  console.log('🌐 Serving static files from client directory');
+  app.use(express.static(path.join(__dirname, '../client')));
+  
+  // Serve client pages
+  app.get('/pages/*', (req, res) => {
+    const filePath = path.join(__dirname, '../client', req.path);
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        res.status(404).json({ error: 'Page not found' });
+      }
+    });
+  });
+  
+  // Serve main pages
+  app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/login.html'));
+  });
+  
+  app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dashboard.html'));
+  });
+  
+  // Default route serves login page
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/login.html'));
+  });
+} else {
+  // Development - API only mode
+  app.get('/', (req, res) => {
+    res.json({ 
+      message: '👑 KingChat API Server',
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      docs: '/api/docs',
+      health: '/health',
+      frontend: 'http://localhost:3000'
+    });
+  });
+}
 
 // Root route
 app.get('/', (req, res) => {
