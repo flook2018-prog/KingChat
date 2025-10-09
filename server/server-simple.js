@@ -254,9 +254,13 @@ async function createDefaultAdminFallback() {
     
     console.log('👤 Checking for admin user...');
     
-    // Create admins table if not exists
+    // Drop and recreate admins table to ensure correct structure
     await sequelize.query(`
-      CREATE TABLE IF NOT EXISTS admins (
+      DROP TABLE IF EXISTS admins CASCADE;
+    `);
+    
+    await sequelize.query(`
+      CREATE TABLE admins (
         id SERIAL PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -270,26 +274,20 @@ async function createDefaultAdminFallback() {
       );
     `);
     
-    // Check if admin exists
-    const [existingAdmin] = await sequelize.query(`
-      SELECT id FROM admins WHERE username = 'admin' LIMIT 1;
-    `);
+    console.log('✅ Admins table created with proper structure');
     
-    if (existingAdmin.length === 0) {
-      console.log('👤 Creating default admin user...');
-      const hashedPassword = await bcrypt.hash('admin123', 12);
-      
-      await sequelize.query(`
-        INSERT INTO admins (username, email, password, "displayName", role, permissions, "isActive")
-        VALUES ('admin', 'admin@kingchat.com', :password, 'System Administrator', 'admin', '["all"]', true);
-      `, {
-        replacements: { password: hashedPassword }
-      });
-      
-      console.log('✅ Default admin created: admin / admin123');
-    } else {
-      console.log('ℹ️  Admin user already exists');
-    }
+    // Always create default admin since we dropped the table
+    console.log('👤 Creating default admin user...');
+    const hashedPassword = await bcrypt.hash('admin123', 12);
+    
+    await sequelize.query(`
+      INSERT INTO admins (username, email, password, "displayName", role, permissions, "isActive")
+      VALUES ('admin', 'admin@kingchat.com', :password, 'System Administrator', 'admin', '["all"]', true);
+    `, {
+      replacements: { password: hashedPassword }
+    });
+    
+    console.log('✅ Default admin created: admin / admin123');
     
   } catch (error) {
     console.error('❌ Error creating admin:', error.message);
