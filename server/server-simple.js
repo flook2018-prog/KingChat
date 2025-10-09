@@ -68,12 +68,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Basic routes
 app.get('/', (req, res) => {
-  res.json({ 
-    message: '👑 KingChat API Server',
-    status: 'running',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
+  if (process.env.NODE_ENV === 'production') {
+    // In production, redirect to login page
+    res.redirect('/login');
+  } else {
+    res.json({ 
+      message: '👑 KingChat API Server',
+      status: 'running',
+      version: '1.0.2',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }
 });
 
 // Health check endpoint
@@ -150,6 +156,60 @@ if (process.env.NODE_ENV === 'production') {
     } else {
       console.error('❌ dashboard.html not found at:', filePath);
       res.status(404).json({ error: 'Dashboard page not found' });
+    }
+  });
+  
+  // Handle client assets (CSS, JS, etc.)
+  app.get('/css/*', (req, res) => {
+    const cssPath = global.clientPath ? 
+      path.join(global.clientPath, req.path) : 
+      path.join(__dirname, 'client', req.path);
+    
+    if (fs.existsSync(cssPath)) {
+      res.sendFile(cssPath);
+    } else {
+      res.status(404).send('CSS file not found');
+    }
+  });
+  
+  app.get('/js/*', (req, res) => {
+    const jsPath = global.clientPath ? 
+      path.join(global.clientPath, req.path) : 
+      path.join(__dirname, 'client', req.path);
+    
+    if (fs.existsSync(jsPath)) {
+      res.sendFile(jsPath);
+    } else {
+      res.status(404).send('JS file not found');
+    }
+  });
+  
+  app.get('/pages/*', (req, res) => {
+    const pagePath = global.clientPath ? 
+      path.join(global.clientPath, req.path) : 
+      path.join(__dirname, 'client', req.path);
+    
+    if (fs.existsSync(pagePath)) {
+      res.sendFile(pagePath);
+    } else {
+      res.status(404).send('Page not found');
+    }
+  });
+  
+  // Handle favicon and manifest
+  app.get('/favicon.ico', (req, res) => {
+    res.status(204).end();
+  });
+  
+  app.get('/manifest.json', (req, res) => {
+    const manifestPath = global.clientPath ? 
+      path.join(global.clientPath, 'manifest.json') : 
+      path.join(__dirname, 'client', 'manifest.json');
+    
+    if (fs.existsSync(manifestPath)) {
+      res.sendFile(manifestPath);
+    } else {
+      res.status(404).send('Manifest not found');
     }
   });
 }
