@@ -89,16 +89,40 @@ app.get('/health', (req, res) => {
 });
 
 // Serve static files in production
-if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
+if (process.env.NODE_ENV === 'production') {
   console.log('🌐 Serving static files from client directory');
   app.use(express.static(path.join(__dirname, '../client')));
   
   app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/login.html'));
+    const filePath = path.join(__dirname, '../client/login.html');
+    console.log('📁 Trying to serve login.html from:', filePath);
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('❌ Error serving login.html:', err);
+        res.status(404).json({ error: 'Login page not found' });
+      }
+    });
   });
   
   app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard.html'));
+    const filePath = path.join(__dirname, '../client/dashboard.html');
+    console.log('📁 Trying to serve dashboard.html from:', filePath);
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('❌ Error serving dashboard.html:', err);
+        res.status(404).json({ error: 'Dashboard page not found' });
+      }
+    });
+  });
+  
+  // Catch all route for client-side routing
+  app.get('*', (req, res) => {
+    const filePath = path.join(__dirname, '../client/login.html');
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        res.status(404).json({ error: 'Page not found' });
+      }
+    });
   });
 }
 

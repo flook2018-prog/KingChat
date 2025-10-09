@@ -13,6 +13,9 @@ RUN npm ci --only=production
 # Copy server source code
 COPY server/ ./
 
+# Copy client source code for static serving
+COPY client/ ../client/
+
 # Create uploads directory if needed
 RUN mkdir -p uploads
 
@@ -24,4 +27,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:$PORT/health || exit 1
 
 # Start the application
-CMD ["node", "server.js"]
+CMD ["node", "server-simple.js"]
