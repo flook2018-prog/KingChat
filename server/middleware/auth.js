@@ -1,6 +1,15 @@
 const jwt = require('jsonwebtoken');
 const { User, Admin } = require('../models/postgresql');
 
+// Permission levels for role hierarchy
+const PERMISSION_LEVELS = {
+  'super_admin': 5,
+  'admin': 4,
+  'manager': 3,
+  'agent': 2,
+  'viewer': 1
+};
+
 const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -32,10 +41,14 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'User account is deactivated.' });
     }
 
+    // Add permission level to user object
+    user.permissionLevel = PERMISSION_LEVELS[user.role] || 0;
+
     req.user = user;
     req.userType = decoded.userType || 'user';
     next();
   } catch (error) {
+    console.error('Auth middleware error:', error);
     res.status(401).json({ error: 'Token is not valid.' });
   }
 };
@@ -47,25 +60,48 @@ const requireRole = (roles) => {
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions.' });
+      return res.status(403).json({ 
+        error: 'Insufficient permissions.',
+        required: roles,
+        current: req.user.role
+      });
     }
 
     next();
   };
 };
 
-const requirePermission = (permission) => {
+// New middleware for permission level checking
+const requirePermissionLevel = (minLevel) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required.' });
     }
 
-    if (!req.user.permissions[permission]) {
-      return res.status(403).json({ error: `Permission '${permission}' required.` });
+    const userLevel = PERMISSION_LEVELS[req.user.role] || 0;
+    if (userLevel < minLevel) {
+      return res.status(403).json({ 
+        error: 'Insufficient permission level.',
+        required: minLevel,
+        current: userLevel
+      });
     }
 
     next();
   };
 };
 
-module.exports = { auth, requireRole, requirePermission };
+// Check if user can manage target role
+const canManageRole = (userRole, targetRole) => {
+  const userLevel = PERMISSION_LEVELS[userRole] || 0;
+  const targetLevel = PERMISSION_LEVELS[targetRole] || 0;
+  return userLevel > targetLevel;
+};
+
+module.exports = { 
+  auth, 
+  requireRole, 
+  requirePermissionLevel, 
+  canManageRole,
+  PERMISSION_LEVELS 
+};
