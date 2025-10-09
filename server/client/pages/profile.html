@@ -1,0 +1,612 @@
+<!DOCTY    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <link rel="stylesheet" href="../css/brand-animation.css">
+    <link rel="stylesheet" href="../css/responsive-ux.css">
+    <style>
+        /* ยกเนื้อหาให้ชิด navbar */
+        .main-content {
+            padding-top: var(--space-4) !important;
+            max-height: calc(100vh - var(--navbar-height)) !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .page-header {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: var(--space-4) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .page-content {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding-bottom: var(--space-4) !important;
+        }
+        
+        .profile-form-container {
+            max-height: calc(100vh - 200px) !important;
+            overflow-y: auto !important;
+        }
+    </style>tml>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรไฟล์ - KingChat</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/line-theme.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+
+        .profile-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-container {
+                padding: 10px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="crown">👑</span>
+            <span class="brand-text">KingChat</span>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-item">
+                <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+            <div class="navbar-item">
+                <span id="navUserName">System Administrator</span>
+            </div>
+            <div class="dropdown navbar-item">
+                <button class="btn btn-ghost dropdown-toggle" id="userMenu">
+                    👤
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="profile.html" class="dropdown-item">โปรไฟล์</a>
+                    <a href="settings.html" class="dropdown-item">ตั้งค่า</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" id="logoutBtn">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <a href="../dashboard.html" class="menu-item">
+                <span class="menu-icon">🏠</span>
+                <span class="menu-text">หน้าหลัก</span>
+            </a>
+            <a href="lineoa.html" class="menu-item">
+                <span class="menu-icon">�</span>
+                <span class="menu-text">จัดการ LINE OA</span>
+            </a>
+            <a href="customers.html" class="menu-item">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">รายชื่อลูกค้า</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <span class="menu-icon">💭</span>
+                <span class="menu-text">แชท</span>
+            </a>
+            <a href="admin.html" class="menu-item">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">จัดการแอดมิน</span>
+            </a>
+            <a href="profile.html" class="menu-item active">
+                <span class="menu-icon">👤</span>
+                <span class="menu-text">โปรไฟล์</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <span class="menu-icon">🔧</span>
+                <span class="menu-text">ตั้งค่า</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">👤</div>
+                    <h1 id="userDisplayName">System Administrator</h1>
+                    <p id="userRole">ผู้ดูแลระบบ</p>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <form class="profile-form" id="profileForm">
+                    <!-- ข้อมูลส่วนตัว -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span>👤</span>
+                            <span>ข้อมูลส่วนตัว</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="displayName">ชื่อที่แสดง</label>
+                                <input type="text" id="displayName" name="displayName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">ชื่อผู้ใช้</label>
+                                <input type="text" id="username" name="username" required readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">อีเมล</label>
+                                <input type="email" id="email" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">เบอร์โทรศัพท์</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="role">บทบาท</label>
+                            <select id="role" name="role" disabled>
+                                <option value="admin">ผู้ดูแลระบบ</option>
+                                <option value="agent">เจ้าหน้าที่</option>
+                                <option value="viewer">ผู้ดู</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- เปลี่ยนรหัสผ่าน -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span>🔐</span>
+                            <span>เปลี่ยนรหัสผ่าน</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currentPassword">รหัสผ่านปัจจุบัน</label>
+                            <div class="password-group">
+                                <input type="password" id="currentPassword" name="currentPassword">
+                                <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">👁️</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newPassword">รหัสผ่านใหม่</label>
+                                <div class="password-group">
+                                    <input type="password" id="newPassword" name="newPassword">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">👁️</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">ยืนยันรหัสผ่านใหม่</label>
+                                <div class="password-group">
+                                    <input type="password" id="confirmPassword" name="confirmPassword">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ข้อมูลเพิ่มเติม -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span>📝</span>
+                            <span>ข้อมูลเพิ่มเติม</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bio">เกี่ยวกับฉัน</label>
+                            <textarea id="bio" name="bio" placeholder="แนะนำตัวเอง..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="department">แผนก</label>
+                                <input type="text" id="department" name="department">
+                            </div>
+                            <div class="form-group">
+                                <label for="position">ตำแหน่ง</label>
+                                <input type="text" id="position" name="position">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/theme.js"></script>
+    <script>
+        let originalData = {};
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!auth.isLoggedIn()) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            await loadUserProfile();
+        });
+
+        // Load user profile data
+        async function loadUserProfile() {
+            try {
+                const user = auth.getUser();
+                if (!user) {
+                    throw new Error('ไม่พบข้อมูลผู้ใช้');
+                }
+
+                // Get detailed user info from API
+                const userDetail = await api.getUserById(user.id);
+                
+                // Store original data for reset
+                originalData = { ...userDetail };
+
+                // Populate form
+                document.getElementById('displayName').value = userDetail.displayName || '';
+                document.getElementById('username').value = userDetail.username || '';
+                document.getElementById('email').value = userDetail.email || '';
+                document.getElementById('phone').value = userDetail.phone || '';
+                document.getElementById('role').value = userDetail.role || 'agent';
+                document.getElementById('bio').value = userDetail.bio || '';
+                document.getElementById('department').value = userDetail.department || '';
+                document.getElementById('position').value = userDetail.position || '';
+
+                // Update header
+                document.getElementById('userDisplayName').textContent = userDetail.displayName || userDetail.username;
+                document.getElementById('userRole').textContent = getRoleDisplayName(userDetail.role);
+
+                // Update navbar
+                document.getElementById('navUserName').textContent = userDetail.displayName || userDetail.username;
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showAlert('เกิดข้อผิดพลาดในการโหลดข้อมูลโปรไฟล์', 'danger');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const formData = new FormData(e.target);
+                const updateData = {};
+                
+                // Basic profile data
+                updateData.displayName = formData.get('displayName');
+                updateData.email = formData.get('email');
+                updateData.phone = formData.get('phone');
+                updateData.bio = formData.get('bio');
+                updateData.department = formData.get('department');
+                updateData.position = formData.get('position');
+
+                // Password change
+                const currentPassword = formData.get('currentPassword');
+                const newPassword = formData.get('newPassword');
+                const confirmPassword = formData.get('confirmPassword');
+
+                if (newPassword) {
+                    if (!currentPassword) {
+                        throw new Error('กรุณากรอกรหัสผ่านปัจจุบัน');
+                    }
+                    if (newPassword !== confirmPassword) {
+                        throw new Error('รหัสผ่านใหม่ไม่ตรงกัน');
+                    }
+                    if (newPassword.length < 6) {
+                        throw new Error('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');
+                    }
+                    
+                    updateData.currentPassword = currentPassword;
+                    updateData.newPassword = newPassword;
+                }
+
+                // Update profile
+                const user = auth.getUser();
+                await api.updateUser(user.id, updateData);
+
+                // Update stored user data if display name changed
+                if (updateData.displayName !== originalData.displayName) {
+                    const updatedUser = { ...user, displayName: updateData.displayName };
+                    auth.setUser(updatedUser);
+                }
+
+                // Clear password fields
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+
+                showAlert('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+                
+                // Reload profile data
+                await loadUserProfile();
+
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('เกิดข้อผิดพลาด: ' + error.message, 'danger');
+            }
+        });
+
+        // Reset form to original data
+        function resetForm() {
+            document.getElementById('displayName').value = originalData.displayName || '';
+            document.getElementById('email').value = originalData.email || '';
+            document.getElementById('phone').value = originalData.phone || '';
+            document.getElementById('bio').value = originalData.bio || '';
+            document.getElementById('department').value = originalData.department || '';
+            document.getElementById('position').value = originalData.position || '';
+            
+            // Clear password fields
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        // Toggle password visibility
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                field.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        // Get role display name
+        function getRoleDisplayName(role) {
+            const roleNames = {
+                admin: 'ผู้ดูแลระบบ',
+                agent: 'เจ้าหน้าที่',
+                viewer: 'ผู้ดู'
+            };
+            return roleNames[role] || role;
+        }
+
+        // Dropdown functionality
+        document.getElementById('userMenu').addEventListener('click', toggleDropdown);
+        
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLogout();
+        });
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Handle logout
+        function handleLogout() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                auth.logout();
+                window.location.href = '../login.html';
+            }
+        }
+    </script>
+    
+    <script src="../js/brand-animation.js"></script>
+    <script src="../js/user-display.js"></script>
+    <script src="../js/global-user-menu.js"></script>
+</body>
+</html>

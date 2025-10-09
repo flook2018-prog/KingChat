@@ -1,0 +1,388 @@
+/* Mobile Responsive Design for KingChat */
+
+/* Mobile-first approach with progressive enhancement */
+
+/* Mobile Breakpoints */
+:root {
+  --mobile-breakpoint: 768px;
+  --tablet-breakpoint: 1024px;
+  --desktop-breakpoint: 1200px;
+}
+
+/* Base mobile styles */
+@media (max-width: 768px) {
+  /* Hide sidebar by default on mobile */
+  .sidebar {
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    width: 280px;
+    height: calc(100vh - var(--navbar-height));
+    background: var(--bg-primary);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    border-right: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Mobile overlay */
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .mobile-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Adjust main content for mobile */
+  .main-content {
+    margin-left: 0;
+    padding: var(--space-4) var(--space-3);
+    width: 100%;
+  }
+
+  /* Mobile hamburger menu */
+  .mobile-menu-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--border-radius);
+    transition: background-color 0.2s ease;
+  }
+
+  .mobile-menu-toggle:hover {
+    background: var(--bg-secondary);
+  }
+
+  /* Hide desktop hamburger on larger screens */
+  .mobile-menu-toggle {
+    display: none;
+  }
+
+  /* Navbar adjustments */
+  .navbar {
+    padding: 0 var(--space-3);
+  }
+
+  .navbar-brand {
+    font-size: var(--font-size-lg);
+  }
+
+  .navbar-menu {
+    gap: var(--space-2);
+  }
+
+  .navbar-item {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Cards and content adjustments */
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .stat-card {
+    padding: var(--space-3);
+  }
+
+  .stat-card h3 {
+    font-size: var(--font-size-lg);
+  }
+
+  .stat-card .stat-value {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Form adjustments */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: var(--space-3);
+  }
+
+  /* Button adjustments */
+  .btn {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-base);
+  }
+
+  .btn-group {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .btn-group .btn {
+    width: 100%;
+  }
+
+  /* Table responsive */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 600px;
+    font-size: var(--font-size-sm);
+  }
+
+  .table th,
+  .table td {
+    padding: var(--space-2);
+    white-space: nowrap;
+  }
+
+  /* Hide less important columns on mobile */
+  .table .hide-mobile {
+    display: none;
+  }
+
+  /* Modal adjustments */
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    margin: var(--space-4);
+    max-height: calc(100vh - var(--space-8));
+  }
+
+  .modal-body {
+    padding: var(--space-3);
+  }
+
+  /* Chat interface mobile */
+  .chat-container {
+    flex-direction: column;
+    margin-left: 0;
+  }
+
+  .chat-sidebar {
+    width: 100%;
+    height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .chat-main {
+    flex: 1;
+    height: calc(100vh - var(--navbar-height) - 200px);
+  }
+
+  .chat-input-container {
+    padding: var(--space-3);
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .chat-input {
+    font-size: 16px; /* Prevent zoom */
+  }
+
+  /* Search and filters */
+  .search-filters {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .search-input {
+    width: 100%;
+    font-size: 16px; /* Prevent zoom */
+  }
+
+  .filter-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-2);
+  }
+
+  /* Touch-friendly improvements */
+  .clickable,
+  .btn,
+  .menu-item,
+  .nav-item {
+    min-height: 44px; /* iOS recommended touch target */
+    display: flex;
+    align-items: center;
+  }
+
+  /* Dropdown menu adjustments */
+  .dropdown-menu {
+    position: fixed;
+    top: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+    bottom: var(--space-4);
+    width: calc(100% - var(--space-8));
+    max-width: 300px;
+    border-radius: var(--border-radius-lg);
+  }
+
+  /* Profile and settings forms */
+  .profile-container,
+  .settings-container {
+    padding: var(--space-3);
+  }
+
+  .profile-header {
+    padding: var(--space-4);
+    text-align: center;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+
+  /* Loading states mobile */
+  .loading-overlay .loading-container {
+    padding: var(--space-4);
+    margin: var(--space-4);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Theme toggle mobile */
+  .theme-toggle {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  /* Breadcrumb mobile adjustments already included in breadcrumb.js */
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    margin-left: 200px;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop and larger screens */
+@media (min-width: 1025px) {
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+
+  .sidebar {
+    position: fixed;
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .icon,
+  .avatar {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode mobile specific adjustments */
+[data-theme="dark"] {
+  @media (max-width: 768px) {
+    .mobile-overlay {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .sidebar {
+      background: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+  }
+}
+
+/* iOS specific adjustments */
+@supports (-webkit-appearance: none) {
+  @media (max-width: 768px) {
+    /* Fix iOS safe area */
+    .navbar {
+      padding-top: env(safe-area-inset-top);
+      height: calc(var(--navbar-height) + env(safe-area-inset-top));
+    }
+
+    .main-content {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .chat-input-container {
+      padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+    }
+
+    /* Fix iOS input zoom */
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/* Android specific adjustments */
+@media (max-width: 768px) {
+  /* Fix Android keyboard issues */
+  .viewport-height {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+
+  .main-content {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}

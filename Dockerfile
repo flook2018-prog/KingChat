@@ -10,12 +10,8 @@ COPY server/package*.json ./
 # Install dependencies
 RUN npm ci --only=production
 
-# Copy server source code
+# Copy server source code (now includes client files)
 COPY server/ ./
-
-# Create client directory and copy client files
-RUN mkdir -p ./client
-COPY client/ ./client/
 
 # Create uploads directory if needed
 RUN mkdir -p uploads

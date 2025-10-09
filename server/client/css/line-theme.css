@@ -1,0 +1,680 @@
+/* LINE-Style Color Theme for KingChat */
+
+:root {
+  /* LINE Brand Colors */
+  --line-green: #00B900;
+  --line-green-light: #06C755;
+  --line-green-dark: #009900;
+  --line-green-hover: #00A000;
+  
+  /* LINE Background Colors - Light Mode */
+  --line-bg-primary: #FFFFFF;
+  --line-bg-secondary: #F7F8FA;
+  --line-bg-tertiary: #EBEEF2;
+  --line-bg-chat: #E8F0FE;
+  --line-bg-bubble-sent: #00B900;
+  --line-bg-bubble-received: #FFFFFF;
+  
+  /* LINE Text Colors - Light Mode */
+  --line-text-primary: #1A1A1A;
+  --line-text-secondary: #6C7B7F;
+  --line-text-muted: #9AA2A8;
+  --line-text-white: #FFFFFF;
+  --line-text-link: #0088CC;
+  
+  /* LINE Accent Colors */
+  --line-yellow: #FFE500;
+  --line-red: #FF3040;
+  --line-blue: #0088CC;
+  --line-purple: #8B5CF6;
+  --line-orange: #FF8C00;
+  
+  /* LINE Border Colors - Light Mode */
+  --line-border-light: #E8EAED;
+  --line-border-medium: #D1D7DB;
+  --line-border-dark: #9AA2A8;
+  
+  /* LINE Shadow */
+  --line-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --line-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --line-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+  
+  /* Update primary colors to LINE theme - Light Mode */
+  --primary: var(--line-green);
+  --primary-hover: var(--line-green-hover);
+  --primary-dark: var(--line-green-dark);
+  --primary-light: var(--line-green-light);
+  
+  --bg-primary: var(--line-bg-primary);
+  --bg-secondary: var(--line-bg-secondary);
+  --bg-tertiary: var(--line-bg-tertiary);
+  
+  --text-primary: var(--line-text-primary);
+  --text-secondary: var(--line-text-secondary);
+  --text-muted: var(--line-text-muted);
+  
+  --border-color: var(--line-border-light);
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  /* LINE Background Colors - Dark Mode */
+  --line-bg-primary: #1A1A1A;
+  --line-bg-secondary: #2C2C2C;
+  --line-bg-tertiary: #3A3A3A;
+  --line-bg-chat: #252525;
+  --line-bg-bubble-sent: #00B900;
+  --line-bg-bubble-received: #FFFFFF;
+  
+  /* LINE Text Colors - Dark Mode */
+  --line-text-primary: #FFFFFF;
+  --line-text-secondary: #E0E0E0;
+  --line-text-muted: #B0B0B0;
+  --line-text-white: #FFFFFF;
+  --line-text-link: #4FC3F7;
+  
+  /* LINE Border Colors - Dark Mode */
+  --line-border-light: #404040;
+  --line-border-medium: #505050;
+  --line-border-dark: #606060;
+  
+  /* LINE Shadow - Dark Mode */
+  --line-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --line-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --line-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+  
+  /* Update primary colors for Dark Mode */
+  --bg-primary: var(--line-bg-primary);
+  --bg-secondary: var(--line-bg-secondary);
+  --bg-tertiary: var(--line-bg-tertiary);
+  
+  --text-primary: var(--line-text-primary);
+  --text-secondary: var(--line-text-secondary);
+  --text-muted: var(--line-text-muted);
+  
+  --border-color: var(--line-border-light);
+  --shadow: var(--line-shadow);
+  --shadow-sm: var(--line-shadow-sm);
+  --shadow-lg: var(--line-shadow-lg);
+}
+
+/* LINE-style Navbar */
+.navbar {
+  background: var(--line-green);
+  border-bottom: none;
+  box-shadow: var(--line-shadow);
+}
+
+/* Global Text Color Rules */
+body {
+  color: var(--text-primary) !important;
+  background: var(--bg-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary) !important;
+}
+
+p, span, div, a, label, input, textarea, select {
+  color: var(--text-primary) !important;
+}
+
+/* Override for specific elements that should stay white */
+.navbar, .navbar *, .btn-primary, .btn-primary * {
+  color: white !important;
+}
+
+/* Dark Mode - Force Dark Text in Received Messages */
+[data-theme="dark"] .message:not(.sent) .message-bubble,
+[data-theme="dark"] .message:not(.sent) .message-bubble *,
+[data-theme="dark"] .message:not(.sent) .message-content {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+/* Override for secondary text */
+.text-secondary, .menu-item:not(.active), .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Table text colors */
+table, th, td {
+  color: var(--text-primary) !important;
+}
+
+/* Form elements */
+.form-control, .form-control:focus {
+  color: var(--text-primary) !important;
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand .brand-text {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.navbar-brand .crown {
+  color: var(--line-yellow);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  font-size: 1.5rem; /* ทำให้ logo ใหญ่ขึ้น */
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.navbar-menu .navbar-item {
+  color: white;
+}
+
+.theme-toggle {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.2);
+  color: white;
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* LINE-style Sidebar */
+.sidebar {
+  background: var(--line-bg-primary);
+  border-right: 1px solid var(--line-border-light);
+  box-shadow: var(--line-shadow-sm);
+  min-width: 220px; /* ให้ sidebar กว้างพอสำหรับข้อความ */
+}
+
+.menu-item {
+  color: var(--line-text-secondary);
+  border-radius: 8px;
+  margin: 2px 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
+  display: flex;
+  align-items: center;
+  min-height: 48px; /* ความสูงขั้นต่ำ */
+  padding: 8px 12px; /* เพิ่ม padding */
+}
+
+.menu-item:hover {
+  background: var(--line-bg-secondary);
+  color: var(--line-text-primary);
+}
+
+.menu-item.active {
+  background: var(--line-green);
+  color: white;
+  font-weight: 600;
+}
+
+.menu-item .menu-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* ป้องกันตกบรรทัด */
+  line-height: 1.2;
+}
+
+/* เฉพาะกับข้อความยาวๆ เช่น "จัดการผู้ใช้" */
+.menu-item .menu-text:lang(th) {
+  font-size: 13px; /* ลดขนาดตัวอักษรเล็กน้อยสำหรับภาษาไทย */
+  letter-spacing: -0.2px; /* ลดระยะห่างระหว่างตัวอักษร */
+}
+
+.menu-item .menu-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  margin-right: 12px;
+  flex-shrink: 0; /* ไม่ให้ icon หดเล็ก */
+}
+
+/* เฉพาะสำหรับรายการที่มีข้อความยาว */
+.admin-only .menu-text {
+  font-size: 13px !important;
+  letter-spacing: -0.3px;
+  font-weight: 500;
+}
+
+/* Responsive สำหรับหน้าจอเล็ก */
+@media (max-width: 1200px) {
+  .menu-item .menu-text {
+    font-size: 12px;
+    letter-spacing: -0.2px;
+  }
+}
+
+/* LINE-style Cards */
+.card {
+  background: var(--line-bg-primary);
+  border: 1px solid var(--line-border-light);
+  border-radius: 12px;
+  box-shadow: var(--line-shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--line-shadow);
+  transform: translateY(-1px);
+}
+
+.card-header {
+  background: var(--line-bg-secondary);
+  border-bottom: 1px solid var(--line-border-light);
+  border-radius: 12px 12px 0 0;
+  padding: 16px 20px;
+  font-weight: 600;
+  color: var(--line-text-primary);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* LINE-style Buttons */
+.btn {
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--line-green);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 185, 0, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--line-green-hover);
+  box-shadow: 0 4px 12px rgba(0, 185, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--line-bg-tertiary);
+  color: var(--line-text-secondary);
+}
+
+.btn-secondary:hover {
+  background: var(--line-border-medium);
+  color: var(--line-text-primary);
+}
+
+.btn-danger {
+  background: var(--line-red);
+  color: white;
+}
+
+.btn-warning {
+  background: var(--line-orange);
+  color: white;
+}
+
+.btn-info {
+  background: var(--line-blue);
+  color: white;
+}
+
+/* LINE-style Forms */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border: 2px solid var(--line-border-light);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: var(--line-bg-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--line-green);
+  box-shadow: 0 0 0 3px rgba(0, 185, 0, 0.1);
+}
+
+.form-group label {
+  color: var(--line-text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* LINE-style Chat Interface */
+.chat-container {
+  background: var(--line-bg-chat);
+}
+
+.chat-sidebar {
+  background: var(--line-bg-primary);
+  border-right: 1px solid var(--line-border-light);
+}
+
+.chat-item {
+  border-radius: 8px;
+  margin: 4px 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.chat-item:hover {
+  background: var(--line-bg-secondary);
+}
+
+.chat-item.active {
+  background: var(--line-green);
+  color: white;
+}
+
+.chat-main {
+  background: var(--line-bg-chat);
+}
+
+.message {
+  max-width: 70%;
+  margin-bottom: 12px;
+  animation: messageSlideIn 0.3s ease;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.sent {
+  margin-left: auto;
+}
+
+.message.sent .message-content {
+  background: var(--line-green);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.message:not(.sent) .message-content {
+  background: white;
+  color: var(--line-text-primary);
+  border: 1px solid var(--line-border-light);
+  border-radius: 18px 18px 18px 4px;
+}
+
+.message-content {
+  padding: 12px 16px;
+  box-shadow: var(--line-shadow-sm);
+  word-wrap: break-word;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: var(--line-text-muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.message.sent .message-time {
+  text-align: right;
+}
+
+.message:not(.sent) .message-time {
+  text-align: left;
+}
+
+/* LINE-style Chat Input */
+.chat-input-container {
+  background: white;
+  border-top: 1px solid var(--line-border-light);
+  padding: 16px;
+}
+
+.chat-input {
+  border: 2px solid var(--line-border-light);
+  border-radius: 24px;
+  padding: 12px 20px;
+  background: var(--line-bg-secondary);
+  transition: all 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: var(--line-green);
+  background: white;
+}
+
+.send-button {
+  background: var(--line-green);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  margin-left: 12px;
+  transition: all 0.2s ease;
+}
+
+.send-button:hover {
+  background: var(--line-green-hover);
+  transform: scale(1.05);
+}
+
+/* LINE-style Tables */
+.table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--line-shadow-sm);
+}
+
+.table th {
+  background: var(--line-bg-secondary);
+  color: var(--line-text-secondary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--line-border-light);
+}
+
+.table td {
+  border-bottom: 1px solid var(--line-border-light);
+}
+
+.table tr:hover {
+  background: var(--line-bg-secondary);
+}
+
+/* LINE-style Status Indicators */
+.status-online {
+  color: var(--line-green);
+}
+
+.status-offline {
+  color: var(--line-text-muted);
+}
+
+.status-away {
+  color: var(--line-yellow);
+}
+
+.status-busy {
+  color: var(--line-red);
+}
+
+/* LINE-style Notifications */
+.notification.success {
+  border-left: 4px solid var(--line-green);
+  background: var(--line-bg-primary);
+}
+
+.notification.error {
+  border-left: 4px solid var(--line-red);
+  background: var(--line-bg-primary);
+}
+
+.notification.warning {
+  border-left: 4px solid var(--line-orange);
+  background: var(--line-bg-primary);
+}
+
+.notification.info {
+  border-left: 4px solid var(--line-blue);
+  background: var(--line-bg-primary);
+}
+
+/* LINE-style Modal */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: var(--line-shadow-lg);
+}
+
+.modal-header {
+  background: var(--line-bg-secondary);
+  border-bottom: 1px solid var(--line-border-light);
+  border-radius: 12px 12px 0 0;
+}
+
+/* LINE-style Dropdown */
+.dropdown-menu {
+  border: 1px solid var(--line-border-light);
+  border-radius: 12px;
+  box-shadow: var(--line-shadow);
+  background: white;
+}
+
+.dropdown-item {
+  color: var(--line-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: var(--line-bg-secondary);
+  color: var(--line-text-primary);
+}
+
+/* LINE-style Stats Cards */
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--line-border-light);
+  box-shadow: var(--line-shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: var(--line-shadow);
+  transform: translateY(-2px);
+}
+
+.stat-card .stat-icon {
+  background: var(--line-green);
+  color: white;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 1.5rem;
+}
+
+.stat-card .stat-value {
+  color: var(--line-green);
+  font-weight: 700;
+}
+
+.stat-card .stat-label {
+  color: var(--line-text-secondary);
+  font-size: 0.9rem;
+}
+
+/* LINE-style Loading */
+.spinner {
+  border-top-color: var(--line-green);
+}
+
+.loading-dots span {
+  background: var(--line-green);
+}
+
+.progress-bar-fill {
+  background: var(--line-green);
+}
+
+/* LINE-style Breadcrumb */
+.breadcrumb-nav {
+  background: var(--line-bg-secondary);
+  border-bottom: 1px solid var(--line-border-light);
+}
+
+.breadcrumb-item a {
+  color: var(--line-green);
+}
+
+.breadcrumb-item.active {
+  color: var(--line-text-primary);
+  font-weight: 600;
+}
+
+/* LINE-style Mobile Menu */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    color: white;
+  }
+  
+  .mobile-overlay {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .sidebar.mobile-open {
+    box-shadow: var(--line-shadow-lg);
+  }
+}
+
+/* LINE-style Animations */
+@keyframes lineGreenPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 185, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 185, 0, 0);
+  }
+}
+
+.pulse-green {
+  animation: lineGreenPulse 2s infinite;
+}
+
+/* LINE-style Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--line-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line-border-medium);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--line-green);
+}

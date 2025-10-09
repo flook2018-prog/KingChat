@@ -1,0 +1,101 @@
+/* KingChat Brand Text Animation */
+
+.brand-text {
+  display: inline-block;
+  color: white !important; /* ใน navbar จะเป็นสีขาวเสมอ */
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+}
+
+.brand-text .letter {
+  display: inline-block;
+  opacity: 0;
+  color: white !important; /* ใน navbar จะเป็นสีขาวเสมอ */
+  animation: fadeInLetter 0.8s ease-in-out forwards;
+}
+
+/* Brand text ในหน้า login (ปรับตามโหมด) */
+.login-page .brand-text,
+.login-page .brand-text .letter {
+  color: var(--text-primary) !important;
+}
+
+/* Brand text สำหรับ header อื่นๆ (ปรับตามโหมด) */
+.page-header .brand-text,
+.page-header .brand-text .letter,
+.logo .brand-text,
+.logo .brand-text .letter {
+  color: var(--text-primary) !important;
+}
+
+/* Animation สำหรับแสดงทีละตัวอักษร */
+@keyframes fadeInLetter {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Delay สำหรับแต่ละตัวอักษร */
+.brand-text .letter:nth-child(1) { animation-delay: 0.1s; } /* K */
+.brand-text .letter:nth-child(2) { animation-delay: 0.2s; } /* i */
+.brand-text .letter:nth-child(3) { animation-delay: 0.3s; } /* n */
+.brand-text .letter:nth-child(4) { animation-delay: 0.4s; } /* g */
+.brand-text .letter:nth-child(5) { animation-delay: 0.6s; } /* C */
+.brand-text .letter:nth-child(6) { animation-delay: 0.7s; } /* h */
+.brand-text .letter:nth-child(7) { animation-delay: 0.8s; } /* a */
+.brand-text .letter:nth-child(8) { animation-delay: 0.9s; } /* t */
+
+/* เพิ่มเอฟเฟกต์เมื่อ hover */
+.navbar-brand:hover .brand-text .letter {
+  animation: bounceText 0.6s ease-in-out;
+}
+
+@keyframes bounceText {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* เอฟเฟกต์เพิ่มเติมสำหรับ crown */
+.navbar-brand .crown {
+  color: var(--line-yellow);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  font-size: 1.5rem;
+  display: inline-block;
+  margin-right: 8px;
+  animation: crownGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes crownGlow {
+  0% {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  100% {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 0 8px rgba(255, 229, 0, 0.3);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .brand-text .letter {
+    animation-duration: 0.6s;
+  }
+  
+  .brand-text .letter:nth-child(1) { animation-delay: 0.05s; }
+  .brand-text .letter:nth-child(2) { animation-delay: 0.1s; }
+  .brand-text .letter:nth-child(3) { animation-delay: 0.15s; }
+  .brand-text .letter:nth-child(4) { animation-delay: 0.2s; }
+  .brand-text .letter:nth-child(5) { animation-delay: 0.3s; }
+  .brand-text .letter:nth-child(6) { animation-delay: 0.35s; }
+  .brand-text .letter:nth-child(7) { animation-delay: 0.4s; }
+  .brand-text .letter:nth-child(8) { animation-delay: 0.45s; }
+}

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KingChat Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/line-theme.css">
+    <link rel="stylesheet" href="css/brand-animation.css">
+    <link rel="stylesheet" href="css/responsive-ux.css">
+    <style>
+        /* แก้ไขปัญหาข้อความ "จัดการผู้ใช้" ตกบรรทัดเฉพาะหน้า Dashboard */
+        .admin-only .menu-text {
+            font-size: 14px !important; /* เท่ากับเครื่องมืออื่นๆ */
+            letter-spacing: -0.3px !important; /* ลดเล็กน้อยเพื่อไม่ให้ตกบรรทัด */
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        /* เพิ่มความกว้างให้ sidebar เฉพาะหน้านี้ */
+        .sidebar {
+            min-width: 300px !important; /* เพิ่มเล็กน้อยเพื่อรองรับตัวอักษร 14px */
+            top: var(--navbar-height) !important; /* แก้ไขตำแหน่งให้ติดกับ navbar */
+            position: fixed !important;
+            left: 0 !important;
+            height: calc(100vh - var(--navbar-height)) !important;
+        }
+        
+        /* ปรับ main content ให้ไม่ซ่อนหลัง sidebar */
+        .main-content {
+            margin-left: 300px !important; /* เท่ากับความกว้าง sidebar */
+            padding-top: var(--space-4) !important; /* ลด padding ด้านบนให้ชิด navbar */
+            margin-top: var(--navbar-height) !important;
+            max-height: calc(100vh - var(--navbar-height)) !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* ลด spacing ด้านบนของ page header */
+        .page-header {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: var(--space-4) !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* ทำให้ content ใช้พื้นที่ที่เหลือ */
+        .dashboard-content {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding-bottom: var(--space-4) !important;
+        }
+        
+        /* ปรับ padding ให้เท่ากับ menu item อื่นๆ */
+        .admin-only {
+            padding: 8px 12px !important; /* เท่ากับปุ่มอื่นๆ */
+        }
+        
+        /* ปรับ icon ให้เท่ากับอื่นๆ */
+        .admin-only .menu-icon {
+            font-size: 24px !important; /* เท่ากับ icon อื่นๆ */
+            width: 24px !important;
+            height: 24px !important;
+            margin-right: 12px !important; /* เท่ากับอื่นๆ */
+        }
+        
+        /* แก้ไขสีให้เหมือนปุ่มอื่นๆ */
+        .admin-only {
+            color: var(--line-text-secondary) !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
+        }
+        
+        .admin-only:hover {
+            background: var(--line-bg-secondary) !important;
+            color: var(--line-text-primary) !important;
+        }
+        
+        .admin-only .menu-text {
+            color: inherit !important;
+        }
+        
+        .admin-only .menu-icon {
+            color: inherit !important;
+        }
+        
+        /* Responsive design สำหรับหน้าจอเล็ก */
+        @media (max-width: 768px) {
+            .sidebar {
+                min-width: 260px !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="crown">👑</span>
+            <span class="brand-text">KingChat</span>
+        </div>
+        
+        <div class="navbar-menu">
+            <div class="navbar-item">
+                <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+            <div class="navbar-item">
+                <span id="userDisplayName">Loading...</span>
+            </div>
+            <div class="navbar-item dropdown">
+                <button class="btn btn-ghost" id="userMenuBtn">
+                    <span id="userAvatar">👤</span>
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="pages/profile.html" class="dropdown-item">โปรไฟล์</a>
+                    <a href="pages/settings.html" class="dropdown-item">ตั้งค่า</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="logout()">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item active">
+                <span class="menu-icon">📊</span>
+                <span class="menu-text">หน้าหลัก</span>
+            </a>
+            <a href="pages/lineoa.html" class="menu-item">
+                <span class="menu-icon">📱</span>
+                <span class="menu-text">บัญชี LINE OA</span>
+            </a>
+            <a href="pages/customers.html" class="menu-item">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">รายชื่อลูกค้า</span>
+            </a>
+            <a href="pages/chat.html" class="menu-item">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">แชท</span>
+                <span class="badge" id="unreadBadge" style="display: none;">0</span>
+            </a>
+            <a href="pages/admin.html" class="menu-item admin-only">
+                <span class="menu-icon">●</span>
+                <span class="menu-text">จัดการแอดมิน</span>
+            </a>
+            <a href="pages/settings.html" class="menu-item">
+                <span class="menu-icon">🔧</span>
+                <span class="menu-text">ตั้งค่า</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">ภาพรวมของระบบ KingChat</p>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📱</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalLineOA">0</div>
+                    <div class="stat-label">บัญชี LINE OA</div>
+                </div>
+                <div class="stat-trend positive">
+                    <span>+2</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalCustomers">0</div>
+                    <div class="stat-label">ลูกค้าทั้งหมด</div>
+                </div>
+                <div class="stat-trend positive">
+                    <span>+15</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalMessages">0</div>
+                    <div class="stat-label">ข้อความวันนี้</div>
+                </div>
+                <div class="stat-trend positive">
+                    <span>+58</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🟢</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="onlineCustomers">0</div>
+                    <div class="stat-label">ออนไลน์ตอนนี้</div>
+                </div>
+                <div class="stat-trend neutral">
+                    <span>-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="content-grid">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">ข้อความล่าสุด</h3>
+                    <a href="pages/chat.html" class="btn btn-secondary btn-sm">ดูทั้งหมด</a>
+                </div>
+                <div class="card-content">
+                    <div id="recentMessages" class="list-container">
+                        <div class="loading">กำลังโหลดข้อมูล...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">ลูกค้าใหม่</h3>
+                    <a href="pages/customers.html" class="btn btn-secondary btn-sm">ดูทั้งหมด</a>
+                </div>
+                <div class="card-content">
+                    <div id="newCustomers" class="list-container">
+                        <div class="loading">กำลังโหลดข้อมูล...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LINE OA Status -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">สถานะบัญชี LINE OA</h3>
+                <a href="pages/lineoa.html" class="btn btn-secondary btn-sm">จัดการ</a>
+            </div>
+            <div class="card-content">
+                <div id="lineOAStatus" class="list-container">
+                    <div class="loading">กำลังโหลดข้อมูล...</div>
+                </div>
+            </div>
+        </div>
+        </div> <!-- ปิด dashboard-content -->
+    </main>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/brand-animation.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/keyboard-shortcuts.js"></script>
+    <script src="js/auto-save.js"></script>
+    <script src="js/breadcrumb.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/global-user-menu.js"></script>
+</body>
+</html>

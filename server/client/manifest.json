@@ -1,0 +1,161 @@
+{
+  "name": "KingChat - ระบบจัดการลูกค้า LINE OA",
+  "short_name": "KingChat",
+  "description": "ระบบจัดการลูกค้าและการสนทนาผ่าน LINE Official Account อย่างมืออาชีพ",
+  "start_url": "/dashboard.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "th",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "communication"],
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard-mobile.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "platform": "mobile",
+      "label": "หน้าหลักบนมือถือ"
+    },
+    {
+      "src": "/screenshots/chat-mobile.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "platform": "mobile",
+      "label": "หน้าแชทบนมือถือ"
+    },
+    {
+      "src": "/screenshots/dashboard-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "หน้าหลักบนเดสก์ท็อป"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "แชท",
+      "short_name": "แชท",
+      "description": "เปิดหน้าแชทโดยตรง",
+      "url": "/pages/chat.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-chat.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "ลูกค้า",
+      "short_name": "ลูกค้า",
+      "description": "ดูรายชื่อลูกค้า",
+      "url": "/pages/customers.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-customers.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "LINE OA",
+      "short_name": "LINE OA",
+      "description": "จัดการบัญชี LINE Official Account",
+      "url": "/pages/lineoa.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-lineoa.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "ตั้งค่า",
+      "short_name": "ตั้งค่า",
+      "description": "เปิดหน้าตั้งค่าระบบ",
+      "url": "/pages/settings.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-settings.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
+  "protocol_handlers": [
+    {
+      "protocol": "web+kingchat",
+      "url": "/pages/chat.html?customer=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/pages/chat.html",
+    "method": "GET",
+    "params": {
+      "title": "subject",
+      "text": "body",
+      "url": "url"
+    }
+  }
+}

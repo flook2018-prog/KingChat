@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KingChat - เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/line-theme.css">
+    <link rel="stylesheet" href="css/brand-animation.css">
+</head>
+<body class="login-page">
+    <!-- Theme Toggle Button -->
+    <div class="login-theme-toggle">
+        <button class="theme-toggle" id="themeToggle" title="เปลี่ยนโหมดสี">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <span class="crown">👑</span>
+                <h1 class="brand-text">KingChat</h1>
+            </div>
+            <p class="subtitle">ระบบจัดการลูกค้า LINE Official Account</p>
+        </div>
+
+        <div class="login-form-container">
+            <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
+            <div id="successMessage" class="alert alert-success" style="display: none;"></div>
+
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน</label>
+                    <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                    <span class="btn-text">เข้าสู่ระบบ</span>
+                    <span class="loading-spinner" style="display: none;">🔄</span>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p class="demo-info">
+                    <strong>Demo Account:</strong><br>
+                    Username: admin | Password: admin123
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/brand-animation.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
