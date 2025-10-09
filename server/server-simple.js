@@ -9,6 +9,20 @@ const path = require('path');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+// Set default environment variables if not provided
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+}
+if (!process.env.PORT) {
+  process.env.PORT = '8080';
+}
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'railway-jwt-secret-2024';
+}
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway';
+}
+
 console.log('🚀 Starting KingChat Server...');
 console.log('🔧 Environment check:');
 console.log('   NODE_ENV:', process.env.NODE_ENV);

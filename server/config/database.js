@@ -5,7 +5,14 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 let sequelize;
 
+// Set default DATABASE_URL if not provided (Railway fallback)
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway';
+}
+
 if (process.env.DATABASE_URL) {
+  console.log('🔗 Connecting to PostgreSQL:', process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@'));
+  
   // Production: Use Railway PostgreSQL
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
