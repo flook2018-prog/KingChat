@@ -66,6 +66,12 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.url} from ${req.ip}`);
+  next();
+});
+
 // Basic routes
 app.get('/', (req, res) => {
   // Redirect to login page for web browsers
@@ -115,8 +121,13 @@ if (process.env.NODE_ENV === 'production') {
   
   if (foundClientPath) {
     console.log('✅ Client directory found');
+    console.log('📁 Setting up express.static for:', foundClientPath);
     app.use(express.static(foundClientPath));
     global.clientPath = foundClientPath;
+    
+    // Verify static files are accessible
+    const loginFile = path.join(foundClientPath, 'login.html');
+    console.log('🔍 Verifying login.html exists:', fs.existsSync(loginFile));
   } else {
     console.log('❌ Client directory not found, trying alternative paths...');
     const altPaths = [
