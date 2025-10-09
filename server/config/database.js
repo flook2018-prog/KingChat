@@ -46,12 +46,9 @@ const testConnection = async () => {
     await sequelize.authenticate();
     console.log('✅ PostgreSQL connection has been established successfully.');
     
-    // Sync database (create tables if they don't exist)
-    await sequelize.sync({ alter: isDevelopment });
-    console.log('✅ Database synchronized successfully.');
-    
   } catch (error) {
     console.error('❌ Unable to connect to PostgreSQL database:', error.message);
+    throw error; // Re-throw to handle in calling function
   }
 };
 

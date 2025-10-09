@@ -96,6 +96,9 @@ const io = socketIO(server, {
   }
 });
 
+// Database connection status
+let isDatabaseConnected = false;
+
 // Database connection
 const connectDatabase = async () => {
   try {
@@ -114,17 +117,26 @@ const connectDatabase = async () => {
     await Settings.sync({ alter: process.env.NODE_ENV === 'development' });
     
     console.log('✅ Database tables synchronized');
+    isDatabaseConnected = true;
     
   } catch (err) {
-    console.error('❌ PostgreSQL connection failed:', err);
-    console.error('   Please check your DATABASE_URL environment variable');
-    process.exit(1);
+    console.error('❌ PostgreSQL connection failed:', err.message);
+    console.error('   Will retry connection in background...');
+    console.error('   Server will continue to run but database features may not work');
+    isDatabaseConnected = false;
+    
+    // Retry connection after 10 seconds
+    setTimeout(() => {
+      console.log('🔄 Retrying database connection...');
+      connectDatabase();
+    }, 10000);
   }
 };
 
+// Start database connection (non-blocking)
 connectDatabase();
 
-// Import routes
+// Import routes (moved before database connection to ensure server can start)
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const lineOARoutes = require('./routes/lineoa');
@@ -138,6 +150,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/lineoa', lineOARoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/settings', settingsRoutes);
 
 // Serve static files from client directory (for Railway deployment)
@@ -290,7 +303,7 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
     port: PORT,
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: isDatabaseConnected ? 'connected' : 'disconnected'
   });
 });
 
