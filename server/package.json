@@ -2,14 +2,14 @@
   "name": "kingchat-server",
   "version": "1.0.0",
   "description": "KingChat LINE OA Customer Service Management System - Backend",
-  "main": "server.js",
+  "main": "server-simple.js",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node server-simple.js",
+    "dev": "nodemon server-simple.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "echo \"No build step required\"",
     "postinstall": "echo \"Backend dependencies installed\""

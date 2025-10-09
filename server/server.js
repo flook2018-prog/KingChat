@@ -136,13 +136,36 @@ const connectDatabase = async () => {
 // Start database connection (non-blocking)
 connectDatabase();
 
-// Import routes (moved before database connection to ensure server can start)
-const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const lineOARoutes = require('./routes/lineoa');
-const customerRoutes = require('./routes/customers');
-const messageRoutes = require('./routes/messages');
-const settingsRoutes = require('./routes/settings');
+// Import routes with error handling
+let authRoutes, adminRoutes, lineOARoutes, customerRoutes, messageRoutes, settingsRoutes;
+
+try {
+  authRoutes = require('./routes/auth');
+  adminRoutes = require('./routes/admin');
+  lineOARoutes = require('./routes/lineoa');
+  customerRoutes = require('./routes/customers');
+  messageRoutes = require('./routes/messages');
+  settingsRoutes = require('./routes/settings');
+  console.log('✅ Routes loaded successfully');
+} catch (error) {
+  console.error('❌ Error loading routes:', error.message);
+  console.log('⚠️  Server will start with limited functionality');
+  
+  // Create fallback routes
+  authRoutes = require('express').Router();
+  adminRoutes = require('express').Router();
+  lineOARoutes = require('express').Router();
+  customerRoutes = require('express').Router();
+  messageRoutes = require('express').Router();
+  settingsRoutes = require('express').Router();
+  
+  // Add error responses
+  [authRoutes, adminRoutes, lineOARoutes, customerRoutes, messageRoutes, settingsRoutes].forEach(router => {
+    router.all('*', (req, res) => {
+      res.status(503).json({ error: 'Database not available' });
+    });
+  });
+}
 
 // API routes
 app.use('/api/auth', authRoutes);
