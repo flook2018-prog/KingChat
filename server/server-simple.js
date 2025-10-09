@@ -302,19 +302,19 @@ async function createDefaultAdmin() {
     const { User } = require('./models/postgresql');
     
     // Check if super admin already exists
-    const existingAdmin = await User.findOne({ where: { role: 'super_admin' } });
+    const existingAdmin = await User.findOne({ where: { role: 'admin' } });
     if (existingAdmin) {
-      console.log('✅ Super Admin already exists:', existingAdmin.username);
+      console.log('✅ Admin already exists:', existingAdmin.username);
       return;
     }
 
-    // Create super admin user
+    // Create admin user
     const admin = await User.create({
       username: 'admin',
       email: 'admin@kingchat.com',
       password: 'admin123', // Will be hashed automatically by model hook
       displayName: 'System Administrator',
-      role: 'super_admin',
+      role: 'admin',
       isActive: true,
       permissions: JSON.stringify({
         canManageUsers: true,
@@ -325,11 +325,11 @@ async function createDefaultAdmin() {
       })
     });
 
-    console.log('✅ Super Admin created successfully!');
+    console.log('✅ Admin created successfully!');
     console.log('📧 Email: admin@kingchat.com'); 
     console.log('🔑 Username: admin');
     console.log('🔒 Password: admin123');
-    console.log('👑 Role: super_admin');
+    console.log('👑 Role: admin');
 
   } catch (error) {
     console.error('❌ Error creating default admin:', error.message);

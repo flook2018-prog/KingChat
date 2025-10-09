@@ -72,10 +72,10 @@
             text-transform: uppercase;
         }
 
-        .role-super_admin { background: #dc3545; color: white; }
-        .role-admin { background: #fd7e14; color: white; }
-        .role-manager { background: #6f42c1; color: white; }
-        .role-agent { background: #20c997; color: white; }
+        .role-admin { background: #dc3545; color: white; }
+        .role-manager { background: #fd7e14; color: white; }
+        .role-agent { background: #6f42c1; color: white; }
+        .role-supervisor { background: #20c997; color: white; }
         .role-viewer { background: #6c757d; color: white; }
 
         .status-badge {
@@ -304,10 +304,10 @@
                     <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาชื่อผู้ใช้, อีเมล, หรือชื่อแสดง...">
                     <select id="roleFilter" class="filter-select">
                         <option value="">ทุกบทบาท</option>
-                        <option value="super_admin">Super Admin</option>
                         <option value="admin">Admin</option>
                         <option value="manager">Manager</option>
                         <option value="agent">Agent</option>
+                        <option value="supervisor">Supervisor</option>
                         <option value="viewer">Viewer</option>
                     </select>
                     <button class="btn btn-primary" onclick="loadAdmins()">🔍 ค้นหา</button>
@@ -373,9 +373,9 @@
                         <option value="">เลือกบทบาท</option>
                         <option value="viewer">Viewer - ดูข้อมูลเท่านั้น</option>
                         <option value="agent">Agent - จัดการลูกค้าและแชท</option>
+                        <option value="supervisor">Supervisor - หัวหน้าทีม</option>
                         <option value="manager">Manager - จัดการทีมและรายงาน</option>
                         <option value="admin">Admin - จัดการระบบทั้งหมด</option>
-                        <option value="super_admin">Super Admin - สิทธิ์สูงสุด</option>
                     </select>
                 </div>
 

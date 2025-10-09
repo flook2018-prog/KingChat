@@ -1,7 +1,7 @@
 const express = require('express');
 const { auth, requireRole } = require('../middleware/auth');
 const { User, Admin } = require('../models/postgresql');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
@@ -16,11 +16,11 @@ const PERMISSIONS = {
 
 // Permission hierarchy (higher can manage lower)
 const PERMISSION_LEVELS = {
-  [PERMISSIONS.SUPER_ADMIN]: 5,
-  [PERMISSIONS.ADMIN]: 4,
-  [PERMISSIONS.MANAGER]: 3,
-  [PERMISSIONS.AGENT]: 2,
-  [PERMISSIONS.VIEWER]: 1
+  'admin': 5,
+  'manager': 4,
+  'agent': 3,
+  'supervisor': 2,
+  'viewer': 1
 };
 
 // Check if user can manage target role
@@ -29,7 +29,7 @@ function canManageRole(userRole, targetRole) {
 }
 
 // Get all admins with pagination and search
-router.get('/admins', auth, requireRole(['admin', 'super_admin']), async (req, res) => {
+router.get('/admins', auth, requireRole(['admin']), async (req, res) => {
   try {
     const { page = 1, limit = 10, search = '', role = '' } = req.query;
     const offset = (page - 1) * limit;
@@ -70,7 +70,7 @@ router.get('/admins', auth, requireRole(['admin', 'super_admin']), async (req, r
 });
 
 // Create new admin
-router.post('/admins', auth, requireRole(['admin', 'super_admin']), async (req, res) => {
+router.post('/admins', auth, requireRole(['admin']), async (req, res) => {
   try {
     const { username, email, password, displayName, role = 'agent', permissions = [] } = req.body;
 
@@ -130,7 +130,7 @@ router.post('/admins', auth, requireRole(['admin', 'super_admin']), async (req, 
 });
 
 // Update admin
-router.put('/admins/:id', auth, requireRole(['admin', 'super_admin']), async (req, res) => {
+router.put('/admins/:id', auth, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const { displayName, role, permissions, isActive } = req.body;
@@ -181,7 +181,7 @@ router.put('/admins/:id', auth, requireRole(['admin', 'super_admin']), async (re
 });
 
 // Delete admin
-router.delete('/admins/:id', auth, requireRole(['admin', 'super_admin']), async (req, res) => {
+router.delete('/admins/:id', auth, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -218,7 +218,7 @@ router.delete('/admins/:id', auth, requireRole(['admin', 'super_admin']), async 
 });
 
 // Reset password
-router.post('/admins/:id/reset-password', auth, requireRole(['admin', 'super_admin']), async (req, res) => {
+router.post('/admins/:id/reset-password', auth, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const { newPassword } = req.body;
@@ -252,7 +252,7 @@ router.post('/admins/:id/reset-password', auth, requireRole(['admin', 'super_adm
 });
 
 // Get admin details
-router.get('/admins/:id', auth, requireRole(['admin', 'super_admin']), async (req, res) => {
+router.get('/admins/:id', auth, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
 

@@ -3,10 +3,10 @@ const { User, Admin } = require('../models/postgresql');
 
 // Permission levels for role hierarchy
 const PERMISSION_LEVELS = {
-  'super_admin': 5,
-  'admin': 4,
-  'manager': 3,
-  'agent': 2,
+  'admin': 5,
+  'manager': 4,
+  'agent': 3,
+  'supervisor': 2,
   'viewer': 1
 };
 

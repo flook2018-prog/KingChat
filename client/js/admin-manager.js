@@ -33,7 +33,7 @@ class AdminManager {
                 document.getElementById('userDisplay').textContent = this.currentUser.displayName || this.currentUser.username;
                 
                 // Check if user has admin permissions
-                if (!['admin', 'super_admin'].includes(this.currentUser.role)) {
+                if (!['admin'].includes(this.currentUser.role)) {
                     this.showAlert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'error');
                     setTimeout(() => window.location.href = '../dashboard.html', 2000);
                     return;
@@ -470,17 +470,17 @@ class AdminManager {
     }
 
     canCreateAdmin() {
-        return ['admin', 'super_admin'].includes(this.currentUser?.role);
+        return ['admin'].includes(this.currentUser?.role);
     }
 
     canManage(targetRole) {
         if (!this.currentUser) return false;
         
         const levels = {
-            'super_admin': 5,
-            'admin': 4,
-            'manager': 3,
-            'agent': 2,
+            'admin': 5,
+            'manager': 4,
+            'agent': 3,
+            'supervisor': 2,
             'viewer': 1
         };
         
@@ -493,10 +493,10 @@ class AdminManager {
 
     getRoleDisplayName(role) {
         const names = {
-            'super_admin': 'Super Admin',
             'admin': 'Admin', 
             'manager': 'Manager',
             'agent': 'Agent',
+            'supervisor': 'Supervisor',
             'viewer': 'Viewer'
         };
         return names[role] || role;
