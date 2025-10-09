@@ -68,15 +68,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Basic routes
 app.get('/', (req, res) => {
-  // Always return JSON for health check compatibility
-  res.json({ 
-    message: '👑 KingChat API Server',
-    status: 'running',
-    version: '1.0.4',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    loginUrl: '/login'
-  });
+  // Redirect to login page for web browsers
+  res.redirect('/login');
 });
 
 // Health check endpoint
