@@ -512,7 +512,7 @@
                 const data = await response.json();
                 console.log('✅ PostgreSQL Response:', data);
                 
-                currentAdmins = data.admins || [];
+                currentAdmins = data.data || data.admins || [];
                 updateStatus(`โหลดข้อมูลจาก PostgreSQL สำเร็จ - ${currentAdmins.length} รายการ`, 'success');
                 renderAdminTable();
                 

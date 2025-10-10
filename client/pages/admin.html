@@ -516,7 +516,7 @@
                 const data = await response.json();
                 console.log('✅ PostgreSQL Response:', data);
                 
-                currentAdmins = data.admins || [];
+                currentAdmins = data.data || data.admins || [];
                 updateStatus(`โหลดข้อมูลจาก PostgreSQL สำเร็จ - ${currentAdmins.length} รายการ`, 'success');
                 renderAdminTable();
                 
@@ -586,7 +586,6 @@
             const formData = new FormData(event.target);
             const adminData = {
                 username: formData.get('username').trim(),
-                email: formData.get('email').trim(),
                 displayName: formData.get('displayName').trim(),
                 password: formData.get('password').trim(),
                 role: formData.get('role')
@@ -595,20 +594,13 @@
             console.log('📝 Admin data to send:', adminData);
             
             // Validation
-            if (!adminData.username || !adminData.email || !adminData.displayName || !adminData.password || !adminData.role) {
+            if (!adminData.username || !adminData.displayName || !adminData.password || !adminData.role) {
                 alert('กรุณากรอกข้อมูลให้ครบถ้วน');
                 return;
             }
             
             if (adminData.password.length < 6) {
                 alert('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
-                return;
-            }
-            
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(adminData.email)) {
-                alert('กรุณากรอกอีเมลให้ถูกต้อง');
                 return;
             }
             
