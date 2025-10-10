@@ -11,14 +11,19 @@ const PERMISSION_LEVELS = {
 
 const auth = async (req, res, next) => {
   try {
+    console.log(`🔐 Auth check for ${req.method} ${req.path}`);
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
+      console.log('❌ No token provided');
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
 
+    console.log('🔍 Token found, verifying...');
     const jwtSecret = process.env.JWT_SECRET || 'railway-jwt-secret-2024';
     const decoded = jwt.verify(token, jwtSecret);
+    
+    console.log(`👤 Decoded user ID: ${decoded.id}`);
     
     // Find user in admins table using raw SQL
     const { sequelize } = require('../config/database');
@@ -32,12 +37,15 @@ const auth = async (req, res, next) => {
     });
     
     if (users.length === 0) {
+      console.log('❌ User not found in database');
       return res.status(401).json({ error: 'Token is not valid.' });
     }
 
     const user = users[0];
+    console.log(`✅ User found: ${user.username} (${user.role})`);
 
     if (!user.isActive) {
+      console.log('❌ User account is deactivated');
       return res.status(401).json({ error: 'User account is deactivated.' });
     }
 

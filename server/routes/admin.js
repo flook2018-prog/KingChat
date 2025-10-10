@@ -4,6 +4,21 @@ const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
+// Debug route to check if admin API is working
+router.get('/debug', (req, res) => {
+  res.json({
+    message: 'Admin API is working',
+    timestamp: new Date().toISOString(),
+    availableRoutes: [
+      'GET /admin-users',
+      'POST /admin-users', 
+      'PUT /admin-users/:id',
+      'DELETE /admin-users/:id',
+      'PUT /admin-users/:id/password'
+    ]
+  });
+});
+
 // Permission levels
 const PERMISSIONS = {
   SUPER_ADMIN: 'super_admin',
