@@ -79,7 +79,8 @@
             margin-bottom: 16px;
         }
         
-        .data-source.mongodb { background: #dcfce7; color: #166534; }
+        .data-source.success { background: #dcfce7; color: #166534; }
+        .data-source.postgresql { background: #e0f2fe; color: #0277bd; }
         .data-source.error { background: #fecaca; color: #991b1b; }
         
         .loading-spinner {
@@ -294,7 +295,7 @@
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">จัดการแอดมิน</h1>
-            <p class="page-subtitle">จัดการบัญชีผู้ดูแลระบบและสิทธิ์การเข้าถึง - เชื่อมต่อ MongoDB</p>
+            <p class="page-subtitle">จัดการบัญชีผู้ดูแลระบบและสิทธิ์การเข้าถึง - เชื่อมต่อ PostgreSQL</p>
         </div>
 
         <div class="page-content">
@@ -316,8 +317,8 @@
                         <button class="btn btn-secondary" onclick="loadAdmins()">
                             🔄 รีโหลดข้อมูล
                         </button>
-                        <button class="btn btn-info" onclick="testMongoDB()">
-                            🔍 ทดสอบ MongoDB
+                        <button class="btn btn-info" onclick="testPostgreSQL()">
+                            🔍 ทดสอบ PostgreSQL
                         </button>
                     </div>
                 </div>
@@ -325,7 +326,7 @@
                     <!-- Status -->
                     <div id="dataSourceIndicator" class="data-source">
                         <span class="loading-spinner"></span>
-                        กำลังโหลดข้อมูลจาก MongoDB...
+                        กำลังโหลดข้อมูลจาก PostgreSQL...
                     </div>
                     
                     <!-- Table -->
@@ -466,8 +467,8 @@
         // ตัวแปร Global
         let currentAdmins = [];
         
-        // MongoDB API Functions
-        const API_BASE = 'http://localhost:5001/api';
+        // PostgreSQL API Functions
+        const API_BASE = window.location.origin + '/api';
         
         // Utility Functions
         function updateStatus(message, type = 'info') {
@@ -495,22 +496,28 @@
             return new Date(dateString).toLocaleDateString('th-TH');
         }
         
-        // Load Admins from MongoDB
+        // Load Admins from PostgreSQL
         async function loadAdmins() {
             try {
-                updateStatus('กำลังโหลดข้อมูลจาก MongoDB...', 'loading');
+                updateStatus('กำลังโหลดข้อมูลจาก PostgreSQL...', 'loading');
                 
-                const response = await fetch(`${API_BASE}/admin/admin-users`);
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
-                console.log('✅ MongoDB Response:', data);
+                console.log('✅ PostgreSQL Response:', data);
                 
-                currentAdmins = data.users || [];
-                updateStatus(`โหลดข้อมูลจาก MongoDB สำเร็จ - ${currentAdmins.length} รายการ`, 'mongodb');
+                currentAdmins = data.admins || [];
+                updateStatus(`โหลดข้อมูลจาก PostgreSQL สำเร็จ - ${currentAdmins.length} รายการ`, 'success');
                 renderAdminTable();
                 
             } catch (error) {
@@ -596,9 +603,13 @@
             }
             
             try {
-                const response = await fetch(`${API_BASE}/admin/admin-users/create`, {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(adminData)
                 });
                 
@@ -703,8 +714,13 @@
             const adminId = document.getElementById('deleteAdminId').value;
             
             try {
+                const token = localStorage.getItem('authToken');
                 const response = await fetch(`${API_BASE}/admin/admin-users/${adminId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
                 
                 if (!response.ok) {
@@ -765,24 +781,30 @@
             document.getElementById('deleteAdminModal').style.display = 'none';
         }
         
-        // Test MongoDB Connection
-        async function testMongoDB() {
+        // Test PostgreSQL Connection
+        async function testPostgreSQL() {
             try {
-                updateStatus('กำลังทดสอบการเชื่อมต่อ MongoDB...', 'loading');
+                updateStatus('กำลังทดสอบการเชื่อมต่อ PostgreSQL...', 'loading');
                 
-                const response = await fetch(`${API_BASE}/admin/admin-users`);
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 
                 if (response.ok) {
-                    alert(`✅ การเชื่อมต่อ MongoDB สำเร็จ!\n\nพบแอดมิน: ${data.users.length} คน\nแหล่งข้อมูล: ${data.source}`);
-                    updateStatus(`เชื่อมต่อ MongoDB สำเร็จ - ${data.users.length} รายการ`, 'mongodb');
+                    alert(`✅ การเชื่อมต่อ PostgreSQL สำเร็จ!\n\nพบแอดมิน: ${data.admins ? data.admins.length : 0} คน\nฐานข้อมูล: PostgreSQL`);
+                    updateStatus(`เชื่อมต่อ PostgreSQL สำเร็จ - ${data.admins ? data.admins.length : 0} รายการ`, 'success');
                 } else {
                     throw new Error(data.error || 'Unknown error');
                 }
                 
             } catch (error) {
-                alert(`❌ การเชื่อมต่อ MongoDB ล้มเหลว: ${error.message}`);
-                updateStatus(`เชื่อมต่อ MongoDB ล้มเหลว: ${error.message}`, 'error');
+                alert(`❌ การเชื่อมต่อ PostgreSQL ล้มเหลว: ${error.message}`);
+                updateStatus(`เชื่อมต่อ PostgreSQL ล้มเหลว: ${error.message}`, 'error');
             }
         }
         
@@ -823,7 +845,7 @@
         
         // Initialize Page
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Admin page loaded with clean MongoDB integration');
+            console.log('🚀 Admin page loaded with PostgreSQL integration');
             
             // Create sample admin user
             await createSampleAdmin();
