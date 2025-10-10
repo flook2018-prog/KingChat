@@ -328,54 +328,6 @@
             75% { transform: translateX(5px); }
         }
 
-        /* Fallback Section */
-        .fallback-section {
-            margin-top: 32px;
-            padding: 20px;
-            background: rgba(255, 243, 205, 0.8);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .fallback-section h4 {
-            color: #92400e;
-            margin-bottom: 16px;
-            font-size: 1rem;
-        }
-
-        .fallback-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin: 8px;
-        }
-
-        .fallback-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
-        }
-
-        .database-users {
-            margin-top: 16px;
-            display: none;
-        }
-
-        .user-item {
-            background: white;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
         /* Dark Mode */
         [data-theme="dark"] body {
             background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
@@ -410,17 +362,6 @@
         [data-theme="dark"] .form-group input:focus {
             border-color: #60a5fa;
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-        }
-
-        [data-theme="dark"] .fallback-section {
-            background: rgba(45, 55, 72, 0.8);
-            border-color: rgba(245, 158, 11, 0.3);
-        }
-
-        [data-theme="dark"] .user-item {
-            background: rgba(45, 55, 72, 0.8);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #e2e8f0;
         }
 
         /* Responsive Design */
@@ -553,17 +494,6 @@
                 <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
             </button>
         </form>
-
-        <!-- Fallback Login Section -->
-        <div class="fallback-section">
-            <h4>🚑 กรณี API ไม่ทำงาน - ใช้การ Login แบบ Offline</h4>
-            <button class="fallback-btn" onclick="loadDatabaseUsers()">
-                โหลดข้อมูลจากฐานข้อมูล
-            </button>
-            <div id="database-users" class="database-users">
-                <!-- ข้อมูลจากฐานข้อมูลจะแสดงที่นี่ -->
-            </div>
-        </div>
     </div>
 
     <script>
@@ -600,61 +530,6 @@
                 passwordInput.type = 'password';
                 passwordIcon.textContent = '👁️';
             }
-        }
-
-        // Store database users
-        let databaseUsers = [];
-
-        async function loadDatabaseUsers() {
-            try {
-                const response = await fetch('/api/admin/show-passwords');
-                const data = await response.json();
-                
-                if (data.success && data.users) {
-                    databaseUsers = data.users;
-                    displayDatabaseUsers(data.users);
-                } else {
-                    throw new Error('Cannot load database users');
-                }
-            } catch (error) {
-                console.log('❌ Cannot load from database, using fallback');
-                document.getElementById('database-users').innerHTML = `
-                    <div class="user-item" style="color: #dc2626; text-align: center;">
-                        ❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้<br>
-                        กรุณาใช้ username/password ที่รู้ว่าถูกต้อง
-                    </div>
-                `;
-                document.getElementById('database-users').style.display = 'block';
-            }
-        }
-
-        function displayDatabaseUsers(users) {
-            const div = document.getElementById('database-users');
-            div.innerHTML = `
-                <div style="margin-bottom: 12px; font-weight: 600; color: #374151;">
-                    👥 ผู้ใช้ในฐานข้อมูล:
-                </div>
-                ${users.map(user => `
-                    <div class="user-item">
-                        <div style="font-weight: 600; margin-bottom: 4px;">
-                            <strong>Username:</strong> ${user.username}
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <strong>Display Name:</strong> ${user.displayName}
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <strong>Status:</strong> 
-                            <span style="color: ${user.isActive ? '#059669' : '#dc2626'};">
-                                ${user.isActive ? '✅ Active' : '❌ Inactive'}
-                            </span>
-                        </div>
-                        <div style="font-size: 0.8rem; color: #6b7280; font-style: italic;">
-                            ใช้ username นี้ + รหัสผ่านที่คุณตั้งไว้
-                        </div>
-                    </div>
-                `).join('')}
-            `;
-            div.style.display = 'block';
         }
 
         function showError(message) {
@@ -737,60 +612,8 @@
                 throw new Error('API Login failed');
                 
             } catch (error) {
-                console.log('⚠️ API failed, checking database users...');
-                
-                // Try to match with database users
-                if (databaseUsers.length === 0) {
-                    await loadDatabaseUsers();
-                }
-                
-                const user = databaseUsers.find(dbUser => 
-                    dbUser.username === username && dbUser.isActive
-                );
-                
-                if (user) {
-                    // For fallback mode, we'll accept the login if user exists in database
-                    // and they provide any reasonable password
-                    if (password.length >= 3) {
-                        // Create fake token and store user data
-                        const fakeToken = btoa(JSON.stringify({
-                            username: user.username,
-                            timestamp: Date.now()
-                        }));
-                        
-                        localStorage.setItem('authToken', fakeToken);
-                        localStorage.setItem('token', fakeToken); // For compatibility
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            id: user.id,
-                            username: user.username,
-                            displayName: user.displayName,
-                            email: user.email,
-                            role: user.role || 'admin'
-                        }));
-                        localStorage.setItem('userData', JSON.stringify({
-                            id: user.id,
-                            username: user.username,
-                            displayName: user.displayName,
-                            email: user.email,
-                            role: user.role || 'admin'
-                        })); // For auth.js compatibility
-                        localStorage.setItem('loginMode', 'fallback');
-                        
-                        console.log('✅ Database fallback login successful');
-                        
-                        // Show success animation
-                        showSuccess();
-                        
-                        // Redirect after animation
-                        setTimeout(() => {
-                            window.location.href = '/dashboard.html';
-                        }, 2000);
-                        return;
-                    }
-                }
-                
-                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีไม่ได้เปิดใช้งาน');
-                console.log('❌ Invalid credentials or user not active');
+                console.error('Login error:', error);
+                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
                 
             } finally {
                 // Reset button
