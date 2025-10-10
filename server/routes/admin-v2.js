@@ -250,4 +250,92 @@ router.delete('/admin-users/:id', async (req, res) => {
   }
 });
 
+// Debug endpoint - Check password hash
+router.post('/debug-password', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    console.log('🔍 Debug password for:', username);
+    
+    const result = await pool.query(
+      'SELECT username, password, "isActive" FROM admins WHERE username = $1',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({
+        success: false,
+        message: 'User not found',
+        username: username
+      });
+    }
+
+    const user = result.rows[0];
+    
+    // Test password
+    const isValid = await bcrypt.compare(password, user.password);
+    
+    res.json({
+      success: true,
+      username: user.username,
+      isActive: user.isActive,
+      passwordHash: user.password.substring(0, 20) + '...',
+      passwordValid: isValid,
+      providedPassword: password
+    });
+
+  } catch (error) {
+    console.error('❌ Debug password error:', error);
+    res.status(500).json({ 
+      error: 'Debug failed',
+      details: error.message 
+    });
+  }
+});
+
+// Fix password endpoint
+router.post('/fix-password', async (req, res) => {
+  try {
+    const { username, newPassword } = req.body;
+    
+    console.log('🔧 Fixing password for:', username);
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 6 characters' 
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+    // Update password and make sure user is active
+    const result = await pool.query(`
+      UPDATE admins 
+      SET password = $1, "isActive" = true, "updatedAt" = CURRENT_TIMESTAMP
+      WHERE username = $2
+      RETURNING username, "isActive"
+    `, [hashedPassword, username]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    console.log('✅ Password fixed for:', username);
+
+    res.json({
+      success: true,
+      message: `Password updated for ${username}`,
+      user: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Fix password error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fix password',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;
