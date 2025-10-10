@@ -305,4 +305,32 @@ router.get('/health', (req, res) => {
   });
 });
 
+// Catch-all route for debugging
+router.all('*', (req, res) => {
+  console.log(`❓ Unknown admin route: ${req.method} ${req.path}`);
+  console.log('📋 Available routes:');
+  console.log('  GET /debug');
+  console.log('  GET /admin-users');
+  console.log('  POST /admin-users');
+  console.log('  PUT /admin-users/:id');
+  console.log('  DELETE /admin-users/:id');
+  console.log('  PUT /admin-users/:id/password');
+  console.log('  GET /health');
+  
+  res.status(404).json({ 
+    error: 'Admin API endpoint not found',
+    method: req.method,
+    path: req.path,
+    availableRoutes: [
+      'GET /api/admin/debug',
+      'GET /api/admin/admin-users',
+      'POST /api/admin/admin-users',
+      'PUT /api/admin/admin-users/:id',
+      'DELETE /api/admin/admin-users/:id',
+      'PUT /api/admin/admin-users/:id/password',
+      'GET /api/admin/health'
+    ]
+  });
+});
+
 module.exports = router;

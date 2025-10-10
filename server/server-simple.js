@@ -84,6 +84,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Debug middleware to log all requests
 app.use((req, res, next) => {
   console.log(`🌐 ${req.method} ${req.url} from ${req.ip}`);
+  
+  // Extra logging for API requests
+  if (req.url.startsWith('/api/')) {
+    console.log(`📡 API Request: ${req.method} ${req.url}`);
+    console.log(`📋 Headers:`, req.headers.authorization ? 'Token present' : 'No token');
+    if (req.body && Object.keys(req.body).length > 0) {
+      console.log(`📦 Body:`, Object.keys(req.body));
+    }
+  }
+  
   next();
 });
 
