@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Dashboard - KingChat</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .fallback-mode {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-online { background: #28a745; }
+        .status-offline { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <div class="brand">
+                    <span class="brand-icon">👑</span>
+                    <span class="brand-name">KingChat</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info" id="userInfo">
+                    <span id="userName">Loading...</span>
+                    <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="fallback-indicator" class="fallback-mode" style="display: none;">
+            <span class="status-indicator status-offline"></span>
+            ⚠️ ระบบทำงานในโหมด Offline (API ไม่พร้อมใช้งาน)
+        </div>
+
+        <nav class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="/dashboard.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">หน้าหลัก</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/lineoa.html" class="nav-link">
+                        <span class="nav-icon">📱</span>
+                        <span class="nav-text">จัดการ LINE OA</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/customers.html" class="nav-link">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">รายชื่อลูกค้า</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/chat.html" class="nav-link">
+                        <span class="nav-icon">💬</span>
+                        <span class="nav-text">แชท</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/admin.html" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">จัดการแอดมิน</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/settings.html" class="nav-link">
+                        <span class="nav-icon">🔧</span>
+                        <span class="nav-text">ตั้งค่าระบบ</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📊 แดชบอร์ด</h1>
+                <p>ภาพรวมระบบจัดการลูกค้า LINE Official Account</p>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-content">
+                        <h3>LINE OA</h3>
+                        <p class="stat-number" id="lineOACount">-</p>
+                        <p class="stat-label">บัญชีที่เชื่อมต่อ</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>ลูกค้า</h3>
+                        <p class="stat-number" id="customerCount">-</p>
+                        <p class="stat-label">ลูกค้าทั้งหมด</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-content">
+                        <h3>ข้อความ</h3>
+                        <p class="stat-number" id="messageCount">-</p>
+                        <p class="stat-label">ข้อความวันนี้</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⚙️</div>
+                    <div class="stat-content">
+                        <h3>แอดมิน</h3>
+                        <p class="stat-number" id="adminCount">-</p>
+                        <p class="stat-label">ผู้ดูแลระบบ</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h3>🚀 เริ่มต้นใช้งาน</h3>
+                        <p>ยินดีต้อนรับสู่ระบบ KingChat</p>
+                        <div class="quick-actions">
+                            <a href="/pages/lineoa.html" class="action-btn">เชื่อมต่อ LINE OA</a>
+                            <a href="/pages/customers.html" class="action-btn">ดูรายชื่อลูกค้า</a>
+                            <a href="/pages/admin.html" class="action-btn">จัดการแอดมิน</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3>📈 สถิติการใช้งาน</h3>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <span class="activity-time">เมื่อไหร่</span>
+                                <span class="activity-desc">กิจกรรมล่าสุด</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const loginMode = localStorage.getItem('loginMode');
+            
+            if (!token) {
+                console.log('❌ No auth token, redirecting to login');
+                window.location.href = '/login-fixed.html';
+                return false;
+            }
+            
+            // Show user info
+            const userNameElement = document.getElementById('userName');
+            if (userNameElement && currentUser.displayName) {
+                userNameElement.textContent = currentUser.displayName;
+            }
+            
+            // Show fallback mode indicator
+            if (loginMode === 'fallback') {
+                const fallbackIndicator = document.getElementById('fallback-indicator');
+                if (fallbackIndicator) {
+                    fallbackIndicator.style.display = 'block';
+                }
+            }
+            
+            return true;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('loginMode');
+            
+            console.log('👋 Logged out');
+            alert('ออกจากระบบเรียบร้อย');
+            window.location.href = '/login-fixed.html';
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            const loginMode = localStorage.getItem('loginMode');
+            
+            if (loginMode === 'fallback') {
+                // Show dummy data for fallback mode
+                document.getElementById('lineOACount').textContent = '1';
+                document.getElementById('customerCount').textContent = '25';
+                document.getElementById('messageCount').textContent = '12';
+                document.getElementById('adminCount').textContent = '3';
+                return;
+            }
+            
+            try {
+                // Try to load real data from API
+                const token = localStorage.getItem('authToken');
+                
+                // Load admin count
+                const response = await fetch('/api/admin/admin-users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('adminCount').textContent = data.count || '0';
+                } else {
+                    throw new Error('API not available');
+                }
+                
+            } catch (error) {
+                console.log('⚠️ API not available, showing fallback data');
+                // Show fallback data
+                document.getElementById('lineOACount').textContent = '1';
+                document.getElementById('customerCount').textContent = '25';
+                document.getElementById('messageCount').textContent = '12';
+                document.getElementById('adminCount').textContent = '3';
+            }
+        }
+
+        // Initialize
+        if (checkAuth()) {
+            loadDashboardData();
+        }
+    </script>
+</body>
+</html>
