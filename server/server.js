@@ -208,12 +208,16 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/customers.html'));
   });
   
+  app.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/settings.html'));
+  });
+  
   app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
+    res.sendFile(path.join(__dirname, '../client/dashboard-simple.html'));
   });
   
   app.get('/dashboard-fixed', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
+    res.sendFile(path.join(__dirname, '../client/dashboard-simple.html'));
   });
   
   app.get('/dashboard-simple', (req, res) => {

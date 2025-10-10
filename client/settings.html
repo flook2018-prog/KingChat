@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ ตั้งค่า - KingChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 30px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 80px;
+            padding: 40px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: #4a5568;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .card-header h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+
+        .option-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .option-info p {
+            font-size: 14px;
+            color: #718096;
+            margin: 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(107, 114, 128, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Main Structure -->
+    <div id="mainContent" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="brand-logo">👑</div>
+                <span>KingChat</span>
+            </div>
+            <div class="nav-user">
+                <span class="user-name" id="userName">กำลังโหลด...</span>
+                <button class="btn-logout" onclick="logout()">
+                    🚪 ออกจากระบบ
+                </button>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item" onclick="loadPage('chat')">
+                    <i class="icon">💬</i>
+                    <span>แชท</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('dashboard')">
+                    <i class="icon">📊</i>
+                    <span>แดชบอร์ด</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('accounts')">
+                    <i class="icon">📱</i>
+                    <span>บัญชี LINE OA</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('customers')">
+                    <i class="icon">👥</i>
+                    <span>รายชื่อลูกค้า</span>
+                </a>
+                <a href="#" class="menu-item active" onclick="loadPage('settings')">
+                    <i class="icon">⚙️</i>
+                    <span>ตั้งค่า</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('admin')" id="adminMenu" style="display: none;">
+                    <i class="icon">👨‍💼</i>
+                    <span>จัดการผู้ใช้</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>⚙️ ตั้งค่า</h1>
+                <p>จัดการการตั้งค่าระบบและกำหนดลักษณะการทำงาน - ข้อมูลล่าสุด ณ วันที่ <span id="currentDate"></span></p>
+            </div>
+
+            <div class="settings-grid">
+                <!-- General Settings -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">⚙️</div>
+                        <h3>การตั้งค่าทั่วไป</h3>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>การแจ้งเตือนเสียง</h4>
+                            <p>เปิด/ปิดเสียงแจ้งเตือนเมื่อมีข้อความใหม่</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>การแจ้งเตือนบนหน้าจอ</h4>
+                            <p>แสดงการแจ้งเตือนแบบ popup บนหน้าจอ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>โหมดมืด</h4>
+                            <p>เปลี่ยนธีมเป็นโหมดมืดเพื่อใช้งานในที่แสงน้อย</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>บันทึกประวัติการสนทนา</h4>
+                            <p>เก็บประวัติการสนทนาไว้ในระบบ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Chat Settings -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">💬</div>
+                        <h3>การตั้งค่าแชท</h3>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>การตอบกลับอัตโนมัติ</h4>
+                            <p>เปิดใช้งานข้อความตอบกลับอัตโนมัติ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>แสดงสถานะการพิมพ์</h4>
+                            <p>แสดงว่าผู้ใช้กำลังพิมพ์ข้อความ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>การอ่านข้อความอัตโนมัติ</h4>
+                            <p>ทำเครื่องหมายข้อความเป็น "อ่านแล้ว" โดยอัตโนมัติ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>จัดการข้อความด่วน</h4>
+                            <p>ตั้งค่าข้อความด่วนและการตอบกลับเร็ว</p>
+                        </div>
+                        <button class="btn-action" onclick="manageQuickMessages()">จัดการ</button>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">🔔</div>
+                        <h3>การแจ้งเตือน</h3>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>แจ้งเตือนผ่านอีเมล</h4>
+                            <p>ส่งการแจ้งเตือนไปยังอีเมลเมื่อมีข้อความสำคัญ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>แจ้งเตือนลูกค้าใหม่</h4>
+                            <p>แจ้งเตือนเมื่อมีลูกค้าใหม่เข้าสู่ระบบ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>แจ้งเตือนนอกเวลาทำการ</h4>
+                            <p>แจ้งเตือนข้อความที่เข้ามานอกเวลาทำการ</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>กำหนดเวลาทำการ</h4>
+                            <p>ตั้งค่าเวลาทำการสำหรับการแจ้งเตือน</p>
+                        </div>
+                        <button class="btn-action" onclick="setWorkingHours()">กำหนด</button>
+                    </div>
+                </div>
+
+                <!-- Account & Security -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">🔐</div>
+                        <h3>บัญชีและความปลอดภัย</h3>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>การเข้าสู่ระบบสองขั้นตอน</h4>
+                            <p>เพิ่มความปลอดภัยด้วยการยืนยันตัวตน 2 ขั้นตอน</p>
+                        </div>
+                        <button class="btn-action btn-secondary" onclick="setup2FA()">ตั้งค่า</button>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>เปลี่ยนรหัสผ่าน</h4>
+                            <p>เปลี่ยนรหัสผ่านสำหรับเข้าสู่ระบบ</p>
+                        </div>
+                        <button class="btn-action btn-secondary" onclick="changePassword()">เปลี่ยน</button>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>ประวัติการเข้าสู่ระบบ</h4>
+                            <p>ดูประวัติการเข้าสู่ระบบและอุปกรณ์ที่เชื่อมต่อ</p>
+                        </div>
+                        <button class="btn-action btn-secondary" onclick="viewLoginHistory()">ดูประวัติ</button>
+                    </div>
+
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>ลบบัญชี</h4>
+                            <p>ลบบัญชีและข้อมูลทั้งหมดออกจากระบบ</p>
+                        </div>
+                        <button class="btn-action btn-danger" onclick="deleteAccount()">ลบบัญชี</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ตรวจสอบการล็อกอิน
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📍 Settings page loading...');
+            
+            // ตรวจสอบ authentication
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            
+            if (!token || !userData) {
+                console.warn('⚠️ No authentication - redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            let user = null;
+            try {
+                user = JSON.parse(userData);
+                if (!user || !user.username) {
+                    console.warn('⚠️ Invalid user data');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (e) {
+                console.error('❌ Error parsing user data:', e);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            console.log('✅ Valid authentication for:', user.username);
+            
+            // แสดงข้อมูลผู้ใช้
+            document.getElementById('userName').textContent = `สวัสดี, ${user.username}`;
+            
+            // แสดงเมนู admin ถ้าเป็น admin
+            if (user.role === 'admin') {
+                document.getElementById('adminMenu').style.display = 'flex';
+            }
+            
+            // แสดงวันที่ปัจจุบัน
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('th-TH');
+            
+            // ซ่อน loading และแสดงเนื้อหา
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').style.display = 'block';
+                console.log('✅ Settings page loaded successfully');
+            }, 1000);
+        });
+
+        // Settings Functions
+        function manageQuickMessages() {
+            alert('💬 จัดการข้อความด่วน\n\nฟีเจอร์ที่จะมี:\n- เพิ่ม/แก้ไข/ลบข้อความด่วน\n- จัดกลุ่มข้อความตามหมวดหมู่\n- ตั้งค่า shortcut keys\n- ข้อความแบบ template\n\n(Coming Soon)');
+        }
+
+        function setWorkingHours() {
+            alert('🕒 กำหนดเวลาทำการ\n\nตั้งค่า:\n- วันและเวลาทำการ\n- เวลาพักเที่ยง\n- วันหยุดพิเศษ\n- ข้อความแจ้งนอกเวลา\n\n(Coming Soon)');
+        }
+
+        function setup2FA() {
+            alert('🔐 ตั้งค่าการยืนยันตัวตน 2 ขั้นตอน\n\nวิธีการ:\n- ผ่าน SMS\n- ผ่าน Email\n- ผ่าน Authenticator App\n- ผ่าน QR Code\n\n(Coming Soon)');
+        }
+
+        function changePassword() {
+            const newPassword = prompt('🔑 เปลี่ยนรหัสผ่าน\n\nกรุณาใส่รหัสผ่านใหม่:');
+            if (newPassword) {
+                if (newPassword.length < 6) {
+                    alert('❌ รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+                } else {
+                    alert('✅ เปลี่ยนรหัสผ่านสำเร็จ\n\n(ในระบบจริงจะอัปเดตในฐานข้อมูล)');
+                }
+            }
+        }
+
+        function viewLoginHistory() {
+            alert('📊 ประวัติการเข้าสู่ระบบ\n\nข้อมูลที่แสดง:\n- วันที่และเวลาล็อกอิน\n- อุปกรณ์ที่ใช้\n- ที่อยู่ IP\n- สถานที่ (ประมาณ)\n- สถานะการเชื่อมต่อ\n\n(Coming Soon)');
+        }
+
+        function deleteAccount() {
+            if (confirm('⚠️ คำเตือน!\n\nการลบบัญชีจะทำให้:\n- ข้อมูลทั้งหมดหายไป\n- ไม่สามารถกู้คืนได้\n- การสนทนาทั้งหมดจะถูกลบ\n\nคุณแน่ใจหรือไม่?')) {
+                const confirmation = prompt('กรุณาพิมพ์ "DELETE" เพื่อยืนยันการลบบัญชี:');
+                if (confirmation === 'DELETE') {
+                    alert('❌ ลบบัญชีสำเร็จ\n\n(ในระบบจริงจะลบข้อมูลและ redirect ไป login)');
+                } else {
+                    alert('ยกเลิกการลบบัญชี');
+                }
+            }
+        }
+
+        // ฟังก์ชันนำทาง
+        function loadPage(page) {
+            console.log('Loading page:', page);
+            
+            switch(page) {
+                case 'chat':
+                    window.location.href = 'chat.html';
+                    break;
+                case 'dashboard':
+                    window.location.href = 'dashboard-simple.html';
+                    break;
+                case 'accounts':
+                    window.location.href = 'accounts.html';
+                    break;
+                case 'customers':
+                    window.location.href = 'customers.html';
+                    break;
+                case 'admin':
+                    alert('👨‍💼 จะเปิดหน้าจัดการผู้ใช้ (Coming Soon)');
+                    break;
+                default:
+                    // Stay on settings page
+                    break;
+            }
+        }
+
+        // ฟังก์ชันออกจากระบบ
+        function logout() {
+            if (confirm('🔒 คุณต้องการออกจากระบบหรือไม่?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('👋 User logged out');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // อัปเดตเวลาทุกวินาที
+        setInterval(() => {
+            const timeElement = document.getElementById('currentDate');
+            if (timeElement) {
+                const now = new Date();
+                timeElement.textContent = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
