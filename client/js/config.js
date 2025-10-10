@@ -6,8 +6,8 @@ const API_CONFIG = {
         DEBUG: true
     },
     production: {
-        API_BASE_URL: 'https://kingchat.up.railway.app/api',
-        WS_URL: 'https://kingchat.up.railway.app',
+        API_BASE_URL: `${window.location.origin}/api`,
+        WS_URL: window.location.origin,
         DEBUG: false
     }
 };

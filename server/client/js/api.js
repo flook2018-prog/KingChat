@@ -1,5 +1,5 @@
 // API Client for KingChat
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = `${window.location.origin}/api`;
 
 class APIClient {
   constructor() {
