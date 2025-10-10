@@ -197,7 +197,11 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   });
   
   app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard.html'));
+    res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
+  });
+  
+  app.get('/dashboard-fixed', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
   });
   
   // Default route serves login page

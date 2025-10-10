@@ -364,7 +364,7 @@
                             
                             // Redirect after a short delay
                             setTimeout(() => {
-                                window.location.href = '/dashboard.html';
+                                window.location.href = '/dashboard-fixed.html';
                             }, 1000);
                             return;
                         }
@@ -410,7 +410,7 @@
                         
                         // Redirect after a short delay
                         setTimeout(() => {
-                            window.location.href = '/dashboard.html';
+                            window.location.href = '/dashboard-fixed.html';
                         }, 1000);
                         return;
                     }
@@ -441,7 +441,7 @@
                 // Only redirect if login was recent (within 5 minutes) to avoid loops
                 if (timeDiff < 5 * 60 * 1000) {
                     console.log('ℹ️ Recent login detected, redirecting...');
-                    window.location.href = '/dashboard.html';
+                    window.location.href = '/dashboard-fixed.html';
                 } else {
                     // Clear old session
                     localStorage.removeItem('authToken');
