@@ -352,6 +352,93 @@
         if (checkAuth()) {
             checkScripts();
         }
+
+        // User Display Manager
+        function getCurrentUserData() {
+            try {
+                if (window.auth && window.auth.user) {
+                    return window.auth.user;
+                }
+                
+                const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+                if (userData) {
+                    return JSON.parse(userData);
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error getting current user:', error);
+                return null;
+            }
+        }
+
+        function updateUserDisplayElements() {
+            const user = getCurrentUserData();
+            if (!user) {
+                console.log('No user data available for display');
+                return;
+            }
+
+            const displayName = user.displayName || user.username || 'ผู้ใช้';
+            console.log('🔄 Updating user display:', displayName);
+            
+            // Update all user display elements
+            const userElements = document.querySelectorAll('#userDisplayName, .user-name, [data-user-display]');
+            userElements.forEach(function(el) {
+                el.textContent = displayName;
+                console.log('✅ Updated element:', el);
+            });
+
+            // Update user avatar elements
+            const userAvatars = document.querySelectorAll('#userAvatar, .user-avatar, [data-user-avatar]');
+            userAvatars.forEach(function(el) {
+                const initials = getInitials(displayName);
+                el.textContent = initials;
+                console.log('✅ Updated avatar:', el, '→', initials);
+            });
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            const words = name.split(' ');
+            if (words.length >= 2) {
+                return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+            }
+            return name.charAt(0).toUpperCase();
+        }
+
+        // Initialize user display
+        let userDisplayAttempts = 0;
+        function tryUpdateUserDisplay() {
+            userDisplayAttempts++;
+            const user = getCurrentUserData();
+            
+            if (user) {
+                updateUserDisplayElements();
+                return;
+            }
+            
+            if (userDisplayAttempts < 50) {
+                setTimeout(tryUpdateUserDisplay, 100);
+            } else {
+                console.warn('Could not load user data for display after 5 seconds');
+            }
+        }
+
+        // Start user display updates
+        setTimeout(tryUpdateUserDisplay, 200);
+
+        // Auto-refresh user display every 5 seconds
+        setInterval(function() {
+            const user = getCurrentUserData();
+            if (user) {
+                updateUserDisplayElements();
+            }
+        }, 5000);
+
+        // Make functions available globally
+        window.getCurrentUserData = getCurrentUserData;
+        window.updateUserDisplayElements = updateUserDisplayElements;
     </script>
     <script src="js/brand-animation.js"></script>
     <script src="js/auth.js"></script>
@@ -362,6 +449,6 @@
     <script src="js/auto-save.js"></script>
     <script src="js/breadcrumb.js"></script>
     <script src="js/dashboard.js"></script>
-    <script src="js/global-user-menu.js"></script>
+    <script src="js/user-display.js"></script>
 </body>
 </html>
