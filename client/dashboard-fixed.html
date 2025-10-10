@@ -103,19 +103,394 @@
             border-radius: 8px; 
             border-left: 4px solid #17a2b8;
         }
+
+        /* Enhanced Dashboard Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #28a745;
+            margin-top: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 30px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 80px;
+            padding: 40px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 10px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .card-content {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .recent-activities {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .recent-activities h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0 0 25px 0;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
+        .activity-icon {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .page-header h1 {
+                font-size: 28px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <!-- Main Structure -->
     <div id="mainContent">
         <!-- This will be populated after auth check -->
     </div>
 
     <script>
-        // SIMPLE AUTHENTICATION CHECK - NO REDIRECT LOOPS
+        // ENHANCED AUTHENTICATION CHECK WITH SMOOTH LOADING
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📍 Dashboard loading...');
             
+            // Show loading animation
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Simulate loading time for smooth UX
+            setTimeout(() => {
+                checkAuthentication();
+            }, 800);
+        });
+
+        function checkAuthentication() {
             // Simple auth check
             const token = localStorage.getItem('authToken') || localStorage.getItem('token');
             const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
@@ -125,6 +500,7 @@
             
             if (!token || !userData) {
                 console.warn('⚠️ No authentication found - showing auth warning');
+                hideLoading();
                 showAuthWarning();
                 return;
             }
@@ -134,18 +510,29 @@
                 user = JSON.parse(userData);
                 if (!user || !user.username) {
                     console.warn('⚠️ Invalid user data structure');
+                    hideLoading();
                     showAuthWarning();
                     return;
                 }
             } catch (e) {
                 console.error('❌ Error parsing user data:', e);
+                hideLoading();
                 showAuthWarning();
                 return;
             }
             
             console.log('✅ Valid authentication found for:', user.username);
+            hideLoading();
             loadDashboard(user);
-        });
+        }
+
+        function hideLoading() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500);
+        }
 
         // Show auth warning page (no auto redirect)
         function showAuthWarning() {
@@ -180,11 +567,11 @@
             `;
         }
 
-        // Load the actual dashboard
+        // Load the actual dashboard with animations
         function loadDashboard(user) {
             document.getElementById('mainContent').innerHTML = `
                 <!-- Top Navigation -->
-                <div class="navbar">
+                <div class="navbar" style="opacity: 0; animation: slideDown 0.6s ease forwards;">
                     <div class="nav-brand">
                         <div class="brand-logo">👑</div>
                         <span class="brand-text">KingChat</span>
@@ -207,29 +594,29 @@
                 </div>
 
                 <!-- Sidebar -->
-                <div class="sidebar">
+                <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
                     <div class="sidebar-menu">
-                        <a href="#" class="menu-item active" onclick="loadPage('dashboard')">
+                        <a href="#" class="menu-item active" onclick="loadPage('dashboard')" data-page="dashboard">
                             <i class="icon">📊</i>
                             <span class="menu-text">แดชบอร์ด</span>
                         </a>
-                        <a href="#" class="menu-item" onclick="loadPage('accounts')">
+                        <a href="#" class="menu-item" onclick="loadPage('accounts')" data-page="accounts">
                             <i class="icon">📱</i>
                             <span class="menu-text">บัญชี LINE OA</span>
                         </a>
-                        <a href="#" class="menu-item" onclick="loadPage('customers')">
+                        <a href="#" class="menu-item" onclick="loadPage('customers')" data-page="customers">
                             <i class="icon">👥</i>
                             <span class="menu-text">รายชื่อลูกค้า</span>
                         </a>
-                        <a href="#" class="menu-item" onclick="loadPage('chat')">
+                        <a href="#" class="menu-item" onclick="loadPage('chat')" data-page="chat">
                             <i class="icon">💬</i>
                             <span class="menu-text">แชท</span>
                         </a>
-                        <a href="#" class="menu-item" onclick="loadPage('settings')">
+                        <a href="#" class="menu-item" onclick="loadPage('settings')" data-page="settings">
                             <i class="icon">⚙️</i>
                             <span class="menu-text">ตั้งค่า</span>
                         </a>
-                        <a href="#" class="menu-item admin-only" onclick="loadPage('admin')" style="display: ${user.role === 'admin' ? 'flex' : 'none'}">
+                        <a href="#" class="menu-item admin-only" onclick="loadPage('admin')" data-page="admin" style="display: ${user.role === 'admin' ? 'flex' : 'none'}">
                             <i class="icon">👨‍💼</i>
                             <span class="menu-text">จัดการผู้ใช้</span>
                         </a>
@@ -237,101 +624,341 @@
                 </div>
 
                 <!-- Main Content -->
-                <div class="main-content">
+                <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
                     <div class="page-header">
                         <h1>📊 แดชบอร์ด</h1>
-                        <p>ยินดีต้อนรับสู่ระบบจัดการ KingChat</p>
+                        <p>ยินดีต้อนรับสู่ระบบจัดการ KingChat - ข้อมูลล่าสุด ณ วันที่ ${new Date().toLocaleDateString('th-TH')}</p>
                     </div>
 
                     <div class="dashboard-grid">
-                        <div class="dashboard-card">
+                        <div class="dashboard-card" style="animation-delay: 0.6s;" onclick="loadPage('accounts')">
                             <div class="card-header">
                                 <h3>📱 บัญชี LINE OA</h3>
                             </div>
                             <div class="card-content">
-                                <div class="stat-number">3</div>
+                                <div class="stat-number" id="accountsCount">0</div>
                                 <div class="stat-label">บัญชีที่เชื่อมต่อ</div>
                             </div>
                         </div>
 
-                        <div class="dashboard-card">
+                        <div class="dashboard-card" style="animation-delay: 0.7s;" onclick="loadPage('customers')">
                             <div class="card-header">
                                 <h3>👥 ลูกค้า</h3>
                             </div>
                             <div class="card-content">
-                                <div class="stat-number">127</div>
+                                <div class="stat-number" id="customersCount">0</div>
                                 <div class="stat-label">ลูกค้าทั้งหมด</div>
                             </div>
                         </div>
 
-                        <div class="dashboard-card">
+                        <div class="dashboard-card" style="animation-delay: 0.8s;" onclick="loadPage('chat')">
                             <div class="card-header">
                                 <h3>💬 ข้อความ</h3>
                             </div>
                             <div class="card-content">
-                                <div class="stat-number">1,234</div>
+                                <div class="stat-number" id="messagesCount">0</div>
                                 <div class="stat-label">ข้อความวันนี้</div>
                             </div>
                         </div>
 
-                        <div class="dashboard-card">
+                        <div class="dashboard-card" style="animation-delay: 0.9s;">
                             <div class="card-header">
                                 <h3>📊 อัตราการตอบกลับ</h3>
                             </div>
                             <div class="card-content">
-                                <div class="stat-number">98%</div>
+                                <div class="stat-number" id="responseRate">0%</div>
                                 <div class="stat-label">ภายใน 5 นาที</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="recent-activities">
+                    <div class="recent-activities" style="animation-delay: 1s;">
                         <h3>🕒 กิจกรรมล่าสุด</h3>
-                        <div class="activity-list">
-                            <div class="activity-item">
-                                <div class="activity-icon">💬</div>
-                                <div class="activity-content">
-                                    <div class="activity-title">ข้อความใหม่จาก คุณสมชาย</div>
-                                    <div class="activity-time">2 นาทีที่แล้ว</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">👤</div>
-                                <div class="activity-content">
-                                    <div class="activity-title">ลูกค้าใหม่เข้าร่วม</div>
-                                    <div class="activity-time">15 นาทีที่แล้ว</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">📱</div>
-                                <div class="activity-content">
-                                    <div class="activity-title">เชื่อมต่อบัญชี LINE OA ใหม่</div>
-                                    <div class="activity-time">1 ชั่วโมงที่แล้ว</div>
-                                </div>
-                            </div>
+                        <div class="activity-list" id="activityList">
+                            <!-- Activities will be loaded here -->
                         </div>
                     </div>
                 </div>
+
+                <style>
+                    @keyframes slideDown {
+                        from { opacity: 0; transform: translateY(-30px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    
+                    @keyframes slideInLeft {
+                        from { opacity: 0; transform: translateX(-50px); }
+                        to { opacity: 1; transform: translateX(0); }
+                    }
+                    
+                    @keyframes fadeInUp {
+                        from { opacity: 0; transform: translateY(30px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    
+                    .dashboard-card {
+                        opacity: 0;
+                        animation: fadeInUp 0.6s ease forwards;
+                        cursor: pointer;
+                    }
+                    
+                    .recent-activities {
+                        opacity: 0;
+                        animation: fadeInUp 0.6s ease forwards;
+                    }
+                </style>
             `;
             
             console.log('✅ Dashboard loaded successfully for user:', user.username);
+            
+            // Animate counters
+            setTimeout(() => {
+                animateCounter('accountsCount', 3, 1000);
+                animateCounter('customersCount', 127, 1500);
+                animateCounter('messagesCount', 1234, 2000);
+                animateResponseRate();
+            }, 1000);
+            
+            // Load activities
+            setTimeout(() => {
+                loadRecentActivities();
+            }, 1200);
         }
 
-        // Logout function
+        // Animate number counters
+        function animateCounter(elementId, target, duration) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= target) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(start).toLocaleString();
+                }
+            }, 16);
+        }
+
+        // Animate response rate
+        function animateResponseRate() {
+            const element = document.getElementById('responseRate');
+            if (!element) return;
+            
+            let rate = 0;
+            const timer = setInterval(() => {
+                rate += 2;
+                if (rate >= 98) {
+                    element.textContent = '98%';
+                    clearInterval(timer);
+                } else {
+                    element.textContent = rate + '%';
+                }
+            }, 30);
+        }
+
+        // Load recent activities with animation
+        function loadRecentActivities() {
+            const activities = [
+                { icon: '💬', title: 'ข้อความใหม่จาก คุณสมชาย', time: '2 นาทีที่แล้ว' },
+                { icon: '👤', title: 'ลูกค้าใหม่เข้าร่วม', time: '15 นาทีที่แล้ว' },
+                { icon: '📱', title: 'เชื่อมต่อบัญชี LINE OA ใหม่', time: '1 ชั่วโมงที่แล้ว' },
+                { icon: '⚙️', title: 'อัปเดตการตั้งค่าระบบ', time: '2 ชั่วโมงที่แล้ว' },
+                { icon: '📊', title: 'สร้างรายงานสรุปรายวัน', time: '3 ชั่วโมงที่แล้ว' }
+            ];
+            
+            const activityList = document.getElementById('activityList');
+            if (!activityList) return;
+            
+            activities.forEach((activity, index) => {
+                setTimeout(() => {
+                    const activityHTML = `
+                        <div class="activity-item" style="opacity: 0; animation: slideInRight 0.5s ease forwards;">
+                            <div class="activity-icon">${activity.icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-title">${activity.title}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                        </div>
+                    `;
+                    activityList.insertAdjacentHTML('beforeend', activityHTML);
+                }, index * 200);
+            });
+        }
+
+        // Enhanced logout function with confirmation
         function logout() {
-            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
-                localStorage.clear();
-                sessionStorage.clear();
-                console.log('👋 User logged out');
-                window.location.href = 'login.html';
+            if (confirm('🔒 คุณต้องการออกจากระบบหรือไม่?')) {
+                // Show loading
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.style.display = 'flex';
+                loadingOverlay.classList.remove('fade-out');
+                
+                setTimeout(() => {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    console.log('👋 User logged out');
+                    window.location.href = 'login.html';
+                }, 500);
             }
         }
 
-        // Load different pages (placeholder)
+        // Enhanced page loading with menu management
         function loadPage(page) {
             console.log('Loading page:', page);
-            alert('จะเปิดหน้า ' + page + ' ในอนาคต');
+            
+            // Update active menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === page) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Show loading for page transition
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.opacity = '0.7';
+                mainContent.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    // Page-specific content would go here
+                    switch(page) {
+                        case 'accounts':
+                            alert('📱 จะเปิดหน้าจัดการบัญชี LINE OA');
+                            break;
+                        case 'customers':
+                            alert('👥 จะเปิดหน้ารายชื่อลูกค้า');
+                            break;
+                        case 'chat':
+                            alert('💬 จะเปิดหน้าแชท');
+                            break;
+                        case 'settings':
+                            alert('⚙️ จะเปิดหน้าตั้งค่า');
+                            break;
+                        case 'admin':
+                            alert('👨‍💼 จะเปิดหน้าจัดการผู้ใช้');
+                            break;
+                        default:
+                            // Stay on dashboard
+                            break;
+                    }
+                    
+                    // Restore main content
+                    mainContent.style.opacity = '1';
+                    mainContent.style.transform = 'translateY(0)';
+                }, 300);
+            }
         }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K for quick search (future feature)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                alert('🔍 Quick Search (Coming Soon)');
+            }
+            
+            // Ctrl/Cmd + L for logout
+            if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                e.preventDefault();
+                logout();
+            }
+        });
+
+        // Add mobile menu toggle (for future mobile optimization)
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('mobile-open');
+            }
+        }
+
+        // Add real-time clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('th-TH');
+            const dateString = now.toLocaleDateString('th-TH');
+            
+            // Update page header if it exists
+            const pageHeader = document.querySelector('.page-header p');
+            if (pageHeader && pageHeader.textContent.includes('ข้อมูลล่าสุด')) {
+                pageHeader.textContent = `ยินดีต้อนรับสู่ระบบจัดการ KingChat - ${timeString} | ${dateString}`;
+            }
+        }
+
+        // Update clock every second
+        setInterval(updateClock, 1000);
+
+        // Add slideInRight animation
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(30px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            
+            .main-content {
+                transition: opacity 0.3s ease, transform 0.3s ease;
+            }
+            
+            /* Smooth hover effects for dashboard cards */
+            .dashboard-card {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .dashboard-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+                transition: left 0.6s ease;
+            }
+            
+            .dashboard-card:hover::before {
+                left: 100%;
+            }
+            
+            /* Pulse animation for online status */
+            .user-status.online {
+                animation: none;
+            }
+            
+            .user-status.online .status-dot {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+                animation: pulse 2s infinite;
+            }
+            
+            /* Smooth transitions for menu items */
+            .menu-item {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .menu-item::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+                transition: left 0.3s ease;
+            }
+            
+            .menu-item:hover::before {
+                left: 100%;
+            }
+        `;
+        document.head.appendChild(additionalStyles);
     </script>
 </body>
 </html>
