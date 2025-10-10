@@ -655,10 +655,13 @@
             const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
             
             if (token && userData) {
-                console.log('ℹ️ Already logged in, redirecting...');
+                console.log('ℹ️ Already logged in, checking redirect flag...');
                 // Add a flag to prevent redirect loops
-                const redirectFlag = sessionStorage.getItem('loginRedirect');
-                if (!redirectFlag) {
+                const loginRedirect = sessionStorage.getItem('loginRedirect');
+                const dashboardRedirect = sessionStorage.getItem('dashboardRedirect');
+                
+                if (!loginRedirect && !dashboardRedirect) {
+                    console.log('🔄 Redirecting to dashboard...');
                     sessionStorage.setItem('loginRedirect', 'true');
                     showSuccessAnimation();
                     setTimeout(() => {
@@ -666,11 +669,19 @@
                         window.location.href = '/dashboard.html';
                     }, 1500);
                 } else {
-                    // If we've already tried to redirect, clear everything and stay on login
-                    console.warn('⚠️ Redirect loop detected, clearing auth data');
+                    // If we've already tried to redirect, or there's a dashboard redirect flag
+                    console.warn('⚠️ Redirect loop detected, clearing auth data and staying on login');
                     localStorage.clear();
                     sessionStorage.clear();
+                    // Reload the page to reset state
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 }
+            } else {
+                // Clear any redirect flags if no auth data
+                sessionStorage.removeItem('loginRedirect');
+                sessionStorage.removeItem('dashboardRedirect');
             }
             
             // Add interactive effects

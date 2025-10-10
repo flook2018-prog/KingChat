@@ -279,50 +279,79 @@
             });
         });
         
-        // Check if scripts load properly
-        setTimeout(function() {
-            console.log('🔍 Checking page state...');
-            
-            // Check authentication with improved logic
+        // Check authentication immediately
+        function checkAuth() {
             const token = localStorage.getItem('authToken') || localStorage.getItem('token');
             const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
             
-            console.log('🔐 Token check:', !!token);
-            console.log('🔐 UserData check:', !!userData);
+            console.log('🔐 Auth check - Token:', !!token, 'UserData:', !!userData);
             
             if (!token || !userData) {
                 console.log('❌ No authentication data found, redirecting to login');
-                // Clear all auth data before redirect
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('token');
-                localStorage.removeItem('userData');
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('loginMode');
-                window.location.href = 'login.html';
-                return;
+                // Add a flag to prevent loops
+                const dashboardRedirect = sessionStorage.getItem('dashboardRedirect');
+                if (!dashboardRedirect) {
+                    sessionStorage.setItem('dashboardRedirect', 'true');
+                    // Clear all auth data before redirect
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('loginMode');
+                    setTimeout(() => {
+                        sessionStorage.removeItem('dashboardRedirect');
+                        window.location.href = 'login.html';
+                    }, 100);
+                } else {
+                    console.warn('⚠️ Dashboard redirect loop detected, staying here');
+                    sessionStorage.removeItem('dashboardRedirect');
+                }
+                return false;
             }
+            return true;
+        }
+
+        // Check scripts loading with more tolerance
+        function checkScripts() {
+            let attempts = 0;
+            const maxAttempts = 10;
             
-            // Check if auth and api objects are available
-            if (typeof auth === 'undefined' || typeof api === 'undefined') {
-                console.error('❌ Critical scripts failed to load');
-                document.body.innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: red;">
-                        <h2>⚠️ การโหลดหน้าเว็บมีปัญหา</h2>
-                        <p>กรุณารอสักครู่แล้วลองรีเฟรชหน้าใหม่</p>
-                        <button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            🔄 รีเฟรชหน้า
-                        </button>
-                        <br><br>
-                        <button onclick="localStorage.clear(); window.location.href='login.html'" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            🔑 กลับไปหน้า Login
-                        </button>
-                    </div>
-                `;
-            } else {
-                console.log('✅ All scripts loaded successfully');
-                console.log('✅ Authentication verified, staying on dashboard');
-            }
-        }, 2000); // Reduced timeout for faster response
+            const scriptCheck = setInterval(() => {
+                attempts++;
+                console.log(`🔍 Script check attempt ${attempts}/${maxAttempts}`);
+                
+                if (typeof auth !== 'undefined' && typeof api !== 'undefined') {
+                    console.log('✅ All scripts loaded successfully');
+                    clearInterval(scriptCheck);
+                    return;
+                }
+                
+                if (attempts >= maxAttempts) {
+                    console.warn('⚠️ Some scripts failed to load, but continuing anyway');
+                    clearInterval(scriptCheck);
+                    // Try to initialize basic functionality
+                    if (typeof auth === 'undefined') {
+                        console.log('📦 Creating fallback auth object');
+                        window.auth = {
+                            isAuthenticated: () => {
+                                const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+                                const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+                                return !!(token && userData);
+                            },
+                            logout: () => {
+                                localStorage.clear();
+                                window.location.href = 'login.html';
+                            }
+                        };
+                    }
+                }
+            }, 500);
+        }
+        
+        // Run checks
+        if (checkAuth()) {
+            checkScripts();
+        }
     </script>
     <script src="js/brand-animation.js"></script>
     <script src="js/auth.js"></script>
