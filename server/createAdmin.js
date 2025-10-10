@@ -34,7 +34,6 @@ async function createAdmin() {
         canManageAdmins: true
       })
     });
-    });
 
     await admin.save();
     console.log('✅ Admin user created successfully');
@@ -44,8 +43,6 @@ async function createAdmin() {
 
   } catch (error) {
     console.error('❌ Error creating admin:', error);
-  } finally {
-    mongoose.connection.close();
   }
 }
 
