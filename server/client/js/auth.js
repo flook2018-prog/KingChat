@@ -29,7 +29,19 @@ class AuthManager {
 
   // Check if user is authenticated
   isAuthenticated() {
-    return !!this.token && !!this.user;
+    const token = localStorage.getItem('authToken');
+    const currentUser = localStorage.getItem('currentUser');
+    const loginTime = localStorage.getItem('loginTime');
+    
+    // Check if token exists and is recent (within 24 hours)
+    if (token && currentUser && loginTime) {
+      const timeDiff = Date.now() - parseInt(loginTime);
+      if (timeDiff < 24 * 60 * 60 * 1000) { // 24 hours
+        return true;
+      }
+    }
+    
+    return false;
   }
 
   // Check if user has specific role
@@ -55,7 +67,11 @@ class AuthManager {
   // Redirect to login if not authenticated
   requireAuth() {
     if (!this.isAuthenticated()) {
-      window.location.href = 'login.html';
+      // Prevent redirect loop by checking current page
+      if (!window.location.pathname.includes('login')) {
+        console.log('Not authenticated, redirecting to login...');
+        window.location.href = '/login.html#no-redirect';
+      }
       return false;
     }
     return true;
@@ -64,7 +80,11 @@ class AuthManager {
   // Logout and redirect
   logout() {
     this.clearAuth();
-    window.location.href = 'login.html';
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('loginMode');
+    localStorage.removeItem('loginTime');
+    console.log('Logged out, redirecting to login...');
+    window.location.href = '/login.html';
   }
 }
 
