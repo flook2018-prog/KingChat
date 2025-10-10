@@ -814,9 +814,13 @@
             };
             
             try {
-                const response = await fetch(`${API_BASE}/admin/admin-users/create`, {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(sampleAdmin)
                 });
                 
