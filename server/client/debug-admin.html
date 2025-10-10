@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Debug Admin Issues</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .result { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 3px solid #007bff; border-radius: 5px; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 3px; }
+        textarea { width: 100%; min-height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }
+        h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Admin Issues</h1>
+        
+        <div class="section">
+            <h2>1. 📋 Check Database Admins</h2>
+            <button onclick="checkAdmins()">ตรวจสอบแอดมินในฐานข้อมูล</button>
+            <div id="admin-result" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. 🔑 Test Specific Login</h2>
+            <input type="text" id="test-username" placeholder="Username to test" value="aaa">
+            <input type="password" id="test-password" placeholder="Password to test" value="">
+            <button onclick="debugLogin()">Debug Login</button>
+            <div id="login-debug" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. 🛠️ Create New Admin</h2>
+            <input type="text" id="new-username" placeholder="New Username" value="test123">
+            <input type="text" id="new-displayname" placeholder="Display Name" value="Test User">
+            <input type="password" id="new-password" placeholder="Password" value="test123">
+            <select id="new-role">
+                <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
+            </select>
+            <button onclick="createAdmin()">สร้างแอดมินใหม่</button>
+            <div id="create-result" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. 🔍 Manual Password Check</h2>
+            <textarea id="manual-check" placeholder="ผลลัพธ์จะแสดงที่นี่..."></textarea>
+            <button onclick="manualPasswordCheck()">ตรวจสอบ Password Hash</button>
+        </div>
+
+        <div class="section">
+            <h2>5. 🔄 Reset Default Admin</h2>
+            <button onclick="resetDefaultAdmin()">รีเซ็ตแอดมิน admin/admin123</button>
+            <div id="reset-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function checkAdmins() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/admin-users`);
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('admin-result');
+                
+                if (data.success && data.data) {
+                    resultDiv.innerHTML = `
+                        <strong>✅ พบแอดมิน ${data.data.length} คน:</strong><br><br>
+                        ${data.data.map(admin => `
+                            <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 3px;">
+                                <strong>ID:</strong> ${admin.id}<br>
+                                <strong>Username:</strong> ${admin.username}<br>
+                                <strong>Email:</strong> ${admin.email}<br>
+                                <strong>Display Name:</strong> ${admin.displayName}<br>
+                                <strong>Role:</strong> ${admin.role}<br>
+                                <strong>Active:</strong> ${admin.isActive ? 'Yes' : 'No'}<br>
+                                <strong>Created:</strong> ${new Date(admin.createdAt).toLocaleString()}<br>
+                            </div>
+                        `).join('')}
+                    `;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `❌ ไม่พบข้อมูลแอดมิน: ${JSON.stringify(data)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                document.getElementById('admin-result').innerHTML = `❌ Error: ${error.message}`;
+                document.getElementById('admin-result').className = 'result error';
+            }
+        }
+
+        async function debugLogin() {
+            const username = document.getElementById('test-username').value;
+            const password = document.getElementById('test-password').value;
+            const resultDiv = document.getElementById('login-debug');
+            
+            try {
+                resultDiv.innerHTML = '🔄 กำลังทดสอบ login...';
+                resultDiv.className = 'result';
+                
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result error';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Network Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function createAdmin() {
+            const username = document.getElementById('new-username').value;
+            const displayName = document.getElementById('new-displayname').value;
+            const password = document.getElementById('new-password').value;
+            const role = document.getElementById('new-role').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, displayName, password, role })
+                });
+                
+                const data = await response.json();
+                const resultDiv = document.getElementById('create-result');
+                
+                resultDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    // Auto refresh admin list
+                    setTimeout(checkAdmins, 1000);
+                } else {
+                    resultDiv.className = 'result error';
+                }
+                
+            } catch (error) {
+                document.getElementById('create-result').innerHTML = `❌ Error: ${error.message}`;
+                document.getElementById('create-result').className = 'result error';
+            }
+        }
+
+        async function manualPasswordCheck() {
+            const textarea = document.getElementById('manual-check');
+            
+            try {
+                // Get admin data first
+                const response = await fetch(`${API_BASE}/admin/admin-users`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    let report = "📋 Password Hash Analysis:\n\n";
+                    
+                    data.data.forEach(admin => {
+                        report += `Username: ${admin.username}\n`;
+                        report += `Password Hash: ${admin.password ? admin.password.substring(0, 20) + '...' : 'NO PASSWORD'}\n`;
+                        report += `Hash Length: ${admin.password ? admin.password.length : 0}\n`;
+                        report += `Hash Type: ${admin.password && admin.password.startsWith('$2') ? 'bcrypt' : 'unknown'}\n`;
+                        report += `Active: ${admin.isActive}\n`;
+                        report += "---\n";
+                    });
+                    
+                    textarea.value = report;
+                } else {
+                    textarea.value = "❌ ไม่สามารถดึงข้อมูลแอดมินได้";
+                }
+                
+            } catch (error) {
+                textarea.value = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function resetDefaultAdmin() {
+            try {
+                // First delete existing admin if exists
+                const response = await fetch(`${API_BASE}/admin/init`);
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('reset-result');
+                resultDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    setTimeout(checkAdmins, 1000);
+                } else {
+                    resultDiv.className = 'result error';
+                }
+                
+            } catch (error) {
+                document.getElementById('reset-result').innerHTML = `❌ Error: ${error.message}`;
+                document.getElementById('reset-result').className = 'result error';
+            }
+        }
+
+        // Auto load on page load
+        window.onload = () => {
+            checkAdmins();
+        };
+    </script>
+</body>
+</html>
