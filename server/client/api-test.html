@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KingChat API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 3px solid #007bff; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+    </style>
+</head>
+<body>
+    <h1>🔧 KingChat API Test v2</h1>
+    <div id="token-display" class="result"></div>
+
+    <div class="test-section">
+        <h3>1. Health Check</h3>
+        <button onclick="testHealth()">Test Health</button>
+        <div id="health-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Database Init</h3>
+        <button onclick="testInit()">Initialize Database</button>
+        <div id="init-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Login Test</h3>
+        <input type="text" id="username" placeholder="Username" value="admin">
+        <input type="password" id="password" placeholder="Password" value="admin123">
+        <button onclick="testLogin()">Login</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Get Admins</h3>
+        <button onclick="testGetAdmins()">Get Admin Users</button>
+        <div id="admins-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Verify Token</h3>
+        <button onclick="testVerify()">Verify Token</button>
+        <div id="verify-result" class="result"></div>
+    </div>
+
+    <script>
+        let currentToken = '';
+
+        function updateTokenDisplay() {
+            const display = document.getElementById('token-display');
+            if (currentToken) {
+                display.innerHTML = `<strong>Token:</strong> ${currentToken.substring(0, 50)}...`;
+                display.className = 'result success';
+            } else {
+                display.innerHTML = '<strong>Token:</strong> No token';
+                display.className = 'result error';
+            }
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                document.getElementById('health-result').innerHTML = 
+                    `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> ${JSON.stringify(data, null, 2)}`;
+                document.getElementById('health-result').className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                document.getElementById('health-result').innerHTML = `<strong>Error:</strong> ${error.message}`;
+                document.getElementById('health-result').className = 'result error';
+            }
+        }
+
+        async function testInit() {
+            try {
+                const response = await fetch('/api/admin/init');
+                const data = await response.json();
+                document.getElementById('init-result').innerHTML = 
+                    `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> ${JSON.stringify(data, null, 2)}`;
+                document.getElementById('init-result').className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                document.getElementById('init-result').innerHTML = `<strong>Error:</strong> ${error.message}`;
+                document.getElementById('init-result').className = 'result error';
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.token) {
+                    currentToken = data.token;
+                    updateTokenDisplay();
+                }
+                
+                document.getElementById('login-result').innerHTML = 
+                    `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> ${JSON.stringify(data, null, 2)}`;
+                document.getElementById('login-result').className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                document.getElementById('login-result').innerHTML = `<strong>Error:</strong> ${error.message}`;
+                document.getElementById('login-result').className = 'result error';
+            }
+        }
+
+        async function testGetAdmins() {
+            try {
+                const headers = {};
+                if (currentToken) {
+                    headers['Authorization'] = `Bearer ${currentToken}`;
+                }
+                
+                const response = await fetch('/api/admin/admin-users', {
+                    headers: headers
+                });
+                
+                const data = await response.json();
+                document.getElementById('admins-result').innerHTML = 
+                    `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> ${JSON.stringify(data, null, 2)}`;
+                document.getElementById('admins-result').className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                document.getElementById('admins-result').innerHTML = `<strong>Error:</strong> ${error.message}`;
+                document.getElementById('admins-result').className = 'result error';
+            }
+        }
+
+        async function testVerify() {
+            try {
+                if (!currentToken) {
+                    throw new Error('No token available');
+                }
+                
+                const response = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                document.getElementById('verify-result').innerHTML = 
+                    `<strong>Status:</strong> ${response.status}<br><strong>Response:</strong> ${JSON.stringify(data, null, 2)}`;
+                document.getElementById('verify-result').className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                document.getElementById('verify-result').innerHTML = `<strong>Error:</strong> ${error.message}`;
+                document.getElementById('verify-result').className = 'result error';
+            }
+        }
+
+        // Initialize
+        updateTokenDisplay();
+    </script>
+</body>
+</html>
