@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👥 รายชื่อลูกค้า - KingChat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .nav-back {
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-input {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        .customers-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .customers-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .customers-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .customers-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-online {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-offline {
+            color: #6c757d;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-chat {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .search-input {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .customers-table {
+                font-size: 14px;
+            }
+            
+            .customers-table th,
+            .customers-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-back">
+            <a href="dashboard-working.html" class="back-btn">← กลับไปแดชบอร์ด</a>
+        </div>
+
+        <div class="header">
+            <h1>👥 รายชื่อลูกค้า</h1>
+            <p>จัดการข้อมูลลูกค้าและติดต่อสื่อสาร</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="🔍 ค้นหาลูกค้า..." id="searchInput">
+        </div>
+
+        <table class="customers-table">
+            <thead>
+                <tr>
+                    <th>ลูกค้า</th>
+                    <th>เบอร์โทร</th>
+                    <th>สถานะ</th>
+                    <th>ข้อความล่าสุด</th>
+                    <th>เวลา</th>
+                    <th>การดำเนินการ</th>
+                </tr>
+            </thead>
+            <tbody id="customersTableBody">
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">ส</div>
+                            <span>คุณสมชาย ใจดี</span>
+                        </div>
+                    </td>
+                    <td>081-234-5678</td>
+                    <td><span class="status-online">🟢 ออนไลน์</span></td>
+                    <td>สวัสดีครับ ต้องการสอบถาม...</td>
+                    <td>10:30</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-chat" onclick="startChat(1)">💬 แชท</button>
+                            <button class="btn-edit" onclick="editCustomer(1)">✏️ แก้ไข</button>
+                            <button class="btn-delete" onclick="deleteCustomer(1)">🗑️ ลบ</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">ห</div>
+                            <span>คุณสมหญิง รักสวย</span>
+                        </div>
+                    </td>
+                    <td>082-345-6789</td>
+                    <td><span class="status-online">🟢 ออนไลน์</span></td>
+                    <td>ขอบคุณมากครับ</td>
+                    <td>09:15</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-chat" onclick="startChat(2)">💬 แชท</button>
+                            <button class="btn-edit" onclick="editCustomer(2)">✏️ แก้ไข</button>
+                            <button class="btn-delete" onclick="deleteCustomer(2)">🗑️ ลบ</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">ว</div>
+                            <span>คุณวิชัย มั่งมี</span>
+                        </div>
+                    </td>
+                    <td>083-456-7890</td>
+                    <td><span class="status-offline">⚫ ออฟไลน์</span></td>
+                    <td>ได้รับสินค้าแล้วครับ</td>
+                    <td>เมื่อวาน</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-chat" onclick="startChat(3)">💬 แชท</button>
+                            <button class="btn-edit" onclick="editCustomer(3)">✏️ แก้ไข</button>
+                            <button class="btn-delete" onclick="deleteCustomer(3)">🗑️ ลบ</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">A</div>
+                            <span>บริษัท ABC จำกัด</span>
+                        </div>
+                    </td>
+                    <td>02-123-4567</td>
+                    <td><span class="status-offline">⚫ ออฟไลน์</span></td>
+                    <td>ส่งใบเสนอราคามาแล้ว</td>
+                    <td>เมื่อวาน</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-chat" onclick="startChat(4)">💬 แชท</button>
+                            <button class="btn-edit" onclick="editCustomer(4)">✏️ แก้ไข</button>
+                            <button class="btn-delete" onclick="deleteCustomer(4)">🗑️ ลบ</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">น</div>
+                            <span>คุณนันทิญา สุขใจ</span>
+                        </div>
+                    </td>
+                    <td>084-567-8901</td>
+                    <td><span class="status-online">🟢 ออนไลน์</span></td>
+                    <td>อยากสั่งเพิ่มอีก 5 ชิ้น</td>
+                    <td>2 วันที่แล้ว</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-chat" onclick="startChat(5)">💬 แชท</button>
+                            <button class="btn-edit" onclick="editCustomer(5)">✏️ แก้ไข</button>
+                            <button class="btn-delete" onclick="deleteCustomer(5)">🗑️ ลบ</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="alert('เพิ่มลูกค้าใหม่')" style="background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                ➕ เพิ่มลูกค้าใหม่
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ตรวจสอบการล็อกอิน
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            if (!token || !userData) {
+                alert('❌ กรุณาเข้าสู่ระบบก่อน');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Setup search functionality
+            setupSearch();
+            
+            console.log('✅ Customers page loaded');
+        });
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#customersTableBody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Customer actions
+        function startChat(customerId) {
+            alert('💬 เริ่มแชทกับลูกค้า ID: ' + customerId);
+        }
+
+        function editCustomer(customerId) {
+            alert('✏️ แก้ไขข้อมูลลูกค้า ID: ' + customerId);
+        }
+
+        function deleteCustomer(customerId) {
+            if (confirm('คุณต้องการลบลูกค้ารายนี้หรือไม่?')) {
+                alert('🗑️ ลบลูกค้า ID: ' + customerId + ' สำเร็จ');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 บัญชี LINE OA - KingChat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .nav-back {
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .account-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .account-avatar {
+            width: 50px;
+            height: 50px;
+            background: #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .account-info h3 {
+            margin: 0;
+            color: #2d3748;
+        }
+
+        .account-id {
+            color: #6c757d;
+            font-family: monospace;
+        }
+
+        .account-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-manage {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .btn-settings {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-back">
+            <a href="dashboard-working.html" class="back-btn">← กลับไปแดชบอร์ด</a>
+        </div>
+
+        <div class="header">
+            <h1>📱 บัญชี LINE OA</h1>
+            <p>จัดการบัญชี LINE Official Account</p>
+        </div>
+
+        <div class="accounts-grid">
+            <div class="account-card">
+                <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>
+                <div class="account-header">
+                    <div class="account-avatar">K</div>
+                    <div class="account-info">
+                        <h3>KingChat Shop</h3>
+                        <div class="account-id">@kingchat-shop</div>
+                    </div>
+                </div>
+                <div class="account-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">1,250</div>
+                        <div class="stat-label">ผู้ติดตาม</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">432</div>
+                        <div class="stat-label">ข้อความวันนี้</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">อัตราตอบกลับ</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5 นาทีที่แล้ว</div>
+                        <div class="stat-label">ใช้งานล่าสุด</div>
+                    </div>
+                </div>
+                <button class="btn-manage" onclick="alert('จัดการบัญชี KingChat Shop')">📊 จัดการ</button>
+                <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี KingChat Shop')">⚙️ ตั้งค่า</button>
+            </div>
+
+            <div class="account-card">
+                <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>
+                <div class="account-header">
+                    <div class="account-avatar">C</div>
+                    <div class="account-info">
+                        <h3>Customer Support</h3>
+                        <div class="account-id">@support-center</div>
+                    </div>
+                </div>
+                <div class="account-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">856</div>
+                        <div class="stat-label">ผู้ติดตาม</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">278</div>
+                        <div class="stat-label">ข้อความวันนี้</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">อัตราตอบกลับ</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">10 นาทีที่แล้ว</div>
+                        <div class="stat-label">ใช้งานล่าสุด</div>
+                    </div>
+                </div>
+                <button class="btn-manage" onclick="alert('จัดการบัญชี Customer Support')">📊 จัดการ</button>
+                <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี Customer Support')">⚙️ ตั้งค่า</button>
+            </div>
+
+            <div class="account-card">
+                <span class="status-badge status-pending">🟡 รอดำเนินการ</span>
+                <div class="account-header">
+                    <div class="account-avatar">M</div>
+                    <div class="account-info">
+                        <h3>Marketing Bot</h3>
+                        <div class="account-id">@marketing-auto</div>
+                    </div>
+                </div>
+                <div class="account-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">342</div>
+                        <div class="stat-label">ผู้ติดตาม</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">89</div>
+                        <div class="stat-label">ข้อความวันนี้</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">78%</div>
+                        <div class="stat-label">อัตราตอบกลับ</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2 ชั่วโมงที่แล้ว</div>
+                        <div class="stat-label">ใช้งานล่าสุด</div>
+                    </div>
+                </div>
+                <button class="btn-manage" onclick="alert('จัดการบัญชี Marketing Bot')">📊 จัดการ</button>
+                <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี Marketing Bot')">⚙️ ตั้งค่า</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="alert('เพิ่มบัญชี LINE OA ใหม่')" style="background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                ➕ เพิ่มบัญชีใหม่
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ตรวจสอบการล็อกอิน
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            if (!token || !userData) {
+                alert('❌ กรุณาเข้าสู่ระบบก่อน');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            console.log('✅ LINE OA Accounts page loaded');
+        });
+    </script>
+</body>
+</html>

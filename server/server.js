@@ -201,32 +201,32 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   });
   
   app.get('/accounts', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/accounts.html'));
+    res.sendFile(path.join(__dirname, '../client/accounts-working.html'));
   });
   
   app.get('/customers', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/customers.html'));
+    res.sendFile(path.join(__dirname, '../client/customers-working.html'));
   });
   
   app.get('/settings', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/settings.html'));
+    res.sendFile(path.join(__dirname, '../client/settings-working.html'));
   });
   
   app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-simple.html'));
+    res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
   });
   
   app.get('/dashboard-fixed', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-simple.html'));
+    res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
   });
   
   app.get('/dashboard-simple', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-simple.html'));
+    res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
   });
 
-  // Default route serves chat page (instead of login)
+  // Default route serves login page
   app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/chat.html'));
+    res.sendFile(path.join(__dirname, '../client/login.html'));
   });
 } else {
   // Development - API only mode
