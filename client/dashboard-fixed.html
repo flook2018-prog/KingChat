@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KingChat Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/line-theme.css">
+    <link rel="stylesheet" href="css/brand-animation.css">
+    <link rel="stylesheet" href="css/responsive-ux.css">
+    <style>
+        /* แก้ไขปัญหาข้อความ "จัดการผู้ใช้" ตกบรรทัดเฉพาะหน้า Dashboard */
+        .admin-only .menu-text {
+            font-size: 14px !important; /* เท่ากับเครื่องมืออื่นๆ */
+            letter-spacing: -0.3px !important; /* ลดเล็กน้อยเพื่อไม่ให้ตกบรรทัด */
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        /* เพิ่มความกว้างให้ sidebar เฉพาะหน้านี้ */
+        .sidebar {
+            min-width: 300px !important; /* เพิ่มเล็กน้อยเพื่อรองรับตัวอักษร 14px */
+            top: var(--navbar-height) !important; /* แก้ไขตำแหน่งให้ติดกับ navbar */
+            position: fixed !important;
+            left: 0 !important;
+            height: calc(100vh - var(--navbar-height)) !important;
+        }
+        
+        /* ปรับ main content ให้ไม่ซ่อนหลัง sidebar */
+        .main-content {
+            margin-left: 300px !important; /* เท่ากับความกว้าง sidebar */
+            padding-top: var(--space-4) !important; /* ลด padding ด้านบนให้ชิด navbar */
+            margin-top: var(--navbar-height) !important;
+            max-height: calc(100vh - var(--navbar-height)) !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* ลด spacing ด้านบนของ page header */
+        .page-header {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: var(--space-4) !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Auth Warning Styles */
+        .auth-warning {
+            padding: 40px; 
+            text-align: center; 
+            font-family: Inter, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .auth-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .auth-button {
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .debug-info {
+            margin-top: 30px; 
+            padding: 20px; 
+            background: rgba(255, 255, 255, 0.1); 
+            border-radius: 8px; 
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Structure -->
+    <div id="mainContent">
+        <!-- This will be populated after auth check -->
+    </div>
+
+    <script>
+        // SIMPLE AUTHENTICATION CHECK - NO REDIRECT LOOPS
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📍 Dashboard loading...');
+            
+            // Simple auth check
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            
+            if (!token || !userData) {
+                console.warn('⚠️ No authentication found - showing auth warning');
+                showAuthWarning();
+                return;
+            }
+            
+            let user = null;
+            try {
+                user = JSON.parse(userData);
+                if (!user || !user.username) {
+                    console.warn('⚠️ Invalid user data structure');
+                    showAuthWarning();
+                    return;
+                }
+            } catch (e) {
+                console.error('❌ Error parsing user data:', e);
+                showAuthWarning();
+                return;
+            }
+            
+            console.log('✅ Valid authentication found for:', user.username);
+            loadDashboard(user);
+        });
+
+        // Show auth warning page (no auto redirect)
+        function showAuthWarning() {
+            document.getElementById('mainContent').innerHTML = `
+                <div class="auth-warning">
+                    <div class="auth-card">
+                        <h2>🔒 Authentication Required</h2>
+                        <p>กรุณาเข้าสู่ระบบเพื่อใช้งาน Dashboard</p>
+                        
+                        <div class="auth-buttons">
+                            <button onclick="window.location.href='login.html'" 
+                                    class="auth-button" style="background: #007bff; color: white;">
+                                🔑 ไปหน้า Login
+                            </button>
+                            <button onclick="window.location.href='test-login.html'" 
+                                    class="auth-button" style="background: #28a745; color: white;">
+                                🧪 ไปหน้า Test Login
+                            </button>
+                        </div>
+                        
+                        <div class="debug-info">
+                            <h4>Debug Information:</h4>
+                            <p><strong>Token:</strong> ${localStorage.getItem('authToken') ? 'EXISTS' : 'NOT_FOUND'}</p>
+                            <p><strong>UserData:</strong> ${localStorage.getItem('userData') ? 'EXISTS' : 'NOT_FOUND'}</p>
+                            <button onclick="localStorage.clear(); sessionStorage.clear(); location.reload();" 
+                                    class="auth-button" style="background: #dc3545; color: white; margin-top: 10px;">
+                                🗑️ ล้างข้อมูลทั้งหมด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load the actual dashboard
+        function loadDashboard(user) {
+            document.getElementById('mainContent').innerHTML = `
+                <!-- Top Navigation -->
+                <div class="navbar">
+                    <div class="nav-brand">
+                        <div class="brand-logo">👑</div>
+                        <span class="brand-text">KingChat</span>
+                    </div>
+                    
+                    <div class="nav-user">
+                        <div class="user-info">
+                            <span class="user-name">สวัสดี, ${user.username}</span>
+                            <div class="user-status online">
+                                <div class="status-dot"></div>
+                                ออนไลน์
+                            </div>
+                        </div>
+                        <div class="user-menu">
+                            <button class="btn-logout" onclick="logout()">
+                                <i class="icon">🚪</i> ออกจากระบบ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <div class="sidebar-menu">
+                        <a href="#" class="menu-item active" onclick="loadPage('dashboard')">
+                            <i class="icon">📊</i>
+                            <span class="menu-text">แดชบอร์ด</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('accounts')">
+                            <i class="icon">📱</i>
+                            <span class="menu-text">บัญชี LINE OA</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('customers')">
+                            <i class="icon">👥</i>
+                            <span class="menu-text">รายชื่อลูกค้า</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('chat')">
+                            <i class="icon">💬</i>
+                            <span class="menu-text">แชท</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('settings')">
+                            <i class="icon">⚙️</i>
+                            <span class="menu-text">ตั้งค่า</span>
+                        </a>
+                        <a href="#" class="menu-item admin-only" onclick="loadPage('admin')" style="display: ${user.role === 'admin' ? 'flex' : 'none'}">
+                            <i class="icon">👨‍💼</i>
+                            <span class="menu-text">จัดการผู้ใช้</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <div class="page-header">
+                        <h1>📊 แดชบอร์ด</h1>
+                        <p>ยินดีต้อนรับสู่ระบบจัดการ KingChat</p>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>📱 บัญชี LINE OA</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="stat-number">3</div>
+                                <div class="stat-label">บัญชีที่เชื่อมต่อ</div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>👥 ลูกค้า</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="stat-number">127</div>
+                                <div class="stat-label">ลูกค้าทั้งหมด</div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>💬 ข้อความ</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="stat-number">1,234</div>
+                                <div class="stat-label">ข้อความวันนี้</div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>📊 อัตราการตอบกลับ</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="stat-number">98%</div>
+                                <div class="stat-label">ภายใน 5 นาที</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activities">
+                        <h3>🕒 กิจกรรมล่าสุด</h3>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon">💬</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">ข้อความใหม่จาก คุณสมชาย</div>
+                                    <div class="activity-time">2 นาทีที่แล้ว</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">👤</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">ลูกค้าใหม่เข้าร่วม</div>
+                                    <div class="activity-time">15 นาทีที่แล้ว</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">📱</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">เชื่อมต่อบัญชี LINE OA ใหม่</div>
+                                    <div class="activity-time">1 ชั่วโมงที่แล้ว</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            console.log('✅ Dashboard loaded successfully for user:', user.username);
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('👋 User logged out');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Load different pages (placeholder)
+        function loadPage(page) {
+            console.log('Loading page:', page);
+            alert('จะเปิดหน้า ' + page + ' ในอนาคต');
+        }
+    </script>
+</body>
+</html>

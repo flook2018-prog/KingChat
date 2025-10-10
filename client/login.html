@@ -617,31 +617,37 @@
                     console.log('✅ Login API successful');
                     console.log('👤 User data:', data.user);
                     
-                    // Clear any loop tracking first
-                    localStorage.removeItem('loginPageLoads');
-                    localStorage.removeItem('dashboardPageLoads');
-                    sessionStorage.clear();
-                    
-                    // Store auth data
+                    // SUCCESS - Store auth data like test page
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     localStorage.setItem('userData', JSON.stringify(data.user));
-                    localStorage.setItem('loginMode', 'api');
                     
-                    console.log('💾 Auth data stored to localStorage');
+                    console.log('✅ Login successful! Data stored:', {
+                        token: !!data.token,
+                        user: data.user?.username
+                    });
                     
-                    // Set session flag to prevent loop
-                    sessionStorage.setItem('freshLogin', 'true');
+                    // Show success with manual redirect button (like test page)
+                    showSuccess(`🎉 ยินดีต้อนรับ ${data.user.username}! Login สำเร็จ`);
                     
-                    // Show success animation
-                    showSuccessAnimation();
-                    
-                    // Redirect after animation
+                    // Add redirect button after short delay
                     setTimeout(() => {
-                        console.log('🔄 Redirecting to simple dashboard...');
-                        window.location.href = '/simple-dashboard.html';
-                    }, 1500);
+                        const successDiv = document.getElementById('successMessage');
+                        successDiv.innerHTML += `
+                            <div style="margin-top: 15px;">
+                                <button onclick="window.location.href='/dashboard-fixed.html'" 
+                                        style="background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                                    🏠 เข้าสู่หน้า Dashboard
+                                </button>
+                            </div>
+                        `;
+                    }, 1000);
+                    
+                    // Optional auto-redirect after 5 seconds (but user can click button anytime)
+                    setTimeout(() => {
+                        window.location.href = '/dashboard-fixed.html';
+                    }, 5000);
                     return;
                 } else {
                     throw new Error(data.message || 'เข้าสู่ระบบไม่สำเร็จ');
@@ -663,61 +669,32 @@
         document.addEventListener('DOMContentLoaded', function() {
             initTheme();
             
-            // EMERGENCY LOOP BREAKER - Check page load count
-            const pageLoadCount = parseInt(localStorage.getItem('loginPageLoads') || '0') + 1;
-            localStorage.setItem('loginPageLoads', pageLoadCount.toString());
+            console.log('📍 Login page loaded');
             
-            console.log('📍 Login page loaded (load #' + pageLoadCount + ')');
-            
-            // If loaded too many times in short period, clear everything
-            if (pageLoadCount > 5) {
-                console.error('🚨 EMERGENCY: Too many login page loads! Clearing everything...');
-                localStorage.clear();
-                sessionStorage.clear();
-                alert('ตรวจพบปัญหาการ redirect ซ้ำๆ - ได้ล้างข้อมูลทั้งหมดแล้ว กรุณา login ใหม่');
-                return;
-            }
-            
-            // Reset counter after 10 seconds
-            setTimeout(() => {
-                localStorage.removeItem('loginPageLoads');
-            }, 10000);
-            
-            // Check if already logged in
+            // SIMPLE CHECK - NO AUTO REDIRECT
+            // Just show current status without redirecting
             const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
-            
-            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
-            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
-            
-            // STRICT CHECK: Only redirect if we have BOTH token AND valid user data
-            if (token && userData) {
-                try {
-                    const user = JSON.parse(userData);
-                    if (user && user.username && user.username.length > 0) {
-                        console.log('ℹ️ Valid auth found, will redirect to dashboard...');
-                        
-                        // Add emergency brake - only redirect once per session
-                        const hasRedirected = sessionStorage.getItem('hasRedirectedFromLogin');
-                        if (!hasRedirected) {
-                            sessionStorage.setItem('hasRedirectedFromLogin', 'true');
-                            setTimeout(() => {
-                                window.location.href = '/simple-dashboard.html';
-                            }, 100);
-                            return;
-                        } else {
-                            console.warn('⚠️ Already redirected once this session, staying on login');
-                        }
-                    } else {
-                        console.warn('⚠️ Invalid user data, clearing...');
-                        localStorage.removeItem('userData');
-                        localStorage.removeItem('currentUser');
-                    }
-                } catch (e) {
-                    console.error('❌ Error parsing user data:', e);
-                    localStorage.removeItem('userData');
-                    localStorage.removeItem('currentUser');
-                }
+            if (token) {
+                console.log('ℹ️ Token found in storage, but staying on login page');
+                showSuccess('🔑 คุณมี token อยู่แล้ว - สามารถไปหน้า dashboard ได้');
+                
+                // Add manual redirect button
+                setTimeout(() => {
+                    const successDiv = document.getElementById('successMessage');
+                    successDiv.innerHTML += `
+                        <div style="margin-top: 15px;">
+                            <button onclick="window.location.href='/dashboard-fixed.html'" 
+                                    style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                                🏠 ไปยังหน้า Dashboard
+                            </button>
+                            <button onclick="clearAuth()" 
+                                    style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                                🗑️ ล้างข้อมูลและ Login ใหม่
+                            </button>
+                        </div>
+                    `;
+                    successDiv.style.display = 'block';
+                }, 100);
             }
             
             // Add interactive effects
@@ -732,6 +709,14 @@
                 });
             });
         });
+
+        // Function to clear auth data
+        function clearAuth() {
+            localStorage.clear();
+            sessionStorage.clear();
+            console.log('🗑️ Cleared all auth data');
+            location.reload();
+        }
 
         // Add keyboard shortcuts
         document.addEventListener('keydown', function(e) {
