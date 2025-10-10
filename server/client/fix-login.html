@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Fix Admin Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { background: #28a745; color: white; padding: 10px 15px; border: none; cursor: pointer; margin: 5px; }
+        .result { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 3px solid #007bff; }
+        input { width: 200px; padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix Admin Login Issues</h1>
+    
+    <div class="section">
+        <h3>1. Quick Fix - Reset admin/admin123</h3>
+        <button onclick="quickFix()">แก้ไขแอดมิน admin ให้ login ได้</button>
+        <div id="quick-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>2. Fix Specific User</h3>
+        <input type="text" id="fix-username" placeholder="Username" value="aaa">
+        <input type="password" id="fix-password" placeholder="New Password" value="aaa123">
+        <button onclick="fixUser()">แก้ไขรหัสผ่าน</button>
+        <div id="fix-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>3. Test Login</h3>
+        <input type="text" id="test-user" placeholder="Username" value="admin">
+        <input type="password" id="test-pass" placeholder="Password" value="admin123">
+        <button onclick="testLogin()">ทดสอบ Login</button>
+        <div id="test-result" class="result"></div>
+    </div>
+
+    <script>
+        async function quickFix() {
+            try {
+                const response = await fetch('/api/admin/fix-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', newPassword: 'admin123' })
+                });
+                
+                const data = await response.json();
+                document.getElementById('quick-result').innerHTML = `
+                    Status: ${response.status}<br>
+                    Result: ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                document.getElementById('quick-result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        async function fixUser() {
+            const username = document.getElementById('fix-username').value;
+            const password = document.getElementById('fix-password').value;
+            
+            try {
+                const response = await fetch('/api/admin/fix-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, newPassword: password })
+                });
+                
+                const data = await response.json();
+                document.getElementById('fix-result').innerHTML = `
+                    Status: ${response.status}<br>
+                    Result: ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                document.getElementById('fix-result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        async function testLogin() {
+            const username = document.getElementById('test-user').value;
+            const password = document.getElementById('test-pass').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                document.getElementById('test-result').innerHTML = `
+                    Status: ${response.status}<br>
+                    Result: ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                document.getElementById('test-result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
