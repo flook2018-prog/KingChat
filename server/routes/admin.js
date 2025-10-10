@@ -28,8 +28,9 @@ function canManageRole(userRole, targetRole) {
 }
 
 // Get all admins with pagination and search - using raw SQL
-router.get('/admin-users', async (req, res) => {
+router.get('/admin-users', auth, async (req, res) => {
   try {
+    console.log('🔍 GET /admin-users called by user:', req.user?.username);
     const { sequelize } = require('../config/database');
     const { page = 1, limit = 10, search = '' } = req.query;
     const offset = (page - 1) * limit;
@@ -62,6 +63,8 @@ router.get('/admin-users', async (req, res) => {
     
     const total = parseInt(countResult[0].count);
     
+    console.log(`📊 Found ${total} admins, returning ${admins.length} for page ${page}`);
+    
     res.json({
       admins,
       pagination: {
@@ -72,13 +75,13 @@ router.get('/admin-users', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get admins error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Get admins error:', error);
+    res.status(500).json({ error: `Server error: ${error.message}` });
   }
 });
 
 // Create new admin - using raw SQL
-router.post('/admin-users', async (req, res) => {
+router.post('/admin-users', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
     const { username, email, password, displayName, role = 'admin' } = req.body;
@@ -128,7 +131,7 @@ router.post('/admin-users', async (req, res) => {
 });
 
 // Update admin - using raw SQL
-router.put('/admin-users/:id', async (req, res) => {
+router.put('/admin-users/:id', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
     const { id } = req.params;
@@ -192,7 +195,7 @@ router.put('/admin-users/:id', async (req, res) => {
 });
 
 // Delete admin - using raw SQL
-router.delete('/admin-users/:id', async (req, res) => {
+router.delete('/admin-users/:id', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
     const { id } = req.params;
@@ -236,7 +239,7 @@ router.delete('/admin-users/:id', async (req, res) => {
 });
 
 // Change admin password - using raw SQL
-router.put('/admin-users/:id/password', async (req, res) => {
+router.put('/admin-users/:id/password', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
     const { id } = req.params;
