@@ -4,74 +4,604 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔑 Login - KingChat</title>
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .fallback-login {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background Elements */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 40px;
+            height: 40px;
+            top: 30%;
+            right: 30%;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1) rotate(360deg);
+        }
+
+        /* Main Container */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Brand Section */
+        .brand {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .brand h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .brand p {
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Input Icons */
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input:focus + .input-icon {
+            color: #667eea;
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Login Button */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Fallback Section */
+        .fallback-section {
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(255, 243, 205, 0.8);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
             text-align: center;
         }
-        .fallback-btn {
-            background: #ffc107;
-            color: #212529;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            font-weight: bold;
+
+        .fallback-section h4 {
+            color: #92400e;
+            margin-bottom: 16px;
+            font-size: 1rem;
         }
+
+        .fallback-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 8px;
+        }
+
         .fallback-btn:hover {
-            background: #e0a800;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
+        }
+
+        .database-users {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .user-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        /* Dark Mode */
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+        }
+
+        [data-theme="dark"] .login-container {
+            background: rgba(30, 41, 59, 0.95);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .brand h1 {
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        [data-theme="dark"] .brand p {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .form-group label {
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .form-group input {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .form-group input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        [data-theme="dark"] .fallback-section {
+            background: rgba(45, 55, 72, 0.8);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        [data-theme="dark"] .user-item {
+            background: rgba(45, 55, 72, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .login-container {
+                padding: 24px;
+            }
+
+            .brand h1 {
+                font-size: 2rem;
+            }
+
+            .brand-icon {
+                font-size: 3rem;
+            }
+
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #4ade80;
+            stroke-miterlimit: 10;
+            margin: 10px auto;
+            box-shadow: inset 0px 0px 0px #4ade80;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .success-checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #4ade80;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .success-checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #4ade80;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="เปลี่ยนธีม">
+        <span id="theme-icon">🌙</span>
+    </button>
+
+    <!-- Main Login Container -->
     <div class="login-container">
-        <div class="login-box">
-            <div class="brand">
-                <div class="brand-icon">👑</div>
-                <h1>KingChat</h1>
-                <p>ระบบจัดการลูกค้า LINE Official Account</p>
+        <!-- Brand Section -->
+        <div class="brand">
+            <div class="brand-icon">👑</div>
+            <h1>KingChat</h1>
+            <p>ระบบจัดการลูกค้า LINE Official Account</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="error-message"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">ชื่อผู้ใช้</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+                    <span class="input-icon">👤</span>
+                </div>
             </div>
-
-            <div id="error-message" class="error-message"></div>
-
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label for="username">ชื่อผู้ใช้</label>
-                    <input type="text" id="username" name="username" required>
+            
+            <div class="form-group">
+                <label for="password">รหัสผ่าน</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <span id="password-icon">👁️</span>
+                    </button>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">รหัสผ่าน</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                
-                <button type="submit" class="login-btn" id="loginButton">
-                    <span id="loginText">เข้าสู่ระบบ</span>
-                    <span id="loadingSpinner" class="loading-spinner" style="display: none;">⏳</span>
-                </button>
-            </form>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginButton">
+                <span id="loginText">เข้าสู่ระบบ</span>
+                <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
+            </button>
+        </form>
 
-            <!-- Fallback Login Options -->
-            <div class="fallback-login">
-                <h4>🚑 กรณี API ไม่ทำงาน - ใช้การ Login แบบ Offline</h4>
-                <button class="fallback-btn" onclick="loadDatabaseUsers()">
-                    โหลดข้อมูลจากฐานข้อมูล
-                </button>
-                <div id="database-users" style="margin-top: 10px; display: none;">
-                    <!-- ข้อมูลจากฐานข้อมูลจะแสดงที่นี่ -->
-                </div>
+        <!-- Fallback Login Section -->
+        <div class="fallback-section">
+            <h4>🚑 กรณี API ไม่ทำงาน - ใช้การ Login แบบ Offline</h4>
+            <button class="fallback-btn" onclick="loadDatabaseUsers()">
+                โหลดข้อมูลจากฐานข้อมูล
+            </button>
+            <div id="database-users" class="database-users">
+                <!-- ข้อมูลจากฐานข้อมูลจะแสดงที่นี่ -->
             </div>
         </div>
     </div>
 
     <script>
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Password Toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('password-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.textContent = '👁️';
+            }
+        }
+
         // Store database users
         let databaseUsers = [];
 
@@ -89,7 +619,7 @@
             } catch (error) {
                 console.log('❌ Cannot load from database, using fallback');
                 document.getElementById('database-users').innerHTML = `
-                    <div style="color: #dc3545; margin: 10px 0;">
+                    <div class="user-item" style="color: #dc2626; text-align: center;">
                         ❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้<br>
                         กรุณาใช้ username/password ที่รู้ว่าถูกต้อง
                     </div>
@@ -101,19 +631,55 @@
         function displayDatabaseUsers(users) {
             const div = document.getElementById('database-users');
             div.innerHTML = `
-                <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
-                    <strong>👥 ผู้ใช้ในฐานข้อมูล:</strong><br><br>
-                    ${users.map(user => `
-                        <div style="margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
-                            <strong>Username:</strong> ${user.username}<br>
-                            <strong>Display Name:</strong> ${user.displayName}<br>
-                            <strong>Active:</strong> ${user.isActive ? 'Yes' : 'No'}<br>
-                            <small style="color: #666;">ใช้ username นี้ + รหัสผ่านที่คุณตั้งไว้</small>
-                        </div>
-                    `).join('')}
+                <div style="margin-bottom: 12px; font-weight: 600; color: #374151;">
+                    👥 ผู้ใช้ในฐานข้อมูล:
                 </div>
+                ${users.map(user => `
+                    <div class="user-item">
+                        <div style="font-weight: 600; margin-bottom: 4px;">
+                            <strong>Username:</strong> ${user.username}
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            <strong>Display Name:</strong> ${user.displayName}
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            <strong>Status:</strong> 
+                            <span style="color: ${user.isActive ? '#059669' : '#dc2626'};">
+                                ${user.isActive ? '✅ Active' : '❌ Inactive'}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #6b7280; font-style: italic;">
+                            ใช้ username นี้ + รหัสผ่านที่คุณตั้งไว้
+                        </div>
+                    </div>
+                `).join('')}
             `;
             div.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess() {
+            const container = document.querySelector('.login-container');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="success-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="success-checkmark__check" fill="none" d="m14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                    <h2 style="color: #059669; margin: 16px 0 8px 0; font-size: 1.5rem;">เข้าสู่ระบบสำเร็จ!</h2>
+                    <p style="color: #6b7280; margin-bottom: 24px;">กำลังเข้าสู่หน้าหลัก...</p>
+                </div>
+            `;
         }
 
         async function handleLogin(event) {
@@ -126,11 +692,13 @@
             const loginText = document.getElementById('loginText');
             const loadingSpinner = document.getElementById('loadingSpinner');
             
+            // Hide error message
+            errorDiv.style.display = 'none';
+            
             // Show loading
             loginText.style.display = 'none';
-            loadingSpinner.style.display = 'inline';
+            loadingSpinner.style.display = 'inline-block';
             loginButton.disabled = true;
-            errorDiv.textContent = '';
             
             try {
                 // Try API first
@@ -148,11 +716,20 @@
                     if (data.success && data.token) {
                         // Store auth data
                         localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('token', data.token); // For compatibility
                         localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        localStorage.setItem('userData', JSON.stringify(data.user)); // For auth.js compatibility
                         localStorage.setItem('loginMode', 'api');
                         
                         console.log('✅ API Login successful');
-                        window.location.href = '/dashboard-fixed.html';
+                        
+                        // Show success animation
+                        showSuccess();
+                        
+                        // Redirect after animation
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 2000);
                         return;
                     }
                 }
@@ -172,16 +749,6 @@
                 );
                 
                 if (user) {
-                    // Check if the password matches any known patterns for this user
-                    // Since we can't verify the actual password without API, we'll try common patterns
-                    const possiblePasswords = [
-                        password, // exact password provided
-                        username + '123', // username + 123
-                        username, // same as username
-                        'admin123', // default admin password
-                        username + '456'
-                    ];
-                    
                     // For fallback mode, we'll accept the login if user exists in database
                     // and they provide any reasonable password
                     if (password.length >= 3) {
@@ -192,6 +759,7 @@
                         }));
                         
                         localStorage.setItem('authToken', fakeToken);
+                        localStorage.setItem('token', fakeToken); // For compatibility
                         localStorage.setItem('currentUser', JSON.stringify({
                             id: user.id,
                             username: user.username,
@@ -199,15 +767,29 @@
                             email: user.email,
                             role: user.role || 'admin'
                         }));
+                        localStorage.setItem('userData', JSON.stringify({
+                            id: user.id,
+                            username: user.username,
+                            displayName: user.displayName,
+                            email: user.email,
+                            role: user.role || 'admin'
+                        })); // For auth.js compatibility
                         localStorage.setItem('loginMode', 'fallback');
                         
                         console.log('✅ Database fallback login successful');
-                        window.location.href = '/dashboard-fixed.html';
+                        
+                        // Show success animation
+                        showSuccess();
+                        
+                        // Redirect after animation
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 2000);
                         return;
                     }
                 }
                 
-                errorDiv.textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีไม่ได้เปิดใช้งาน';
+                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีไม่ได้เปิดใช้งาน');
                 console.log('❌ Invalid credentials or user not active');
                 
             } finally {
@@ -218,11 +800,60 @@
             }
         }
 
-        // Check if already logged in
-        if (localStorage.getItem('authToken')) {
-            console.log('ℹ️ Already logged in, redirecting...');
-            window.location.href = '/dashboard-fixed.html';
-        }
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            
+            // Check if already logged in
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            if (token && userData) {
+                console.log('ℹ️ Already logged in, redirecting...');
+                // Add a flag to prevent redirect loops
+                const redirectFlag = sessionStorage.getItem('loginRedirect');
+                if (!redirectFlag) {
+                    sessionStorage.setItem('loginRedirect', 'true');
+                    showSuccess();
+                    setTimeout(() => {
+                        sessionStorage.removeItem('loginRedirect');
+                        window.location.href = '/dashboard.html';
+                    }, 1500);
+                } else {
+                    // If we've already tried to redirect, clear everything and stay on login
+                    console.warn('⚠️ Redirect loop detected, clearing auth data');
+                    localStorage.clear();
+                    sessionStorage.clear();
+                }
+            }
+            
+            // Add some interactive effects
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Enter key on form
+            if (e.key === 'Enter' && (e.target.id === 'username' || e.target.id === 'password')) {
+                e.preventDefault();
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+            
+            // Theme toggle with Ctrl+T
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
     </script>
 </body>
 </html>

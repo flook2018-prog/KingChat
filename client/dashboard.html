@@ -283,14 +283,26 @@
         setTimeout(function() {
             console.log('🔍 Checking page state...');
             
-            // Check authentication
-            const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-            if (!token) {
-                console.log('❌ No authentication token found, redirecting to login');
-                window.location.href = 'login.html';
+            // Check authentication with improved logic
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token check:', !!token);
+            console.log('🔐 UserData check:', !!userData);
+            
+            if (!token || !userData) {
+                console.log('❌ No authentication data found, redirecting to login');
+                // Clear all auth data before redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userData');
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginMode');
+                window.location.href = 'login-fixed.html';
                 return;
             }
             
+            // Check if auth and api objects are available
             if (typeof auth === 'undefined' || typeof api === 'undefined') {
                 console.error('❌ Critical scripts failed to load');
                 document.body.innerHTML = `
@@ -301,15 +313,16 @@
                             🔄 รีเฟรชหน้า
                         </button>
                         <br><br>
-                        <button onclick="localStorage.clear(); window.location.href='login.html'" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        <button onclick="localStorage.clear(); window.location.href='login-fixed.html'" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
                             🔑 กลับไปหน้า Login
                         </button>
                     </div>
                 `;
             } else {
                 console.log('✅ All scripts loaded successfully');
+                console.log('✅ Authentication verified, staying on dashboard');
             }
-        }, 3000);
+        }, 2000); // Reduced timeout for faster response
     </script>
     <script src="js/brand-animation.js"></script>
     <script src="js/auth.js"></script>

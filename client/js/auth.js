@@ -4,16 +4,36 @@ console.log('🔐 Loading auth.js...');
 class AuthManager {
   constructor() {
     console.log('🔐 AuthManager constructor');
+    // Try both token keys for compatibility
     this.token = localStorage.getItem('authToken') || localStorage.getItem('token');
     this.user = this.getStoredUser();
     console.log('🔐 Token found:', !!this.token);
     console.log('🔐 User found:', !!this.user);
+    
+    // Additional debug info
+    if (this.token) {
+      console.log('🔐 Token source:', localStorage.getItem('authToken') ? 'authToken' : 'token');
+    }
+    if (this.user) {
+      console.log('🔐 User source:', localStorage.getItem('userData') ? 'userData' : 'currentUser');
+      console.log('🔐 User role:', this.user.role);
+    }
   }
 
   // Get stored user data
   getStoredUser() {
-    const userData = localStorage.getItem('userData');
-    return userData ? JSON.parse(userData) : null;
+    // Try both storage keys for compatibility
+    let userData = localStorage.getItem('userData');
+    if (!userData) {
+      userData = localStorage.getItem('currentUser');
+    }
+    
+    try {
+      return userData ? JSON.parse(userData) : null;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      return null;
+    }
   }
 
   // Store authentication data
@@ -21,9 +41,11 @@ class AuthManager {
     console.log('🔐 Setting auth data:', { token: !!token, user: !!user });
     this.token = token;
     this.user = user;
+    // Store in both formats for maximum compatibility
     localStorage.setItem('authToken', token);
-    localStorage.setItem('token', token); // Add both keys for compatibility
+    localStorage.setItem('token', token);
     localStorage.setItem('userData', JSON.stringify(user));
+    localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
   // Clear authentication data
@@ -31,9 +53,12 @@ class AuthManager {
     console.log('🔐 Clearing auth data');
     this.token = null;
     this.user = null;
+    // Clear all possible storage keys
     localStorage.removeItem('authToken');
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('loginMode');
   }
 
   // Check if user is authenticated
@@ -64,7 +89,8 @@ class AuthManager {
   // Redirect to login if not authenticated
   requireAuth() {
     if (!this.isAuthenticated()) {
-      window.location.href = 'login.html';
+      console.log('🔐 Authentication required, redirecting to login');
+      window.location.href = 'login-fixed.html';
       return false;
     }
     return true;
@@ -72,8 +98,9 @@ class AuthManager {
 
   // Logout and redirect
   logout() {
+    console.log('🔐 Logging out user');
     this.clearAuth();
-    window.location.href = 'login.html';
+    window.location.href = 'login-fixed.html';
   }
 }
 
