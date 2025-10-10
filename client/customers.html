@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👥 รายชื่อลูกค้า - KingChat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/line-theme.css">
+    <link rel="stylesheet" href="css/brand-animation.css">
+    <link rel="stylesheet" href="css/responsive-ux.css">
+    <style>
+        /* Enhanced Customers Page Styles - เหมือนกับ Dashboard */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #28a745;
+            margin-top: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 30px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 80px;
+            padding: 40px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* แก้สีตัวหนังสือ */
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d3748 !important;
+            margin: 0 0 10px 0;
+            text-shadow: none !important;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: #4a5568 !important;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 15px;
+        }
+
+        /* Customers Table */
+        .customers-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 30px;
+        }
+
+        .customers-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .customers-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 25px;
+            font-size: 14px;
+            color: #2d3748;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .add-customer-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .add-customer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .customers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .customers-table th {
+            background: rgba(102, 126, 234, 0.1);
+            color: #2d3748;
+            font-weight: 600;
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .customers-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            color: #4a5568;
+        }
+
+        .customers-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .customers-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .customer-phone {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .customer-phone:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #059669;
+        }
+
+        .status-offline {
+            background: rgba(107, 114, 128, 0.2);
+            color: #374151;
+        }
+
+        .last-message {
+            color: #718096;
+            font-size: 14px;
+            max-width: 200px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .chat-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .chat-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .edit-btn {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .edit-btn:hover {
+            background: rgba(245, 158, 11, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animation Classes */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .customers-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+            
+            .customers-table {
+                font-size: 14px;
+            }
+            
+            .customers-table th,
+            .customers-table td {
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Main Structure -->
+    <div id="mainContent">
+        <!-- This will be populated after auth check -->
+    </div>
+
+    <script>
+        // Customers Page Authentication and Loading
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📍 Customers page loading...');
+            
+            // Show loading animation
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Simulate loading time for smooth UX
+            setTimeout(() => {
+                checkAuthentication();
+            }, 800);
+        });
+
+        function checkAuthentication() {
+            // Simple auth check
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            
+            if (!token || !userData) {
+                console.warn('⚠️ No authentication found - redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            let user = null;
+            try {
+                user = JSON.parse(userData);
+                if (!user || !user.username) {
+                    console.warn('⚠️ Invalid user data structure');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (e) {
+                console.error('❌ Error parsing user data:', e);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            console.log('✅ Valid authentication found for:', user.username);
+            hideLoading();
+            loadCustomersPage(user);
+        }
+
+        function hideLoading() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500);
+        }
+
+        // Load the customers page
+        function loadCustomersPage(user) {
+            document.getElementById('mainContent').innerHTML = `
+                <!-- Top Navigation -->
+                <div class="navbar" style="opacity: 0; animation: slideDown 0.6s ease forwards;">
+                    <div class="nav-brand">
+                        <div class="brand-logo">👑</div>
+                        <span class="brand-text">KingChat</span>
+                    </div>
+                    
+                    <div class="nav-user">
+                        <div class="user-info">
+                            <span class="user-name">สวัสดี, ${user.username}</span>
+                            <div class="user-status online">
+                                <div class="status-dot"></div>
+                                ออนไลน์
+                            </div>
+                        </div>
+                        <div class="user-menu">
+                            <button class="btn-logout" onclick="logout()">
+                                <i class="icon">🚪</i> ออกจากระบบ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
+                    <div class="sidebar-menu">
+                        <a href="#" class="menu-item" onclick="loadPage('chat')" data-page="chat">
+                            <i class="icon">💬</i>
+                            <span class="menu-text">แชท</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('dashboard')" data-page="dashboard">
+                            <i class="icon">📊</i>
+                            <span class="menu-text">แดชบอร์ด</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('accounts')" data-page="accounts">
+                            <i class="icon">📱</i>
+                            <span class="menu-text">บัญชี LINE OA</span>
+                        </a>
+                        <a href="#" class="menu-item active" onclick="loadPage('customers')" data-page="customers">
+                            <i class="icon">👥</i>
+                            <span class="menu-text">รายชื่อลูกค้า</span>
+                        </a>
+                        <a href="#" class="menu-item" onclick="loadPage('settings')" data-page="settings">
+                            <i class="icon">⚙️</i>
+                            <span class="menu-text">ตั้งค่า</span>
+                        </a>
+                        <a href="#" class="menu-item admin-only" onclick="loadPage('admin')" data-page="admin" style="display: ${user.role === 'admin' ? 'flex' : 'none'}">
+                            <i class="icon">👨‍💼</i>
+                            <span class="menu-text">จัดการผู้ใช้</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
+                    <div class="page-header">
+                        <h1>👥 รายชื่อลูกค้า</h1>
+                        <p>จัดการข้อมูลลูกค้าและติดต่อสื่อสาร - ข้อมูลล่าสุด ณ วันที่ ${new Date().toLocaleDateString('th-TH')}</p>
+                    </div>
+
+                    <div class="customers-container">
+                        <div class="customers-header">
+                            <h2>📋 รายการลูกค้าทั้งหมด</h2>
+                            <div class="header-actions">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" placeholder="ค้นหาลูกค้า..." id="searchInput">
+                                    <span class="search-icon">🔍</span>
+                                </div>
+                                <button class="add-customer-btn" onclick="addCustomer()">
+                                    ➕ เพิ่มลูกค้าใหม่
+                                </button>
+                            </div>
+                        </div>
+
+                        <table class="customers-table">
+                            <thead>
+                                <tr>
+                                    <th>ลูกค้า</th>
+                                    <th>เบอร์โทร</th>
+                                    <th>สถานะ</th>
+                                    <th>ข้อความล่าสุด</th>
+                                    <th>เวลา</th>
+                                    <th>การดำเนินการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody">
+                                <!-- Customers will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            console.log('✅ Customers page loaded successfully for user:', user.username);
+            
+            // Load sample customers
+            setTimeout(() => {
+                loadCustomersData();
+            }, 1000);
+            
+            // Setup search functionality
+            setupSearch();
+        }
+
+        // Load sample customers data
+        function loadCustomersData() {
+            const customers = [
+                { id: 1, name: 'คุณสมชาย ใจดี', avatar: 'ส', phone: '081-234-5678', status: 'online', lastMessage: 'สวัสดีครับ ต้องการสอบถาม...', time: '10:30' },
+                { id: 2, name: 'คุณสมหญิง รักสวย', avatar: 'ห', phone: '082-345-6789', status: 'online', lastMessage: 'ขอบคุณมากครับ', time: '09:15' },
+                { id: 3, name: 'คุณวิชัย มั่งมี', avatar: 'ว', phone: '083-456-7890', status: 'offline', lastMessage: 'ได้รับสินค้าแล้วครับ', time: 'เมื่อวาน' },
+                { id: 4, name: 'บริษัท ABC จำกัด', avatar: 'A', phone: '02-123-4567', status: 'offline', lastMessage: 'ส่งใบเสนอราคามาแล้ว', time: 'เมื่อวาน' },
+                { id: 5, name: 'คุณนันทิญา สุขใจ', avatar: 'น', phone: '084-567-8901', status: 'online', lastMessage: 'อยากสั่งเพิ่มอีก 5 ชิ้น', time: '2 วันที่แล้ว' },
+                { id: 6, name: 'คุณประกอบ การดี', avatar: 'ป', phone: '085-678-9012', status: 'offline', lastMessage: 'เมื่อไหร่จะส่งสินค้า', time: '3 วันที่แล้ว' },
+                { id: 7, name: 'คุณสุดา แสงสว่าง', avatar: 'ส', phone: '086-789-0123', status: 'online', lastMessage: 'ผลิตภัณฑ์ดีมาก', time: '4 วันที่แล้ว' }
+            ];
+            
+            const tableBody = document.getElementById('customersTableBody');
+            if (!tableBody) return;
+            
+            customers.forEach((customer, index) => {
+                setTimeout(() => {
+                    const row = `
+                        <tr style="opacity: 0; animation: fadeInUp 0.5s ease forwards; animation-delay: ${index * 0.1}s;">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div class="customer-avatar">${customer.avatar}</div>
+                                    <div class="customer-name">${customer.name}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="tel:${customer.phone}" class="customer-phone">${customer.phone}</a>
+                            </td>
+                            <td>
+                                <span class="status-badge status-${customer.status}">
+                                    ${customer.status === 'online' ? '🟢 ออนไลน์' : '⚫ ออฟไลน์'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="last-message">${customer.lastMessage}</div>
+                            </td>
+                            <td>${customer.time}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn chat-btn" onclick="startChat(${customer.id})" title="เริ่มแชท">
+                                        💬
+                                    </button>
+                                    <button class="action-btn edit-btn" onclick="editCustomer(${customer.id})" title="แก้ไข">
+                                        ✏️
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="deleteCustomer(${customer.id})" title="ลบ">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.insertAdjacentHTML('beforeend', row);
+                }, index * 200);
+            });
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) return;
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#customersTableBody tr');
+                
+                rows.forEach(row => {
+                    const name = row.querySelector('.customer-name').textContent.toLowerCase();
+                    const phone = row.querySelector('.customer-phone').textContent.toLowerCase();
+                    const message = row.querySelector('.last-message').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || phone.includes(searchTerm) || message.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Customer actions
+        function addCustomer() {
+            alert('➕ เพิ่มลูกค้าใหม่ (Coming Soon)');
+        }
+
+        function startChat(customerId) {
+            alert('💬 เริ่มแชทกับลูกค้า ID: ' + customerId);
+            // In the future: window.location.href = `chat.html?customer=${customerId}`;
+        }
+
+        function editCustomer(customerId) {
+            alert('✏️ แก้ไขข้อมูลลูกค้า ID: ' + customerId);
+        }
+
+        function deleteCustomer(customerId) {
+            if (confirm('คุณต้องการลบลูกค้ารายนี้หรือไม่?')) {
+                alert('🗑️ ลบลูกค้า ID: ' + customerId + ' (Coming Soon)');
+            }
+        }
+
+        // Navigation functions
+        function loadPage(page) {
+            console.log('Loading page:', page);
+            
+            switch(page) {
+                case 'chat':
+                    window.location.href = 'chat.html';
+                    break;
+                case 'dashboard':
+                    window.location.href = 'dashboard-fixed.html';
+                    break;
+                case 'accounts':
+                    alert('📱 จะเปิดหน้าจัดการบัญชี LINE OA');
+                    break;
+                case 'settings':
+                    alert('⚙️ จะเปิดหน้าตั้งค่า');
+                    break;
+                case 'admin':
+                    alert('👨‍💼 จะเปิดหน้าจัดการผู้ใช้');
+                    break;
+                default:
+                    // Stay on customers
+                    break;
+            }
+        }
+
+        function logout() {
+            if (confirm('🔒 คุณต้องการออกจากระบบหรือไม่?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('👋 User logged out');
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>

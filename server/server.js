@@ -196,6 +196,10 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/login.html'));
   });
   
+  app.get('/chat', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/chat.html'));
+  });
+  
   app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
   });
@@ -203,10 +207,10 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   app.get('/dashboard-fixed', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
   });
-  
-  // Default route serves login page
+
+  // Default route serves chat page (instead of login)
   app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/login.html'));
+    res.sendFile(path.join(__dirname, '../client/chat.html'));
   });
 } else {
   // Development - API only mode

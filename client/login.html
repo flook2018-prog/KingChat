@@ -636,9 +636,9 @@
                         const successDiv = document.getElementById('successMessage');
                         successDiv.innerHTML += `
                             <div style="margin-top: 15px;">
-                                <button onclick="window.location.href='/dashboard-fixed.html'" 
+                                <button onclick="window.location.href='/chat.html'" 
                                         style="background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
-                                    🏠 เข้าสู่หน้า Dashboard
+                                    💬 เข้าสู่หน้าแชท
                                 </button>
                             </div>
                         `;
@@ -646,7 +646,7 @@
                     
                     // Optional auto-redirect after 5 seconds (but user can click button anytime)
                     setTimeout(() => {
-                        window.location.href = '/dashboard-fixed.html';
+                        window.location.href = '/chat.html';
                     }, 5000);
                     return;
                 } else {
@@ -683,9 +683,9 @@
                     const successDiv = document.getElementById('successMessage');
                     successDiv.innerHTML += `
                         <div style="margin-top: 15px;">
-                            <button onclick="window.location.href='/dashboard-fixed.html'" 
+                            <button onclick="window.location.href='/chat.html'" 
                                     style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                                🏠 ไปยังหน้า Dashboard
+                                💬 ไปยังหน้าแชท
                             </button>
                             <button onclick="clearAuth()" 
                                     style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">

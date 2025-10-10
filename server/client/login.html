@@ -3,464 +3,734 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔑 เข้าสู่ระบบ - KingChat</title>
+    <title>🔑 Login - KingChat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+        /* Animated Background Elements */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 450px;
-            margin: 20px;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
         }
-        
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 40px;
+            height: 40px;
+            top: 30%;
+            right: 30%;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1) rotate(360deg);
+        }
+
+        /* Main Container */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Brand Section */
         .brand {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
-        
+
         .brand-icon {
-            font-size: 4em;
-            margin-bottom: 10px;
-            display: block;
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+            display: inline-block;
         }
-        
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         .brand h1 {
-            color: #333;
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: bold;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
-        
+
         .brand p {
-            color: #666;
-            margin: 10px 0 0 0;
-            font-size: 14px;
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 400;
         }
-        
+
+        /* Form Styles */
         .form-group {
-            margin: 20px 0;
+            margin-bottom: 24px;
+            position: relative;
         }
-        
+
         .form-group label {
             display: block;
+            font-weight: 500;
+            color: #374151;
             margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-            font-size: 14px;
+            font-size: 0.95rem;
         }
-        
+
+        .input-wrapper {
+            position: relative;
+        }
+
         .form-group input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus {
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            background: #ffffff;
             outline: none;
+        }
+
+        .form-group input:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
-        
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Input Icons */
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input:focus + .input-icon {
+            color: #667eea;
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Login Button */
         .login-btn {
             width: 100%;
-            background: #28a745;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 15px;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            margin: 20px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
         }
-        
+
         .login-btn:hover {
-            background: #218838;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
         }
-        
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
         .login-btn:disabled {
-            background: #6c757d;
+            opacity: 0.7;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
-        
-        .error-message {
-            color: #dc3545;
-            background: #f8d7da;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #f5c6cb;
-            display: none;
-            font-size: 14px;
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
-        
-        .success-message {
-            color: #155724;
-            background: #d4edda;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #c3e6cb;
-            display: none;
-            font-size: 14px;
+
+        .login-btn:hover::before {
+            left: 100%;
         }
-        
-        .fallback-section {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .fallback-section h4 {
-            color: #856404;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        
-        .fallback-btn {
-            background: #ffc107;
-            color: #212529;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 5px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .fallback-btn:hover {
-            background: #e0a800;
-            transform: translateY(-1px);
-        }
-        
+
+        /* Loading Spinner */
         .loading-spinner {
-            animation: spin 1s linear infinite;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
-        
-        .database-users {
-            margin-top: 15px;
-            text-align: left;
+
+        /* Error Message */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            display: none;
+            animation: shake 0.5s ease-in-out;
         }
-        
-        .user-item {
-            background: white;
-            margin: 8px 0;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
-        
-        .user-item strong {
-            color: #333;
+
+        /* Success Message */
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #059669;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            display: none;
         }
-        
-        .user-item small {
-            color: #666;
-            font-style: italic;
+
+        /* Dark Mode */
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+        }
+
+        [data-theme="dark"] .login-container {
+            background: rgba(30, 41, 59, 0.95);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .brand h1 {
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        [data-theme="dark"] .brand p {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .form-group label {
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .form-group input {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .form-group input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .login-container {
+                padding: 24px;
+            }
+
+            .brand h1 {
+                font-size: 2rem;
+            }
+
+            .brand-icon {
+                font-size: 3rem;
+            }
+
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #4ade80;
+            stroke-miterlimit: 10;
+            margin: 10px auto;
+            box-shadow: inset 0px 0px 0px #4ade80;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .success-checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #4ade80;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .success-checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #4ade80;
+            }
         }
     </style>
 </head>
-<body>
+<<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="เปลี่ยนธีม">
+        <span id="theme-icon">🌙</span>
+    </button>
+
+    <!-- Main Login Container -->
     <div class="login-container">
+        <!-- Brand Section -->
         <div class="brand">
-            <span class="brand-icon">👑</span>
+            <div class="brand-icon">👑</div>
             <h1>KingChat</h1>
             <p>ระบบจัดการลูกค้า LINE Official Account</p>
         </div>
 
-        <div id="error-message" class="error-message"></div>
-        <div id="success-message" class="success-message"></div>
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message"></div>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message"></div>
 
+        <!-- Login Form -->
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label for="username">ชื่อผู้ใช้</label>
-                <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+                    <span class="input-icon">👤</span>
+                </div>
             </div>
             
             <div class="form-group">
                 <label for="password">รหัสผ่าน</label>
-                <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <span id="password-icon">👁️</span>
+                    </button>
+                </div>
             </div>
             
-            <button type="submit" class="login-btn" id="loginButton">
+            <button type="submit" class="login-btn" id="loginBtn">
                 <span id="loginText">เข้าสู่ระบบ</span>
-                <span id="loadingSpinner" class="loading-spinner" style="display: none;">⏳</span>
+                <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
             </button>
         </form>
-
-        <div class="fallback-section">
-            <h4>🚑 กรณี API ไม่ทำงาน</h4>
-            <button class="fallback-btn" onclick="loadDatabaseUsers()">
-                โหลดข้อมูลจากฐานข้อมูล
-            </button>
-            <div id="database-users" class="database-users" style="display: none;"></div>
-        </div>
     </div>
 
     <script>
-        // Prevent redirect loop
-        let isLogging = false;
-        let databaseUsers = [];
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
 
-        // Show error message
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Password Toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('password-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.textContent = '👁️';
+            }
+        }
+
         function showError(message) {
-            const errorDiv = document.getElementById('error-message');
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            successDiv.style.display = 'none';
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
             
-            const successDiv = document.getElementById('success-message');
-            successDiv.style.display = 'none';
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
         }
 
-        // Show success message
         function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            errorDiv.style.display = 'none';
             successDiv.textContent = message;
             successDiv.style.display = 'block';
-            
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.style.display = 'none';
         }
 
-        // Load database users
-        async function loadDatabaseUsers() {
-            try {
-                showSuccess('🔄 กำลังโหลดข้อมูลจากฐานข้อมูล...');
-                
-                const response = await fetch('/api/admin/show-passwords');
-                const data = await response.json();
-                
-                if (data.success && data.users) {
-                    databaseUsers = data.users;
-                    displayDatabaseUsers(data.users);
-                    showSuccess(`✅ โหลดข้อมูลสำเร็จ พบผู้ใช้ ${data.users.length} คน`);
-                } else {
-                    throw new Error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
-                }
-            } catch (error) {
-                console.error('❌ Database load error:', error);
-                showError('❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาใช้ username/password ที่คุณทราบ');
-                
-                document.getElementById('database-users').innerHTML = `
-                    <div class="user-item">
-                        <strong>ไม่สามารถโหลดข้อมูลได้</strong><br>
-                        <small>กรุณาใช้ username และ password ที่คุณได้สร้างไว้</small>
-                    </div>
-                `;
-                document.getElementById('database-users').style.display = 'block';
-            }
-        }
-
-        // Display database users
-        function displayDatabaseUsers(users) {
-            const div = document.getElementById('database-users');
-            div.innerHTML = `
-                <div style="margin: 10px 0; padding: 10px; background: #e8f5e8; border-radius: 6px;">
-                    <strong>👥 ผู้ใช้ในฐานข้อมูล:</strong>
+        function showSuccessAnimation() {
+            const container = document.querySelector('.login-container');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="success-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="success-checkmark__check" fill="none" d="m14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                    <h2 style="color: #059669; margin: 16px 0 8px 0; font-size: 1.5rem;">เข้าสู่ระบบสำเร็จ!</h2>
+                    <p style="color: #6b7280; margin-bottom: 24px;">กำลังเข้าสู่หน้าหลัก...</p>
                 </div>
-                ${users.map(user => `
-                    <div class="user-item">
-                        <strong>Username:</strong> ${user.username}<br>
-                        <strong>ชื่อแสดง:</strong> ${user.displayName}<br>
-                        <strong>สถานะ:</strong> ${user.isActive ? '✅ ใช้งานได้' : '❌ ถูกปิดใช้งาน'}<br>
-                        <small>ใช้ username นี้ + รหัสผ่านที่คุณตั้งไว้</small>
-                    </div>
-                `).join('')}
             `;
-            div.style.display = 'block';
         }
 
-        // Handle login
         async function handleLogin(event) {
             event.preventDefault();
             
-            if (isLogging) return;
-            isLogging = true;
-            
-            const username = document.getElementById('username').value.trim();
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const loginButton = document.getElementById('loginButton');
+            const loginButton = document.getElementById('loginBtn');
             const loginText = document.getElementById('loginText');
             const loadingSpinner = document.getElementById('loadingSpinner');
             
-            // Validation
-            if (!username || !password) {
-                showError('❌ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
-                isLogging = false;
-                return;
-            }
+            // Hide messages
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
             
             // Show loading
             loginText.style.display = 'none';
-            loadingSpinner.style.display = 'inline';
+            loadingSpinner.style.display = 'inline-block';
             loginButton.disabled = true;
             
             try {
-                // Clear previous messages
-                document.getElementById('error-message').style.display = 'none';
-                document.getElementById('success-message').style.display = 'none';
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
                 
-                console.log('🔐 Attempting login for:', username);
+                const data = await response.json();
                 
-                // Try API first
-                try {
-                    const response = await fetch('/api/auth/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ username, password })
+                if (response.ok && data.success && data.token) {
+                    console.log('✅ Login API successful');
+                    console.log('👤 User data:', data.user);
+                    
+                    // SUCCESS - Store auth data like test page
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    
+                    console.log('✅ Login successful! Data stored:', {
+                        token: !!data.token,
+                        user: data.user?.username
                     });
                     
-                    if (response.ok) {
-                        const data = await response.json();
-                        
-                        if (data.success && data.token) {
-                            console.log('✅ API Login successful');
-                            
-                            // Store auth data
-                            localStorage.setItem('authToken', data.token);
-                            localStorage.setItem('currentUser', JSON.stringify(data.user));
-                            localStorage.setItem('loginMode', 'api');
-                            localStorage.setItem('loginTime', Date.now().toString());
-                            
-                            showSuccess('✅ เข้าสู่ระบบสำเร็จ กำลังเปลี่ยนหน้า...');
-                            
-                            // Redirect after a short delay
-                            setTimeout(() => {
-                                window.location.href = '/dashboard-fixed.html';
-                            }, 1000);
-                            return;
-                        }
-                    }
+                    // Show success with manual redirect button (like test page)
+                    showSuccess(`🎉 ยินดีต้อนรับ ${data.user.username}! Login สำเร็จ`);
                     
-                    throw new Error('API login failed');
+                    // Add redirect button after short delay
+                    setTimeout(() => {
+                        const successDiv = document.getElementById('successMessage');
+                        successDiv.innerHTML += `
+                            <div style="margin-top: 15px;">
+                                <button onclick="window.location.href='/chat.html'" 
+                                        style="background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                                    💬 เข้าสู่หน้าแชท
+                                </button>
+                            </div>
+                        `;
+                    }, 1000);
                     
-                } catch (apiError) {
-                    console.log('⚠️ API failed, trying fallback authentication...');
-                    
-                    // Load database users if not already loaded
-                    if (databaseUsers.length === 0) {
-                        await loadDatabaseUsers();
-                    }
-                    
-                    // Check if user exists in database
-                    const user = databaseUsers.find(dbUser => 
-                        dbUser.username === username && dbUser.isActive
-                    );
-                    
-                    if (user && password.length >= 3) {
-                        console.log('✅ Fallback login successful');
-                        
-                        // Create fallback auth
-                        const fakeToken = btoa(JSON.stringify({
-                            username: user.username,
-                            timestamp: Date.now(),
-                            mode: 'fallback'
-                        }));
-                        
-                        localStorage.setItem('authToken', fakeToken);
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            id: user.id,
-                            username: user.username,
-                            displayName: user.displayName,
-                            email: user.email,
-                            role: user.role || 'admin'
-                        }));
-                        localStorage.setItem('loginMode', 'fallback');
-                        localStorage.setItem('loginTime', Date.now().toString());
-                        
-                        showSuccess('✅ เข้าสู่ระบบสำเร็จ (โหมด Offline) กำลังเปลี่ยนหน้า...');
-                        
-                        // Redirect after a short delay
-                        setTimeout(() => {
-                            window.location.href = '/dashboard-fixed.html';
-                        }, 1000);
-                        return;
-                    }
-                    
-                    throw new Error('Invalid credentials');
+                    // Optional auto-redirect after 5 seconds (but user can click button anytime)
+                    setTimeout(() => {
+                        window.location.href = '/chat.html';
+                    }, 5000);
+                    return;
+                } else {
+                    throw new Error(data.message || 'เข้าสู่ระบบไม่สำเร็จ');
                 }
                 
             } catch (error) {
-                console.error('❌ Login error:', error);
-                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีไม่ได้เปิดใช้งาน');
+                console.error('Login error:', error);
+                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
                 
             } finally {
                 // Reset button
                 loginText.style.display = 'inline';
                 loadingSpinner.style.display = 'none';
                 loginButton.disabled = false;
-                isLogging = false;
-            }
-        }
-
-        // Check if already logged in (but avoid redirect loop)
-        function checkExistingAuth() {
-            const token = localStorage.getItem('authToken');
-            const loginTime = localStorage.getItem('loginTime');
-            
-            if (token && loginTime) {
-                const timeDiff = Date.now() - parseInt(loginTime);
-                // Only redirect if login was recent (within 5 minutes) to avoid loops
-                if (timeDiff < 5 * 60 * 1000) {
-                    console.log('ℹ️ Recent login detected, redirecting...');
-                    window.location.href = '/dashboard-fixed.html';
-                } else {
-                    // Clear old session
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('currentUser');
-                    localStorage.removeItem('loginMode');
-                    localStorage.removeItem('loginTime');
-                }
             }
         }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check for existing auth but avoid redirect loops
-            if (!window.location.hash.includes('no-redirect')) {
-                checkExistingAuth();
+            initTheme();
+            
+            console.log('📍 Login page loaded');
+            
+            // SIMPLE CHECK - NO AUTO REDIRECT
+            // Just show current status without redirecting
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            if (token) {
+                console.log('ℹ️ Token found in storage, but staying on login page');
+                showSuccess('🔑 คุณมี token อยู่แล้ว - สามารถไปหน้า dashboard ได้');
+                
+                // Add manual redirect button
+                setTimeout(() => {
+                    const successDiv = document.getElementById('successMessage');
+                    successDiv.innerHTML += `
+                        <div style="margin-top: 15px;">
+                            <button onclick="window.location.href='/chat.html'" 
+                                    style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                                💬 ไปยังหน้าแชท
+                            </button>
+                            <button onclick="clearAuth()" 
+                                    style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                                🗑️ ล้างข้อมูลและ Login ใหม่
+                            </button>
+                        </div>
+                    `;
+                    successDiv.style.display = 'block';
+                }, 100);
             }
             
-            // Focus on username field
-            document.getElementById('username').focus();
+            // Add interactive effects
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Function to clear auth data
+        function clearAuth() {
+            localStorage.clear();
+            sessionStorage.clear();
+            console.log('🗑️ Cleared all auth data');
+            location.reload();
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Enter key on form
+            if (e.key === 'Enter' && (e.target.id === 'username' || e.target.id === 'password')) {
+                e.preventDefault();
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+            
+            // Theme toggle with Ctrl+T
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                toggleTheme();
+            }
         });
     </script>
 </body>
