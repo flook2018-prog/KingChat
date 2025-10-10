@@ -89,7 +89,16 @@ app.use((req, res, next) => {
 // Basic routes
 app.get('/', (req, res) => {
   // Redirect to login page for web browsers
-  res.redirect('/login');
+  res.redirect('/login.html');
+});
+
+// Explicit routes for HTML pages
+app.get('/login', (req, res) => {
+  res.redirect('/login.html');
+});
+
+app.get('/dashboard', (req, res) => {
+  res.redirect('/dashboard.html');
 });
 
 // Health check endpoint
@@ -101,7 +110,7 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     port: process.env.PORT || 8080,
     database: 'connected',
-    version: '1.0.5-fixed'
+    version: '1.0.6-fixed'
   });
 });
 
@@ -203,14 +212,18 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   console.log(`❓ 404 - Route not found: ${req.method} ${req.url}`);
   
-  // Check if this is a request for an HTML page
-  if (req.url.includes('.html') || req.headers.accept?.includes('text/html')) {
-    // Redirect to login for HTML requests
-    res.redirect('/login');
-  } else {
-    // Return JSON error for API requests
-    res.status(404).json({ error: 'Route not found' });
+  // For API requests, return JSON error
+  if (req.url.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
   }
+  
+  // For HTML requests or pages, redirect to login
+  if (req.headers.accept?.includes('text/html')) {
+    return res.redirect('/login.html');
+  }
+  
+  // For other requests, return 404
+  res.status(404).json({ error: 'Route not found' });
 });
 
 // Start server
