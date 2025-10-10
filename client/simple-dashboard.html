@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Simple Dashboard - KingChat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .auth-status {
+            background: rgba(0, 255, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .debug-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 KingChat Dashboard</h1>
+        
+        <div class="auth-status">
+            <h3>🔐 Authentication Status</h3>
+            <div id="authStatus">กำลังตรวจสอบ...</div>
+        </div>
+
+        <div class="user-info">
+            <h3>👤 ข้อมูลผู้ใช้</h3>
+            <div id="userInfo">กำลังโหลด...</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="goToChat()">💬 แชท</button>
+            <button class="btn-primary" onclick="goToCustomers()">👥 ลูกค้า</button>
+            <button class="btn-primary" onclick="goToLineOA()">📱 LINE OA</button>
+            <button class="btn-secondary" onclick="goToSettings()">⚙️ ตั้งค่า</button>
+            <button class="btn-danger" onclick="logout()">🚪 ออกจากระบบ</button>
+        </div>
+
+        <div class="debug-info">
+            <h4>🔧 Debug Information</h4>
+            <div id="debugInfo">กำลังโหลด...</div>
+        </div>
+    </div>
+
+    <script>
+        console.log('📊 Simple Dashboard loaded');
+        
+        // Check authentication immediately and simply
+        function checkAuth() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Auth check - Token:', !!token, 'UserData:', !!userData);
+            
+            if (!token || !userData) {
+                console.log('❌ No auth data, redirecting to login');
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Display auth status and user info
+        function displayUserInfo() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            const authStatusDiv = document.getElementById('authStatus');
+            const userInfoDiv = document.getElementById('userInfo');
+            const debugInfoDiv = document.getElementById('debugInfo');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    
+                    authStatusDiv.innerHTML = '✅ ล็อกอินสำเร็จ';
+                    
+                    userInfoDiv.innerHTML = `
+                        <p><strong>ชื่อผู้ใช้:</strong> ${user.username}</p>
+                        <p><strong>ชื่อแสดง:</strong> ${user.displayName || 'ไม่ระบุ'}</p>
+                        <p><strong>อีเมล:</strong> ${user.email || 'ไม่ระบุ'}</p>
+                        <p><strong>บทบาท:</strong> ${user.role || 'ผู้ใช้'}</p>
+                        <p><strong>สถานะ:</strong> ${user.isActive ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}</p>
+                    `;
+                    
+                    debugInfoDiv.innerHTML = `
+                        <p><strong>Token:</strong> ${token.substring(0, 20)}...</p>
+                        <p><strong>Login Mode:</strong> ${localStorage.getItem('loginMode') || 'unknown'}</p>
+                        <p><strong>Page Loads:</strong> Login=${localStorage.getItem('loginPageLoads') || 0}, Dashboard=${localStorage.getItem('dashboardPageLoads') || 0}</p>
+                        <p><strong>Session Data:</strong> ${JSON.stringify(Object.keys(sessionStorage))}</p>
+                        <p><strong>Current Time:</strong> ${new Date().toLocaleString()}</p>
+                    `;
+                    
+                } catch (e) {
+                    authStatusDiv.innerHTML = '❌ ข้อมูลผู้ใช้ไม่ถูกต้อง';
+                    userInfoDiv.innerHTML = 'ไม่สามารถแสดงข้อมูลผู้ใช้ได้';
+                    console.error('Error parsing user data:', e);
+                }
+            } else {
+                authStatusDiv.innerHTML = '❌ ไม่พบข้อมูลการล็อกอิน';
+                userInfoDiv.innerHTML = 'กรุณาล็อกอินใหม่';
+            }
+        }
+
+        // Navigation functions
+        function goToChat() {
+            window.location.href = 'pages/chat.html';
+        }
+
+        function goToCustomers() {
+            window.location.href = 'pages/customers.html';
+        }
+
+        function goToLineOA() {
+            window.location.href = 'pages/lineoa.html';
+        }
+
+        function goToSettings() {
+            window.location.href = 'pages/settings.html';
+        }
+
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
+                console.log('🚪 Logging out...');
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize
+        if (checkAuth()) {
+            displayUserInfo();
+            
+            // Refresh info every 5 seconds
+            setInterval(displayUserInfo, 5000);
+        }
+        
+        console.log('✅ Simple Dashboard initialized');
+    </script>
+</body>
+</html>

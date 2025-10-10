@@ -281,49 +281,82 @@
         
         // Check authentication immediately
         function checkAuth() {
-            console.log('📍 Dashboard auth check started');
-            console.log('🔍 Current URL:', window.location.href);
+            // EMERGENCY LOOP BREAKER - Check page load count
+            const pageLoadCount = parseInt(localStorage.getItem('dashboardPageLoads') || '0') + 1;
+            localStorage.setItem('dashboardPageLoads', pageLoadCount.toString());
             
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
-            const fromLogin = sessionStorage.getItem('fromLogin');
+            console.log('📍 Dashboard page loaded (load #' + pageLoadCount + ')');
             
-            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
-            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
-            console.log('🔗 From Login:', fromLogin);
-            
-            // Check for redirect loop
-            const redirectCount = parseInt(sessionStorage.getItem('redirectCount') || '0');
-            console.log('🔄 Redirect count:', redirectCount);
-            
-            if (redirectCount > 3) {
-                console.error('🚨 REDIRECT LOOP DETECTED in Dashboard! Clearing all data...');
+            // If loaded too many times, it's definitely a loop
+            if (pageLoadCount > 5) {
+                console.error('� EMERGENCY: Too many dashboard page loads! Clearing everything...');
                 localStorage.clear();
                 sessionStorage.clear();
-                alert('ตรวจพบปัญหา Redirect Loop - ได้ล้างข้อมูลแล้ว');
+                alert('ตรวจพบปัญหาการ redirect ซ้ำๆ - ได้ล้างข้อมูลทั้งหมดแล้ว');
                 window.location.href = 'login.html';
                 return false;
             }
             
-            if (!token || !userData) {
-                console.log('❌ No authentication data found, redirecting to login');
+            // Reset counter after 10 seconds
+            setTimeout(() => {
+                localStorage.removeItem('dashboardPageLoads');
+            }, 10000);
+            
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            
+            // STRICT VALIDATION: Check if data is actually valid
+            let isValidAuth = false;
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    if (user && user.username && user.username.length > 0) {
+                        isValidAuth = true;
+                        console.log('✅ Valid authentication found for user:', user.username);
+                    } else {
+                        console.warn('⚠️ Invalid user data structure');
+                    }
+                } catch (e) {
+                    console.error('❌ Error parsing user data:', e);
+                }
+            }
+            
+            if (!isValidAuth) {
+                console.log('❌ Invalid authentication, clearing data and redirecting...');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userData');
+                localStorage.removeItem('currentUser');
                 
-                // Only redirect if not in a loop
-                if (redirectCount < 3) {
-                    sessionStorage.setItem('redirectCount', (redirectCount + 1).toString());
-                    sessionStorage.removeItem('fromLogin');
-                    
+                // Add emergency brake - only redirect once per session
+                const hasRedirected = sessionStorage.getItem('hasRedirectedFromDashboard');
+                if (!hasRedirected) {
+                    sessionStorage.setItem('hasRedirectedFromDashboard', 'true');
                     setTimeout(() => {
                         window.location.href = 'login.html';
                     }, 100);
+                } else {
+                    console.warn('⚠️ Already redirected once this session, staying here');
+                    document.body.innerHTML = `
+                        <div style="padding: 20px; text-align: center;">
+                            <h2>🚨 Authentication Error</h2>
+                            <p>ตรวจพบปัญหาการยืนยันตัวตน</p>
+                            <button onclick="localStorage.clear(); sessionStorage.clear(); window.location.href='login.html';" 
+                                    style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                ล้างข้อมูลและ Login ใหม่
+                            </button>
+                        </div>
+                    `;
                 }
                 return false;
             }
             
-            // Auth successful, clear redirect tracking
+            // Auth successful
             console.log('✅ Authentication successful');
-            sessionStorage.removeItem('redirectCount');
-            sessionStorage.removeItem('fromLogin');
             return true;
         }
 

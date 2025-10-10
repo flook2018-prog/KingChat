@@ -617,7 +617,12 @@
                     console.log('✅ Login API successful');
                     console.log('👤 User data:', data.user);
                     
-                    // Store auth data (same as test page)
+                    // Clear any loop tracking first
+                    localStorage.removeItem('loginPageLoads');
+                    localStorage.removeItem('dashboardPageLoads');
+                    sessionStorage.clear();
+                    
+                    // Store auth data
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
@@ -626,17 +631,16 @@
                     
                     console.log('💾 Auth data stored to localStorage');
                     
-                    // Clear any redirect tracking
-                    sessionStorage.removeItem('redirectCount');
-                    sessionStorage.setItem('fromLogin', 'true');
+                    // Set session flag to prevent loop
+                    sessionStorage.setItem('freshLogin', 'true');
                     
                     // Show success animation
                     showSuccessAnimation();
                     
-                    // Redirect after animation (shorter delay)
+                    // Redirect after animation
                     setTimeout(() => {
-                        console.log('🔄 Redirecting to dashboard...');
-                        window.location.href = '/dashboard.html';
+                        console.log('🔄 Redirecting to simple dashboard...');
+                        window.location.href = '/simple-dashboard.html';
                     }, 1500);
                     return;
                 } else {
@@ -659,46 +663,61 @@
         document.addEventListener('DOMContentLoaded', function() {
             initTheme();
             
-            // Detailed debug logging
-            console.log('📍 Login page loaded');
-            console.log('🔍 Current URL:', window.location.href);
+            // EMERGENCY LOOP BREAKER - Check page load count
+            const pageLoadCount = parseInt(localStorage.getItem('loginPageLoads') || '0') + 1;
+            localStorage.setItem('loginPageLoads', pageLoadCount.toString());
             
-            // Check localStorage contents
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
-            const loginMode = localStorage.getItem('loginMode');
+            console.log('📍 Login page loaded (load #' + pageLoadCount + ')');
             
-            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
-            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
-            console.log('🎯 LoginMode:', loginMode);
-            
-            // Check for redirect loop prevention
-            const redirectCount = parseInt(sessionStorage.getItem('redirectCount') || '0');
-            console.log('🔄 Redirect count:', redirectCount);
-            
-            if (redirectCount > 3) {
-                console.error('🚨 REDIRECT LOOP DETECTED! Clearing all data...');
+            // If loaded too many times in short period, clear everything
+            if (pageLoadCount > 5) {
+                console.error('🚨 EMERGENCY: Too many login page loads! Clearing everything...');
                 localStorage.clear();
                 sessionStorage.clear();
-                alert('ตรวจพบปัญหา Redirect Loop - ได้ล้างข้อมูลแล้ว กรุณา Login ใหม่');
+                alert('ตรวจพบปัญหาการ redirect ซ้ำๆ - ได้ล้างข้อมูลทั้งหมดแล้ว กรุณา login ใหม่');
                 return;
             }
             
-            // If already logged in, redirect but track count
+            // Reset counter after 10 seconds
+            setTimeout(() => {
+                localStorage.removeItem('loginPageLoads');
+            }, 10000);
+            
+            // Check if already logged in
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            
+            // STRICT CHECK: Only redirect if we have BOTH token AND valid user data
             if (token && userData) {
-                console.log('ℹ️ Already logged in, will redirect to dashboard...');
-                sessionStorage.setItem('redirectCount', (redirectCount + 1).toString());
-                sessionStorage.setItem('fromLogin', 'true');
-                
-                // Add delay to prevent immediate loop
-                setTimeout(() => {
-                    window.location.href = '/dashboard.html';
-                }, 100);
-                return;
-            } else {
-                // Reset redirect count if no auth data
-                sessionStorage.removeItem('redirectCount');
-                sessionStorage.removeItem('fromLogin');
+                try {
+                    const user = JSON.parse(userData);
+                    if (user && user.username && user.username.length > 0) {
+                        console.log('ℹ️ Valid auth found, will redirect to dashboard...');
+                        
+                        // Add emergency brake - only redirect once per session
+                        const hasRedirected = sessionStorage.getItem('hasRedirectedFromLogin');
+                        if (!hasRedirected) {
+                            sessionStorage.setItem('hasRedirectedFromLogin', 'true');
+                            setTimeout(() => {
+                                window.location.href = '/simple-dashboard.html';
+                            }, 100);
+                            return;
+                        } else {
+                            console.warn('⚠️ Already redirected once this session, staying on login');
+                        }
+                    } else {
+                        console.warn('⚠️ Invalid user data, clearing...');
+                        localStorage.removeItem('userData');
+                        localStorage.removeItem('currentUser');
+                    }
+                } catch (e) {
+                    console.error('❌ Error parsing user data:', e);
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('currentUser');
+                }
             }
             
             // Add interactive effects
