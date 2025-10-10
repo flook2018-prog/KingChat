@@ -91,25 +91,44 @@ router.get('/admin-users', async (req, res) => {
 // Create new admin
 router.post('/admin-users', async (req, res) => {
   try {
-    console.log('➕ Creating new admin:', req.body.username);
+    console.log('➕ Creating new admin request body:', JSON.stringify(req.body, null, 2));
     
-    const { username, email, password, displayName, role } = req.body;
+    const { username, password, displayName, role } = req.body;
 
-    if (!username || !email || !password) {
+    // Debug logging
+    console.log('Received fields:', {
+      username: username,
+      password: password ? '***' : 'missing',
+      displayName: displayName,
+      role: role
+    });
+
+    if (!username || !password) {
+      console.log('❌ Missing required fields:', {
+        username: !!username,
+        password: !!password
+      });
       return res.status(400).json({ 
-        error: 'Username, email and password are required' 
+        error: 'Username and password are required',
+        missing: {
+          username: !username,
+          password: !password
+        }
       });
     }
 
-    // Check if user exists
+    // Auto-generate email from username
+    const email = `${username}@kingchat.com`;
+
+    // Check if user exists (only check username since email is auto-generated)
     const exists = await pool.query(
-      'SELECT id FROM admins WHERE username = $1 OR email = $2',
-      [username, email]
+      'SELECT id FROM admins WHERE username = $1',
+      [username]
     );
 
     if (exists.rows.length > 0) {
       return res.status(400).json({ 
-        error: 'Username or email already exists' 
+        error: 'Username already exists' 
       });
     }
 
@@ -146,7 +165,10 @@ router.put('/admin-users/:id', async (req, res) => {
     const adminId = parseInt(req.params.id);
     console.log('✏️ Updating admin ID:', adminId);
     
-    const { username, email, displayName, role, isActive, password } = req.body;
+    const { username, displayName, role, isActive, password } = req.body;
+
+    // Auto-generate email from username
+    const email = `${username}@kingchat.com`;
 
     let updateQuery = `
       UPDATE admins 

@@ -366,6 +366,10 @@
                         <input type="text" class="form-input" name="username" required placeholder="กรอกชื่อผู้ใช้">
                     </div>
                     <div class="form-group">
+                        <label class="form-label">อีเมล (Email)</label>
+                        <input type="email" class="form-input" name="email" required placeholder="กรอกอีเมล">
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">ชื่อแสดง (Display Name)</label>
                         <input type="text" class="form-input" name="displayName" required placeholder="กรอกชื่อแสดง">
                     </div>
@@ -582,19 +586,29 @@
             const formData = new FormData(event.target);
             const adminData = {
                 username: formData.get('username').trim(),
+                email: formData.get('email').trim(),
                 displayName: formData.get('displayName').trim(),
                 password: formData.get('password').trim(),
                 role: formData.get('role')
             };
             
+            console.log('📝 Admin data to send:', adminData);
+            
             // Validation
-            if (!adminData.username || !adminData.displayName || !adminData.password || !adminData.role) {
+            if (!adminData.username || !adminData.email || !adminData.displayName || !adminData.password || !adminData.role) {
                 alert('กรุณากรอกข้อมูลให้ครบถ้วน');
                 return;
             }
             
             if (adminData.password.length < 6) {
                 alert('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(adminData.email)) {
+                alert('กรุณากรอกอีเมลให้ถูกต้อง');
                 return;
             }
             
@@ -610,8 +624,8 @@
                 });
                 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText);
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
                 
                 const result = await response.json();
@@ -808,15 +822,19 @@
         async function createSampleAdmin() {
             const sampleAdmin = {
                 username: 'kingadmin',
+                email: 'kingadmin@kingchat.com',
                 displayName: 'King Administrator',
                 password: 'king123456',
                 role: 'super_admin'
             };
             
             try {
-                const response = await fetch(`${API_BASE}/admin/admin-users/create`, {
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
                     body: JSON.stringify(sampleAdmin)
                 });
                 
@@ -824,7 +842,8 @@
                     console.log('✅ Sample admin created successfully');
                     loadAdmins();
                 } else {
-                    console.log('ℹ️ Sample admin might already exist');
+                    const error = await response.json();
+                    console.log('ℹ️ Sample admin creation failed:', error);
                 }
             } catch (error) {
                 console.log('ℹ️ Could not create sample admin:', error.message);
