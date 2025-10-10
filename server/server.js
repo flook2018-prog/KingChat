@@ -200,12 +200,24 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/chat.html'));
   });
   
+  app.get('/accounts', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/accounts.html'));
+  });
+  
+  app.get('/customers', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/customers.html'));
+  });
+  
   app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
   });
   
   app.get('/dashboard-fixed', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dashboard-fixed.html'));
+  });
+  
+  app.get('/dashboard-simple', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dashboard-simple.html'));
   });
 
   // Default route serves chat page (instead of login)

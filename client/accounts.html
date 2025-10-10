@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 บัญชี LINE OA - KingChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 30px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 80px;
+            padding: 40px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: #4a5568;
+        }
+
+        .accounts-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .accounts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .accounts-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .add-account-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .add-account-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .account-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .account-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c851, #007e33);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .account-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .account-id {
+            font-size: 14px;
+            color: #718096;
+            font-family: monospace;
+        }
+
+        .account-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: rgba(16, 185, 129, 0.2);
+            color: #059669;
+        }
+
+        .status-disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #d97706;
+        }
+
+        .account-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-manage {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .btn-manage:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-settings {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
+        }
+
+        .btn-settings:hover {
+            background: rgba(107, 114, 128, 0.2);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .accounts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .accounts-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Main Structure -->
+    <div id="mainContent" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="brand-logo">👑</div>
+                <span>KingChat</span>
+            </div>
+            <div class="nav-user">
+                <span class="user-name" id="userName">กำลังโหลด...</span>
+                <button class="btn-logout" onclick="logout()">
+                    🚪 ออกจากระบบ
+                </button>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item" onclick="loadPage('chat')">
+                    <i class="icon">💬</i>
+                    <span>แชท</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('dashboard')">
+                    <i class="icon">📊</i>
+                    <span>แดชบอร์ด</span>
+                </a>
+                <a href="#" class="menu-item active" onclick="loadPage('accounts')">
+                    <i class="icon">📱</i>
+                    <span>บัญชี LINE OA</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('customers')">
+                    <i class="icon">👥</i>
+                    <span>รายชื่อลูกค้า</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('settings')">
+                    <i class="icon">⚙️</i>
+                    <span>ตั้งค่า</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('admin')" id="adminMenu" style="display: none;">
+                    <i class="icon">👨‍💼</i>
+                    <span>จัดการผู้ใช้</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📱 บัญชี LINE OA</h1>
+                <p>จัดการบัญชี LINE Official Account และตั้งค่าการเชื่อมต่อ - ข้อมูลล่าสุด ณ วันที่ <span id="currentDate"></span></p>
+            </div>
+
+            <div class="accounts-container">
+                <div class="accounts-header">
+                    <h2>📋 รายการบัญชี LINE OA</h2>
+                    <button class="add-account-btn" onclick="addAccount()">
+                        ➕ เพิ่มบัญชีใหม่
+                    </button>
+                </div>
+
+                <div class="accounts-grid" id="accountsGrid">
+                    <!-- Accounts will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ตรวจสอบการล็อกอิน
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📍 LINE OA Accounts page loading...');
+            
+            // ตรวจสอบ authentication
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            
+            if (!token || !userData) {
+                console.warn('⚠️ No authentication - redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            let user = null;
+            try {
+                user = JSON.parse(userData);
+                if (!user || !user.username) {
+                    console.warn('⚠️ Invalid user data');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (e) {
+                console.error('❌ Error parsing user data:', e);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            console.log('✅ Valid authentication for:', user.username);
+            
+            // แสดงข้อมูลผู้ใช้
+            document.getElementById('userName').textContent = `สวัสดี, ${user.username}`;
+            
+            // แสดงเมนู admin ถ้าเป็น admin
+            if (user.role === 'admin') {
+                document.getElementById('adminMenu').style.display = 'flex';
+            }
+            
+            // แสดงวันที่ปัจจุบัน
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('th-TH');
+            
+            // โหลดข้อมูลบัญชี
+            setTimeout(() => {
+                loadAccounts();
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').style.display = 'block';
+                console.log('✅ LINE OA Accounts page loaded successfully');
+            }, 1000);
+        });
+
+        // โหลดข้อมูลบัญชี LINE OA
+        function loadAccounts() {
+            const accounts = [
+                {
+                    id: 1,
+                    name: 'KingChat Shop',
+                    lineId: '@kingchat-shop',
+                    avatar: 'K',
+                    status: 'connected',
+                    followers: 1250,
+                    messages: 432,
+                    responseRate: 98,
+                    lastActive: '5 นาทีที่แล้ว'
+                },
+                {
+                    id: 2,
+                    name: 'Customer Support',
+                    lineId: '@support-center',
+                    avatar: 'C',
+                    status: 'connected',
+                    followers: 856,
+                    messages: 278,
+                    responseRate: 95,
+                    lastActive: '10 นาทีที่แล้ว'
+                },
+                {
+                    id: 3,
+                    name: 'Marketing Bot',
+                    lineId: '@marketing-auto',
+                    avatar: 'M',
+                    status: 'pending',
+                    followers: 342,
+                    messages: 89,
+                    responseRate: 78,
+                    lastActive: '2 ชั่วโมงที่แล้ว'
+                }
+            ];
+
+            const accountsGrid = document.getElementById('accountsGrid');
+            if (!accountsGrid) return;
+
+            accounts.forEach((account, index) => {
+                setTimeout(() => {
+                    const accountCard = `
+                        <div class="account-card" style="opacity: 0; animation: fadeInUp 0.5s ease forwards; animation-delay: ${index * 0.2}s;">
+                            <div class="account-status status-${account.status}">
+                                ${account.status === 'connected' ? '🟢 เชื่อมต่อแล้ว' : 
+                                  account.status === 'pending' ? '🟡 รอดำเนินการ' : '🔴 ยังไม่เชื่อมต่อ'}
+                            </div>
+                            
+                            <div class="account-header">
+                                <div class="account-avatar">${account.avatar}</div>
+                                <div class="account-info">
+                                    <h3>${account.name}</h3>
+                                    <div class="account-id">${account.lineId}</div>
+                                </div>
+                            </div>
+
+                            <div class="account-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">${account.followers.toLocaleString()}</div>
+                                    <div class="stat-label">ผู้ติดตาม</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">${account.messages}</div>
+                                    <div class="stat-label">ข้อความวันนี้</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">${account.responseRate}%</div>
+                                    <div class="stat-label">อัตราตอบกลับ</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">${account.lastActive}</div>
+                                    <div class="stat-label">ใช้งานล่าสุด</div>
+                                </div>
+                            </div>
+
+                            <div class="account-actions">
+                                <button class="action-btn btn-manage" onclick="manageAccount(${account.id})">
+                                    📊 จัดการ
+                                </button>
+                                <button class="action-btn btn-settings" onclick="accountSettings(${account.id})">
+                                    ⚙️ ตั้งค่า
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteAccount(${account.id})">
+                                    🗑️ ลบ
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    accountsGrid.insertAdjacentHTML('beforeend', accountCard);
+                }, index * 300);
+            });
+        }
+
+        // ฟังก์ชันจัดการบัญชี
+        function addAccount() {
+            alert('➕ เพิ่มบัญชี LINE OA ใหม่\n\n1. ไปที่ LINE Developers Console\n2. สร้าง Channel ใหม่\n3. คัดลอก Channel Secret และ Access Token\n4. กรอกข้อมูลในระบบ\n\n(Coming Soon - ระบบเพิ่มบัญชีอัตโนมัติ)');
+        }
+
+        function manageAccount(accountId) {
+            alert('📊 จัดการบัญชี ID: ' + accountId + '\n\nฟีเจอร์ที่จะมี:\n- ดูสถิติโดยละเอียด\n- จัดการข้อความอัตโนมัติ\n- ตั้งค่า Webhook\n- ดูประวัติการส่งข้อความ\n\n(Coming Soon)');
+        }
+
+        function accountSettings(accountId) {
+            alert('⚙️ ตั้งค่าบัญชี ID: ' + accountId + '\n\nการตั้งค่าที่สามารถทำได้:\n- เปลี่ยน Access Token\n- ตั้งค่า Rich Menu\n- กำหนดข้อความตอบกลับอัตโนมัติ\n- ตั้งเวลาทำงาน\n\n(Coming Soon)');
+        }
+
+        function deleteAccount(accountId) {
+            if (confirm('🗑️ คุณต้องการลบบัญชี LINE OA นี้หรือไม่?\n\nการลบจะทำให้:\n- ข้อมูลการสนทนาหายไป\n- ไม่สามารถส่งข้อความได้\n- ต้องเชื่อมต่อใหม่หากต้องการใช้งาน')) {
+                alert('ลบบัญชี ID: ' + accountId + ' สำเร็จ\n\n(ในระบบจริงจะลบออกจากฐานข้อมูล)');
+                // ในระบบจริงจะเรียก API เพื่อลบข้อมูล
+            }
+        }
+
+        // ฟังก์ชันนำทาง
+        function loadPage(page) {
+            console.log('Loading page:', page);
+            
+            switch(page) {
+                case 'chat':
+                    window.location.href = 'chat.html';
+                    break;
+                case 'dashboard':
+                    window.location.href = 'dashboard-fixed.html';
+                    break;
+                case 'customers':
+                    window.location.href = 'customers.html';
+                    break;
+                case 'settings':
+                    alert('⚙️ จะเปิดหน้าตั้งค่า (Coming Soon)');
+                    break;
+                case 'admin':
+                    alert('👨‍💼 จะเปิดหน้าจัดการผู้ใช้ (Coming Soon)');
+                    break;
+                default:
+                    // Stay on accounts page
+                    break;
+            }
+        }
+
+        // ฟังก์ชันออกจากระบบ
+        function logout() {
+            if (confirm('🔒 คุณต้องการออกจากระบบหรือไม่?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('👋 User logged out');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // อัปเดตเวลาทุกวินาที
+        setInterval(() => {
+            const timeElement = document.getElementById('currentDate');
+            if (timeElement) {
+                const now = new Date();
+                timeElement.textContent = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
+            }
+        }, 1000);
+
+        // เพิ่ม CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

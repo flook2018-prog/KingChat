@@ -15,8 +15,19 @@
         /* แก้ไขปัญหาข้อความ "จัดการผู้ใช้" ตกบรรทัดเฉพาะหน้า Dashboard */
         .admin-only .menu-text {
             font-size: 14px !important; /* เท่ากับเครื่องมืออื่นๆ */
-            letter-spacing: -0.3px !important; /* ลดเล็กน้อยเพื่อไม่ให้ตกบรรทัด */
-            line-height: 1.2 !important;
+            letter-spacing: -0.3px !important; /* ลดเล็กน้อยเพื่อไม่ให้ตกบรรทัด */                    switch(page) {
+                        case 'chat':
+                            window.location.href = 'chat.html';
+                            break;
+                        case 'accounts':
+                            window.location.href = 'accounts.html';
+                            break;
+                        case 'customers':
+                            window.location.href = 'customers.html';
+                            break;
+                        case 'settings':
+                            alert('⚙️ จะเปิดหน้าตั้งค่า (Coming Soon)');
+                            break;line-height: 1.2 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
