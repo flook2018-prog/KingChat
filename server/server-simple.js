@@ -125,29 +125,61 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Simple test route to verify server is working
+app.get('/api/test', (req, res) => {
+  res.json({
+    message: 'API is working!',
+    timestamp: new Date().toISOString(),
+    routes_loaded: app._router ? 'Yes' : 'No'
+  });
+});
+
 // Load API routes immediately
 function loadApiRoutes() {
   try {
     console.log('📡 Loading API routes...');
     
     const authRoutes = require('./routes/auth');
+    console.log('✅ Auth routes loaded');
+    
     const adminRoutes = require('./routes/admin');
+    console.log('✅ Admin routes loaded');
+    
     const lineOARoutes = require('./routes/lineoa');
+    console.log('✅ LineOA routes loaded');
+    
     const customerRoutes = require('./routes/customers');
+    console.log('✅ Customer routes loaded');
+    
     const messageRoutes = require('./routes/messages');
+    console.log('✅ Message routes loaded');
+    
     const settingsRoutes = require('./routes/settings');
+    console.log('✅ Settings routes loaded');
     
     app.use('/api/auth', authRoutes);
+    console.log('🔗 Auth routes mounted at /api/auth');
+    
     app.use('/api/admin', adminRoutes);
+    console.log('🔗 Admin routes mounted at /api/admin');
+    
     app.use('/api/lineoa', lineOARoutes);
+    console.log('🔗 LineOA routes mounted at /api/lineoa');
+    
     app.use('/api/customers', customerRoutes);
+    console.log('🔗 Customer routes mounted at /api/customers');
+    
     app.use('/api/messages', messageRoutes);
+    console.log('🔗 Message routes mounted at /api/messages');
+    
     app.use('/api/settings', settingsRoutes);
+    console.log('🔗 Settings routes mounted at /api/settings');
     
     console.log('✅ API routes loaded successfully');
     
   } catch (error) {
     console.error('❌ Error loading API routes:', error.message);
+    console.error('📋 Stack trace:', error.stack);
     console.log('⚠️  Some API routes may not be available');
   }
 }
