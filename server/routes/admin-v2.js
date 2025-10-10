@@ -338,4 +338,42 @@ router.post('/fix-password', async (req, res) => {
   }
 });
 
+// Show all users with their passwords (for debugging)
+router.get('/show-passwords', async (req, res) => {
+  try {
+    console.log('👀 Showing all user passwords...');
+    
+    const result = await pool.query(`
+      SELECT id, username, email, "displayName", password, "isActive", "createdAt"
+      FROM admins 
+      ORDER BY "createdAt" DESC
+    `);
+
+    const users = result.rows.map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      displayName: user.displayName,
+      passwordHash: user.password,
+      isActive: user.isActive,
+      createdAt: user.createdAt
+    }));
+
+    console.log('✅ Found users:', users.length);
+
+    res.json({
+      success: true,
+      users: users,
+      count: users.length
+    });
+
+  } catch (error) {
+    console.error('❌ Show passwords error:', error);
+    res.status(500).json({ 
+      error: 'Failed to show passwords',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;
