@@ -288,24 +288,8 @@
             
             if (!token || !userData) {
                 console.log('❌ No authentication data found, redirecting to login');
-                // Add a flag to prevent loops
-                const dashboardRedirect = sessionStorage.getItem('dashboardRedirect');
-                if (!dashboardRedirect) {
-                    sessionStorage.setItem('dashboardRedirect', 'true');
-                    // Clear all auth data before redirect
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userData');
-                    localStorage.removeItem('currentUser');
-                    localStorage.removeItem('loginMode');
-                    setTimeout(() => {
-                        sessionStorage.removeItem('dashboardRedirect');
-                        window.location.href = 'login.html';
-                    }, 100);
-                } else {
-                    console.warn('⚠️ Dashboard redirect loop detected, staying here');
-                    sessionStorage.removeItem('dashboardRedirect');
-                }
+                // Simple redirect without complex loop prevention
+                window.location.href = 'login.html';
                 return false;
             }
             return true;
@@ -314,7 +298,7 @@
         // Check scripts loading with more tolerance
         function checkScripts() {
             let attempts = 0;
-            const maxAttempts = 10;
+            const maxAttempts = 20; // Reduced attempts
             
             const scriptCheck = setInterval(() => {
                 attempts++;
@@ -329,7 +313,7 @@
                 if (attempts >= maxAttempts) {
                     console.warn('⚠️ Some scripts failed to load, but continuing anyway');
                     clearInterval(scriptCheck);
-                    // Try to initialize basic functionality
+                    // Create minimal auth object if needed
                     if (typeof auth === 'undefined') {
                         console.log('📦 Creating fallback auth object');
                         window.auth = {
@@ -345,7 +329,7 @@
                         };
                     }
                 }
-            }, 500);
+            }, 200); // Faster checks
         }
         
         // Run checks
