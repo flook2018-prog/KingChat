@@ -212,6 +212,14 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/settings-working.html'));
   });
   
+  app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/admin-management.html'));
+  });
+  
+  app.get('/admin-management', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/admin-management.html'));
+  });
+
   app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
   });
