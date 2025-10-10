@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Auth Debug - KingChat</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        h1 {
+            color: #ffff00;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: #333;
+        }
+        .section h3 {
+            color: #ff6666;
+            margin-top: 0;
+        }
+        .data {
+            background: #111;
+            padding: 10px;
+            border-radius: 3px;
+            white-space: pre-wrap;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        button {
+            background: #444;
+            color: #fff;
+            border: 1px solid #666;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #555;
+        }
+        .warning {
+            background: #662200;
+            border-color: #ff6600;
+            color: #ffaa66;
+        }
+        .success {
+            background: #006622;
+            border-color: #00ff66;
+            color: #66ffaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Authentication Debug Panel</h1>
+        
+        <div class="section">
+            <h3>📊 Current Status</h3>
+            <div id="status" class="data">Loading...</div>
+            <button onclick="refreshStatus()">🔄 Refresh</button>
+            <button onclick="clearAll()">🗑️ Clear All Data</button>
+        </div>
+
+        <div class="section">
+            <h3>💾 LocalStorage Data</h3>
+            <div id="localStorage" class="data">Loading...</div>
+        </div>
+
+        <div class="section">
+            <h3>📦 SessionStorage Data</h3>
+            <div id="sessionStorage" class="data">Loading...</div>
+        </div>
+
+        <div class="section">
+            <h3>🔗 Navigation Controls</h3>
+            <button onclick="goToLogin()">➡️ Go to Login</button>
+            <button onclick="goToDashboard()">🏠 Go to Dashboard</button>
+            <button onclick="testAPI()">🧪 Test API</button>
+        </div>
+
+        <div class="section">
+            <h3>📝 Debug Log</h3>
+            <div id="debugLog" class="data">Ready...</div>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        let logBuffer = [];
+        
+        function log(message) {
+            const timestamp = new Date().toISOString().substring(11, 23);
+            const logEntry = `[${timestamp}] ${message}`;
+            logBuffer.push(logEntry);
+            
+            // Keep only last 50 entries
+            if (logBuffer.length > 50) {
+                logBuffer = logBuffer.slice(-50);
+            }
+            
+            document.getElementById('debugLog').textContent = logBuffer.join('\n');
+            console.log(logEntry);
+        }
+
+        function refreshStatus() {
+            log('🔄 Refreshing status...');
+            
+            // Check authentication status
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            const redirectCount = sessionStorage.getItem('redirectCount') || '0';
+            
+            const status = {
+                authenticated: !!(token && userData),
+                token: token ? 'EXISTS (' + token.substring(0, 20) + '...)' : 'NOT_FOUND',
+                userData: userData ? 'EXISTS' : 'NOT_FOUND',
+                redirectCount: redirectCount,
+                currentURL: window.location.href,
+                timestamp: new Date().toISOString()
+            };
+
+            document.getElementById('status').textContent = JSON.stringify(status, null, 2);
+            
+            // LocalStorage
+            const localData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                localData[key] = value && value.length > 100 ? value.substring(0, 100) + '...' : value;
+            }
+            document.getElementById('localStorage').textContent = JSON.stringify(localData, null, 2);
+            
+            // SessionStorage
+            const sessionData = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                sessionData[key] = sessionStorage.getItem(key);
+            }
+            document.getElementById('sessionStorage').textContent = JSON.stringify(sessionData, null, 2);
+            
+            log('✅ Status refreshed');
+        }
+
+        function clearAll() {
+            log('🗑️ Clearing all data...');
+            localStorage.clear();
+            sessionStorage.clear();
+            refreshStatus();
+            log('✅ All data cleared');
+        }
+
+        function clearLog() {
+            logBuffer = [];
+            document.getElementById('debugLog').textContent = 'Log cleared...';
+        }
+
+        function goToLogin() {
+            log('➡️ Navigating to login...');
+            window.location.href = '/login.html';
+        }
+
+        function goToDashboard() {
+            log('🏠 Navigating to dashboard...');
+            window.location.href = '/dashboard.html';
+        }
+
+        async function testAPI() {
+            log('🧪 Testing login API...');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        username: 'admin', 
+                        password: 'admin123' 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log('✅ API test successful');
+                    log(`Token: ${data.token.substring(0, 20)}...`);
+                    log(`User: ${data.user.username} (${data.user.displayName})`);
+                } else {
+                    log('❌ API test failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                log('❌ API test error: ' + error.message);
+            }
+        }
+
+        // Auto-refresh every 5 seconds
+        setInterval(refreshStatus, 5000);
+        
+        // Initial load
+        refreshStatus();
+        log('🔧 Debug panel loaded');
+
+        // Listen for storage changes
+        window.addEventListener('storage', function(e) {
+            log(`📦 Storage changed: ${e.key} = ${e.newValue}`);
+            refreshStatus();
+        });
+    </script>
+</body>
+</html>

@@ -281,17 +281,49 @@
         
         // Check authentication immediately
         function checkAuth() {
+            console.log('📍 Dashboard auth check started');
+            console.log('🔍 Current URL:', window.location.href);
+            
             const token = localStorage.getItem('authToken') || localStorage.getItem('token');
             const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            const fromLogin = sessionStorage.getItem('fromLogin');
             
-            console.log('🔐 Auth check - Token:', !!token, 'UserData:', !!userData);
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            console.log('🔗 From Login:', fromLogin);
             
-            if (!token || !userData) {
-                console.log('❌ No authentication data found, redirecting to login');
-                // Simple redirect without complex loop prevention
+            // Check for redirect loop
+            const redirectCount = parseInt(sessionStorage.getItem('redirectCount') || '0');
+            console.log('🔄 Redirect count:', redirectCount);
+            
+            if (redirectCount > 3) {
+                console.error('🚨 REDIRECT LOOP DETECTED in Dashboard! Clearing all data...');
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('ตรวจพบปัญหา Redirect Loop - ได้ล้างข้อมูลแล้ว');
                 window.location.href = 'login.html';
                 return false;
             }
+            
+            if (!token || !userData) {
+                console.log('❌ No authentication data found, redirecting to login');
+                
+                // Only redirect if not in a loop
+                if (redirectCount < 3) {
+                    sessionStorage.setItem('redirectCount', (redirectCount + 1).toString());
+                    sessionStorage.removeItem('fromLogin');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 100);
+                }
+                return false;
+            }
+            
+            // Auth successful, clear redirect tracking
+            console.log('✅ Authentication successful');
+            sessionStorage.removeItem('redirectCount');
+            sessionStorage.removeItem('fromLogin');
             return true;
         }
 

@@ -614,19 +614,28 @@
                 const data = await response.json();
                 
                 if (response.ok && data.success && data.token) {
+                    console.log('✅ Login API successful');
+                    console.log('👤 User data:', data.user);
+                    
                     // Store auth data (same as test page)
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     localStorage.setItem('userData', JSON.stringify(data.user));
+                    localStorage.setItem('loginMode', 'api');
                     
-                    console.log('✅ Login successful');
+                    console.log('💾 Auth data stored to localStorage');
+                    
+                    // Clear any redirect tracking
+                    sessionStorage.removeItem('redirectCount');
+                    sessionStorage.setItem('fromLogin', 'true');
                     
                     // Show success animation
                     showSuccessAnimation();
                     
                     // Redirect after animation (shorter delay)
                     setTimeout(() => {
+                        console.log('🔄 Redirecting to dashboard...');
                         window.location.href = '/dashboard.html';
                     }, 1500);
                     return;
@@ -650,12 +659,46 @@
         document.addEventListener('DOMContentLoaded', function() {
             initTheme();
             
-            // Simple check if already logged in (like test page)
+            // Detailed debug logging
+            console.log('📍 Login page loaded');
+            console.log('🔍 Current URL:', window.location.href);
+            
+            // Check localStorage contents
             const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            if (token) {
-                console.log('ℹ️ Already logged in, redirecting to dashboard...');
-                window.location.href = '/dashboard.html';
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+            const loginMode = localStorage.getItem('loginMode');
+            
+            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
+            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
+            console.log('🎯 LoginMode:', loginMode);
+            
+            // Check for redirect loop prevention
+            const redirectCount = parseInt(sessionStorage.getItem('redirectCount') || '0');
+            console.log('🔄 Redirect count:', redirectCount);
+            
+            if (redirectCount > 3) {
+                console.error('🚨 REDIRECT LOOP DETECTED! Clearing all data...');
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('ตรวจพบปัญหา Redirect Loop - ได้ล้างข้อมูลแล้ว กรุณา Login ใหม่');
                 return;
+            }
+            
+            // If already logged in, redirect but track count
+            if (token && userData) {
+                console.log('ℹ️ Already logged in, will redirect to dashboard...');
+                sessionStorage.setItem('redirectCount', (redirectCount + 1).toString());
+                sessionStorage.setItem('fromLogin', 'true');
+                
+                // Add delay to prevent immediate loop
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 100);
+                return;
+            } else {
+                // Reset redirect count if no auth data
+                sessionStorage.removeItem('redirectCount');
+                sessionStorage.removeItem('fromLogin');
             }
             
             // Add interactive effects
