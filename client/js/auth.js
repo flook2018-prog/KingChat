@@ -90,7 +90,7 @@ class AuthManager {
   requireAuth() {
     if (!this.isAuthenticated()) {
       console.log('🔐 Authentication required, redirecting to login');
-      window.location.href = 'login-fixed.html';
+      window.location.href = 'login.html';
       return false;
     }
     return true;
@@ -100,7 +100,7 @@ class AuthManager {
   logout() {
     console.log('🔐 Logging out user');
     this.clearAuth();
-    window.location.href = 'login-fixed.html';
+    window.location.href = 'login.html';
   }
 }
 
