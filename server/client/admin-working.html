@@ -1357,14 +1357,7 @@
             }
         }
 
-        function deleteAdmin(id, username) {
-            console.log('🗑️ Delete admin:', id, username);
-            if (confirm(`ต้องการลบแอดมิน "${username}" หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้\n\n(นี่เป็น Demo - จะไม่ลบจริง)`)) {
-                // Demo delete - just show notification
-                showNotification(`Demo: ลบแอดมิน "${username}" สำเร็จ (ไม่ลบจริง)`, 'success');
-                console.log('✅ Demo delete completed for:', username);
-            }
-        }
+
 
         async function deleteAdminConfirm(id, username) {
             try {

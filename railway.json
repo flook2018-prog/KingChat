@@ -10,6 +10,6 @@
     "restartPolicyType": "ON_FAILURE",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 300,
-    "startCommand": "node server-v2.js"
+    "startCommand": "node server-simple.js"
   }
 }
