@@ -155,45 +155,88 @@
             <a href="/accounts-working.html" class="nav-item">
                 📱 บัญชี LINE OA
             </a>
+            <a href="/line-connect.html" class="nav-item">
+                🔗 เชื่อมต่อ LINE OA
+            </a>
             <a href="/customers-working.html" class="nav-item">
                 👥 รายชื่อลูกค้า
+            </a>
+            <a href="/quick-messages-working.html" class="nav-item">
+                ⚡ ข้อความด่วน
             </a>
             <a href="/settings-working.html" class="nav-item">
                 ⚙️ ตั้งค่า
             </a>
-            <a href="/admin-working" class="nav-item">
+            <a href="/admin-working.html" class="nav-item">
                 👨‍💼 จัดการแอดมิน
             </a>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number">3</div>
+                <div class="stat-number" id="lineAccountsCount">-</div>
                 <div class="stat-label">📱 บัญชี LINE OA</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">127</div>
+                <div class="stat-number" id="customersCount">-</div>
                 <div class="stat-label">👥 ลูกค้าทั้งหมด</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">1,234</div>
+                <div class="stat-number" id="messagesCount">-</div>
                 <div class="stat-label">💬 ข้อความวันนี้</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">98%</div>
+                <div class="stat-number" id="responseRate">-</div>
                 <div class="stat-label">📊 อัตราตอบกลับ</div>
             </div>
         </div>
 
         <div style="text-align: center; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 10px;">
             <h3>🕒 กิจกรรมล่าสุด</h3>
-            <p>ข้อความใหม่จาก คุณสมชาย - 2 นาทีที่แล้ว</p>
-            <p>ลูกค้าใหม่เข้าร่วม - 15 นาทีที่แล้ว</p>
-            <p>เชื่อมต่อบัญชี LINE OA ใหม่ - 1 ชั่วโมงที่แล้ว</p>
+            <div id="recentActivity">
+                <p>กำลังโหลดข้อมูล...</p>
+            </div>
         </div>
     </div>
 
     <script>
+        // Load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                // Load LINE accounts count
+                const accountsResponse = await fetch('/api/line/accounts');
+                if (accountsResponse.ok) {
+                    const accountsData = await accountsResponse.json();
+                    document.getElementById('lineAccountsCount').textContent = accountsData.data ? accountsData.data.length : 0;
+                }
+
+                // Load customers count  
+                const customersResponse = await fetch('/api/customers');
+                if (customersResponse.ok) {
+                    const customersData = await customersResponse.json();
+                    document.getElementById('customersCount').textContent = customersData.data ? customersData.data.length : 0;
+                }
+
+                // Mock data for now
+                document.getElementById('messagesCount').textContent = '156';
+                document.getElementById('responseRate').textContent = '98%';
+                
+                // Update recent activity
+                document.getElementById('recentActivity').innerHTML = `
+                    <p>ระบบพร้อมใช้งาน - 1 นาทีที่แล้ว</p>
+                    <p>กำลังเชื่อมต่อฐานข้อมูล - 5 นาทีที่แล้ว</p>
+                    <p>ระบบเริ่มทำงาน - 10 นาทีที่แล้ว</p>
+                `;
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                // Show mock data if API fails
+                document.getElementById('lineAccountsCount').textContent = '0';
+                document.getElementById('customersCount').textContent = '0';
+                document.getElementById('messagesCount').textContent = '0';
+                document.getElementById('responseRate').textContent = '0%';
+            }
+        }
+
         // ตรวจสอบการล็อกอิน
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📍 Dashboard loading...');
@@ -207,6 +250,9 @@
                 window.location.href = 'login.html';
                 return;
             }
+            
+            // Load dashboard data
+            loadDashboardData();
             
             let user = null;
             try {

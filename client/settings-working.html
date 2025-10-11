@@ -519,6 +519,37 @@
 
                     <div class="setting-card">
                         <div class="setting-header">
+                            <div class="setting-icon">⚡</div>
+                            <div>
+                                <div class="setting-title">ข้อความด่วน</div>
+                                <div class="setting-description">จัดการข้อความแม่แบบที่ใช้บ่อย</div>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">จำนวนข้อความด่วน</div>
+                                <div class="setting-desc" id="quickMessageCount">กำลังโหลด...</div>
+                            </div>
+                            <button class="btn-setting btn-primary" onclick="window.location.href='/quick-messages-working.html'">จัดการ</button>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">เปิดใช้ข้อความด่วน</div>
+                                <div class="setting-desc">แสดงปุ่มข้อความด่วนในหน้าแชท</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">เรียงลำดับ</div>
+                                <div class="setting-desc">จัดเรียงข้อความด่วนตามความถี่ใช้งาน</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="setting-header">
                             <div class="setting-icon">🎨</div>
                             <div>
                                 <div class="setting-title">การแสดงผล</div>
@@ -584,6 +615,24 @@
             sidebar.classList.toggle('mobile-open');
         }
 
+        // Load settings data
+        async function loadSettings() {
+            try {
+                // Load quick messages count
+                const response = await fetch('/api/quick-messages');
+                if (response.ok) {
+                    const result = await response.json();
+                    const count = result.data ? result.data.length : 0;
+                    document.getElementById('quickMessageCount').textContent = `${count} ข้อความ`;
+                } else {
+                    document.getElementById('quickMessageCount').textContent = '0 ข้อความ';
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                document.getElementById('quickMessageCount').textContent = 'ไม่สามารถโหลดได้';
+            }
+        }
+
         // Toggle switch functionality
         function toggleSwitch(element) {
             element.classList.toggle('active');
@@ -594,6 +643,7 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
+            loadSettings();
         });
     </script>
 </body>

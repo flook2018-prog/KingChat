@@ -112,9 +112,9 @@ class AdminManager {
                 role: this.currentRole
             });
 
-            console.log('🌐 Fetching:', `/api/admin/admins?${params}`);
+            console.log('🌐 Fetching:', `/api/admin/admin-users?${params}`);
             
-            const response = await fetch(`/api/admin/admins?${params}`, {
+            const response = await fetch(`/api/admin/admin-users?${params}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -276,7 +276,7 @@ class AdminManager {
 
     async editAdmin(id) {
         try {
-            const response = await fetch(`/api/admin/admins/${id}`, {
+            const response = await fetch(`/api/admin/admin-users/${id}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -346,7 +346,7 @@ class AdminManager {
         }
 
         try {
-            const url = isEdit ? `/api/admin/admins/${adminId}` : '/api/admin/admins';
+            const url = isEdit ? `/api/admin/admin-users/${adminId}` : '/api/admin/admin-users';
             const method = isEdit ? 'PUT' : 'POST';
 
             const response = await fetch(url, {
@@ -395,7 +395,7 @@ class AdminManager {
         }
 
         try {
-            const response = await fetch(`/api/admin/admins/${adminId}/reset-password`, {
+            const response = await fetch(`/api/admin/admin-users/${adminId}/reset-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -429,7 +429,7 @@ class AdminManager {
         }
 
         try {
-            const response = await fetch(`/api/admin/admins/${id}`, {
+            const response = await fetch(`/api/admin/admin-users/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
