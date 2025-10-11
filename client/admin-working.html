@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👥 รายชื่อลูกค้า - KingChat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
+    <title>👨‍💼 จัดการแอดมิน - KingChat</title>
     <style>
-        /* Enhanced Styles - Same as Chat */
+        /* Enhanced Styles - Same as other working pages */
         body {
             margin: 0;
             padding: 0;
@@ -171,7 +164,7 @@
             min-height: calc(100vh - 80px);
         }
 
-        .customers-content {
+        .admin-content {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
@@ -194,40 +187,17 @@
             margin: 0;
         }
 
-        .search-section {
-            margin: 30px 0;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            min-width: 300px;
-            padding: 12px 20px;
-            border: 1px solid #e2e8f0;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .customers-table {
+        .admin-table {
             width: 100%;
             border-collapse: collapse;
             background: white;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
         }
 
-        .customers-table th {
+        .admin-table th {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 15px;
@@ -235,16 +205,16 @@
             font-weight: 600;
         }
 
-        .customers-table td {
+        .admin-table td {
             padding: 15px;
             border-bottom: 1px solid #e2e8f0;
         }
 
-        .customers-table tr:hover {
+        .admin-table tr:hover {
             background: #f8f9fa;
         }
 
-        .customer-avatar {
+        .admin-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -276,11 +246,6 @@
             transition: all 0.3s ease;
         }
 
-        .btn-chat {
-            background: #28a745;
-            color: white;
-        }
-
         .btn-edit {
             background: #ffc107;
             color: #212529;
@@ -289,6 +254,15 @@
         .btn-delete {
             background: #dc3545;
             color: white;
+        }
+
+        .btn-add {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-bottom: 20px;
         }
 
         .action-btn:hover {
@@ -317,16 +291,12 @@
                 padding: 15px 20px;
             }
 
-            .search-input {
-                min-width: 100%;
-            }
-
-            .customers-table {
+            .admin-table {
                 font-size: 14px;
             }
 
-            .customers-table th,
-            .customers-table td {
+            .admin-table th,
+            .admin-table td {
                 padding: 10px 8px;
             }
         }
@@ -349,7 +319,7 @@
     </style>
 </head>
 <body>
-    <div class="customers-container">
+    <div class="admin-container">
         <!-- Top Navigation -->
         <nav class="navbar" style="opacity: 0; animation: slideInDown 0.6s ease 0.1s forwards;">
             <div class="nav-brand">
@@ -389,11 +359,7 @@
                     <i class="icon">📱</i>
                     <span class="menu-text">บัญชี LINE OA</span>
                 </a>
-                <a href="/line-connect.html" class="menu-item" data-page="line-connect">
-                    <i class="icon">🔗</i>
-                    <span class="menu-text">เชื่อมต่อ LINE OA</span>
-                </a>
-                <a href="#" class="menu-item active" data-page="customers">
+                <a href="/customers-working.html" class="menu-item" data-page="customers">
                     <i class="icon">👥</i>
                     <span class="menu-text">รายชื่อลูกค้า</span>
                 </a>
@@ -405,7 +371,7 @@
                     <i class="icon">⚙️</i>
                     <span class="menu-text">ตั้งค่า</span>
                 </a>
-                <a href="/admin-working.html" class="menu-item" data-page="admin">
+                <a href="/admin-working.html" class="menu-item active" data-page="admin">
                     <i class="icon">👨‍💼</i>
                     <span class="menu-text">จัดการแอดมิน</span>
                 </a>
@@ -414,29 +380,83 @@
 
         <!-- Main Content -->
         <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
-            <div class="customers-content">
+            <div class="admin-content">
                 <div class="page-header" style="text-align: center; margin-bottom: 40px;">
-                    <h1>👥 รายชื่อลูกค้า</h1>
-                    <p>จัดการข้อมูลลูกค้าและติดต่อสื่อสาร</p>
+                    <h1>👨‍💼 จัดการแอดมิน</h1>
+                    <p>จัดการผู้ใช้แอดมินและสิทธิ์การเข้าถึงระบบ</p>
                 </div>
 
-                <div class="search-section">
-                    <input type="text" class="search-input" placeholder="🔍 ค้นหาลูกค้า..." id="searchInput">
-                </div>
+                <button class="btn-add action-btn" onclick="alert('เพิ่มแอดมินใหม่')">➕ เพิ่มแอดมินใหม่</button>
 
-                <table class="customers-table">
+                <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>ลูกค้า</th>
-                            <th>LINE ID</th>
-                            <th>เบอร์โทร</th>
+                            <th>แอดมิน</th>
+                            <th>อีเมล</th>
+                            <th>บทบาท</th>
                             <th>สถานะ</th>
-                            <th>ข้อความล่าสุด</th>
+                            <th>เข้าสู่ระบบล่าสุด</th>
                             <th>การจัดการ</th>
                         </tr>
                     </thead>
-                    <tbody id="customersTableBody">
-                        <!-- Customers will be loaded here from API -->
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar">A</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Admin</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ผู้ดูแลระบบหลัก</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>admin@kingchat.com</td>
+                            <td><span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Super Admin</span></td>
+                            <td><span class="status-online">🟢 ออนไลน์</span></td>
+                            <td>5 นาทีที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Admin')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Admin')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #28a745, #20c997);">M</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Manager</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ผู้จัดการระบบ</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>manager@kingchat.com</td>
+                            <td><span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Manager</span></td>
+                            <td><span class="status-online">🟢 ออนไลน์</span></td>
+                            <td>15 นาทีที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Manager')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Manager')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">S</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Support</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ฝ่ายสนับสนุน</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>support@kingchat.com</td>
+                            <td><span style="background: #ffc107; color: #212529; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Support</span></td>
+                            <td><span class="status-offline">⚫ ออฟไลน์</span></td>
+                            <td>2 ชั่วโมงที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Support')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Support')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -444,157 +464,22 @@
     </div>
 
     <script>
-        // Authentication Check
+        // Simple authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
             if (!token) {
+                console.log('No token found, redirecting to login...');
                 window.location.href = '/login.html';
                 return;
             }
             
+            console.log('Admin page: Authentication successful for:', user.username || 'Unknown');
+            
             // Update user info
             if (user.username) {
                 document.getElementById('userName').textContent = user.username;
-            }
-        }
-
-        // Load customers from API
-        async function loadCustomers() {
-            try {
-                const response = await fetch('/api/customers');
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch customers');
-                }
-
-                const result = await response.json();
-                const customers = result.data || [];
-
-                const tbody = document.getElementById('customersTableBody');
-                if (!tbody) return;
-
-                if (customers.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
-                                <h3>ยังไม่มีลูกค้า</h3>
-                                <p>เมื่อมีลูกค้าทัก LINE OA จะแสดงที่นี่</p>
-                                <p style="margin-top: 20px;">
-                                    <a href="/line-connect.html" style="color: #667eea; text-decoration: none;">
-                                        🔗 เชื่อมต่อ LINE OA ก่อน
-                                    </a>
-                                </p>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = '';
-                
-                customers.forEach((customer, index) => {
-                    const isOnline = customer.last_activity && (new Date() - new Date(customer.last_activity)) < 300000; // 5 minutes
-                    const avatarColors = [
-                        'linear-gradient(135deg, #667eea, #764ba2)',
-                        'linear-gradient(135deg, #ff6b6b, #ee5a52)',
-                        'linear-gradient(135deg, #28a745, #20c997)',
-                        'linear-gradient(135deg, #ffc107, #fd7e14)',
-                        'linear-gradient(135deg, #6f42c1, #e83e8c)'
-                    ];
-                    const customerColor = avatarColors[index % avatarColors.length];
-                    
-                    const row = document.createElement('tr');
-                    row.style.opacity = '0';
-                    row.style.animation = `fadeInUp 0.5s ease forwards`;
-                    row.style.animationDelay = `${index * 100}ms`;
-                    
-                    row.innerHTML = `
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="customer-avatar" style="background: ${customerColor};">
-                                    ${customer.display_name ? customer.display_name.charAt(0).toUpperCase() : 'U'}
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">${customer.display_name || 'ไม่ระบุชื่อ'}</div>
-                                    <div style="font-size: 12px; color: #6c757d;">จาก: ${customer.line_account_name || 'LINE OA'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${customer.line_user_id || '-'}</td>
-                        <td>${customer.phone_number || '-'}</td>
-                        <td>
-                            <span class="${isOnline ? 'status-online' : 'status-offline'}">
-                                ${isOnline ? '🟢 ออนไลน์' : '⚫ ออฟไลน์'}
-                            </span>
-                        </td>
-                        <td>${customer.last_message || 'ยังไม่มีข้อความ'}</td>
-                        <td>
-                            <button class="action-btn btn-chat" onclick="openChat(${customer.id})">💬 แชท</button>
-                            <button class="action-btn btn-edit" onclick="editCustomer(${customer.id})">✏️ แก้ไข</button>
-                            <button class="action-btn btn-delete" onclick="deleteCustomer(${customer.id}, '${customer.display_name || 'ลูกค้า'}')">🗑️ ลบ</button>
-                        </td>
-                    `;
-                    
-                    tbody.appendChild(row);
-                });
-
-            } catch (error) {
-                console.error('Error loading customers:', error);
-                
-                const tbody = document.getElementById('customersTableBody');
-                if (tbody) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px; color: #dc3545;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                                <h3>เกิดข้อผิดพลาด</h3>
-                                <p>ไม่สามารถโหลดข้อมูลลูกค้าได้</p>
-                                <button onclick="loadCustomers()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">🔄 ลองใหม่</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            }
-        }
-
-        // Open chat with customer
-        function openChat(customerId) {
-            window.location.href = `/chat.html?customer=${customerId}`;
-        }
-
-        // Edit customer
-        function editCustomer(customerId) {
-            // TODO: Implement edit customer modal
-            alert(`แก้ไขลูกค้า ID: ${customerId} (ฟีเจอร์นี้กำลังพัฒนา)`);
-        }
-
-        // Delete customer
-        async function deleteCustomer(customerId, customerName) {
-            if (!confirm(`ต้องการลบลูกค้า "${customerName}" หรือไม่?`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/customers/${customerId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to delete customer');
-                }
-
-                alert('ลบลูกค้าสำเร็จ');
-                loadCustomers(); // Refresh the list
-
-            } catch (error) {
-                console.error('Error deleting customer:', error);
-                alert('เกิดข้อผิดพลาดในการลบลูกค้า');
             }
         }
 
@@ -613,25 +498,28 @@
             sidebar.classList.toggle('mobile-open');
         }
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.customers-table tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchText)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInDown {
+                from { transform: translateY(-100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes slideInLeft {
+                from { transform: translateX(-100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeInUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
 
-        // Initialize
+        // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin management page loaded');
             checkAuth();
-            loadCustomers();
         });
     </script>
 </body>
