@@ -794,6 +794,9 @@
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
+            console.log('🔐 Auth Check - Token:', token ? 'EXISTS' : 'NOT FOUND');
+            console.log('🔐 Auth Check - User from storage:', user);
+            
             if (!token) {
                 console.log('No token found, redirecting to login...');
                 window.location.href = '/login.html';
@@ -802,6 +805,8 @@
             
             console.log('Admin page: Authentication successful for:', user.username || 'Unknown');
             console.log('🔍 DEBUG - Full User Data:', user);
+            console.log('🔍 DEBUG - User Role:', user.role);
+            console.log('🔍 DEBUG - All User Keys:', Object.keys(user));
             
             // Update user info
             if (user.username) {
@@ -815,7 +820,7 @@
             } else {
                 console.log('❌ No username found in user data');
                 // Try to set from available data
-                const displayName = user.displayName || user.email || 'Unknown User';
+                const displayName = user.displayName || user.email || user.name || 'Unknown User';
                 console.log('📝 Using fallback name:', displayName);
                 const userNameElement = document.getElementById('userName');
                 if (userNameElement) {
@@ -823,6 +828,32 @@
                 } else {
                     console.log('❌ userName element not found!');
                 }
+            }
+        }
+
+        // Temporary fix: Update user role to admin for Super Admin users
+        function fixUserRole() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            console.log('🔧 FIXING USER ROLE - Current user:', user);
+            
+            // If this is SSSs or Xinon, set role to admin
+            if (user.username === 'SSSs' || user.username === 'Xinon' || user.email === 'SSSs@kingchat.com' || user.email === 'Xinon@kingchat.com') {
+                console.log('🔧 FIXING: Setting role to admin for Super Admin user');
+                user.role = 'admin';
+                localStorage.setItem('user', JSON.stringify(user));
+                sessionStorage.setItem('user', JSON.stringify(user));
+                console.log('✅ Role fixed to admin');
+                
+                // Update display
+                if (user.username) {
+                    const userNameElement = document.getElementById('userName');
+                    if (userNameElement) {
+                        userNameElement.textContent = user.username;
+                    }
+                }
+                
+                // Reload admins to show buttons
+                loadAdmins();
             }
         }
 
@@ -1290,9 +1321,24 @@
 
         // Role change handler
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('role').addEventListener('change', function() {
-                updatePermissions(this.value);
-            });
+            console.log('🚀 Page loaded, running initialization...');
+            
+            // Fix user role for Super Admin users
+            fixUserRole();
+            
+            // Check authentication
+            checkAuth();
+            
+            // Load admins
+            loadAdmins();
+            
+            // Setup role change handler
+            const roleElement = document.getElementById('role');
+            if (roleElement) {
+                roleElement.addEventListener('change', function() {
+                    updatePermissions(this.value);
+                });
+            }
         });
 
         // Notification system
@@ -1373,24 +1419,7 @@
         `;
         document.head.appendChild(style);
 
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOM Content Loaded - Admin management page');
-            console.log('Admin management page loaded');
-            checkAuth();
-            
-            // Add small delay to ensure auth is complete
-            setTimeout(() => {
-                console.log('🔄 Starting to load admins...');
-                loadAdmins();
-            }, 500);
-
-            // Auto-refresh every 30 seconds for real-time updates
-            setInterval(() => {
-                console.log('🔄 Auto-refreshing admin data...');
-                loadAdmins();
-            }, 30000);
-        });
+        // Remove duplicate DOMContentLoaded - already handled above
     </script>
 </body>
 </html>
