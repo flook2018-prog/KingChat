@@ -1522,14 +1522,69 @@
             activityList.innerHTML = '<div style="text-align: center; padding: 20px;">กำลังโหลด...</div>';
             
             try {
-                // Mock activity data (replace with real API)
-                const activities = [
-                    { action: 'เข้าสู่ระบบ', time: new Date(Date.now() - 300000), icon: '🔑', color: '#28a745' },
-                    { action: 'ดูหน้าแดชบอร์ด', time: new Date(Date.now() - 600000), icon: '📊', color: '#17a2b8' },
-                    { action: 'จัดการลูกค้า', time: new Date(Date.now() - 1800000), icon: '👥', color: '#ffc107' },
-                    { action: 'แก้ไขข้อความด่วน', time: new Date(Date.now() - 3600000), icon: '⚡', color: '#6f42c1' },
-                    { action: 'ออกจากระบบ', time: new Date(Date.now() - 86400000), icon: '🚪', color: '#dc3545' }
-                ];
+                // Get real user data from API
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`/api/admin/admin-users/${adminId}/details`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+                const user = result.admin;
+
+                console.log('👤 User activity data:', user);
+
+                // Generate real activity based on user data
+                const activities = [];
+                
+                if (user.last_login) {
+                    activities.push({
+                        action: 'เข้าสู่ระบบครั้งล่าสุด',
+                        time: new Date(user.last_login),
+                        icon: '🔑',
+                        color: '#28a745'
+                    });
+                }
+
+                if (user.last_activity) {
+                    activities.push({
+                        action: 'กิจกรรมล่าสุด',
+                        time: new Date(user.last_activity),
+                        icon: '⚡',
+                        color: '#17a2b8'
+                    });
+                }
+
+                if (user.created_at) {
+                    activities.push({
+                        action: 'สร้างบัญชี',
+                        time: new Date(user.created_at),
+                        icon: '�',
+                        color: '#6f42c1'
+                    });
+                }
+
+                // Add login count info
+                activities.push({
+                    action: `เข้าสู่ระบบแล้ว ${user.login_count || 0} ครั้ง`,
+                    time: new Date(),
+                    icon: '📊',
+                    color: '#ffc107'
+                });
+
+                // Add status info
+                activities.push({
+                    action: user.online_status === 'online' ? 'ออนไลน์' : 'ออฟไลน์',
+                    time: new Date(),
+                    icon: user.online_status === 'online' ? '🟢' : '�',
+                    color: user.online_status === 'online' ? '#28a745' : '#dc3545'
+                });
 
                 if (activities.length === 0) {
                     activityList.innerHTML = `
@@ -1543,6 +1598,10 @@
                 }
 
                 activityList.innerHTML = '';
+                
+                // Sort activities by time (newest first)
+                activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+                
                 activities.forEach(activity => {
                     const item = document.createElement('div');
                     item.className = 'activity-item';
@@ -1558,9 +1617,27 @@
                     activityList.appendChild(item);
                 });
 
+                // Add summary info
+                const summaryDiv = document.createElement('div');
+                summaryDiv.style.cssText = 'margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 14px; color: #6c757d;';
+                summaryDiv.innerHTML = `
+                    <div><strong>สรุปข้อมูล:</strong></div>
+                    <div>• บทบาท: ${user.role === 'super_admin' ? 'Super Admin' : 'Admin'}</div>
+                    <div>• สถานะ: ${user.status === 'active' ? 'ใช้งานได้' : 'ปิดใช้งาน'}</div>
+                    <div>• อีเมล: ${user.email}</div>
+                    <div>• ID: ${user.id}</div>
+                `;
+                activityList.appendChild(summaryDiv);
+
             } catch (error) {
                 console.error('Error loading activity:', error);
-                activityList.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">เกิดข้อผิดพลาดในการโหลดประวัติ</div>';
+                activityList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #dc3545;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                        <div>เกิดข้อผิดพลาดในการโหลดประวัติ</div>
+                        <div style="font-size: 12px; margin-top: 5px;">Error: ${error.message}</div>
+                    </div>
+                `;
             }
         }
 
