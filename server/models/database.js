@@ -3,7 +3,10 @@ const { Pool } = require('pg');
 // Database connection configuration
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT ? { rejectUnauthorized: false } : false,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
 });
 
 // Test database connection
@@ -293,11 +296,72 @@ class User {
     const query = 'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1';
     await pool.query(query, [id]);
   }
+
+  static async getAllWithPasswords() {
+    const query = 'SELECT id, username, email, role, status, last_login, created_at, password_hash FROM users ORDER BY created_at ASC';
+    const result = await pool.query(query);
+    return result.rows;
+  }
+
+  static async updatePassword(id, hashedPassword) {
+    const query = 'UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, username, email';
+    const result = await pool.query(query, [hashedPassword, id]);
+    return result.rows[0];
+  }
+}
+
+// Debug functions
+async function debugDatabase() {
+  try {
+    console.log('🔍 Starting database debug...');
+    
+    // Test connection
+    await testConnection();
+    
+    // Check if users table exists
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      );
+    `);
+    
+    console.log('📋 Users table exists:', tableCheck.rows[0].exists);
+    
+    if (tableCheck.rows[0].exists) {
+      // Get all users
+      const users = await pool.query('SELECT id, username, email, role, status, created_at FROM users ORDER BY id ASC');
+      console.log('👥 Users in database:', users.rows.length);
+      console.log('👥 Users data:', users.rows);
+      
+      return {
+        success: true,
+        tableExists: true,
+        userCount: users.rows.length,
+        users: users.rows
+      };
+    } else {
+      console.log('❌ Users table does not exist');
+      return {
+        success: false,
+        tableExists: false,
+        error: 'Users table does not exist'
+      };
+    }
+  } catch (error) {
+    console.error('❌ Database debug failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
 }
 
 module.exports = {
   pool,
   testConnection,
+  debugDatabase,
   LineAccount,
   Customer,
   ChatMessage,
