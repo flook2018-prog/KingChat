@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📊 แดชบอร์ด - KingChat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
+    <title>👨‍💼 จัดการแอดมิน - KingChat</title>
     <style>
-        /* Enhanced Dashboard Styles - Same as Chat */
+        /* Enhanced Styles - Same as other working pages */
         body {
             margin: 0;
             padding: 0;
@@ -20,21 +13,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             overflow-x: hidden;
-        }
-
-        /* แก้สีตัวหนังสือสีขาวให้เป็นสีเข้ม */
-        .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: #2d3748 !important;
-            margin: 0 0 10px 0;
-            text-shadow: none !important;
-        }
-
-        .page-header p {
-            font-size: 18px;
-            color: #4a5568 !important;
-            margin: 0;
         }
 
         .navbar {
@@ -178,7 +156,7 @@
             text-align: center;
         }
 
-        /* Dashboard Content */
+        /* Main Content */
         .main-content {
             margin-left: 280px;
             margin-top: 80px;
@@ -186,7 +164,7 @@
             min-height: calc(100vh - 80px);
         }
 
-        .dashboard-content {
+        .admin-content {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
@@ -195,77 +173,101 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-number {
-            font-size: 48px;
+        .page-header h1 {
+            font-size: 36px;
             font-weight: 700;
-            margin-bottom: 10px;
+            color: #2d3748 !important;
+            margin: 0 0 10px 0;
+            text-shadow: none !important;
         }
 
-        .stat-label {
-            font-size: 16px;
-            opacity: 0.9;
+        .page-header p {
+            font-size: 18px;
+            color: #4a5568 !important;
+            margin: 0;
         }
 
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-top: 30px;
         }
 
-        .action-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: #2d3748;
-        }
-
-        .action-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            color: #667eea;
-        }
-
-        .action-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .action-title {
-            font-size: 18px;
+        .admin-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
             font-weight: 600;
-            margin-bottom: 8px;
         }
 
-        .action-desc {
-            font-size: 14px;
+        .admin-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .admin-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .status-online {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .status-offline {
             color: #6c757d;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-add {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* Responsive Design */
@@ -289,14 +291,13 @@
                 padding: 15px 20px;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
+            .admin-table {
+                font-size: 14px;
             }
 
-            .quick-actions {
-                grid-template-columns: 1fr;
-                gap: 15px;
+            .admin-table th,
+            .admin-table td {
+                padding: 10px 8px;
             }
         }
 
@@ -318,18 +319,7 @@
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <div class="loading-screen" id="loadingScreen">
-            <div class="loading-content">
-                <div class="crown-animation">👑</div>
-                <h2>KingChat</h2>
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
-                <p>กำลังโหลดแดชบอร์ด...</p>
-            </div>
-        </div>
-
+    <div class="admin-container">
         <!-- Top Navigation -->
         <nav class="navbar" style="opacity: 0; animation: slideInDown 0.6s ease 0.1s forwards;">
             <div class="nav-brand">
@@ -358,11 +348,11 @@
         <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
             <div class="sidebar-menu">
                 <a href="/chat.html" class="menu-item" data-page="chat">
-                    <i class="icon">�</i>
+                    <i class="icon">💬</i>
                     <span class="menu-text">แชท</span>
                 </a>
-                <a href="#" class="menu-item active" data-page="dashboard">
-                    <i class="icon">�</i>
+                <a href="/dashboard-working.html" class="menu-item" data-page="dashboard">
+                    <i class="icon">📊</i>
                     <span class="menu-text">แดชบอร์ด</span>
                 </a>
                 <a href="/accounts-working.html" class="menu-item" data-page="accounts">
@@ -377,7 +367,7 @@
                     <i class="icon">⚙️</i>
                     <span class="menu-text">ตั้งค่า</span>
                 </a>
-                <a href="/admin-working" class="menu-item" data-page="admin">
+                <a href="#" class="menu-item active" data-page="admin">
                     <i class="icon">👨‍💼</i>
                     <span class="menu-text">จัดการแอดมิน</span>
                 </a>
@@ -386,82 +376,102 @@
 
         <!-- Main Content -->
         <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
-            <div class="dashboard-content">
+            <div class="admin-content">
                 <div class="page-header" style="text-align: center; margin-bottom: 40px;">
-                    <h1>📊 แดชบอร์ด</h1>
-                    <p>ภาพรวมระบบจัดการลูกค้า LINE Official Account</p>
+                    <h1>👨‍💼 จัดการแอดมิน</h1>
+                    <p>จัดการผู้ใช้แอดมินและสิทธิ์การเข้าถึงระบบ</p>
                 </div>
 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">📱 บัญชี LINE OA</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">1,247</div>
-                        <div class="stat-label">👥 ลูกค้าทั้งหมด</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">89</div>
-                        <div class="stat-label">💬 แชทใหม่วันนี้</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">156</div>
-                        <div class="stat-label">📊 ลูกค้าออนไลน์</div>
-                    </div>
-                </div>
+                <button class="btn-add action-btn" onclick="alert('เพิ่มแอดมินใหม่')">➕ เพิ่มแอดมินใหม่</button>
 
-                <div class="quick-actions">
-                    <a href="/chat.html" class="action-card">
-                        <div class="action-icon">💬</div>
-                        <div class="action-title">เริ่มแชท</div>
-                        <div class="action-desc">เปิดหน้าแชทเพื่อตอบข้อความลูกค้า</div>
-                    </a>
-                    <a href="/accounts-working.html" class="action-card">
-                        <div class="action-icon">📱</div>
-                        <div class="action-title">จัดการ LINE OA</div>
-                        <div class="action-desc">เพิ่มหรือแก้ไขบัญชี LINE Official</div>
-                    </a>
-                    <a href="/customers-working.html" class="action-card">
-                        <div class="action-icon">👥</div>
-                        <div class="action-title">จัดการลูกค้า</div>
-                        <div class="action-desc">ดูรายชื่อและข้อมูลลูกค้า</div>
-                    </a>
-                    <a href="/admin-management" class="action-card">
-                        <div class="action-icon">👨‍💼</div>
-                        <div class="action-title">จัดการแอดมิน</div>
-                        <div class="action-desc">เพิ่มหรือแก้ไขผู้ใช้แอดมิน</div>
-                    </a>
-                    <a href="/settings-working.html" class="action-card">
-                        <div class="action-icon">⚙️</div>
-                        <div class="action-title">ตั้งค่าระบบ</div>
-                        <div class="action-desc">กำหนดค่าการทำงานของระบบ</div>
-                    </a>
-                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>แอดมิน</th>
+                            <th>อีเมล</th>
+                            <th>บทบาท</th>
+                            <th>สถานะ</th>
+                            <th>เข้าสู่ระบบล่าสุด</th>
+                            <th>การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar">A</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Admin</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ผู้ดูแลระบบหลัก</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>admin@kingchat.com</td>
+                            <td><span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Super Admin</span></td>
+                            <td><span class="status-online">🟢 ออนไลน์</span></td>
+                            <td>5 นาทีที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Admin')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Admin')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #28a745, #20c997);">M</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Manager</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ผู้จัดการระบบ</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>manager@kingchat.com</td>
+                            <td><span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Manager</span></td>
+                            <td><span class="status-online">🟢 ออนไลน์</span></td>
+                            <td>15 นาทีที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Manager')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Manager')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">S</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Support</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ฝ่ายสนับสนุน</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>support@kingchat.com</td>
+                            <td><span style="background: #ffc107; color: #212529; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Support</span></td>
+                            <td><span class="status-offline">⚫ ออฟไลน์</span></td>
+                            <td>2 ชั่วโมงที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Support')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Support')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Loading Screen
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').style.display = 'none';
-                }, 500);
-            }, 1500);
-        });
-
-        // Authentication Check
+        // Simple authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
             if (!token) {
+                console.log('No token found, redirecting to login...');
                 window.location.href = '/login.html';
                 return;
             }
+            
+            console.log('Admin page: Authentication successful for:', user.username || 'Unknown');
             
             // Update user info
             if (user.username) {
@@ -484,37 +494,28 @@
             sidebar.classList.toggle('mobile-open');
         }
 
-        // Page loading function
-        function loadPage(page) {
-            const routes = {
-                'dashboard': '/dashboard-fixed.html',
-                'chat': '/chat.html',
-                'accounts': '/accounts-working.html',
-                'customers': '/customers-working.html',
-                'settings': '/settings-working.html',
-                'admin': '/admin-management'
-            };
-            
-            if (routes[page]) {
-                window.location.href = routes[page];
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInDown {
+                from { transform: translateY(-100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
             }
-        }
+            @keyframes slideInLeft {
+                from { transform: translateX(-100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeInUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
 
-        // Initialize
+        // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin management page loaded');
             checkAuth();
-        });
-
-        // Handle menu clicks
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                if (this.getAttribute('onclick')) return; // Skip if onclick is set
-                
-                const page = this.dataset.page;
-                if (page) {
-                    loadPage(page);
-                }
-            });
         });
     </script>
 </body>

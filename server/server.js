@@ -213,11 +213,15 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   });
   
   app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/pages/admin-management.html'));
+    res.sendFile(path.join(__dirname, 'client/admin-working.html'));
   });
   
   app.get('/admin-management', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/pages/admin-management.html'));
+    res.sendFile(path.join(__dirname, 'client/admin-working.html'));
+  });
+  
+  app.get('/admin-working', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/admin-working.html'));
   });
 
   app.get('/dashboard', (req, res) => {
