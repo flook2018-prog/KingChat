@@ -13,52 +13,11 @@ const pool = new Pool({
 // Initialize database tables
 async function initializeDatabase() {
   try {
-    // Create users table if not exists
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(255) UNIQUE NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        role VARCHAR(50) DEFAULT 'admin',
-        status VARCHAR(20) DEFAULT 'active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        last_login TIMESTAMP,
-        login_count INTEGER DEFAULT 0
-      );
-    `);
-
-    // Check if we have any users
-    const result = await pool.query('SELECT COUNT(*) FROM users');
+    // Check if we have any users in admins table
+    const result = await pool.query('SELECT COUNT(*) FROM admins');
     const userCount = parseInt(result.rows[0].count);
 
-    if (userCount === 0) {
-      console.log('📋 No users found, creating default admin users...');
-      
-      // Create default users
-      const defaultUsers = [
-        { username: 'SSSs', email: 'SSSs@kingchat.com', role: 'super_admin' },
-        { username: 'Xinon', email: 'Xinon@kingchat.com', role: 'super_admin' },
-        { username: 'System Administrator', email: 'admin@kingchat.com', role: 'super_admin' },
-        { username: 'aaa', email: 'aaa@kingchat.com', role: 'admin' }
-      ];
-
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-
-      for (const user of defaultUsers) {
-        await pool.query(`
-          INSERT INTO users (username, email, password_hash, role, status, last_activity, login_count)
-          VALUES ($1, $2, $3, $4, 'active', CURRENT_TIMESTAMP, 0)
-          ON CONFLICT (username) DO NOTHING
-        `, [user.username, user.email, hashedPassword, user.role]);
-      }
-
-      console.log('✅ Default admin users created');
-    }
-
-    console.log(`📊 Database initialized with ${userCount} users`);
+    console.log(`📊 Database initialized with ${userCount} admins`);
   } catch (error) {
     console.error('❌ Database initialization error:', error);
   }
@@ -74,13 +33,14 @@ router.get('/debug', async (req, res) => {
   console.log('✅ /api/admin/debug called');
   
   try {
-    const result = await pool.query('SELECT COUNT(*) FROM users');
+    const result = await pool.query('SELECT COUNT(*) FROM admins');
     const userCount = parseInt(result.rows[0].count);
     
     res.json({
       message: 'Admin API is WORKING with PostgreSQL!',
       timestamp: new Date().toISOString(),
       database: 'PostgreSQL',
+      table: 'admins',
       userCount: userCount,
       availableRoutes: {
         'GET /debug': 'Working ✅',
@@ -109,9 +69,9 @@ router.post('/update-activity', async (req, res) => {
     
     // Update user activity in database
     await pool.query(`
-      UPDATE users 
-      SET last_activity = CURRENT_TIMESTAMP, 
-          updated_at = CURRENT_TIMESTAMP 
+      UPDATE admins 
+      SET "lastActivityAt" = CURRENT_TIMESTAMP, 
+          "updatedAt" = CURRENT_TIMESTAMP 
       WHERE id = $1
     `, [userId]);
     
@@ -134,16 +94,17 @@ router.get('/admin-users', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        id, username, email, role, status, 
-        created_at, updated_at, last_activity, 
-        last_login, login_count,
+        id, username, email, role, 
+        "createdAt" as created_at, "updatedAt" as updated_at, 
+        "lastActivityAt" as last_activity, "lastLoginAt" as last_login, 
+        "displayName",
         CASE 
-          WHEN last_activity > NOW() - INTERVAL '5 minutes' THEN 'online'
+          WHEN "lastActivityAt" > NOW() - INTERVAL '5 minutes' THEN 'online'
           ELSE 'offline'
         END as online_status
-      FROM users 
-      WHERE status = 'active'
-      ORDER BY last_activity DESC
+      FROM admins 
+      WHERE "isActive" = true
+      ORDER BY "lastActivityAt" DESC
     `);
 
     const users = result.rows;
@@ -169,14 +130,15 @@ router.get('/admin-users/:id/details', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        id, username, email, role, status, 
-        created_at, updated_at, last_activity, 
-        last_login, login_count, password_hash,
+        id, username, email, role, 
+        "createdAt" as created_at, "updatedAt" as updated_at, 
+        "lastActivityAt" as last_activity, "lastLoginAt" as last_login, 
+        "displayName", password,
         CASE 
-          WHEN last_activity > NOW() - INTERVAL '5 minutes' THEN 'online'
+          WHEN "lastActivityAt" > NOW() - INTERVAL '5 minutes' THEN 'online'
           ELSE 'offline'
         END as online_status
-      FROM users 
+      FROM admins 
       WHERE id = $1
     `, [id]);
 
@@ -188,7 +150,10 @@ router.get('/admin-users/:id/details', async (req, res) => {
 
     res.json({
       success: true,
-      admin: user
+      admin: {
+        ...user,
+        password_hash: user.password
+      }
     });
   } catch (error) {
     console.error('❌ Get admin details error:', error);
@@ -209,7 +174,7 @@ router.put('/admin-users/:id/password', async (req, res) => {
   
   try {
     // Check if user exists
-    const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [id]);
+    const userResult = await pool.query('SELECT username FROM admins WHERE id = $1', [id]);
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -218,8 +183,8 @@ router.put('/admin-users/:id/password', async (req, res) => {
     
     // Update password in database
     await pool.query(`
-      UPDATE users 
-      SET password_hash = $1, updated_at = CURRENT_TIMESTAMP 
+      UPDATE admins 
+      SET password = $1, "updatedAt" = CURRENT_TIMESTAMP 
       WHERE id = $2
     `, [hashedPassword, id]);
     
@@ -245,7 +210,7 @@ router.delete('/admin-users/:id', async (req, res) => {
   try {
     // Check if user exists
     const userResult = await pool.query(`
-      SELECT id, username, role FROM users WHERE id = $1
+      SELECT id, username, role FROM admins WHERE id = $1
     `, [id]);
 
     if (userResult.rows.length === 0) {
@@ -268,7 +233,7 @@ router.delete('/admin-users/:id', async (req, res) => {
 
     // Check if this is the last super admin
     const superAdminResult = await pool.query(`
-      SELECT COUNT(*) FROM users WHERE role = 'super_admin' AND status = 'active'
+      SELECT COUNT(*) FROM admins WHERE role = 'super_admin' AND "isActive" = true
     `);
     const superAdminCount = parseInt(superAdminResult.rows[0].count);
 
@@ -280,10 +245,10 @@ router.delete('/admin-users/:id', async (req, res) => {
     }
 
     // Delete user from PostgreSQL database
-    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    await pool.query('DELETE FROM admins WHERE id = $1', [id]);
     
     // Get remaining user count
-    const countResult = await pool.query('SELECT COUNT(*) FROM users WHERE status = \'active\'');
+    const countResult = await pool.query('SELECT COUNT(*) FROM admins WHERE "isActive" = true');
     const remainingUsers = parseInt(countResult.rows[0].count);
     
     console.log(`✅ REALLY DELETED user from PostgreSQL: ${userToDelete.username} (ID: ${id})`);
@@ -316,10 +281,11 @@ router.get('/debug/users', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        id, username, email, role, status, 
-        created_at, updated_at, last_activity, 
-        last_login, login_count
-      FROM users 
+        id, username, email, role, 
+        "createdAt" as created_at, "updatedAt" as updated_at, 
+        "lastActivityAt" as last_activity, "lastLoginAt" as last_login, 
+        "displayName", "isActive"
+      FROM admins 
       ORDER BY id
     `);
 
@@ -329,7 +295,8 @@ router.get('/debug/users', async (req, res) => {
       count: result.rows.length,
       message: 'Debug: All users data from PostgreSQL',
       timestamp: new Date().toISOString(),
-      database: 'PostgreSQL'
+      database: 'PostgreSQL',
+      table: 'admins'
     });
   } catch (error) {
     console.error('❌ Debug users error:', error);
@@ -342,7 +309,7 @@ router.get('/health', async (req, res) => {
   console.log('✅ /api/admin/health called');
   
   try {
-    const result = await pool.query('SELECT COUNT(*) FROM users');
+    const result = await pool.query('SELECT COUNT(*) FROM admins');
     const userCount = parseInt(result.rows[0].count);
     
     res.json({
@@ -352,6 +319,7 @@ router.get('/health', async (req, res) => {
       uptime: process.uptime(),
       usersLoaded: userCount,
       database: 'PostgreSQL',
+      table: 'admins',
       connectionString: 'postgresql://postgres:***@postgres.railway.internal:5432/railway'
     });
   } catch (error) {

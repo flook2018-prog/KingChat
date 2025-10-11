@@ -142,8 +142,8 @@ function loadApiRoutes() {
     const authRoutes = require('./routes/auth');
     console.log('✅ Auth routes loaded');
     
-    const adminRoutes = require('./routes/admin');
-    console.log('✅ Admin routes loaded');
+    const adminRoutes = require('./routes/admin-GUARANTEED');
+    console.log('✅ Admin routes loaded (PostgreSQL)');
     
     const lineOARoutes = require('./routes/lineoa');
     console.log('✅ LineOA routes loaded');
