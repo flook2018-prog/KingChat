@@ -1138,13 +1138,20 @@
 
         // Check if current user can manage other admins
         function canManageAdmin(targetRole) {
-            if (window.roleManager && window.roleManager.isInitialized) {
-                // Super Admin can manage everyone
-                return window.roleManager.hasLevel(100);
-            }
-            // Fallback
-            const currentRole = getCurrentUserRole();
-            return currentRole === 'super_admin';
+            // Get current user info
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const currentRole = user.role;
+            
+            console.log('🔍 canManageAdmin check:', {
+                currentUser: user.username,
+                currentRole: currentRole,
+                targetRole: targetRole,
+                canManage: currentRole === 'admin' || currentRole === 'super_admin'
+            });
+            
+            // For now, allow all admins to manage (since we only have 2 roles)
+            // In our system: admin in database = Super Admin in UI
+            return currentRole === 'admin' || currentRole === 'super_admin';
         }
 
         // Show admin password (Super Admin only)
@@ -1420,23 +1427,34 @@
         }
 
         // Delete admin function - Real delete
+        // Delete admin function - Real delete
         async function deleteAdmin(id, username) {
-            // Check permission first
-            if (!window.roleManager || !window.roleManager.hasLevel(100)) {
-                showNotification('เฉพาะ Super Admin เท่านั้นที่สามารถลบผู้ใช้ได้', 'error');
+            // Get current user info
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const currentRole = user.role;
+            
+            console.log('🗑️ Delete admin request:', {
+                targetId: id,
+                targetUsername: username,
+                currentUser: user.username,
+                currentRole: currentRole,
+                canDelete: currentRole === 'admin' || currentRole === 'super_admin'
+            });
+
+            // Check permission
+            if (currentRole !== 'admin' && currentRole !== 'super_admin') {
+                showNotification('เฉพาะ Admin ขึ้นไปเท่านั้นที่สามารถลบผู้ใช้ได้', 'error');
                 return;
             }
 
-            // Prevent self-deletion
-            if (window.roleManager.currentUser && window.roleManager.currentUser.id === id) {
+            // Prevent self-deletion  
+            if (user.id && user.id.toString() === id.toString()) {
                 showNotification('ไม่สามารถลบบัญชีของตนเองได้', 'error');
                 return;
             }
-
-            console.log('🗑️ Delete admin:', id, username);
             
             // Show confirmation dialog
-            if (confirm(`⚠️ คำเตือน!\n\nคุณต้องการลบแอดมิน "${username}" หรือไม่?\n\n❗ การดำเนินการนี้จะ:\n- ลบข้อมูลผู้ใช้ออกจากระบบ\n- ไม่สามารถกู้คืนได้\n- ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก\n\nแน่ใจหรือไม่?`)) {
+            if (confirm(`⚠️ คำเตือน!\n\nคุณต้องการลบแอดมิน "${username}" หรือไม่?\n\n❗ การดำเนินการนี้จะ:\n- ลบข้อมูลผู้ใช้ออกจาก PostgreSQL\n- ไม่สามารถกู้คืนได้\n- ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก\n\nแน่ใจหรือไม่?`)) {
                 
                 // Show loading state
                 const deleteButton = document.querySelector(`button[onclick="deleteAdmin(${id}, '${username}')"]`);
@@ -1448,7 +1466,7 @@
                 try {
                     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
                     
-                    console.log('🔄 Sending delete request for admin ID:', id);
+                    console.log('🔄 Sending DELETE request to PostgreSQL for admin ID:', id);
                     
                     const response = await fetch(`/api/admin/admin-users/${id}`, {
                         method: 'DELETE',
@@ -1459,20 +1477,21 @@
                     });
 
                     console.log('📡 Delete response status:', response.status);
-
+                    
                     if (response.ok) {
                         const result = await response.json();
-                        console.log('✅ Delete successful:', result);
+                        console.log('✅ Delete successful from PostgreSQL:', result);
                         
-                        showNotification(`ลบแอดมิน "${username}" สำเร็จ`, 'success');
+                        showNotification(`ลบแอดมิน "${username}" สำเร็จจาก PostgreSQL`, 'success');
                         
                         // Refresh the admin list
+                        console.log('🔄 Refreshing admin list...');
                         await loadAdmins();
                         
                     } else {
                         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
                         console.error('❌ Delete failed:', errorData);
-                        throw new Error(errorData.error || `HTTP Error: ${response.status}`);
+                        throw new Error(errorData.message || errorData.error || `HTTP Error: ${response.status}`);
                     }
                     
                 } catch (error) {
