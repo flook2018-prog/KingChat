@@ -155,15 +155,20 @@ try {
   
   // Try multiple admin route files for Railway deployment
   try {
-    adminRoutes = require('./routes/admin-GUARANTEED');
-    console.log('✅ Using admin-GUARANTEED routes');
+    adminRoutes = require('./routes/admin-GUARANTEED-NEW');
+    console.log('✅ Using admin-GUARANTEED-NEW routes');
   } catch {
     try {
-      adminRoutes = require('./routes/admin-railway-ready');
-      console.log('✅ Using admin-railway-ready routes');
+      adminRoutes = require('./routes/admin-GUARANTEED');
+      console.log('✅ Using admin-GUARANTEED routes');
     } catch {
-      adminRoutes = require('./routes/admin');
-      console.log('✅ Using default admin routes');
+      try {
+        adminRoutes = require('./routes/admin-railway-ready');
+        console.log('✅ Using admin-railway-ready routes');
+      } catch {
+        adminRoutes = require('./routes/admin');
+        console.log('✅ Using default admin routes');
+      }
     }
   }
   

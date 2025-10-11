@@ -1065,9 +1065,7 @@
                                 <button class="action-btn" onclick="changePassword(${admin.id}, '${admin.username}')" style="background: #fd7e14; color: white;">🔐 เปลี่ยนรหัส</button>
                             ` : ''}
                             <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
-                            ${currentUserRole === 'admin' ? `
-                                <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
-                            ` : currentUserRole === 'user' && admin.role === 'user' ? `
+                            ${canManageAdmin(admin.role) ? `
                                 <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
                             ` : ''}
                         </td>
@@ -1421,12 +1419,72 @@
             }
         }
 
-        function deleteAdmin(id, username) {
+        // Delete admin function - Real delete
+        async function deleteAdmin(id, username) {
+            // Check permission first
+            if (!window.roleManager || !window.roleManager.hasLevel(100)) {
+                showNotification('เฉพาะ Super Admin เท่านั้นที่สามารถลบผู้ใช้ได้', 'error');
+                return;
+            }
+
+            // Prevent self-deletion
+            if (window.roleManager.currentUser && window.roleManager.currentUser.id === id) {
+                showNotification('ไม่สามารถลบบัญชีของตนเองได้', 'error');
+                return;
+            }
+
             console.log('🗑️ Delete admin:', id, username);
-            if (confirm(`ต้องการลบแอดมิน "${username}" หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้\n\n(นี่เป็น Demo - จะไม่ลบจริง)`)) {
-                // Demo delete - just show notification
-                showNotification(`Demo: ลบแอดมิน "${username}" สำเร็จ (ไม่ลบจริง)`, 'success');
-                console.log('✅ Demo delete completed for:', username);
+            
+            // Show confirmation dialog
+            if (confirm(`⚠️ คำเตือน!\n\nคุณต้องการลบแอดมิน "${username}" หรือไม่?\n\n❗ การดำเนินการนี้จะ:\n- ลบข้อมูลผู้ใช้ออกจากระบบ\n- ไม่สามารถกู้คืนได้\n- ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก\n\nแน่ใจหรือไม่?`)) {
+                
+                // Show loading state
+                const deleteButton = document.querySelector(`button[onclick="deleteAdmin(${id}, '${username}')"]`);
+                if (deleteButton) {
+                    deleteButton.disabled = true;
+                    deleteButton.innerHTML = '⏳ กำลังลบ...';
+                }
+
+                try {
+                    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                    
+                    console.log('🔄 Sending delete request for admin ID:', id);
+                    
+                    const response = await fetch(`/api/admin/admin-users/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log('📡 Delete response status:', response.status);
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('✅ Delete successful:', result);
+                        
+                        showNotification(`ลบแอดมิน "${username}" สำเร็จ`, 'success');
+                        
+                        // Refresh the admin list
+                        await loadAdmins();
+                        
+                    } else {
+                        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                        console.error('❌ Delete failed:', errorData);
+                        throw new Error(errorData.error || `HTTP Error: ${response.status}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error deleting admin:', error);
+                    showNotification(`เกิดข้อผิดพลาดในการลบแอดมิน: ${error.message}`, 'error');
+                    
+                    // Restore button state
+                    if (deleteButton) {
+                        deleteButton.disabled = false;
+                        deleteButton.innerHTML = '🗑️ ลบ';
+                    }
+                }
             }
         }
 
