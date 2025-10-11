@@ -656,19 +656,44 @@
 
         // Check authentication
         function checkAuth() {
-            const token = localStorage.getItem('kingchat_token') || sessionStorage.getItem('kingchat_token');
+            // Check multiple possible token keys
+            const token = localStorage.getItem('kingchat_token') || 
+                         sessionStorage.getItem('kingchat_token') ||
+                         localStorage.getItem('authToken') || 
+                         localStorage.getItem('token') ||
+                         sessionStorage.getItem('authToken') ||
+                         sessionStorage.getItem('token');
+            
+            console.log('Auth check - All tokens:');
+            console.log('kingchat_token (localStorage):', localStorage.getItem('kingchat_token'));
+            console.log('kingchat_token (sessionStorage):', sessionStorage.getItem('kingchat_token'));
+            console.log('authToken (localStorage):', localStorage.getItem('authToken'));
+            console.log('token (localStorage):', localStorage.getItem('token'));
+            console.log('Final token used:', token);
+            
             if (!token) {
+                console.log('No token found, redirecting to login');
                 alert('กรุณาเข้าสู่ระบบก่อน');
                 window.location.href = '/login.html';
                 return false;
             }
+            
+            console.log('Token found, authentication successful');
             return true;
         }
 
         // Logout function
         function logout() {
+            // Clear all possible token keys
             localStorage.removeItem('kingchat_token');
             sessionStorage.removeItem('kingchat_token');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userData');
+            
             window.location.href = '/login.html';
         }
 
