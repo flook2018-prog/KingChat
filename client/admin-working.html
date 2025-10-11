@@ -708,9 +708,7 @@
                     <select id="role" required>
                         <option value="">เลือกบทบาท</option>
                         <option value="admin">Super Admin - เข้าถึงทุกอย่าง</option>
-                        <option value="manager">Manager - จัดการข้อมูลและผู้ใช้</option>
-                        <option value="agent">Agent - ตอบแชทและดูข้อมูล</option>
-                        <option value="viewer">Viewer - ดูข้อมูลอย่างเดียว</option>
+                        <option value="user">Admin - จัดการข้อมูลและระบบ</option>
                     </select>
                 </div>
 
@@ -880,22 +878,22 @@
                     
                     const roleColors = {
                         'admin': '#007bff',
-                        'manager': '#28a745',
-                        'agent': '#ffc107',
-                        'viewer': '#6c757d'
+                        'user': '#28a745'
                     };
 
                     const roleNames = {
                         'admin': 'Super Admin',
-                        'manager': 'Manager',
-                        'agent': 'Agent',
-                        'viewer': 'Viewer'
+                        'user': 'Admin'
                     };
 
                     // Use real-time calculations for online status and time
                     const isOnline = isUserOnline(admin.last_activity);
                     const lastActivity = formatTime(admin.last_activity);
                     const currentUserRole = getCurrentUserRole();
+                    
+                    // DEBUG: Log current user role
+                    console.log('🔍 DEBUG - Current User Role:', currentUserRole);
+                    console.log('🔍 DEBUG - User Data:', JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}'));
                     
                     const row = document.createElement('tr');
                     row.style.opacity = '0';
@@ -922,11 +920,17 @@
                             ${currentUserRole === 'admin' ? `
                                 <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
                                 <button class="action-btn" onclick="showPassword(${admin.id}, '${admin.username}')" style="background: #6f42c1; color: white;">🔑 รหัสผ่าน</button>
+                            ` : currentUserRole === 'user' && admin.role === 'user' ? `
+                                <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
                             ` : ''}
                             <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
-                            ${currentUserRole === 'admin' && admin.role !== 'admin' ? `
+                            ${currentUserRole === 'admin' ? `
+                                <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
+                            ` : currentUserRole === 'user' && admin.role === 'user' ? `
                                 <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
                             ` : ''}
+                            <!-- DEBUG INFO -->
+                            <div style="font-size: 10px; color: red; margin-top: 5px;">DEBUG: Role = ${currentUserRole}, IsAdmin = ${currentUserRole === 'admin'}</div>
                         </td>
                     `;
                     
@@ -956,9 +960,7 @@
         function getRoleDescription(role) {
             const descriptions = {
                 'admin': 'ผู้ดูแลระบบหลัก',
-                'manager': 'ผู้จัดการระบบ',
-                'agent': 'เจ้าหน้าที่',
-                'viewer': 'ผู้ดูข้อมูล'
+                'user': 'ผู้ดูแลระบบ'
             };
             return descriptions[role] || 'บทบาทไม่ระบุ';
         }
@@ -991,13 +993,18 @@
         // Get current user role
         function getCurrentUserRole() {
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-            return user.role || 'agent';
+            return user.role || 'user';
         }
 
         // Check if current user can manage other admins
         function canManageAdmin(targetRole) {
             const currentRole = getCurrentUserRole();
-            return currentRole === 'admin'; // Only super admin can manage others
+            // Super Admin can manage everyone
+            if (currentRole === 'admin') return true;
+            // Admin can manage only other Admin (user role)
+            if (currentRole === 'user' && targetRole === 'user') return true;
+            // No other permissions
+            return false;
         }
 
         // Show admin password (Super Admin only)
