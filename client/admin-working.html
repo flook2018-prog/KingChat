@@ -801,10 +801,28 @@
             }
             
             console.log('Admin page: Authentication successful for:', user.username || 'Unknown');
+            console.log('🔍 DEBUG - Full User Data:', user);
             
             // Update user info
             if (user.username) {
-                document.getElementById('userName').textContent = user.username;
+                console.log('✅ Setting userName to:', user.username);
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = user.username;
+                } else {
+                    console.log('❌ userName element not found!');
+                }
+            } else {
+                console.log('❌ No username found in user data');
+                // Try to set from available data
+                const displayName = user.displayName || user.email || 'Unknown User';
+                console.log('📝 Using fallback name:', displayName);
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = displayName;
+                } else {
+                    console.log('❌ userName element not found!');
+                }
             }
         }
 
