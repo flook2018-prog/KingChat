@@ -148,7 +148,7 @@ const connectDatabase = async () => {
 connectDatabase();
 
 // Import routes with error handling
-let authRoutes, adminRoutes, lineAccountRoutes;
+let authRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
 try {
   authRoutes = require('./routes/auth');
@@ -168,6 +168,7 @@ try {
   }
   
   lineAccountRoutes = require('./routes/lineAccounts');
+  rolesRoutes = require('./routes/roles');
   console.log('✅ Routes loaded successfully');
 } catch (error) {
   console.error('❌ Error loading routes:', error.message);
@@ -179,7 +180,7 @@ try {
   lineAccountRoutes = require('express').Router();
   
   // Add error responses
-  [authRoutes, adminRoutes, lineAccountRoutes].forEach(router => {
+  [authRoutes, adminRoutes, lineAccountRoutes, rolesRoutes].forEach(router => {
     router.all('*', (req, res) => {
       res.status(503).json({ error: 'Database not available' });
     });
@@ -190,6 +191,7 @@ try {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/line', lineAccountRoutes);
+app.use('/api/roles', rolesRoutes);
 
 // Serve static files from client directory (for Railway deployment)
 if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {

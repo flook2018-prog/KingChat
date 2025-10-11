@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/line-theme.css">
     <link rel="stylesheet" href="css/brand-animation.css">
     <link rel="stylesheet" href="css/responsive-ux.css">
+    <script src="js/role-manager.js"></script>
     <style>
         /* Enhanced Styles - Same as Chat */
         body {
@@ -357,6 +358,248 @@
                 display: block;
             }
         }
+
+        /* Permission & Role Styles */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .level-indicator {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .permission-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 0;
+        }
+
+        .permission-status.granted {
+            color: #28a745;
+        }
+
+        .permission-status.denied {
+            color: #dc3545;
+        }
+
+        /* Role Management Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f8f9fa;
+            color: #2d3748;
+        }
+
+        .permission-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .permission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+
+        .permission-name {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .permission-desc {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        /* Role Cards Styles */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .role-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-card.super-admin {
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #fff9e6, #ffffff);
+        }
+
+        .role-card.admin {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f2ff, #ffffff);
+        }
+
+        .role-card.moderator {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4, #ffffff);
+        }
+
+        .role-card.user {
+            border-color: #6c757d;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        }
+
+        .role-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .role-card p {
+            margin: 0 0 15px 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .role-card .permission-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .role-card .permission-list li {
+            padding: 4px 0;
+            font-size: 14px;
+        }
+
+        /* User Info Card */
+        .user-info-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .user-info-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        .user-info-card p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .permissions-section h4 {
+            color: #2d3748;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        /* Hide elements that need permissions initially */
+        [data-permission]:not([data-permission=""]),
+        [data-role]:not([data-role=""]),
+        [data-level]:not([data-level=""]) {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Show elements when permissions are loaded */
+        [data-permission].permission-granted,
+        [data-role].role-granted,
+        [data-level].level-granted {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -371,6 +614,7 @@
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
                 <div class="user-info">
                     <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole" style="font-size: 12px; color: #6c757d;">แอดมิน</div>
                     <div class="user-status">
                         <span class="status-dot"></span>
                         <span>ออนไลน์</span>
@@ -388,7 +632,7 @@
         <!-- Sidebar -->
         <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
             <div class="sidebar-menu">
-                <a href="/chat.html" class="menu-item" data-page="chat">
+                <a href="/chat.html" class="menu-item" data-page="chat" data-permission="view_chat">
                     <i class="icon">💬</i>
                     <span class="menu-text">แชท</span>
                 </a>
@@ -396,8 +640,28 @@
                     <i class="icon">📊</i>
                     <span class="menu-text">แดชบอร์ด</span>
                 </a>
-                <a href="/accounts-working.html" class="menu-item" data-page="accounts">
+                <a href="/accounts-working.html" class="menu-item" data-page="accounts" data-permission="manage_lineoa">
                     <i class="icon">📱</i>
+                    <span class="menu-text">LINE OA</span>
+                </a>
+                <a href="/customers-working.html" class="menu-item" data-page="customers" data-permission="manage_customers,view_customer_data">
+                    <i class="icon">👥</i>
+                    <span class="menu-text">ลูกค้า</span>
+                </a>
+                <a href="/quick-messages-working.html" class="menu-item" data-page="quick-messages" data-permission="manage_quick_messages">
+                    <i class="icon">⚡</i>
+                    <span class="menu-text">ข้อความด่วน</span>
+                </a>
+                <a href="/admin-working.html" class="menu-item" data-page="admin" data-role="super_admin">
+                    <i class="icon">👨‍💼</i>
+                    <span class="menu-text">จัดการแอดมิน</span>
+                </a>
+                <a href="/settings-working.html" class="menu-item active" data-page="settings">
+                    <i class="icon">⚙️</i>
+                    <span class="menu-text">ตั้งค่า</span>
+                </a>
+            </div>
+        </div>
                     <span class="menu-text">บัญชี LINE OA</span>
                 </a>
                 <a href="/line-connect.html" class="menu-item" data-page="line-connect">
@@ -533,12 +797,12 @@
                                 <div class="setting-description">จัดการข้อความแม่แบบที่ใช้บ่อย</div>
                             </div>
                         </div>
-                        <div class="setting-item">
+                        <div class="setting-item" data-permission="manage_quick_messages">
                             <div>
                                 <div class="setting-label">จำนวนข้อความด่วน</div>
                                 <div class="setting-desc" id="quickMessageCount">กำลังโหลด...</div>
                             </div>
-                            <button class="btn-setting btn-primary" onclick="window.location.href='/quick-messages-working.html'">จัดการ</button>
+                            <button class="btn-setting btn-primary" onclick="checkQuickMessageAccess()">จัดการ</button>
                         </div>
                         <div class="setting-item">
                             <div>
@@ -584,6 +848,109 @@
                                 <div class="setting-desc">เปลี่ยนภาษาของระบบ</div>
                             </div>
                             <button class="btn-setting btn-secondary" onclick="alert('เปลี่ยนภาษา')">เปลี่ยน</button>
+                        </div>
+                    </div>
+
+                    <!-- Role Management Card - สำหรับ Super Admin เท่านั้น -->
+                    <div class="setting-card" data-level="100">
+                        <div class="setting-header">
+                            <div class="setting-icon">👑</div>
+                            <div>
+                                <div class="setting-title">จัดการสิทธิ์ผู้ใช้</div>
+                                <div class="setting-description">จัดการบทบาทและสิทธิ์ของผู้ใช้ (Super Admin เท่านั้น)</div>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">ระบบสิทธิ์</div>
+                                <div class="setting-desc">แสดงสถานะระบบจัดการสิทธิ์</div>
+                            </div>
+                            <span class="status-badge success">เปิดใช้งาน</span>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">จำนวนบทบาท</div>
+                                <div class="setting-desc" id="roleCount">4 บทบาท (Super Admin, Admin, Moderator, User)</div>
+                            </div>
+                            <button class="btn-setting btn-primary" onclick="showRoleManager()">จัดการ</button>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">ตรวจสอบสิทธิ์</div>
+                                <div class="setting-desc">แสดงสิทธิ์ปัจจุบันของคุณ</div>
+                            </div>
+                            <button class="btn-setting btn-secondary" onclick="showMyPermissions()">ดูสิทธิ์</button>
+                        </div>
+                    </div>
+
+                    <!-- Current User Permissions - สำหรับทุกคน -->
+                    <div class="setting-card">
+                        <div class="setting-header">
+                            <div class="setting-icon">🔑</div>
+                            <div>
+                                <div class="setting-title">สิทธิ์ของฉัน</div>
+                                <div class="setting-description">แสดงสิทธิ์และบทบาทปัจจุบัน</div>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">บทบาท</div>
+                                <div class="setting-desc" id="currentRole">กำลังโหลด...</div>
+                            </div>
+                            <span class="status-badge" id="roleBadge">-</span>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">ระดับสิทธิ์</div>
+                                <div class="setting-desc" id="currentLevel">กำลังโหลด...</div>
+                            </div>
+                            <span class="level-indicator" id="levelIndicator">-</span>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">สิทธิ์ทั้งหมด</div>
+                                <div class="setting-desc">คลิกเพื่อดูรายละเอียดสิทธิ์ทั้งหมด</div>
+                            </div>
+                            <button class="btn-setting btn-primary" onclick="showDetailedPermissions()">ดูสิทธิ์</button>
+                        </div>
+                    </div>
+
+                    <!-- Admin Features Access - สำหรับ Admin+ -->
+                    <div class="setting-card" data-permission="manage_customers,manage_quick_messages,manage_lineoa,manage_chat">
+                        <div class="setting-header">
+                            <div class="setting-icon">⚡</div>
+                            <div>
+                                <div class="setting-title">ฟีเจอร์สำหรับแอดมิน</div>
+                                <div class="setting-description">การเข้าถึงฟีเจอร์พิเศษสำหรับแอดมิน</div>
+                            </div>
+                        </div>
+                        <div class="setting-item" data-permission="manage_quick_messages">
+                            <div>
+                                <div class="setting-label">จัดการข้อความด่วน</div>
+                                <div class="setting-desc">สามารถเพิ่ม แก้ไข ลบข้อความด่วน</div>
+                            </div>
+                            <span class="permission-status granted">✅ อนุญาต</span>
+                        </div>
+                        <div class="setting-item" data-permission="manage_customers">
+                            <div>
+                                <div class="setting-label">จัดการลูกค้า</div>
+                                <div class="setting-desc">สามารถจัดการข้อมูลลูกค้า</div>
+                            </div>
+                            <span class="permission-status granted">✅ อนุญาต</span>
+                        </div>
+                        <div class="setting-item" data-permission="manage_lineoa">
+                            <div>
+                                <div class="setting-label">จัดการ LINE OA</div>
+                                <div class="setting-desc">สามารถเชื่อมต่อและจัดการ LINE OA</div>
+                            </div>
+                            <span class="permission-status granted">✅ อนุญาต</span>
+                        </div>
+                        <div class="setting-item" data-permission="manage_chat">
+                            <div>
+                                <div class="setting-label">จัดการแชท</div>
+                                <div class="setting-desc">สามารถจัดการการสนทนาและแชท</div>
+                            </div>
+                            <span class="permission-status granted">✅ อนุญาต</span>
                         </div>
                     </div>
                 </div>
@@ -648,10 +1015,240 @@
             console.log('Toggle switch:', isActive ? 'ON' : 'OFF');
         }
 
+        // Role Management Functions
+        async function loadUserPermissions() {
+            try {
+                if (window.roleManager && window.roleManager.isInitialized) {
+                    const user = window.roleManager.currentUser;
+                    const permissions = window.roleManager.permissions;
+                    const level = window.roleManager.roleLevel;
+
+                    // Update current role display
+                    document.getElementById('currentRole').textContent = window.roleManager.getRoleDisplayName(user.role);
+                    document.getElementById('currentLevel').textContent = `ระดับ ${level}/100`;
+                    
+                    // Update role badge
+                    const roleBadge = document.getElementById('roleBadge');
+                    roleBadge.textContent = user.role;
+                    roleBadge.className = 'status-badge ' + (level >= 80 ? 'success' : level >= 60 ? 'warning' : 'danger');
+                    
+                    // Update level indicator
+                    document.getElementById('levelIndicator').textContent = `${level}`;
+
+                    console.log('✅ User permissions loaded successfully');
+                }
+            } catch (error) {
+                console.error('❌ Error loading user permissions:', error);
+            }
+        }
+
+        // Show role manager modal (Super Admin only)
+        function showRoleManager() {
+            if (!window.roleManager.hasLevel(100)) {
+                alert('❌ คุณไม่มีสิทธิ์เข้าถึงการจัดการสิทธิ์ผู้ใช้');
+                return;
+            }
+
+            const modal = createModal('Role Manager', `
+                <div class="role-management">
+                    <h3>🎭 บทบาทและสิทธิ์ในระบบ</h3>
+                    <div class="roles-grid">
+                        <div class="role-card super-admin">
+                            <h4>👑 Super Admin</h4>
+                            <p>ระดับ: 100 | ทำได้ทุกอย่าง</p>
+                            <ul class="permission-list">
+                                <li>✅ จัดการผู้ใช้ทั้งหมด</li>
+                                <li>✅ ตั้งค่าระบบ</li>
+                                <li>✅ จัดการแอดมิน</li>
+                                <li>✅ เข้าถึงข้อมูลทั้งหมด</li>
+                            </ul>
+                        </div>
+                        <div class="role-card admin">
+                            <h4>🔧 Admin</h4>
+                            <p>ระดับ: 80 | จัดการหลัก</p>
+                            <ul class="permission-list">
+                                <li>✅ จัดการข้อความด่วน</li>
+                                <li>✅ จัดการลูกค้า</li>
+                                <li>✅ จัดการ LINE OA</li>
+                                <li>✅ จัดการแชท</li>
+                            </ul>
+                        </div>
+                        <div class="role-card moderator">
+                            <h4>👮 Moderator</h4>
+                            <p>ระดับ: 60 | ดูแลแชท</p>
+                            <ul class="permission-list">
+                                <li>✅ จัดการแชท</li>
+                                <li>✅ ดูข้อมูลลูกค้า</li>
+                                <li>❌ แก้ไขข้อมูลลูกค้า</li>
+                                <li>❌ จัดการ LINE OA</li>
+                            </ul>
+                        </div>
+                        <div class="role-card user">
+                            <h4>👤 User</h4>
+                            <p>ระดับ: 40 | พื้นฐาน</p>
+                            <ul class="permission-list">
+                                <li>✅ ดูแชท</li>
+                                <li>✅ เข้าถึงพื้นฐาน</li>
+                                <li>❌ จัดการข้อมูล</li>
+                                <li>❌ ตั้งค่าระบบ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `);
+            showModal(modal);
+        }
+
+        // Show current user permissions
+        function showMyPermissions() {
+            if (!window.roleManager.isInitialized) {
+                alert('❌ ระบบสิทธิ์ยังไม่พร้อม กรุณารอสักครู่');
+                return;
+            }
+
+            const user = window.roleManager.currentUser;
+            const permissions = window.roleManager.permissions;
+            const level = window.roleManager.roleLevel;
+
+            const permissionsList = permissions.map(perm => {
+                const permNames = {
+                    'manage_users': 'จัดการผู้ใช้',
+                    'manage_system': 'จัดการระบบ',
+                    'manage_chat': 'จัดการแชท',
+                    'manage_lineoa': 'จัดการ LINE OA',
+                    'manage_customers': 'จัดการลูกค้า',
+                    'manage_quick_messages': 'จัดการข้อความด่วน',
+                    'view_all_data': 'ดูข้อมูลทั้งหมด',
+                    'system_settings': 'ตั้งค่าระบบ',
+                    'admin_management': 'จัดการแอดมิน',
+                    'view_customer_data': 'ดูข้อมูลลูกค้า',
+                    'view_chat': 'ดูแชท',
+                    'basic_access': 'เข้าถึงพื้นฐาน'
+                };
+                return `<li class="permission-item">
+                    <div>
+                        <div class="permission-name">✅ ${permNames[perm] || perm}</div>
+                        <div class="permission-desc">${perm}</div>
+                    </div>
+                </li>`;
+            }).join('');
+
+            const modal = createModal('สิทธิ์ของฉัน', `
+                <div class="my-permissions">
+                    <div class="user-info-card">
+                        <h3>👤 ${user.username}</h3>
+                        <p><strong>บทบาท:</strong> ${window.roleManager.getRoleDisplayName(user.role)}</p>
+                        <p><strong>ระดับสิทธิ์:</strong> ${level}/100</p>
+                        <p><strong>อีเมล:</strong> ${user.email}</p>
+                    </div>
+                    <div class="permissions-section">
+                        <h4>🔑 สิทธิ์ที่มี (${permissions.length} รายการ)</h4>
+                        <ul class="permission-list">
+                            ${permissionsList}
+                        </ul>
+                    </div>
+                </div>
+            `);
+            showModal(modal);
+        }
+
+        // Show detailed permissions for current user
+        function showDetailedPermissions() {
+            showMyPermissions();
+        }
+
+        // Create modal
+        function createModal(title, content) {
+            return `
+                <div class="modal" id="roleModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">${title}</h2>
+                            <button class="close-btn" onclick="closeModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            ${content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show modal
+        function showModal(modalHTML) {
+            // Remove existing modal
+            const existingModal = document.getElementById('roleModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Add new modal
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.getElementById('roleModal').style.display = 'block';
+
+            // Close on background click
+            document.getElementById('roleModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('roleModal');
+            if (modal) {
+                modal.style.display = 'none';
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        // Initialize role manager when loaded
+        function initializeRoleManager() {
+            // Wait for role manager to be initialized
+            const checkRoleManager = setInterval(() => {
+                if (window.roleManager && window.roleManager.isInitialized) {
+                    clearInterval(checkRoleManager);
+                    loadUserPermissions();
+                    console.log('✅ Role manager integration complete');
+                }
+            }, 100);
+
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                clearInterval(checkRoleManager);
+                if (!window.roleManager || !window.roleManager.isInitialized) {
+                    console.warn('⚠️ Role manager initialization timeout');
+                }
+            }, 10000);
+        }
+
+        // Check access to quick messages
+        function checkQuickMessageAccess() {
+            if (!window.roleManager.hasPermission('manage_quick_messages')) {
+                const modal = createModal('❌ ไม่มีสิทธิ์เข้าถึง', `
+                    <div class="access-denied">
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">🚫</div>
+                            <h3>คุณไม่มีสิทธิ์เข้าถึงการจัดการข้อความด่วน</h3>
+                            <p>ฟีเจอร์นี้สำหรับ <strong>Admin</strong> ขึ้นไปเท่านั้น</p>
+                            <p>สิทธิ์ปัจจุบัน: <strong>${window.roleManager.getRoleDisplayName(window.roleManager.currentUser.role)}</strong></p>
+                            <br>
+                            <button class="btn-setting btn-primary" onclick="closeModal()">เข้าใจแล้ว</button>
+                        </div>
+                    </div>
+                `);
+                showModal(modal);
+            } else {
+                window.location.href = '/quick-messages-working.html';
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             loadSettings();
+            initializeRoleManager();
         });
     </script>
 </body>

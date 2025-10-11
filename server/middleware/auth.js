@@ -1,6 +1,61 @@
 const jwt = require('jsonwebtoken');
 
-// Simple auth middleware that always works
+// Define role hierarchy and permissions
+const ROLE_PERMISSIONS = {
+  'super_admin': {
+    level: 100,
+    permissions: [
+      'manage_users',
+      'manage_system',
+      'manage_chat', 
+      'manage_lineoa',
+      'manage_customers',
+      'manage_quick_messages',
+      'view_all_data',
+      'system_settings',
+      'admin_management'
+    ]
+  },
+  'admin': {
+    level: 80,
+    permissions: [
+      'manage_chat',
+      'manage_lineoa', 
+      'manage_customers',
+      'manage_quick_messages',
+      'view_customer_data'
+    ]
+  },
+  'moderator': {
+    level: 60,
+    permissions: [
+      'manage_chat',
+      'view_customer_data'
+    ]
+  },
+  'user': {
+    level: 40,
+    permissions: [
+      'view_chat',
+      'basic_access'
+    ]
+  }
+};
+
+// Check if user has specific permission
+const hasPermission = (userRole, requiredPermission) => {
+  const roleData = ROLE_PERMISSIONS[userRole];
+  if (!roleData) return false;
+  return roleData.permissions.includes(requiredPermission);
+};
+
+// Check if user role level is sufficient
+const hasRoleLevel = (userRole, requiredLevel) => {
+  const roleData = ROLE_PERMISSIONS[userRole];
+  if (!roleData) return false;
+  return roleData.level >= requiredLevel;
+};
+
 const auth = async (req, res, next) => {
   try {
     console.log(`🔐 Auth check for ${req.method} ${req.path}`);
@@ -26,7 +81,8 @@ const auth = async (req, res, next) => {
         username: decoded.username || 'SSSs',
         email: decoded.email || 'SSSs@kingchat.com',
         role: decoded.role || 'admin',
-        status: 'active'
+        status: 'active',
+        permissions: ROLE_PERMISSIONS[decoded.role || 'admin']?.permissions || []
       };
       
       req.user = user;
@@ -42,7 +98,8 @@ const auth = async (req, res, next) => {
         username: 'SSSs',
         email: 'SSSs@kingchat.com',
         role: 'admin',
-        status: 'active'
+        status: 'active',
+        permissions: ROLE_PERMISSIONS['admin'].permissions
       };
       console.log('🔄 Using fallback user for development');
       next();
@@ -86,7 +143,66 @@ const requireRole = (roles) => {
   };
 };
 
+// Permission-based access control middleware
+const requirePermission = (permission) => {
+  return (req, res, next) => {
+    try {
+      console.log(`🔐 Permission check: Required ${permission}, User role: ${req.user?.role}`);
+      
+      if (!req.user) {
+        console.log('❌ No user in request');
+        return res.status(401).json({ error: 'Authentication required.' });
+      }
+
+      if (!hasPermission(req.user.role, permission)) {
+        console.log(`❌ Insufficient permissions: User ${req.user.role} lacks ${permission}`);
+        return res.status(403).json({ 
+          error: `Access denied. Required permission: ${permission}` 
+        });
+      }
+
+      console.log(`✅ Permission check passed for ${permission}`);
+      next();
+    } catch (error) {
+      console.error('Permission middleware error:', error);
+      res.status(500).json({ error: 'Internal server error during permission check.' });
+    }
+  };
+};
+
+// Role level access control middleware  
+const requireLevel = (level) => {
+  return (req, res, next) => {
+    try {
+      console.log(`📊 Level check: Required ${level}, User role: ${req.user?.role}`);
+      
+      if (!req.user) {
+        console.log('❌ No user in request');
+        return res.status(401).json({ error: 'Authentication required.' });
+      }
+
+      if (!hasRoleLevel(req.user.role, level)) {
+        console.log(`❌ Insufficient level: User ${req.user.role} below ${level}`);
+        return res.status(403).json({ 
+          error: `Access denied. Required level: ${level}` 
+        });
+      }
+
+      console.log(`✅ Level check passed for level ${level}`);
+      next();
+    } catch (error) {
+      console.error('Level middleware error:', error);
+      res.status(500).json({ error: 'Internal server error during level check.' });
+    }
+  };
+};
+
 module.exports = {
   auth,
-  requireRole
+  requireRole,
+  requirePermission,
+  requireLevel,
+  hasPermission,
+  hasRoleLevel,
+  ROLE_PERMISSIONS
 };
