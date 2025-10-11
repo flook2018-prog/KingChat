@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+    <script src="js/role-manager.js"></script>
     <style>
         /* Enhanced Styles - Same as other working pages */
         body {
@@ -587,6 +588,7 @@
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
                 <div class="user-info">
                     <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole" style="font-size: 12px; color: #6c757d;">Super Admin</div>
                     <div class="user-status">
                         <span class="status-dot"></span>
                         <span>ออนไลน์</span>
@@ -709,8 +711,8 @@
                     <label for="role">บทบาท *</label>
                     <select id="role" required>
                         <option value="">เลือกบทบาท</option>
-                        <option value="admin">Super Admin - เข้าถึงทุกอย่าง</option>
-                        <option value="user">Admin - จัดการข้อมูลและระบบ</option>
+                        <option value="super_admin">Super Admin - ทำได้ทุกอย่าง</option>
+                        <option value="admin">Admin - จัดการข้อความด่วน, ลูกค้า, LINE OA, แชท</option>
                     </select>
                 </div>
 
@@ -791,6 +793,42 @@
     </div>
 
     <script>
+        // Role-based access control
+        function checkAdminAccess() {
+            // Wait for role manager to be initialized
+            const checkRoleManager = setInterval(() => {
+                if (window.roleManager && window.roleManager.isInitialized) {
+                    clearInterval(checkRoleManager);
+                    
+                    // Check if user has admin management permission (Super Admin only)
+                    if (!window.roleManager.hasLevel(100)) {
+                        document.body.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; font-family: 'Inter', sans-serif;">
+                                <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; backdrop-filter: blur(20px);">
+                                    <div style="font-size: 72px; margin-bottom: 20px;">🚫</div>
+                                    <h1 style="margin: 0 0 10px 0; font-size: 32px;">Access Denied</h1>
+                                    <p style="margin: 0 0 20px 0; font-size: 18px; opacity: 0.9;">คุณไม่มีสิทธิ์เข้าถึงหน้าจัดการแอดมิน</p>
+                                    <p style="margin: 0 0 30px 0; font-size: 16px; opacity: 0.7;">ฟีเจอร์นี้สำหรับ <strong>Super Admin</strong> เท่านั้น</p>
+                                    <button onclick="window.location.href='/dashboard-working.html'" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600;">กลับหน้าแรก</button>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    console.log('✅ Admin access granted for Super Admin');
+                }
+            }, 100);
+
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                clearInterval(checkRoleManager);
+                if (!window.roleManager || !window.roleManager.isInitialized) {
+                    console.warn('⚠️ Role manager initialization timeout - allowing access');
+                }
+            }, 10000);
+        }
+
         // Simple authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -830,6 +868,29 @@
                 } else {
                     console.log('❌ userName element not found!');
                 }
+            }
+
+            // Update user role from role manager
+            const updateUserRole = () => {
+                if (window.roleManager && window.roleManager.isInitialized) {
+                    const userRoleElement = document.getElementById('userRole');
+                    if (userRoleElement) {
+                        userRoleElement.textContent = window.roleManager.getRoleDisplayName(window.roleManager.currentUser.role);
+                    }
+                }
+            };
+
+            // Try immediate update or wait for role manager
+            if (window.roleManager && window.roleManager.isInitialized) {
+                updateUserRole();
+            } else {
+                const checkRoleManager = setInterval(() => {
+                    if (window.roleManager && window.roleManager.isInitialized) {
+                        clearInterval(checkRoleManager);
+                        updateUserRole();
+                    }
+                }, 100);
+                setTimeout(() => clearInterval(checkRoleManager), 5000);
             }
         }
 
@@ -959,13 +1020,13 @@
                     const avatarColor = avatarColors[index % avatarColors.length];
                     
                     const roleColors = {
-                        'admin': '#007bff',
-                        'user': '#28a745'
+                        'super_admin': '#ffd700',
+                        'admin': '#007bff'
                     };
 
                     const roleNames = {
-                        'admin': 'Super Admin',
-                        'user': 'Admin'
+                        'super_admin': 'Super Admin',
+                        'admin': 'Admin'
                     };
 
                     // Use real-time calculations for online status and time
@@ -1037,8 +1098,8 @@
         // Helper functions
         function getRoleDescription(role) {
             const descriptions = {
-                'admin': 'ผู้ดูแลระบบหลัก',
-                'user': 'ผู้ดูแลระบบ'
+                'super_admin': 'ซุปเปอร์แอดมิน - ทำได้ทุกอย่าง',
+                'admin': 'แอดมิน - จัดการหลัก'
             };
             return descriptions[role] || 'บทบาทไม่ระบุ';
         }
@@ -1070,24 +1131,27 @@
 
         // Get current user role
         function getCurrentUserRole() {
+            if (window.roleManager && window.roleManager.isInitialized) {
+                return window.roleManager.currentUser.role;
+            }
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-            return user.role || 'user';
+            return user.role || 'admin';
         }
 
         // Check if current user can manage other admins
         function canManageAdmin(targetRole) {
+            if (window.roleManager && window.roleManager.isInitialized) {
+                // Super Admin can manage everyone
+                return window.roleManager.hasLevel(100);
+            }
+            // Fallback
             const currentRole = getCurrentUserRole();
-            // Super Admin can manage everyone
-            if (currentRole === 'admin') return true;
-            // Admin can manage only other Admin (user role)
-            if (currentRole === 'user' && targetRole === 'user') return true;
-            // No other permissions
-            return false;
+            return currentRole === 'super_admin';
         }
 
         // Show admin password (Super Admin only)
         async function showPassword(adminId, username) {
-            if (getCurrentUserRole() !== 'admin') {
+            if (!window.roleManager.hasLevel(100)) {
                 showNotification('เฉพาะ Super Admin เท่านั้นที่ดูรหัสผ่านได้', 'error');
                 return;
             }
@@ -1452,7 +1516,7 @@
             document.getElementById('passwordHelp').textContent = 'รหัสผ่านอย่างน้อย 6 ตัวอักษร';
             
             // Reset permissions
-            updatePermissions('agent');
+            updatePermissions('admin');
             
             document.getElementById('adminModal').style.display = 'flex';
         }
@@ -1516,10 +1580,8 @@
         // Role permissions mapping
         function updatePermissions(role) {
             const permissions = {
-                'admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
-                'manager': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'reports'],
-                'agent': ['dashboard', 'chat', 'customers', 'quick_messages'],
-                'viewer': ['dashboard']
+                'super_admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
+                'admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages']
             };
 
             const rolePerms = permissions[role] || ['dashboard'];
@@ -1528,13 +1590,16 @@
             document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(checkbox => {
                 const permName = checkbox.id.replace('perm_', '');
                 checkbox.checked = rolePerms.includes(permName);
-                checkbox.disabled = permName !== 'dashboard'; // Dashboard is always required
+                checkbox.disabled = permName === 'dashboard'; // Dashboard is always required for all
             });
         }
 
         // Role change handler
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Page loaded, running initialization...');
+            
+            // Check admin access first
+            checkAdminAccess();
             
             // Fix user role for Super Admin users
             fixUserRole();
