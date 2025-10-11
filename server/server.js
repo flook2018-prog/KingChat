@@ -200,6 +200,10 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/chat.html'));
   });
   
+  app.get('/chat.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/chat.html'));
+  });
+  
   app.get('/accounts', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/accounts-working.html'));
   });
@@ -269,11 +273,7 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
 
 // Root route
 app.get('/', (req, res) => {
-  res.json({ 
-    message: '👑 KingChat API Server',
-    version: '1.0.0',
-    status: 'Running'
-  });
+  res.redirect('/chat.html');
 });
 
 // Socket.IO connection handling
