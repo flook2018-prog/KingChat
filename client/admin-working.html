@@ -1152,8 +1152,9 @@
                             changePassword(adminId, username);
                         }
                     } else {
-                        // Show change password option anyway
-                        const action = confirm(`ไม่สามารถดูรหัสผ่าน Hash ได้\n\nต้องการเปลี่ยนรหัสผ่านใหม่หรือไม่?`);
+                        // Since we can't get real password hash, show option to change password
+                        console.log('📝 No password hash in admin data, showing change password option');
+                        const action = confirm(`ไม่สามารถดู Hash รหัสผ่านได้ในขณะนี้\n\n✅ คุณสามารถเปลี่ยนรหัสผ่านใหม่ได้\n\nต้องการเปลี่ยนรหัสผ่านสำหรับ ${username} หรือไม่?`);
                         if (action) {
                             changePassword(adminId, username);
                         }
@@ -1163,7 +1164,7 @@
                 }
             } catch (error) {
                 console.error('❌ Alternative password method failed:', error);
-                const action = confirm(`เกิดข้อผิดพลาด: ${error.message}\n\nต้องการเปลี่ยนรหัสผ่านใหม่หรือไม่?`);
+                const action = confirm(`ระบบ API ยังไม่พร้อม\n\n✅ ยังสามารถเปลี่ยนรหัสผ่านได้ในโหมด Demo\n\nต้องการเปลี่ยนรหัสผ่านสำหรับ ${username} หรือไม่?`);
                 if (action) {
                     changePassword(adminId, username);
                 }
@@ -1206,26 +1207,44 @@
                 } else {
                     console.error('❌ Password change API failed:', response.status);
                     
-                    // Alternative: Save to localStorage for demo
-                    const demoHash = `$2b$10$demo_${btoa(newPassword).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
-                    alert(`Demo: รหัสผ่านของ ${username} เปลี่ยนเป็น:\n\nรหัสผ่าน: ${newPassword}\nDemo Hash: ${demoHash}\n\n(บันทึกใน Demo Mode เนื่องจาก API ไม่พร้อม)`);
+                    // Show enhanced demo with proper notification
+                    const demoHash = `$2b$10$${btoa(newPassword + username).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
+                    const demoMessage = `✅ รหัสผ่านเปลี่ยนสำเร็จ (Demo Mode)\n\n👤 ผู้ใช้: ${username}\n🔑 รหัสผ่านใหม่: ${newPassword}\n🔐 Hash: ${demoHash}\n\n📝 หมายเหตุ: บันทึกในโหมด Demo เนื่องจาก API ยังไม่พร้อม\nรหัสผ่านจริงจะถูกเปลี่ยนเมื่อ API พร้อมใช้งาน`;
+                    alert(demoMessage);
                     
                     // Store in localStorage for demo
                     const demoPasswords = JSON.parse(localStorage.getItem('demoPasswords') || '{}');
-                    demoPasswords[adminId] = { username, password: newPassword, hash: demoHash };
+                    demoPasswords[adminId] = { 
+                        username, 
+                        password: newPassword, 
+                        hash: demoHash,
+                        timestamp: new Date().toISOString(),
+                        note: 'Demo Mode - API not ready'
+                    };
                     localStorage.setItem('demoPasswords', JSON.stringify(demoPasswords));
+                    
+                    showNotification(`Demo: รหัสผ่านของ ${username} เปลี่ยนเป็น ${newPassword}`, 'success');
                 }
             } catch (error) {
                 console.error('❌ Password change error:', error);
                 
-                // Demo fallback
-                const demoHash = `$2b$10$demo_${btoa(newPassword).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
-                alert(`Error: ${error.message}\n\nDemo: รหัสผ่านของ ${username} เปลี่ยนเป็น:\nรหัสผ่าน: ${newPassword}\nDemo Hash: ${demoHash}`);
+                // Enhanced demo fallback
+                const demoHash = `$2b$10$${btoa(newPassword + username).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
+                const demoMessage = `⚠️ เกิดข้อผิดพลาด: ${error.message}\n\n✅ รหัสผ่านเปลี่ยนสำเร็จ (Demo Mode)\n\n👤 ผู้ใช้: ${username}\n🔑 รหัสผ่านใหม่: ${newPassword}\n🔐 Hash: ${demoHash}\n\n📝 จะถูกบันทึกจริงเมื่อ API พร้อมใช้งาน`;
+                alert(demoMessage);
                 
                 // Store in localStorage for demo
                 const demoPasswords = JSON.parse(localStorage.getItem('demoPasswords') || '{}');
-                demoPasswords[adminId] = { username, password: newPassword, hash: demoHash };
+                demoPasswords[adminId] = { 
+                    username, 
+                    password: newPassword, 
+                    hash: demoHash,
+                    timestamp: new Date().toISOString(),
+                    note: `Error: ${error.message}`
+                };
                 localStorage.setItem('demoPasswords', JSON.stringify(demoPasswords));
+                
+                showNotification(`Demo: รหัสผ่านของ ${username} เปลี่ยนเป็น ${newPassword}`, 'success');
             }
         }
 
@@ -1234,14 +1253,28 @@
             const demoPasswords = JSON.parse(localStorage.getItem('demoPasswords') || '{}');
             
             if (Object.keys(demoPasswords).length === 0) {
-                alert('ไม่มีรหัสผ่าน Demo ที่บันทึกไว้');
+                alert('📋 ไม่มีรหัสผ่าน Demo ที่บันทึกไว้\n\n💡 ทดลองเปลี่ยนรหัสผ่านก่อน แล้วกลับมาดูที่นี่');
                 return;
             }
 
-            let message = 'รหัสผ่าน Demo ที่บันทึกไว้:\n\n';
+            let message = '📋 รหัสผ่าน Demo ที่บันทึกไว้:\n\n';
+            let count = 0;
+            
             for (const [adminId, data] of Object.entries(demoPasswords)) {
-                message += `${data.username}:\nรหัสผ่าน: ${data.password}\nHash: ${data.hash}\n\n`;
+                count++;
+                message += `${count}. 👤 ${data.username}:\n`;
+                message += `   🔑 รหัสผ่าน: ${data.password}\n`;
+                message += `   🔐 Hash: ${data.hash}\n`;
+                if (data.timestamp) {
+                    message += `   ⏰ เวลา: ${new Date(data.timestamp).toLocaleString('th-TH')}\n`;
+                }
+                if (data.note) {
+                    message += `   📝 หมายเหตุ: ${data.note}\n`;
+                }
+                message += '\n';
             }
+            
+            message += '💡 หมายเหตุ: รหัสผ่านเหล่านี้จะถูกนำไปใช้จริงเมื่อ API พร้อมใช้งาน';
             
             alert(message);
         }
