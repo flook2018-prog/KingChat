@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👥 รายชื่อลูกค้า - KingChat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
     <style>
-        /* Enhanced Styles - Same as Chat */
+        /* Enhanced Styles - Same as other working pages */
         body {
             margin: 0;
             padding: 0;
@@ -346,6 +339,20 @@
                 display: block;
             }
         }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -541,9 +548,12 @@
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
             if (!token) {
+                console.log('No token found, redirecting to login...');
                 window.location.href = '/login.html';
                 return;
             }
+            
+            console.log('Customers page: Authentication successful for:', user.username || 'Unknown');
             
             // Update user info
             if (user.username) {
@@ -567,22 +577,24 @@
         }
 
         // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.customers-table tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchText)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.customers-table tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchText)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            console.log('Customers page loaded');
             checkAuth();
         });
     </script>
