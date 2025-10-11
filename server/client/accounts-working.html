@@ -1,595 +1,1186 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
 
-<html lang="th"><html lang="th">
+<html lang="th">
 
-<head><head>
+<head><html lang="th"><html lang="th">
 
-    <meta charset="UTF-8">    <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
 
-    <title>📱 บัญชี LINE OA - KingChat</title>    <title>📱 บัญชี LINE OA - KingChat</title>
+    <title>📱 บัญชี LINE OA - KingChat</title>
 
-    <style>    <link rel="stylesheet" href="css/style.css">
+    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
 
-        /* Enhanced Styles - Same as other working pages */    <link rel="stylesheet" href="css/dashboard.css">
+        body {
 
-        body {    <link rel="stylesheet" href="css/loading.css">
+            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            margin: 0;    <link rel="stylesheet" href="css/mobile.css">
+            padding: 0;
 
-            padding: 0;    <link rel="stylesheet" href="css/line-theme.css">
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;    <title>📱 บัญชี LINE OA - KingChat</title>    <title>📱 บัญชี LINE OA - KingChat</title>
 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;    <link rel="stylesheet" href="css/brand-animation.css">
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <link rel="stylesheet" href="css/responsive-ux.css">
+            min-height: 100vh;    <style>    <link rel="stylesheet" href="css/style.css">
 
-            min-height: 100vh;    <style>
+            overflow-x: hidden;
 
-            overflow-x: hidden;        /* Enhanced Styles - Same as Chat */
+        }        /* Enhanced Styles - Same as other working pages */    <link rel="stylesheet" href="css/dashboard.css">
 
-        }        body {
 
-            margin: 0;
 
-        .navbar {            padding: 0;
+        .navbar {        body {    <link rel="stylesheet" href="css/loading.css">
 
-            background: rgba(255, 255, 255, 0.95);            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: rgba(255, 255, 255, 0.95);
 
-            backdrop-filter: blur(20px);            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            backdrop-filter: blur(20px);            margin: 0;    <link rel="stylesheet" href="css/mobile.css">
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+            padding: 15px 30px;            padding: 0;    <link rel="stylesheet" href="css/line-theme.css">
+
+            display: flex;
+
+            justify-content: space-between;            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;    <link rel="stylesheet" href="css/brand-animation.css">
+
+            align-items: center;
+
+            position: fixed;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <link rel="stylesheet" href="css/responsive-ux.css">
+
+            top: 0;
+
+            left: 0;            min-height: 100vh;    <style>
+
+            right: 0;
+
+            z-index: 1000;            overflow-x: hidden;        /* Enhanced Styles - Same as Chat */
+
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+        }        }        body {
+
+
+
+        .nav-brand {            margin: 0;
+
+            display: flex;
+
+            align-items: center;        .navbar {            padding: 0;
+
+            gap: 12px;
+
+            font-weight: 700;            background: rgba(255, 255, 255, 0.95);            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+            font-size: 24px;
+
+            color: #2d3748;            backdrop-filter: blur(20px);            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        }
 
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);            min-height: 100vh;
 
-            padding: 15px 30px;            overflow-x: hidden;
+        .brand-logo {
 
-            display: flex;        }
+            font-size: 28px;            padding: 15px 30px;            overflow-x: hidden;
 
-            justify-content: space-between;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            -webkit-background-clip: text;            display: flex;        }
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;            justify-content: space-between;
+
+        }
 
             align-items: center;        .navbar {
 
-            position: fixed;            background: rgba(255, 255, 255, 0.95);
+        .nav-user {
 
-            top: 0;            backdrop-filter: blur(20px);
+            display: flex;            position: fixed;            background: rgba(255, 255, 255, 0.95);
+
+            align-items: center;
+
+            gap: 20px;            top: 0;            backdrop-filter: blur(20px);
+
+        }
 
             left: 0;            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 
-            right: 0;            padding: 15px 30px;
+        .user-info {
+
+            text-align: right;            right: 0;            padding: 15px 30px;
+
+        }
 
             z-index: 1000;            display: flex;
 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);            justify-content: space-between;
+        .user-name {
 
-        }            align-items: center;
+            font-weight: 600;            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);            justify-content: space-between;
+
+            color: #2d3748;
+
+            font-size: 16px;        }            align-items: center;
+
+        }
 
             position: fixed;
-
-        .nav-brand {            top: 0;
-
-            display: flex;            left: 0;
-
-            align-items: center;            right: 0;
-
-            gap: 12px;            z-index: 1000;
-
-            font-weight: 700;            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
-            font-size: 24px;        }
-
-            color: #2d3748;
-
-        }        .nav-brand {
-
-            display: flex;
-
-        .brand-logo {            align-items: center;
-
-            font-size: 28px;            gap: 12px;
-
-            background: linear-gradient(135deg, #667eea, #764ba2);            font-weight: 700;
-
-            -webkit-background-clip: text;            font-size: 24px;
-
-            -webkit-text-fill-color: transparent;            color: #2d3748;
-
-            background-clip: text;        }
-
-        }
-
-        .brand-logo {
-
-        .nav-user {            font-size: 28px;
-
-            display: flex;            background: linear-gradient(135deg, #667eea, #764ba2);
-
-            align-items: center;            -webkit-background-clip: text;
-
-            gap: 20px;            -webkit-text-fill-color: transparent;
-
-        }            background-clip: text;
-
-        }
-
-        .user-info {
-
-            text-align: right;        .nav-user {
-
-        }            display: flex;
-
-            align-items: center;
-
-        .user-name {            gap: 20px;
-
-            font-weight: 600;        }
-
-            color: #2d3748;
-
-            font-size: 16px;        .user-info {
-
-        }            text-align: right;
-
-        }
 
         .user-status {
 
-            display: flex;        .user-name {
-
-            align-items: center;            font-weight: 600;
-
-            gap: 6px;            color: #2d3748;
-
-            font-size: 14px;            font-size: 16px;
-
-            color: #28a745;        }
-
-            margin-top: 4px;
-
-        }        .user-status {
-
-            display: flex;
-
-        .status-dot {            align-items: center;
-
-            width: 8px;            gap: 6px;
-
-            height: 8px;            font-size: 14px;
-
-            background: #28a745;            color: #28a745;
-
-            border-radius: 50%;            margin-top: 4px;
-
-            animation: pulse 2s infinite;        }
-
-        }
-
-        .status-dot {
-
-        @keyframes pulse {            width: 8px;
-
-            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }            height: 8px;
-
-            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }            background: #28a745;
-
-            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }            border-radius: 50%;
-
-        }            animation: pulse 2s infinite;
-
-        }
-
-        .btn-logout {
-
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);        @keyframes pulse {
-
-            color: white;            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-
-            border: none;            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-
-            padding: 10px 20px;            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-
-            border-radius: 25px;        }
-
-            cursor: pointer;
-
-            font-weight: 500;        .btn-logout {
-
-            transition: all 0.3s ease;            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-
-            display: flex;            color: white;
-
-            align-items: center;            border: none;
-
-            gap: 8px;            padding: 10px 20px;
-
-        }            border-radius: 25px;
-
-            cursor: pointer;
-
-        .btn-logout:hover {            font-weight: 500;
-
-            transform: translateY(-2px);            transition: all 0.3s ease;
-
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);            display: flex;
-
-        }            align-items: center;
-
-            gap: 8px;
-
-        .sidebar {        }
-
-            position: fixed;
-
-            top: 80px;        .btn-logout:hover {
-
-            left: 0;            transform: translateY(-2px);
-
-            width: 280px;            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-
-            height: calc(100vh - 80px);        }
-
-            background: rgba(255, 255, 255, 0.95);
-
-            backdrop-filter: blur(20px);        .sidebar {
-
-            border-right: 1px solid rgba(255, 255, 255, 0.2);            position: fixed;
-
-            overflow-y: auto;            top: 80px;
-
-            z-index: 100;            left: 0;
-
-            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);            width: 280px;
-
-        }            height: calc(100vh - 80px);
-
-            background: rgba(255, 255, 255, 0.95);
-
-        .sidebar-menu {            backdrop-filter: blur(20px);
-
-            padding: 30px 0;            border-right: 1px solid rgba(255, 255, 255, 0.2);
-
-        }            overflow-y: auto;
-
-            z-index: 100;
-
-        .menu-item {            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
-
-            display: flex;        }
+            display: flex;        .nav-brand {            top: 0;
 
             align-items: center;
 
-            gap: 15px;        .sidebar-menu {
+            gap: 6px;            display: flex;            left: 0;
 
-            padding: 15px 30px;            padding: 30px 0;
+            font-size: 14px;
+
+            color: #28a745;            align-items: center;            right: 0;
+
+            margin-top: 4px;
+
+        }            gap: 12px;            z-index: 1000;
+
+
+
+        .status-dot {            font-weight: 700;            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+            width: 8px;
+
+            height: 8px;            font-size: 24px;        }
+
+            background: #28a745;
+
+            border-radius: 50%;            color: #2d3748;
+
+            animation: pulse 2s infinite;
+
+        }        }        .nav-brand {
+
+
+
+        @keyframes pulse {            display: flex;
+
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }        .brand-logo {            align-items: center;
+
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+
+        }            font-size: 28px;            gap: 12px;
+
+
+
+        .btn-logout {            background: linear-gradient(135deg, #667eea, #764ba2);            font-weight: 700;
+
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+
+            color: white;            -webkit-background-clip: text;            font-size: 24px;
+
+            border: none;
+
+            padding: 10px 20px;            -webkit-text-fill-color: transparent;            color: #2d3748;
+
+            border-radius: 25px;
+
+            cursor: pointer;            background-clip: text;        }
+
+            font-weight: 500;
+
+            transition: all 0.3s ease;        }
+
+            display: flex;
+
+            align-items: center;        .brand-logo {
+
+            gap: 8px;
+
+        }        .nav-user {            font-size: 28px;
+
+
+
+        .btn-logout:hover {            display: flex;            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);            align-items: center;            -webkit-background-clip: text;
+
+        }
+
+            gap: 20px;            -webkit-text-fill-color: transparent;
+
+        .sidebar {
+
+            position: fixed;        }            background-clip: text;
+
+            top: 80px;
+
+            left: 0;        }
+
+            width: 280px;
+
+            height: calc(100vh - 80px);        .user-info {
+
+            background: rgba(255, 255, 255, 0.95);
+
+            backdrop-filter: blur(20px);            text-align: right;        .nav-user {
+
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+            overflow-y: auto;        }            display: flex;
+
+            z-index: 100;
+
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);            align-items: center;
+
+        }
+
+        .user-name {            gap: 20px;
+
+        .sidebar-menu {
+
+            padding: 30px 0;            font-weight: 600;        }
+
+        }
+
+            color: #2d3748;
+
+        .menu-item {
+
+            display: flex;            font-size: 16px;        .user-info {
+
+            align-items: center;
+
+            gap: 15px;        }            text-align: right;
+
+            padding: 15px 30px;
 
             text-decoration: none;        }
 
             color: #4a5568;
 
-            font-weight: 500;        .menu-item {
-
-            transition: all 0.3s ease;            display: flex;
-
-            border-left: 4px solid transparent;            align-items: center;
-
-        }            gap: 15px;
-
-            padding: 15px 30px;
-
-        .menu-item:hover {            text-decoration: none;
-
-            background: rgba(102, 126, 234, 0.1);            color: #4a5568;
-
-            color: #667eea;            font-weight: 500;
-
-            border-left-color: #667eea;            transition: all 0.3s ease;
-
-            transform: translateX(5px);            border-left: 4px solid transparent;
-
-        }        }
-
-
-
-        .menu-item.active {        .menu-item:hover {
-
-            background: rgba(102, 126, 234, 0.15);            background: rgba(102, 126, 234, 0.1);
-
-            color: #667eea;            color: #667eea;
-
-            border-left-color: #667eea;            border-left-color: #667eea;
-
-            font-weight: 600;            transform: translateX(5px);
-
-        }        }
-
-
-
-        .icon {        .menu-item.active {
-
-            font-size: 20px;            background: rgba(102, 126, 234, 0.15);
-
-            width: 24px;            color: #667eea;
-
-            text-align: center;            border-left-color: #667eea;
-
-        }            font-weight: 600;
-
-        }
-
-        /* Main Content */
-
-        .main-content {        .icon {
-
-            margin-left: 280px;            font-size: 20px;
-
-            margin-top: 80px;            width: 24px;
-
-            padding: 30px;            text-align: center;
-
-            min-height: calc(100vh - 80px);        }
-
-        }
-
-        /* Main Content */
-
-        .accounts-content {        .main-content {
-
-            background: rgba(255, 255, 255, 0.95);            margin-left: 280px;
-
-            backdrop-filter: blur(20px);            margin-top: 80px;
-
-            border-radius: 20px;            padding: 30px;
-
-            padding: 40px;            min-height: calc(100vh - 80px);
-
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);        }
-
-            border: 1px solid rgba(255, 255, 255, 0.2);
-
-        }        .accounts-content {
-
-            background: rgba(255, 255, 255, 0.95);
-
-        .page-header h1 {            backdrop-filter: blur(20px);
-
-            font-size: 36px;            border-radius: 20px;
-
-            font-weight: 700;            padding: 40px;
-
-            color: #2d3748 !important;            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
-            margin: 0 0 10px 0;            border: 1px solid rgba(255, 255, 255, 0.2);
-
-            text-shadow: none !important;        }
-
-        }
-
-        .page-header h1 {
-
-        .page-header p {            font-size: 36px;
-
-            font-size: 18px;            font-weight: 700;
-
-            color: #4a5568 !important;            color: #2d3748 !important;
-
-            margin: 0;            margin: 0 0 10px 0;
-
-        }            text-shadow: none !important;
-
-        }
-
-        .accounts-grid {
-
-            display: grid;        .page-header p {
-
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));            font-size: 18px;
-
-            gap: 20px;            color: #4a5568 !important;
-
-            margin-top: 30px;            margin: 0;
-
-        }        }
-
-
-
-        .account-card {        .accounts-grid {
-
-            background: white;            display: grid;
-
-            padding: 25px;            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-
-            border-radius: 15px;            gap: 20px;
-
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);            margin-top: 30px;
-
-            border: 1px solid #e2e8f0;        }
-
-            position: relative;
-
-        }        .account-card {
-
-            background: white;
-
-        .status-badge {            padding: 25px;
-
-            position: absolute;            border-radius: 15px;
-
-            top: 15px;            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-            right: 15px;            border: 1px solid #e2e8f0;
-
-            padding: 5px 12px;            position: relative;
-
-            border-radius: 20px;        }
-
-            font-size: 12px;
-
-            font-weight: 600;        .status-badge {
-
-        }            position: absolute;
-
-            top: 15px;
-
-        .status-connected {            right: 15px;
-
-            background: #d4edda;            padding: 5px 12px;
-
-            color: #155724;            border-radius: 20px;
-
-        }            font-size: 12px;
-
-            font-weight: 600;
-
-        .status-pending {        }
-
-            background: #ffeaa7;
-
-            color: #d63031;        .status-connected {
-
-        }            background: #d4edda;
-
-            color: #155724;
-
-        .account-header {        }
-
-            display: flex;
-
-            align-items: center;        .account-header {
-
-            gap: 15px;            display: flex;
-
-            margin-bottom: 20px;            align-items: center;
-
-            margin-top: 20px;            gap: 15px;
-
-        }            margin-bottom: 20px;
-
-            margin-top: 20px;
-
-        .account-avatar {        }
-
-            width: 50px;
-
-            height: 50px;        .account-avatar {
-
-            background: #28a745;            width: 50px;
-
-            border-radius: 50%;            height: 50px;
-
-            display: flex;            background: #28a745;
-
-            align-items: center;            border-radius: 50%;
-
-            justify-content: center;            display: flex;
-
-            color: white;            align-items: center;
-
-            font-weight: bold;            justify-content: center;
-
-            font-size: 20px;            color: white;
-
-        }            font-weight: bold;
-
-            font-size: 20px;
-
-        .account-info h3 {        }
-
-            margin: 0;
-
-            color: #2d3748;        .account-info h3 {
-
-        }            margin: 0;
-
-            color: #2d3748;
-
-        .account-id {        }
-
-            color: #6c757d;
-
-            font-family: monospace;        .account-id {
-
-        }            color: #6c757d;
-
-            font-family: monospace;
-
-        .account-stats {        }
-
-            display: grid;
-
-            grid-template-columns: repeat(2, 1fr);        .account-stats {
-
-            gap: 10px;            display: grid;
-
-            margin: 15px 0;            grid-template-columns: repeat(2, 1fr);
-
-        }            gap: 10px;
-
-            margin: 15px 0;
-
-        .stat-item {        }
-
-            text-align: center;
-
-            padding: 10px;        .stat-item {
-
-            background: #f8f9fa;            text-align: center;
-
-            border-radius: 8px;            padding: 10px;
-
-        }            background: #f8f9fa;
-
-            border-radius: 8px;
-
-        .stat-number {        }
-
-            font-weight: bold;
-
-            color: #2d3748;        .stat-number {
-
-        }            font-weight: bold;
-
-            color: #2d3748;
-
-        .stat-label {        }
-
-            font-size: 12px;
-
-            color: #6c757d;        .stat-label {
-
-        }            font-size: 12px;
-
-            color: #6c757d;
-
-        .btn-manage, .btn-settings {        }
-
-            margin: 5px;
-
-            padding: 8px 16px;        .btn-manage, .btn-settings {
-
-            border: none;            margin: 5px;
-
-            border-radius: 6px;            padding: 8px 16px;
-
-            cursor: pointer;            border: none;
-
-            font-size: 14px;            border-radius: 6px;
-
-            font-weight: 500;            cursor: pointer;
-
-            transition: all 0.3s ease;            font-size: 14px;
-
-        }            font-weight: 500;
+            font-weight: 500;        .user-status {
 
             transition: all 0.3s ease;
 
-        .btn-manage {        }
+            border-left: 4px solid transparent;            display: flex;        .user-name {
 
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
 
-            color: white;        .btn-manage {
+            align-items: center;            font-weight: 600;
 
-        }            background: linear-gradient(135deg, #667eea, #764ba2);
+        .menu-item:hover {
+
+            background: rgba(102, 126, 234, 0.1);            gap: 6px;            color: #2d3748;
+
+            color: #667eea;
+
+            border-left-color: #667eea;            font-size: 14px;            font-size: 16px;
+
+            transform: translateX(5px);
+
+        }            color: #28a745;        }
+
+
+
+        .menu-item.active {            margin-top: 4px;
+
+            background: rgba(102, 126, 234, 0.15);
+
+            color: #667eea;        }        .user-status {
+
+            border-left-color: #667eea;
+
+            font-weight: 600;            display: flex;
+
+        }
+
+        .status-dot {            align-items: center;
+
+        .icon {
+
+            font-size: 20px;            width: 8px;            gap: 6px;
+
+            width: 24px;
+
+            text-align: center;            height: 8px;            font-size: 14px;
+
+        }
+
+            background: #28a745;            color: #28a745;
+
+        .main-content {
+
+            margin-left: 280px;            border-radius: 50%;            margin-top: 4px;
+
+            margin-top: 80px;
+
+            padding: 30px;            animation: pulse 2s infinite;        }
+
+            min-height: calc(100vh - 80px);
+
+        }        }
+
+
+
+        .accounts-content {        .status-dot {
+
+            background: rgba(255, 255, 255, 0.95);
+
+            backdrop-filter: blur(20px);        @keyframes pulse {            width: 8px;
+
+            border-radius: 20px;
+
+            padding: 40px;            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }            height: 8px;
+
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+            border: 1px solid rgba(255, 255, 255, 0.2);            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }            background: #28a745;
+
+        }
+
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }            border-radius: 50%;
+
+        .page-header h1 {
+
+            font-size: 36px;        }            animation: pulse 2s infinite;
+
+            font-weight: 700;
+
+            color: #2d3748 !important;        }
+
+            margin: 0 0 10px 0;
+
+            text-shadow: none !important;        .btn-logout {
+
+        }
+
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);        @keyframes pulse {
+
+        .page-header p {
+
+            font-size: 18px;            color: white;            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+
+            color: #4a5568 !important;
+
+            margin: 0;            border: none;            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+
+        }
+
+            padding: 10px 20px;            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+
+        .accounts-grid {
+
+            display: grid;            border-radius: 25px;        }
+
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+            gap: 20px;            cursor: pointer;
+
+            margin-top: 30px;
+
+        }            font-weight: 500;        .btn-logout {
+
+
+
+        .account-card {            transition: all 0.3s ease;            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+
+            background: white;
+
+            padding: 25px;            display: flex;            color: white;
+
+            border-radius: 15px;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);            align-items: center;            border: none;
+
+            border: 1px solid #e2e8f0;
+
+            position: relative;            gap: 8px;            padding: 10px 20px;
+
+        }
+
+        }            border-radius: 25px;
+
+        .status-badge {
+
+            position: absolute;            cursor: pointer;
+
+            top: 15px;
+
+            right: 15px;        .btn-logout:hover {            font-weight: 500;
+
+            padding: 5px 12px;
+
+            border-radius: 20px;            transform: translateY(-2px);            transition: all 0.3s ease;
+
+            font-size: 12px;
+
+            font-weight: 600;            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);            display: flex;
+
+        }
+
+        }            align-items: center;
+
+        .status-connected {
+
+            background: #d4edda;            gap: 8px;
+
+            color: #155724;
+
+        }        .sidebar {        }
+
+
+
+        .status-pending {            position: fixed;
+
+            background: #ffeaa7;
+
+            color: #d63031;            top: 80px;        .btn-logout:hover {
+
+        }
+
+            left: 0;            transform: translateY(-2px);
+
+        .account-header {
+
+            display: flex;            width: 280px;            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+
+            align-items: center;
+
+            gap: 15px;            height: calc(100vh - 80px);        }
+
+            margin-bottom: 20px;
+
+            margin-top: 20px;            background: rgba(255, 255, 255, 0.95);
+
+        }
+
+            backdrop-filter: blur(20px);        .sidebar {
+
+        .account-avatar {
+
+            width: 50px;            border-right: 1px solid rgba(255, 255, 255, 0.2);            position: fixed;
+
+            height: 50px;
+
+            background: #28a745;            overflow-y: auto;            top: 80px;
+
+            border-radius: 50%;
+
+            display: flex;            z-index: 100;            left: 0;
+
+            align-items: center;
+
+            justify-content: center;            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);            width: 280px;
 
             color: white;
 
+            font-weight: bold;        }            height: calc(100vh - 80px);
+
+            font-size: 20px;
+
+        }            background: rgba(255, 255, 255, 0.95);
+
+
+
+        .account-info h3 {        .sidebar-menu {            backdrop-filter: blur(20px);
+
+            margin: 0;
+
+            color: #2d3748;            padding: 30px 0;            border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+        }
+
+        }            overflow-y: auto;
+
+        .account-id {
+
+            color: #6c757d;            z-index: 100;
+
+            font-family: monospace;
+
+        }        .menu-item {            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+
+
+
+        .account-stats {            display: flex;        }
+
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);            align-items: center;
+
+            gap: 10px;
+
+            margin: 15px 0;            gap: 15px;        .sidebar-menu {
+
+        }
+
+            padding: 15px 30px;            padding: 30px 0;
+
+        .stat-item {
+
+            text-align: center;            text-decoration: none;        }
+
+            padding: 10px;
+
+            background: #f8f9fa;            color: #4a5568;
+
+            border-radius: 8px;
+
+        }            font-weight: 500;        .menu-item {
+
+
+
+        .stat-number {            transition: all 0.3s ease;            display: flex;
+
+            font-weight: bold;
+
+            color: #2d3748;            border-left: 4px solid transparent;            align-items: center;
+
+        }
+
+        }            gap: 15px;
+
+        .stat-label {
+
+            font-size: 12px;            padding: 15px 30px;
+
+            color: #6c757d;
+
+        }        .menu-item:hover {            text-decoration: none;
+
+
+
+        .btn-manage, .btn-settings, .btn-connect {            background: rgba(102, 126, 234, 0.1);            color: #4a5568;
+
+            margin: 5px;
+
+            padding: 8px 16px;            color: #667eea;            font-weight: 500;
+
+            border: none;
+
+            border-radius: 6px;            border-left-color: #667eea;            transition: all 0.3s ease;
+
+            cursor: pointer;
+
+            font-size: 14px;            transform: translateX(5px);            border-left: 4px solid transparent;
+
+            font-weight: 500;
+
+            transition: all 0.3s ease;        }        }
+
+        }
+
+
+
+        .btn-manage {
+
+            background: linear-gradient(135deg, #667eea, #764ba2);        .menu-item.active {        .menu-item:hover {
+
+            color: white;
+
+        }            background: rgba(102, 126, 234, 0.15);            background: rgba(102, 126, 234, 0.1);
+
+
+
+        .btn-settings {            color: #667eea;            color: #667eea;
+
+            background: #6c757d;
+
+            color: white;            border-left-color: #667eea;            border-left-color: #667eea;
+
+        }
+
+            font-weight: 600;            transform: translateX(5px);
+
+        .btn-connect {
+
+            background: #28a745;        }        }
+
+            color: white;
+
+        }
+
+
+
+        .btn-manage:hover, .btn-settings:hover, .btn-connect:hover {        .icon {        .menu-item.active {
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);            font-size: 20px;            background: rgba(102, 126, 234, 0.15);
+
+        }
+
+            width: 24px;            color: #667eea;
+
+        @media (max-width: 768px) {
+
+            .sidebar {            text-align: center;            border-left-color: #667eea;
+
+                transform: translateX(-100%);
+
+                transition: transform 0.3s ease;        }            font-weight: 600;
+
+            }
+
+        }
+
+            .sidebar.mobile-open {
+
+                transform: translateX(0);        /* Main Content */
+
+            }
+
+        .main-content {        .icon {
+
+            .main-content {
+
+                margin-left: 0;            margin-left: 280px;            font-size: 20px;
+
+                margin-top: 80px;
+
+                padding: 20px;            margin-top: 80px;            width: 24px;
+
+            }
+
+            padding: 30px;            text-align: center;
+
+            .navbar {
+
+                padding: 15px 20px;            min-height: calc(100vh - 80px);        }
+
+            }
+
+        }
+
+            .accounts-grid {
+
+                grid-template-columns: 1fr;        /* Main Content */
+
+                gap: 15px;
+
+            }        .accounts-content {        .main-content {
+
+        }
+
+            background: rgba(255, 255, 255, 0.95);            margin-left: 280px;
+
+        .mobile-menu-btn {
+
+            display: none;            backdrop-filter: blur(20px);            margin-top: 80px;
+
+            background: none;
+
+            border: none;            border-radius: 20px;            padding: 30px;
+
+            font-size: 24px;
+
+            color: #2d3748;            padding: 40px;            min-height: calc(100vh - 80px);
+
+            cursor: pointer;
+
+        }            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);        }
+
+
+
+        @media (max-width: 768px) {            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            .mobile-menu-btn {
+
+                display: block;        }        .accounts-content {
+
+            }
+
+        }            background: rgba(255, 255, 255, 0.95);
+
+
+
+        @keyframes slideInDown {        .page-header h1 {            backdrop-filter: blur(20px);
+
+            from { transform: translateY(-100%); opacity: 0; }
+
+            to { transform: translateY(0); opacity: 1; }            font-size: 36px;            border-radius: 20px;
+
+        }
+
+        @keyframes slideInLeft {            font-weight: 700;            padding: 40px;
+
+            from { transform: translateX(-100%); opacity: 0; }
+
+            to { transform: translateX(0); opacity: 1; }            color: #2d3748 !important;            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+        }
+
+        @keyframes fadeInUp {            margin: 0 0 10px 0;            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            from { transform: translateY(50px); opacity: 0; }
+
+            to { transform: translateY(0); opacity: 1; }            text-shadow: none !important;        }
+
+        }
+
+    </style>        }
+
+</head>
+
+<body>        .page-header h1 {
+
+    <div class="accounts-container">
+
+        <nav class="navbar" style="opacity: 0; animation: slideInDown 0.6s ease 0.1s forwards;">        .page-header p {            font-size: 36px;
+
+            <div class="nav-brand">
+
+                <span class="brand-logo">👑</span>            font-size: 18px;            font-weight: 700;
+
+                <span>KingChat</span>
+
+            </div>            color: #4a5568 !important;            color: #2d3748 !important;
+
+            <div class="nav-user">
+
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>            margin: 0;            margin: 0 0 10px 0;
+
+                <div class="user-info">
+
+                    <div class="user-name" id="userName">Admin</div>        }            text-shadow: none !important;
+
+                    <div class="user-status">
+
+                        <span class="status-dot"></span>        }
+
+                        <span>ออนไลน์</span>
+
+                    </div>        .accounts-grid {
+
+                </div>
+
+                <div class="user-menu">            display: grid;        .page-header p {
+
+                    <button class="btn-logout" onclick="logout()">
+
+                        <span>🚪</span>            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));            font-size: 18px;
+
+                        <span>ออกจากระบบ</span>
+
+                    </button>            gap: 20px;            color: #4a5568 !important;
+
+                </div>
+
+            </div>            margin-top: 30px;            margin: 0;
+
+        </nav>
+
+        }        }
+
+        <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
+
+            <div class="sidebar-menu">
+
+                <a href="/chat.html" class="menu-item" data-page="chat">
+
+                    <i class="icon">💬</i>        .account-card {        .accounts-grid {
+
+                    <span class="menu-text">แชท</span>
+
+                </a>            background: white;            display: grid;
+
+                <a href="/dashboard-working.html" class="menu-item" data-page="dashboard">
+
+                    <i class="icon">📊</i>            padding: 25px;            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+                    <span class="menu-text">แดชบอร์ด</span>
+
+                </a>            border-radius: 15px;            gap: 20px;
+
+                <a href="#" class="menu-item active" data-page="accounts">
+
+                    <i class="icon">📱</i>            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);            margin-top: 30px;
+
+                    <span class="menu-text">บัญชี LINE OA</span>
+
+                </a>            border: 1px solid #e2e8f0;        }
+
+                <a href="/customers-working.html" class="menu-item" data-page="customers">
+
+                    <i class="icon">👥</i>            position: relative;
+
+                    <span class="menu-text">รายชื่อลูกค้า</span>
+
+                </a>        }        .account-card {
+
+                <a href="/settings-working.html" class="menu-item" data-page="settings">
+
+                    <i class="icon">⚙️</i>            background: white;
+
+                    <span class="menu-text">ตั้งค่า</span>
+
+                </a>        .status-badge {            padding: 25px;
+
+                <a href="/admin-working" class="menu-item" data-page="admin">
+
+                    <i class="icon">👨‍💼</i>            position: absolute;            border-radius: 15px;
+
+                    <span class="menu-text">จัดการแอดมิน</span>
+
+                </a>            top: 15px;            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+            </div>
+
+        </div>            right: 15px;            border: 1px solid #e2e8f0;
+
+
+
+        <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">            padding: 5px 12px;            position: relative;
+
+            <div class="accounts-content">
+
+                <div class="page-header" style="text-align: center; margin-bottom: 40px;">            border-radius: 20px;        }
+
+                    <h1>📱 บัญชี LINE OA</h1>
+
+                    <p>จัดการบัญชี LINE Official Account</p>            font-size: 12px;
+
+                </div>
+
+            font-weight: 600;        .status-badge {
+
+                <div class="accounts-grid">
+
+                    <div class="account-card">        }            position: absolute;
+
+                        <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>
+
+                        <div class="account-header">            top: 15px;
+
+                            <div class="account-avatar">K</div>
+
+                            <div class="account-info">        .status-connected {            right: 15px;
+
+                                <h3>KingChat Shop</h3>
+
+                                <div class="account-id">@kingchat-shop</div>            background: #d4edda;            padding: 5px 12px;
+
+                            </div>
+
+                        </div>            color: #155724;            border-radius: 20px;
+
+                        <div class="account-stats">
+
+                            <div class="stat-item">        }            font-size: 12px;
+
+                                <div class="stat-number">1,250</div>
+
+                                <div class="stat-label">ผู้ติดตาม</div>            font-weight: 600;
+
+                            </div>
+
+                            <div class="stat-item">        .status-pending {        }
+
+                                <div class="stat-number">432</div>
+
+                                <div class="stat-label">ข้อความวันนี้</div>            background: #ffeaa7;
+
+                            </div>
+
+                            <div class="stat-item">            color: #d63031;        .status-connected {
+
+                                <div class="stat-number">98%</div>
+
+                                <div class="stat-label">อัตราตอบกลับ</div>        }            background: #d4edda;
+
+                            </div>
+
+                            <div class="stat-item">            color: #155724;
+
+                                <div class="stat-number">5 นาทีที่แล้ว</div>
+
+                                <div class="stat-label">ใช้งานล่าสุด</div>        .account-header {        }
+
+                            </div>
+
+                        </div>            display: flex;
+
+                        <button class="btn-manage" onclick="alert('จัดการบัญชี KingChat Shop')">📊 จัดการ</button>
+
+                        <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี KingChat Shop')">⚙️ ตั้งค่า</button>            align-items: center;        .account-header {
+
+                    </div>
+
+            gap: 15px;            display: flex;
+
+                    <div class="account-card">
+
+                        <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>            margin-bottom: 20px;            align-items: center;
+
+                        <div class="account-header">
+
+                            <div class="account-avatar" style="background: #dc3545;">S</div>            margin-top: 20px;            gap: 15px;
+
+                            <div class="account-info">
+
+                                <h3>Support Center</h3>        }            margin-bottom: 20px;
+
+                                <div class="account-id">@support-center</div>
+
+                            </div>            margin-top: 20px;
+
+                        </div>
+
+                        <div class="account-stats">        .account-avatar {        }
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">850</div>            width: 50px;
+
+                                <div class="stat-label">ผู้ติดตาม</div>
+
+                            </div>            height: 50px;        .account-avatar {
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">123</div>            background: #28a745;            width: 50px;
+
+                                <div class="stat-label">ข้อความวันนี้</div>
+
+                            </div>            border-radius: 50%;            height: 50px;
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">95%</div>            display: flex;            background: #28a745;
+
+                                <div class="stat-label">อัตราตอบกลับ</div>
+
+                            </div>            align-items: center;            border-radius: 50%;
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">15 นาทีที่แล้ว</div>            justify-content: center;            display: flex;
+
+                                <div class="stat-label">ใช้งานล่าสุด</div>
+
+                            </div>            color: white;            align-items: center;
+
+                        </div>
+
+                        <button class="btn-manage" onclick="alert('จัดการบัญชี Support Center')">📊 จัดการ</button>            font-weight: bold;            justify-content: center;
+
+                        <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี Support Center')">⚙️ ตั้งค่า</button>
+
+                    </div>            font-size: 20px;            color: white;
+
+
+
+                    <div class="account-card">        }            font-weight: bold;
+
+                        <span class="status-badge status-pending">🟡 รอเชื่อมต่อ</span>
+
+                        <div class="account-header">            font-size: 20px;
+
+                            <div class="account-avatar" style="background: #6c757d;">?</div>
+
+                            <div class="account-info">        .account-info h3 {        }
+
+                                <h3>บัญชีใหม่</h3>
+
+                                <div class="account-id">ยังไม่ได้เชื่อมต่อ</div>            margin: 0;
+
+                            </div>
+
+                        </div>            color: #2d3748;        .account-info h3 {
+
+                        <div class="account-stats">
+
+                            <div class="stat-item">        }            margin: 0;
+
+                                <div class="stat-number">-</div>
+
+                                <div class="stat-label">ผู้ติดตาม</div>            color: #2d3748;
+
+                            </div>
+
+                            <div class="stat-item">        .account-id {        }
+
+                                <div class="stat-number">-</div>
+
+                                <div class="stat-label">ข้อความวันนี้</div>            color: #6c757d;
+
+                            </div>
+
+                            <div class="stat-item">            font-family: monospace;        .account-id {
+
+                                <div class="stat-number">-</div>
+
+                                <div class="stat-label">อัตราตอบกลับ</div>        }            color: #6c757d;
+
+                            </div>
+
+                            <div class="stat-item">            font-family: monospace;
+
+                                <div class="stat-number">-</div>
+
+                                <div class="stat-label">ใช้งานล่าสุด</div>        .account-stats {        }
+
+                            </div>
+
+                        </div>            display: grid;
+
+                        <button class="btn-connect" onclick="alert('เชื่อมต่อบัญชีใหม่')">🔗 เชื่อมต่อ</button>
+
+                        <button class="btn-settings" onclick="alert('ตั้งค่าการเชื่อมต่อ')">⚙️ ตั้งค่า</button>            grid-template-columns: repeat(2, 1fr);        .account-stats {
+
+                    </div>
+
+            gap: 10px;            display: grid;
+
+                    <div class="account-card">
+
+                        <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>            margin: 15px 0;            grid-template-columns: repeat(2, 1fr);
+
+                        <div class="account-header">
+
+                            <div class="account-avatar" style="background: #6f42c1;">B</div>        }            gap: 10px;
+
+                            <div class="account-info">
+
+                                <h3>Business Line</h3>            margin: 15px 0;
+
+                                <div class="account-id">@business-line</div>
+
+                            </div>        .stat-item {        }
+
+                        </div>
+
+                        <div class="account-stats">            text-align: center;
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">2,180</div>            padding: 10px;        .stat-item {
+
+                                <div class="stat-label">ผู้ติดตาม</div>
+
+                            </div>            background: #f8f9fa;            text-align: center;
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">789</div>            border-radius: 8px;            padding: 10px;
+
+                                <div class="stat-label">ข้อความวันนี้</div>
+
+                            </div>        }            background: #f8f9fa;
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">97%</div>            border-radius: 8px;
+
+                                <div class="stat-label">อัตราตอบกลับ</div>
+
+                            </div>        .stat-number {        }
+
+                            <div class="stat-item">
+
+                                <div class="stat-number">2 นาทีที่แล้ว</div>            font-weight: bold;
+
+                                <div class="stat-label">ใช้งานล่าสุด</div>
+
+                            </div>            color: #2d3748;        .stat-number {
+
+                        </div>
+
+                        <button class="btn-manage" onclick="alert('จัดการบัญชี Business Line')">📊 จัดการ</button>        }            font-weight: bold;
+
+                        <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี Business Line')">⚙️ ตั้งค่า</button>
+
+                    </div>            color: #2d3748;
+
+                </div>
+
+            </div>        .stat-label {        }
+
+        </div>
+
+    </div>            font-size: 12px;
+
+
+
+    <script>            color: #6c757d;        .stat-label {
+
+        function checkAuth() {
+
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');        }            font-size: 12px;
+
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+                        color: #6c757d;
+
+            if (!token) {
+
+                console.log('No token found, redirecting to login...');        .btn-manage, .btn-settings {        }
+
+                window.location.href = '/login.html';
+
+                return;            margin: 5px;
+
+            }
+
+                        padding: 8px 16px;        .btn-manage, .btn-settings {
+
+            console.log('Accounts page: Authentication successful for:', user.username || 'Unknown');
+
+                        border: none;            margin: 5px;
+
+            if (user.username) {
+
+                document.getElementById('userName').textContent = user.username;            border-radius: 6px;            padding: 8px 16px;
+
+            }
+
+        }            cursor: pointer;            border: none;
+
+
+
+        function logout() {            font-size: 14px;            border-radius: 6px;
+
+            localStorage.removeItem('token');
+
+            localStorage.removeItem('user');            font-weight: 500;            cursor: pointer;
+
+            sessionStorage.removeItem('token');
+
+            sessionStorage.removeItem('user');            transition: all 0.3s ease;            font-size: 14px;
+
+            window.location.href = '/login.html';
+
+        }        }            font-weight: 500;
+
+
+
+        function toggleMobileMenu() {            transition: all 0.3s ease;
+
+            const sidebar = document.querySelector('.sidebar');
+
+            sidebar.classList.toggle('mobile-open');        .btn-manage {        }
+
+        }
+
+            background: linear-gradient(135deg, #667eea, #764ba2);
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            console.log('LINE OA Accounts page loaded');            color: white;        .btn-manage {
+
+            checkAuth();
+
+        });        }            background: linear-gradient(135deg, #667eea, #764ba2);
+
+    </script>
+
+</body>            color: white;
+
+</html>
         .btn-settings {        }
 
             background: #6c757d;
