@@ -8,40 +8,45 @@ const router = express.Router();
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { sequelize } = require('../config/database');
+    const { pool } = require('../models/database');
     const { username, password } = req.body;
 
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    // Find user in admins table
-    const [users] = await sequelize.query(`
-      SELECT id, username, email, password, "displayName", role, "isActive"
-      FROM admins 
-      WHERE username = :username OR email = :username
-      LIMIT 1;
-    `, {
-      replacements: { username }
-    });
+    console.log('🔐 Login attempt for:', username);
 
-    if (users.length === 0) {
+    // Find user in users table
+    const result = await pool.query(`
+      SELECT id, username, email, password_hash, role, status
+      FROM users 
+      WHERE username = $1 OR email = $1
+      LIMIT 1;
+    `, [username]);
+
+    if (result.rows.length === 0) {
+      console.log('❌ User not found:', username);
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const user = users[0];
+    const user = result.rows[0];
 
     // Check if user is active
-    if (!user.isActive) {
+    if (user.status !== 'active') {
+      console.log('❌ User account inactive:', username);
       return res.status(400).json({ error: 'Account is deactivated' });
     }
 
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     
     if (!isMatch) {
+      console.log('❌ Invalid password for:', username);
       return res.status(400).json({ error: 'Invalid credentials' });
     }
+
+    console.log('✅ Login successful for:', username);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -50,18 +55,16 @@ router.post('/login', async (req, res) => {
         username: user.username,
         role: user.role 
       },
-      process.env.JWT_SECRET || 'default-secret',
+      process.env.JWT_SECRET || 'railway-jwt-secret-2024',
       { expiresIn: '7d' }
     );
 
     // Update last login
-    await sequelize.query(`
-      UPDATE admins 
-      SET "updatedAt" = CURRENT_TIMESTAMP 
-      WHERE id = :id;
-    `, {
-      replacements: { id: user.id }
-    });
+    await pool.query(`
+      UPDATE users 
+      SET last_login = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $1;
+    `, [user.id]);
 
     res.json({
       message: 'Login successful',
@@ -70,8 +73,8 @@ router.post('/login', async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        displayName: user.displayName,
-        role: user.role
+        role: user.role,
+        status: user.status
       }
     });
 
