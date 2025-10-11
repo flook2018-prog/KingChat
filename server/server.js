@@ -118,6 +118,18 @@ const connectDatabase = async () => {
     console.log('✅ Database tables synchronized');
     isDatabaseConnected = true;
     
+    // Create admin users on Railway
+    if (process.env.RAILWAY_ENVIRONMENT) {
+      console.log('🏗️ Railway environment detected, setting up admin users...');
+      try {
+        const { createAdminsOnRailway } = require('./createAdminsRailway');
+        await createAdminsOnRailway();
+        console.log('✅ Admin users setup completed on Railway');
+      } catch (error) {
+        console.error('❌ Admin users setup failed:', error.message);
+      }
+    }
+    
   } catch (err) {
     console.error('❌ PostgreSQL connection failed:', err.message);
     console.error('   Will retry connection in background...');
