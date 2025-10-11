@@ -6,13 +6,12 @@ const dotenv = require('dotenv');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
-const ngrok = require('ngrok');
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-// Import database configuration
-const { testConnection } = require('./config/database');
+// Import database models
+const { pool } = require('./models/database');
 
 // Debug environment variables
 console.log('🔧 Environment check:');
@@ -137,15 +136,12 @@ const connectDatabase = async () => {
 connectDatabase();
 
 // Import routes with error handling
-let authRoutes, adminRoutes, lineOARoutes, customerRoutes, messageRoutes, settingsRoutes;
+let authRoutes, adminRoutes, lineAccountRoutes;
 
 try {
   authRoutes = require('./routes/auth');
   adminRoutes = require('./routes/admin');
-  lineOARoutes = require('./routes/lineoa');
-  customerRoutes = require('./routes/customers');
-  messageRoutes = require('./routes/messages');
-  settingsRoutes = require('./routes/settings');
+  lineAccountRoutes = require('./routes/lineAccounts');
   console.log('✅ Routes loaded successfully');
 } catch (error) {
   console.error('❌ Error loading routes:', error.message);
@@ -154,13 +150,10 @@ try {
   // Create fallback routes
   authRoutes = require('express').Router();
   adminRoutes = require('express').Router();
-  lineOARoutes = require('express').Router();
-  customerRoutes = require('express').Router();
-  messageRoutes = require('express').Router();
-  settingsRoutes = require('express').Router();
+  lineAccountRoutes = require('express').Router();
   
   // Add error responses
-  [authRoutes, adminRoutes, lineOARoutes, customerRoutes, messageRoutes, settingsRoutes].forEach(router => {
+  [authRoutes, adminRoutes, lineAccountRoutes].forEach(router => {
     router.all('*', (req, res) => {
       res.status(503).json({ error: 'Database not available' });
     });
@@ -170,11 +163,7 @@ try {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/lineoa', lineOARoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/settings', settingsRoutes);
+app.use('/api/line', lineAccountRoutes);
 
 // Serve static files from client directory (for Railway deployment)
 if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
