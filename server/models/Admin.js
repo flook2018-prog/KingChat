@@ -28,12 +28,12 @@ const adminSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['super_admin', 'admin', 'moderator', 'user'],
-    default: 'user'
+    enum: ['super_admin', 'admin'],
+    default: 'admin'
   },
   permissions: [{
     type: String,
-    enum: ['manage_users', 'manage_chat', 'manage_lineoa', 'view_reports', 'system_settings']
+    enum: ['manage_users', 'manage_system', 'manage_chat', 'manage_lineoa', 'manage_customers', 'manage_quick_messages', 'view_all_data', 'system_settings', 'admin_management', 'view_customer_data']
   }],
   status: {
     type: String,

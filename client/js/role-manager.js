@@ -36,20 +36,6 @@ class RoleManager {
                 'manage_quick_messages',
                 'view_customer_data'
             ]
-        },
-        'moderator': {
-            level: 60,
-            permissions: [
-                'manage_chat',
-                'view_customer_data'
-            ]
-        },
-        'user': {
-            level: 40,
-            permissions: [
-                'view_chat',
-                'basic_access'
-            ]
         }
     };
 
@@ -298,9 +284,7 @@ class RoleManager {
     getRoleDisplayName(role) {
         const roleNames = {
             'super_admin': 'ซุปเปอร์แอดมิน',
-            'admin': 'แอดมิน',
-            'moderator': 'โมเดอเรเตอร์',
-            'user': 'ผู้ใช้'
+            'admin': 'แอดมิน'
         };
         return roleNames[role] || role;
     }

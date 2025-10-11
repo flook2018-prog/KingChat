@@ -500,9 +500,15 @@
         /* Role Cards Styles */
         .roles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .role-card {
@@ -584,6 +590,26 @@
             color: #2d3748;
             margin: 0 0 15px 0;
             font-size: 18px;
+        }
+
+        .role-summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .role-summary h4 {
+            color: #2d3748;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        .role-summary p {
+            margin: 10px 0;
+            color: #6c757d;
+            line-height: 1.6;
         }
 
         /* Hide elements that need permissions initially */
@@ -870,7 +896,7 @@
                         <div class="setting-item">
                             <div>
                                 <div class="setting-label">จำนวนบทบาท</div>
-                                <div class="setting-desc" id="roleCount">4 บทบาท (Super Admin, Admin, Moderator, User)</div>
+                                <div class="setting-desc" id="roleCount">2 บทบาท (Super Admin, Admin)</div>
                             </div>
                             <button class="btn-setting btn-primary" onclick="showRoleManager()">จัดการ</button>
                         </div>
@@ -1030,7 +1056,7 @@
                     // Update role badge
                     const roleBadge = document.getElementById('roleBadge');
                     roleBadge.textContent = user.role;
-                    roleBadge.className = 'status-badge ' + (level >= 80 ? 'success' : level >= 60 ? 'warning' : 'danger');
+                    roleBadge.className = 'status-badge ' + (level >= 100 ? 'success' : 'warning');
                     
                     // Update level indicator
                     document.getElementById('levelIndicator').textContent = `${level}`;
@@ -1061,38 +1087,31 @@
                                 <li>✅ ตั้งค่าระบบ</li>
                                 <li>✅ จัดการแอดมิน</li>
                                 <li>✅ เข้าถึงข้อมูลทั้งหมด</li>
-                            </ul>
-                        </div>
-                        <div class="role-card admin">
-                            <h4>🔧 Admin</h4>
-                            <p>ระดับ: 80 | จัดการหลัก</p>
-                            <ul class="permission-list">
                                 <li>✅ จัดการข้อความด่วน</li>
                                 <li>✅ จัดการลูกค้า</li>
                                 <li>✅ จัดการ LINE OA</li>
                                 <li>✅ จัดการแชท</li>
                             </ul>
                         </div>
-                        <div class="role-card moderator">
-                            <h4>👮 Moderator</h4>
-                            <p>ระดับ: 60 | ดูแลแชท</p>
+                        <div class="role-card admin">
+                            <h4>� Admin</h4>
+                            <p>ระดับ: 80 | จัดการหลัก</p>
                             <ul class="permission-list">
+                                <li>✅ จัดการข้อความด่วน</li>
+                                <li>✅ จัดการลูกค้า</li>
+                                <li>✅ จัดการ LINE OA</li>
                                 <li>✅ จัดการแชท</li>
                                 <li>✅ ดูข้อมูลลูกค้า</li>
-                                <li>❌ แก้ไขข้อมูลลูกค้า</li>
-                                <li>❌ จัดการ LINE OA</li>
-                            </ul>
-                        </div>
-                        <div class="role-card user">
-                            <h4>👤 User</h4>
-                            <p>ระดับ: 40 | พื้นฐาน</p>
-                            <ul class="permission-list">
-                                <li>✅ ดูแชท</li>
-                                <li>✅ เข้าถึงพื้นฐาน</li>
-                                <li>❌ จัดการข้อมูล</li>
+                                <li>❌ จัดการผู้ใช้</li>
                                 <li>❌ ตั้งค่าระบบ</li>
+                                <li>❌ จัดการแอดมิน</li>
                             </ul>
                         </div>
+                    </div>
+                    <div class="role-summary">
+                        <h4>📋 สรุประบบสิทธิ์</h4>
+                        <p><strong>Super Admin:</strong> มีสิทธิ์ทำทุกอย่างในระบบ รวมถึงการจัดการผู้ใช้และตั้งค่าระบบ</p>
+                        <p><strong>Admin:</strong> จัดการข้อความด่วน, ลูกค้า, LINE OA และแชท แต่ไม่สามารถจัดการผู้ใช้อื่นได้</p>
                     </div>
                 </div>
             `);
@@ -1121,9 +1140,7 @@
                     'view_all_data': 'ดูข้อมูลทั้งหมด',
                     'system_settings': 'ตั้งค่าระบบ',
                     'admin_management': 'จัดการแอดมิน',
-                    'view_customer_data': 'ดูข้อมูลลูกค้า',
-                    'view_chat': 'ดูแชท',
-                    'basic_access': 'เข้าถึงพื้นฐาน'
+                    'view_customer_data': 'ดูข้อมูลลูกค้า'
                 };
                 return `<li class="permission-item">
                     <div>

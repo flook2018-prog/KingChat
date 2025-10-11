@@ -25,20 +25,6 @@ const ROLE_PERMISSIONS = {
       'manage_quick_messages',
       'view_customer_data'
     ]
-  },
-  'moderator': {
-    level: 60,
-    permissions: [
-      'manage_chat',
-      'view_customer_data'
-    ]
-  },
-  'user': {
-    level: 40,
-    permissions: [
-      'view_chat',
-      'basic_access'
-    ]
   }
 };
 
