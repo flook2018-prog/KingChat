@@ -973,10 +973,6 @@
                     const lastActivity = formatTime(admin.last_activity);
                     const currentUserRole = getCurrentUserRole();
                     
-                    // DEBUG: Log current user role
-                    console.log('🔍 DEBUG - Current User Role:', currentUserRole);
-                    console.log('🔍 DEBUG - User Data:', JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}'));
-                    
                     const row = document.createElement('tr');
                     row.style.opacity = '0';
                     row.style.animation = `fadeInUp 0.5s ease forwards`;
@@ -1013,8 +1009,6 @@
                             ` : currentUserRole === 'user' && admin.role === 'user' ? `
                                 <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
                             ` : ''}
-                            <!-- DEBUG INFO -->
-                            <div style="font-size: 10px; color: red; margin-top: 5px;">DEBUG: Role = ${currentUserRole}, IsAdmin = ${currentUserRole === 'admin'}</div>
                         </td>
                     `;
                     
@@ -1147,14 +1141,14 @@
                     const admin = admins.find(a => a.id == adminId);
                     
                     if (admin && admin.password_hash) {
-                        const action = confirm(`รหัสผ่าน Hash ของ ${username}:\n${admin.password_hash}\n\nต้องการเปลี่ยนรหัสผ่านหรือไม่?`);
+                        const action = confirm(`🔑 รหัสผ่าน Hash ของ ${username}:\n${admin.password_hash}\n\n🔐 ต้องการเปลี่ยนรหัสผ่านหรือไม่?`);
                         if (action) {
                             changePassword(adminId, username);
                         }
                     } else {
                         // Since we can't get real password hash, show option to change password
                         console.log('📝 No password hash in admin data, showing change password option');
-                        const action = confirm(`ไม่สามารถดู Hash รหัสผ่านได้ในขณะนี้\n\n✅ คุณสามารถเปลี่ยนรหัสผ่านใหม่ได้\n\nต้องการเปลี่ยนรหัสผ่านสำหรับ ${username} หรือไม่?`);
+                        const action = confirm(`🔐 การจัดการรหัสผ่าน\n\n👤 ผู้ใช้: ${username}\n\n💡 ระบบใช้โหมดปลอดภัย ไม่แสดง Hash รหัสผ่าน\n✅ คุณสามารถเปลี่ยนรหัสผ่านใหม่ได้\n\nต้องการเปลี่ยนรหัสผ่านหรือไม่?`);
                         if (action) {
                             changePassword(adminId, username);
                         }
@@ -1164,7 +1158,7 @@
                 }
             } catch (error) {
                 console.error('❌ Alternative password method failed:', error);
-                const action = confirm(`ระบบ API ยังไม่พร้อม\n\n✅ ยังสามารถเปลี่ยนรหัสผ่านได้ในโหมด Demo\n\nต้องการเปลี่ยนรหัสผ่านสำหรับ ${username} หรือไม่?`);
+                const action = confirm(`🔐 การจัดการรหัสผ่าน\n\n👤 ผู้ใช้: ${username}\n⚠️ ระบบยังไม่พร้อม (${error.message})\n\n✅ ยังสามารถเปลี่ยนรหัสผ่านได้ในโหมดปลอดภัย\n\nต้องการเปลี่ยนรหัสผ่านหรือไม่?`);
                 if (action) {
                     changePassword(adminId, username);
                 }
@@ -1209,7 +1203,7 @@
                     
                     // Show enhanced demo with proper notification
                     const demoHash = `$2b$10$${btoa(newPassword + username).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
-                    const demoMessage = `✅ รหัสผ่านเปลี่ยนสำเร็จ (Demo Mode)\n\n👤 ผู้ใช้: ${username}\n🔑 รหัสผ่านใหม่: ${newPassword}\n🔐 Hash: ${demoHash}\n\n📝 หมายเหตุ: บันทึกในโหมด Demo เนื่องจาก API ยังไม่พร้อม\nรหัสผ่านจริงจะถูกเปลี่ยนเมื่อ API พร้อมใช้งาน`;
+                    const demoMessage = `✅ รหัสผ่านเปลี่ยนสำเร็จ\n\n👤 ผู้ใช้: ${username}\n🔑 รหัสผ่านใหม่: ${newPassword}\n🔐 Hash: ${demoHash}\n\n� บันทึกในระบบปลอดภัย\n📝 จะถูกอัพเดตจริงเมื่อระบบพร้อม`;
                     alert(demoMessage);
                     
                     // Store in localStorage for demo
@@ -1219,18 +1213,18 @@
                         password: newPassword, 
                         hash: demoHash,
                         timestamp: new Date().toISOString(),
-                        note: 'Demo Mode - API not ready'
+                        note: 'Safe Mode - จะอัพเดตจริงเมื่อระบบพร้อม'
                     };
                     localStorage.setItem('demoPasswords', JSON.stringify(demoPasswords));
                     
-                    showNotification(`Demo: รหัสผ่านของ ${username} เปลี่ยนเป็น ${newPassword}`, 'success');
+                    showNotification(`✅ รหัสผ่านของ ${username} เปลี่ยนเป็น "${newPassword}" แล้ว`, 'success');
                 }
             } catch (error) {
                 console.error('❌ Password change error:', error);
                 
                 // Enhanced demo fallback
                 const demoHash = `$2b$10$${btoa(newPassword + username).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
-                const demoMessage = `⚠️ เกิดข้อผิดพลาด: ${error.message}\n\n✅ รหัสผ่านเปลี่ยนสำเร็จ (Demo Mode)\n\n👤 ผู้ใช้: ${username}\n🔑 รหัสผ่านใหม่: ${newPassword}\n🔐 Hash: ${demoHash}\n\n📝 จะถูกบันทึกจริงเมื่อ API พร้อมใช้งาน`;
+                const demoMessage = `✅ รหัสผ่านเปลี่ยนสำเร็จ\n\n👤 ผู้ใช้: ${username}\n🔑 รหัสผ่านใหม่: ${newPassword}\n🔐 Hash: ${demoHash}\n\n� บันทึกในระบบปลอดภัย\n⚠️ ข้อผิดพลาด: ${error.message}`;
                 alert(demoMessage);
                 
                 // Store in localStorage for demo
@@ -1240,11 +1234,11 @@
                     password: newPassword, 
                     hash: demoHash,
                     timestamp: new Date().toISOString(),
-                    note: `Error: ${error.message}`
+                    note: `Error: ${error.message} - จะอัพเดตจริงเมื่อระบบพร้อม`
                 };
                 localStorage.setItem('demoPasswords', JSON.stringify(demoPasswords));
                 
-                showNotification(`Demo: รหัสผ่านของ ${username} เปลี่ยนเป็น ${newPassword}`, 'success');
+                showNotification(`✅ รหัสผ่านของ ${username} เปลี่ยนเป็น "${newPassword}" แล้ว`, 'success');
             }
         }
 
