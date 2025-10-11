@@ -14,9 +14,32 @@ router.get('/debug', (req, res) => {
       'POST /admin-users', 
       'PUT /admin-users/:id',
       'DELETE /admin-users/:id',
-      'PUT /admin-users/:id/password'
+      'PUT /admin-users/:id/password',
+      'GET /debug/users - Check all users in database'
     ]
   });
+});
+
+// Debug route to check users in database
+router.get('/debug/users', async (req, res) => {
+  try {
+    const { sequelize } = require('../config/database');
+    
+    const [users] = await sequelize.query(`
+      SELECT id, username, email, role, status, created_at
+      FROM users 
+      ORDER BY created_at DESC;
+    `);
+    
+    res.json({
+      message: 'Users in database',
+      count: users.length,
+      users: users
+    });
+  } catch (error) {
+    console.error('Debug users error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Permission levels
@@ -54,7 +77,7 @@ router.get('/admin-users', auth, async (req, res) => {
     let replacements = { limit: parseInt(limit), offset: parseInt(offset) };
     
     if (search) {
-      searchCondition = `WHERE username ILIKE :search OR email ILIKE :search OR "displayName" ILIKE :search`;
+      searchCondition = `WHERE username ILIKE :search OR email ILIKE :search`;
       replacements.search = `%${search}%`;
     }
     
@@ -80,7 +103,8 @@ router.get('/admin-users', auth, async (req, res) => {
     
     const total = parseInt(countResult[0].count);
     
-    console.log(`📊 Found ${total} admins, returning ${admins.length} for page ${page}`);
+    console.log(`📊 Found ${total} admins total, returning ${admins.length} for page ${page}`);
+    console.log('📝 Admins data:', JSON.stringify(admins, null, 2));
     
     res.json({
       admins: admins.map(admin => ({

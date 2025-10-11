@@ -812,7 +812,10 @@
         // Load admins from API
         async function loadAdmins() {
             try {
+                console.log('🔄 Loading admins from API...');
                 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                console.log('🔑 Token found:', token ? 'YES' : 'NO');
+                
                 const response = await fetch('/api/admin/admin-users', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -820,17 +823,26 @@
                     }
                 });
 
+                console.log('📡 API Response status:', response.status);
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
 
                 const result = await response.json();
+                console.log('📄 API Response data:', result);
+                
                 const admins = result.admins || [];
+                console.log('👥 Admins count:', admins.length);
 
                 const tbody = document.getElementById('adminTableBody');
-                if (!tbody) return;
+                if (!tbody) {
+                    console.error('❌ adminTableBody element not found');
+                    return;
+                }
 
                 if (admins.length === 0) {
+                    console.log('⚠️ No admins found, showing empty state');
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
@@ -844,6 +856,7 @@
                     return;
                 }
 
+                console.log('✅ Rendering', admins.length, 'admins');
                 tbody.innerHTML = '';
                 
                 admins.forEach((admin, index) => {
@@ -905,7 +918,7 @@
                 });
 
             } catch (error) {
-                console.error('Error loading admins:', error);
+                console.error('❌ Error loading admins:', error);
                 
                 const tbody = document.getElementById('adminTableBody');
                 if (tbody) {
@@ -1231,9 +1244,15 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM Content Loaded - Admin management page');
             console.log('Admin management page loaded');
             checkAuth();
-            loadAdmins();
+            
+            // Add small delay to ensure auth is complete
+            setTimeout(() => {
+                console.log('🔄 Starting to load admins...');
+                loadAdmins();
+            }, 500);
         });
     </script>
 </body>
