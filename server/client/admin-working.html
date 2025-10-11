@@ -301,6 +301,263 @@
             }
         }
 
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .close:hover {
+            opacity: 1;
+        }
+
+        /* Form Styles */
+        form {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        /* Permissions Grid */
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .permission-item:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        .permission-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .permission-item span {
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* Activity Modal */
+        .activity-content {
+            padding: 25px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #f7fafc;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .activity-info {
+            flex: 1;
+        }
+
+        .activity-action {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* Notification Toast */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification-content {
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 300px;
+        }
+
+        .notification.error .notification-content {
+            background: #dc3545;
+        }
+
+        .notification.warning .notification-content {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         /* Mobile Menu Button */
         .mobile-menu-btn {
             display: none;
@@ -359,6 +616,10 @@
                     <i class="icon">📱</i>
                     <span class="menu-text">บัญชี LINE OA</span>
                 </a>
+                <a href="/line-connect.html" class="menu-item" data-page="line-connect">
+                    <i class="icon">🔗</i>
+                    <span class="menu-text">เชื่อมต่อ LINE OA</span>
+                </a>
                 <a href="/customers-working.html" class="menu-item" data-page="customers">
                     <i class="icon">👥</i>
                     <span class="menu-text">รายชื่อลูกค้า</span>
@@ -386,7 +647,7 @@
                     <p>จัดการผู้ใช้แอดมินและสิทธิ์การเข้าถึงระบบ</p>
                 </div>
 
-                <button class="btn-add action-btn" onclick="alert('เพิ่มแอดมินใหม่')">➕ เพิ่มแอดมินใหม่</button>
+                <button class="btn-add action-btn" onclick="showCreateModal()">➕ เพิ่มแอดมินใหม่</button>
 
                 <table class="admin-table">
                     <thead>
@@ -399,67 +660,132 @@
                             <th>การจัดการ</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="admin-avatar">A</div>
-                                    <div>
-                                        <div style="font-weight: 600;">Admin</div>
-                                        <div style="font-size: 12px; color: #6c757d;">ผู้ดูแลระบบหลัก</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>admin@kingchat.com</td>
-                            <td><span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Super Admin</span></td>
-                            <td><span class="status-online">🟢 ออนไลน์</span></td>
-                            <td>5 นาทีที่แล้ว</td>
-                            <td>
-                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Admin')">✏️ แก้ไข</button>
-                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Admin')">🗑️ ลบ</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #28a745, #20c997);">M</div>
-                                    <div>
-                                        <div style="font-weight: 600;">Manager</div>
-                                        <div style="font-size: 12px; color: #6c757d;">ผู้จัดการระบบ</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>manager@kingchat.com</td>
-                            <td><span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Manager</span></td>
-                            <td><span class="status-online">🟢 ออนไลน์</span></td>
-                            <td>15 นาทีที่แล้ว</td>
-                            <td>
-                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Manager')">✏️ แก้ไข</button>
-                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Manager')">🗑️ ลบ</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">S</div>
-                                    <div>
-                                        <div style="font-weight: 600;">Support</div>
-                                        <div style="font-size: 12px; color: #6c757d;">ฝ่ายสนับสนุน</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>support@kingchat.com</td>
-                            <td><span style="background: #ffc107; color: #212529; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Support</span></td>
-                            <td><span class="status-offline">⚫ ออฟไลน์</span></td>
-                            <td>2 ชั่วโมงที่แล้ว</td>
-                            <td>
-                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Support')">✏️ แก้ไข</button>
-                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Support')">🗑️ ลบ</button>
-                            </td>
-                        </tr>
+                    <tbody id="adminTableBody">
+                        <!-- Admins will be loaded here from API -->
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">เพิ่มแอดมินใหม่</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="adminForm" onsubmit="saveAdmin(event)">
+                <input type="hidden" id="adminId" value="">
+                
+                <div class="form-group">
+                    <label for="username">ชื่อผู้ใช้ *</label>
+                    <input type="text" id="username" required minlength="3" maxlength="30">
+                    <small>ชื่อผู้ใช้สำหรับเข้าสู่ระบบ (3-30 ตัวอักษร)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">อีเมล</label>
+                    <input type="email" id="email">
+                    <small>อีเมลสำหรับการติดต่อ (ไม่บังคับ)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="displayName">ชื่อแสดง</label>
+                    <input type="text" id="displayName" maxlength="100">
+                    <small>ชื่อที่แสดงในระบบ (ไม่บังคับ)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน *</label>
+                    <input type="password" id="password" required minlength="6">
+                    <small id="passwordHelp">รหัสผ่านอย่างน้อย 6 ตัวอักษร</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">บทบาท *</label>
+                    <select id="role" required>
+                        <option value="">เลือกบทบาท</option>
+                        <option value="admin">Super Admin - เข้าถึงทุกอย่าง</option>
+                        <option value="manager">Manager - จัดการข้อมูลและผู้ใช้</option>
+                        <option value="agent">Agent - ตอบแชทและดูข้อมูล</option>
+                        <option value="viewer">Viewer - ดูข้อมูลอย่างเดียว</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>สิทธิ์การเข้าถึง</label>
+                    <div class="permissions-grid">
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_dashboard" checked disabled>
+                            <span>📊 ดูแดชบอร์ด</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_chat">
+                            <span>💬 จัดการแชท</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_customers">
+                            <span>👥 จัดการลูกค้า</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_line_accounts">
+                            <span>📱 จัดการ LINE OA</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_quick_messages">
+                            <span>⚡ จัดการข้อความด่วน</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_settings">
+                            <span>⚙️ ตั้งค่าระบบ</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_admin">
+                            <span>👨‍💼 จัดการแอดมิน</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" id="perm_reports">
+                            <span>📈 ดูรายงาน</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isActive" checked>
+                        เปิดใช้งานบัญชี
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activity History Modal -->
+    <div id="activityModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="activityTitle">ประวัติการเข้าใช้งาน</h3>
+                <span class="close" onclick="closeActivityModal()">&times;</span>
+            </div>
+            <div class="activity-content">
+                <div id="activityList">
+                    <!-- Activity history will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <span id="notificationText"></span>
+            <button onclick="closeNotification()">&times;</button>
         </div>
     </div>
 
@@ -481,6 +807,393 @@
             if (user.username) {
                 document.getElementById('userName').textContent = user.username;
             }
+        }
+
+        // Load admins from API
+        async function loadAdmins() {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch('/api/admin/admin-users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const admins = result.admins || [];
+
+                const tbody = document.getElementById('adminTableBody');
+                if (!tbody) return;
+
+                if (admins.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">👨‍💼</div>
+                                <h3>ยังไม่มีแอดมิน</h3>
+                                <p>สร้างแอดมินคนแรกเพื่อเริ่มต้นระบบ</p>
+                                <button onclick="showCreateModal()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">+ เพิ่มแอดมิน</button>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                
+                admins.forEach((admin, index) => {
+                    const avatarColors = [
+                        'linear-gradient(135deg, #667eea, #764ba2)',
+                        'linear-gradient(135deg, #28a745, #20c997)',
+                        'linear-gradient(135deg, #ffc107, #fd7e14)',
+                        'linear-gradient(135deg, #dc3545, #c82333)',
+                        'linear-gradient(135deg, #6f42c1, #e83e8c)'
+                    ];
+                    const avatarColor = avatarColors[index % avatarColors.length];
+                    
+                    const roleColors = {
+                        'admin': '#007bff',
+                        'manager': '#28a745',
+                        'agent': '#ffc107',
+                        'viewer': '#6c757d'
+                    };
+
+                    const roleNames = {
+                        'admin': 'Super Admin',
+                        'manager': 'Manager',
+                        'agent': 'Agent',
+                        'viewer': 'Viewer'
+                    };
+
+                    const isOnline = admin.last_activity && (new Date() - new Date(admin.last_activity)) < 300000; // 5 minutes
+                    const lastActivity = admin.last_activity ? formatTime(admin.last_activity) : 'ไม่เคยเข้าใช้';
+                    
+                    const row = document.createElement('tr');
+                    row.style.opacity = '0';
+                    row.style.animation = `fadeInUp 0.5s ease forwards`;
+                    row.style.animationDelay = `${index * 100}ms`;
+                    
+                    row.innerHTML = `
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="admin-avatar" style="background: ${avatarColor};">
+                                    ${admin.username ? admin.username.charAt(0).toUpperCase() : 'U'}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">${admin.displayName || admin.username}</div>
+                                    <div style="font-size: 12px; color: #6c757d;">${getRoleDescription(admin.role)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${admin.email || 'ไม่ระบุ'}</td>
+                        <td><span style="background: ${roleColors[admin.role] || '#6c757d'}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">${roleNames[admin.role] || admin.role}</span></td>
+                        <td><span class="${isOnline ? 'status-online' : 'status-offline'}">${isOnline ? '🟢 ออนไลน์' : '⚫ ออฟไลน์'}</span></td>
+                        <td>${lastActivity}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
+                            <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
+                            <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                
+                const tbody = document.getElementById('adminTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #dc3545;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+                                <h3>เกิดข้อผิดพลาด</h3>
+                                <p>ไม่สามารถโหลดข้อมูลแอดมินได้: ${error.message}</p>
+                                <button onclick="loadAdmins()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">🔄 ลองใหม่</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        // Helper functions
+        function getRoleDescription(role) {
+            const descriptions = {
+                'admin': 'ผู้ดูแลระบบหลัก',
+                'manager': 'ผู้จัดการระบบ',
+                'agent': 'เจ้าหน้าที่',
+                'viewer': 'ผู้ดูข้อมูล'
+            };
+            return descriptions[role] || 'บทบาทไม่ระบุ';
+        }
+
+        function formatTime(timeString) {
+            if (!timeString) return 'ไม่เคยเข้าใช้';
+            
+            const now = new Date();
+            const time = new Date(timeString);
+            const diffMs = now - time;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'เมื่อสักครู่';
+            if (diffMins < 60) return `${diffMins} นาทีที่แล้ว`;
+            if (diffHours < 24) return `${diffHours} ชั่วโมงที่แล้ว`;
+            if (diffDays === 1) return 'เมื่อวาน';
+            if (diffDays < 7) return `${diffDays} วันที่แล้ว`;
+            
+            return time.toLocaleDateString('th-TH');
+        }
+
+        // Admin actions
+        function editAdmin(id, username) {
+            // Load admin data for editing
+            loadAdminForEdit(id);
+        }
+
+        async function loadAdminForEdit(id) {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`/api/admin/admin-users/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const admin = await response.json();
+                    
+                    // Populate form
+                    document.getElementById('modalTitle').textContent = 'แก้ไขแอดมิน';
+                    document.getElementById('adminId').value = admin.id;
+                    document.getElementById('username').value = admin.username;
+                    document.getElementById('email').value = admin.email || '';
+                    document.getElementById('displayName').value = admin.displayName || '';
+                    document.getElementById('role').value = admin.role;
+                    document.getElementById('isActive').checked = admin.isActive;
+                    
+                    // Hide password field for editing
+                    document.getElementById('password').parentElement.style.display = 'none';
+                    
+                    // Update permissions based on role
+                    updatePermissions(admin.role);
+                    
+                    // Show modal
+                    document.getElementById('adminModal').style.display = 'flex';
+                } else {
+                    showNotification('ไม่สามารถโหลดข้อมูลแอดมินได้', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading admin:', error);
+                showNotification('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+            }
+        }
+
+        function deleteAdmin(id, username) {
+            if (confirm(`ต้องการลบแอดมิน "${username}" หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้`)) {
+                deleteAdminConfirm(id, username);
+            }
+        }
+
+        async function deleteAdminConfirm(id, username) {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`/api/admin/admin-users/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    showNotification(`ลบแอดมิน "${username}" สำเร็จ`, 'success');
+                    loadAdmins(); // Refresh list
+                } else {
+                    throw new Error('Failed to delete admin');
+                }
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                showNotification('เกิดข้อผิดพลาดในการลบแอดมิน', 'error');
+            }
+        }
+
+        function viewActivity(id, username) {
+            document.getElementById('activityTitle').textContent = `ประวัติการเข้าใช้งาน - ${username}`;
+            loadActivityHistory(id);
+            document.getElementById('activityModal').style.display = 'flex';
+        }
+
+        async function loadActivityHistory(adminId) {
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = '<div style="text-align: center; padding: 20px;">กำลังโหลด...</div>';
+            
+            try {
+                // Mock activity data (replace with real API)
+                const activities = [
+                    { action: 'เข้าสู่ระบบ', time: new Date(Date.now() - 300000), icon: '🔑', color: '#28a745' },
+                    { action: 'ดูหน้าแดชบอร์ด', time: new Date(Date.now() - 600000), icon: '📊', color: '#17a2b8' },
+                    { action: 'จัดการลูกค้า', time: new Date(Date.now() - 1800000), icon: '👥', color: '#ffc107' },
+                    { action: 'แก้ไขข้อความด่วน', time: new Date(Date.now() - 3600000), icon: '⚡', color: '#6f42c1' },
+                    { action: 'ออกจากระบบ', time: new Date(Date.now() - 86400000), icon: '🚪', color: '#dc3545' }
+                ];
+
+                if (activities.length === 0) {
+                    activityList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #6c757d;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
+                            <h3>ยังไม่มีประวัติการใช้งาน</h3>
+                            <p>แอดมินยังไม่เคยเข้าใช้งานระบบ</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                activityList.innerHTML = '';
+                activities.forEach(activity => {
+                    const item = document.createElement('div');
+                    item.className = 'activity-item';
+                    item.innerHTML = `
+                        <div class="activity-icon" style="background: ${activity.color}; color: white;">
+                            ${activity.icon}
+                        </div>
+                        <div class="activity-info">
+                            <div class="activity-action">${activity.action}</div>
+                            <div class="activity-time">${formatTime(activity.time)}</div>
+                        </div>
+                    `;
+                    activityList.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error('Error loading activity:', error);
+                activityList.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">เกิดข้อผิดพลาดในการโหลดประวัติ</div>';
+            }
+        }
+
+        // Modal functions
+        function showCreateModal() {
+            // Reset form
+            document.getElementById('adminForm').reset();
+            document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';
+            document.getElementById('adminId').value = '';
+            document.getElementById('password').parentElement.style.display = 'block';
+            document.getElementById('passwordHelp').textContent = 'รหัสผ่านอย่างน้อย 6 ตัวอักษร';
+            
+            // Reset permissions
+            updatePermissions('agent');
+            
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        function closeActivityModal() {
+            document.getElementById('activityModal').style.display = 'none';
+        }
+
+        // Form submission
+        async function saveAdmin(event) {
+            event.preventDefault();
+            
+            const adminId = document.getElementById('adminId').value;
+            const isEdit = adminId !== '';
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value || null,
+                displayName: document.getElementById('displayName').value || null,
+                role: document.getElementById('role').value,
+                isActive: document.getElementById('isActive').checked
+            };
+
+            if (!isEdit) {
+                formData.password = document.getElementById('password').value;
+            }
+
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const url = isEdit ? `/api/admin/admin-users/${adminId}` : '/api/admin/admin-users';
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const action = isEdit ? 'แก้ไข' : 'เพิ่ม';
+                    showNotification(`${action}แอดมินสำเร็จ`, 'success');
+                    closeModal();
+                    loadAdmins(); // Refresh list
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'เกิดข้อผิดพลาด');
+                }
+            } catch (error) {
+                console.error('Error saving admin:', error);
+                showNotification(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
+            }
+        }
+
+        // Role permissions mapping
+        function updatePermissions(role) {
+            const permissions = {
+                'admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
+                'manager': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'reports'],
+                'agent': ['dashboard', 'chat', 'customers', 'quick_messages'],
+                'viewer': ['dashboard']
+            };
+
+            const rolePerms = permissions[role] || ['dashboard'];
+            
+            // Reset all permissions
+            document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(checkbox => {
+                const permName = checkbox.id.replace('perm_', '');
+                checkbox.checked = rolePerms.includes(permName);
+                checkbox.disabled = permName !== 'dashboard'; // Dashboard is always required
+            });
+        }
+
+        // Role change handler
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('role').addEventListener('change', function() {
+                updatePermissions(this.value);
+            });
+        });
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notification.className = `notification ${type}`;
+            notificationText.textContent = message;
+            notification.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                closeNotification();
+            }, 5000);
+        }
+
+        function closeNotification() {
+            document.getElementById('notification').style.display = 'none';
         }
 
         // Logout function
@@ -520,6 +1233,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Admin management page loaded');
             checkAuth();
+            loadAdmins();
         });
     </script>
 </body>
