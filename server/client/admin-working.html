@@ -924,7 +924,7 @@
                                 <button class="action-btn" onclick="showPassword(${admin.id}, '${admin.username}')" style="background: #6f42c1; color: white;">🔑 รหัสผ่าน</button>
                             ` : ''}
                             <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
-                            ${currentUserRole === 'admin' && admin.role !== 'admin' ? `
+                            ${currentUserRole === 'admin' ? `
                                 <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
                             ` : ''}
                         </td>
