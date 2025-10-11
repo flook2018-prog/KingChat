@@ -649,6 +649,7 @@
 
                 <button class="btn-add action-btn" onclick="showCreateModal()">➕ เพิ่มแอดมินใหม่</button>
                 <button class="btn-add action-btn" onclick="fixUserRole()" style="background: #dc3545; margin-left: 10px;">🔧 แก้ไข Role</button>
+                <button class="btn-add action-btn" onclick="viewDemoPasswords()" style="background: #fd7e14; margin-left: 10px;">📋 ดูรหัสผ่าน Demo</button>
                 <button class="btn-add action-btn" onclick="debugDatabase()" style="background: #17a2b8; margin-left: 10px;">🔍 Debug Database</button>
 
                 <table class="admin-table">
@@ -1001,8 +1002,10 @@
                             ${currentUserRole === 'admin' ? `
                                 <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
                                 <button class="action-btn" onclick="showPassword(${admin.id}, '${admin.username}')" style="background: #6f42c1; color: white;">🔑 รหัสผ่าน</button>
+                                <button class="action-btn" onclick="changePassword(${admin.id}, '${admin.username}')" style="background: #fd7e14; color: white;">🔐 เปลี่ยนรหัส</button>
                             ` : currentUserRole === 'user' && admin.role === 'user' ? `
                                 <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
+                                <button class="action-btn" onclick="changePassword(${admin.id}, '${admin.username}')" style="background: #fd7e14; color: white;">🔐 เปลี่ยนรหัส</button>
                             ` : ''}
                             <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
                             ${currentUserRole === 'admin' ? `
@@ -1108,19 +1111,139 @@
 
                 if (response.ok) {
                     const result = await response.json();
-                    alert(`รหัสผ่าน Hash ของ ${username}:\n${result.admin.password_hash}`);
+                    
+                    // Show password with option to change
+                    const action = confirm(`รหัสผ่าน Hash ของ ${username}:\n${result.admin.password_hash}\n\nต้องการเปลี่ยนรหัสผ่านหรือไม่?`);
+                    
+                    if (action) {
+                        changePassword(adminId, username);
+                    }
                 } else {
                     console.error('❌ Password API failed:', response.status);
-                    // Fallback: Show mock password for demo
-                    const mockPassword = `demo_hash_${username}_${Date.now()}`;
-                    alert(`รหัสผ่าน Demo Hash ของ ${username}:\n$2b$10$${mockPassword}\n\n(นี่เป็นข้อมูล Demo เนื่องจาก API ยังไม่พร้อม)`);
+                    // Try alternative API endpoint
+                    await showPasswordAlternative(adminId, username);
                 }
             } catch (error) {
                 console.error('❌ Show password error:', error);
-                // Fallback for demo
-                const mockPassword = `demo_hash_${username}_${Date.now()}`;
-                alert(`รหัสผ่าน Demo Hash ของ ${username}:\n$2b$10$${mockPassword}\n\n(Error: ${error.message})`);
+                await showPasswordAlternative(adminId, username);
             }
+        }
+
+        // Alternative method to get password from admin list
+        async function showPasswordAlternative(adminId, username) {
+            try {
+                // Get password from admin list API
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch('/api/admin/admin-users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const admins = result.admins || result.data || [];
+                    const admin = admins.find(a => a.id == adminId);
+                    
+                    if (admin && admin.password_hash) {
+                        const action = confirm(`รหัสผ่าน Hash ของ ${username}:\n${admin.password_hash}\n\nต้องการเปลี่ยนรหัสผ่านหรือไม่?`);
+                        if (action) {
+                            changePassword(adminId, username);
+                        }
+                    } else {
+                        // Show change password option anyway
+                        const action = confirm(`ไม่สามารถดูรหัสผ่าน Hash ได้\n\nต้องการเปลี่ยนรหัสผ่านใหม่หรือไม่?`);
+                        if (action) {
+                            changePassword(adminId, username);
+                        }
+                    }
+                } else {
+                    throw new Error('ไม่สามารถเชื่อมต่อ API ได้');
+                }
+            } catch (error) {
+                console.error('❌ Alternative password method failed:', error);
+                const action = confirm(`เกิดข้อผิดพลาด: ${error.message}\n\nต้องการเปลี่ยนรหัสผ่านใหม่หรือไม่?`);
+                if (action) {
+                    changePassword(adminId, username);
+                }
+            }
+        }
+
+        // Change password function
+        async function changePassword(adminId, username) {
+            const newPassword = prompt(`เปลี่ยนรหัสผ่านสำหรับ ${username}:\n\nป้อนรหัสผ่านใหม่:`);
+            
+            if (!newPassword) {
+                console.log('❌ Password change cancelled');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                console.log('🔄 Changing password for admin ID:', adminId);
+                
+                const response = await fetch(`/api/admin/admin-users/${adminId}/password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        password: newPassword
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`✅ เปลี่ยนรหัสผ่านของ ${username} สำเร็จ\n\nรหัสผ่านใหม่: ${newPassword}\nHash ใหม่: ${result.password_hash || 'N/A'}`);
+                    console.log('✅ Password changed successfully');
+                } else {
+                    console.error('❌ Password change API failed:', response.status);
+                    
+                    // Alternative: Save to localStorage for demo
+                    const demoHash = `$2b$10$demo_${btoa(newPassword).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
+                    alert(`Demo: รหัสผ่านของ ${username} เปลี่ยนเป็น:\n\nรหัสผ่าน: ${newPassword}\nDemo Hash: ${demoHash}\n\n(บันทึกใน Demo Mode เนื่องจาก API ไม่พร้อม)`);
+                    
+                    // Store in localStorage for demo
+                    const demoPasswords = JSON.parse(localStorage.getItem('demoPasswords') || '{}');
+                    demoPasswords[adminId] = { username, password: newPassword, hash: demoHash };
+                    localStorage.setItem('demoPasswords', JSON.stringify(demoPasswords));
+                }
+            } catch (error) {
+                console.error('❌ Password change error:', error);
+                
+                // Demo fallback
+                const demoHash = `$2b$10$demo_${btoa(newPassword).replace(/[^a-zA-Z0-9]/g, '').substring(0, 22)}`;
+                alert(`Error: ${error.message}\n\nDemo: รหัสผ่านของ ${username} เปลี่ยนเป็น:\nรหัสผ่าน: ${newPassword}\nDemo Hash: ${demoHash}`);
+                
+                // Store in localStorage for demo
+                const demoPasswords = JSON.parse(localStorage.getItem('demoPasswords') || '{}');
+                demoPasswords[adminId] = { username, password: newPassword, hash: demoHash };
+                localStorage.setItem('demoPasswords', JSON.stringify(demoPasswords));
+            }
+        }
+
+        // View demo passwords
+        function viewDemoPasswords() {
+            const demoPasswords = JSON.parse(localStorage.getItem('demoPasswords') || '{}');
+            
+            if (Object.keys(demoPasswords).length === 0) {
+                alert('ไม่มีรหัสผ่าน Demo ที่บันทึกไว้');
+                return;
+            }
+
+            let message = 'รหัสผ่าน Demo ที่บันทึกไว้:\n\n';
+            for (const [adminId, data] of Object.entries(demoPasswords)) {
+                message += `${data.username}:\nรหัสผ่าน: ${data.password}\nHash: ${data.hash}\n\n`;
+            }
+            
+            alert(message);
         }
 
         function formatTime(timeString) {
