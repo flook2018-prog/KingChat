@@ -152,7 +152,21 @@ let authRoutes, adminRoutes, lineAccountRoutes;
 
 try {
   authRoutes = require('./routes/auth');
-  adminRoutes = require('./routes/admin');
+  
+  // Try multiple admin route files for Railway deployment
+  try {
+    adminRoutes = require('./routes/admin-GUARANTEED');
+    console.log('✅ Using admin-GUARANTEED routes');
+  } catch {
+    try {
+      adminRoutes = require('./routes/admin-railway-ready');
+      console.log('✅ Using admin-railway-ready routes');
+    } catch {
+      adminRoutes = require('./routes/admin');
+      console.log('✅ Using default admin routes');
+    }
+  }
+  
   lineAccountRoutes = require('./routes/lineAccounts');
   console.log('✅ Routes loaded successfully');
 } catch (error) {
