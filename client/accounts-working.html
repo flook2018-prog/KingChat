@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📱 บัญชี LINE OA - KingChat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
     <style>
-        /* Enhanced Styles - Same as Chat */
+        /* Enhanced Styles - Same as other working pages */
         body {
             margin: 0;
             padding: 0;
@@ -171,7 +164,7 @@
             min-height: calc(100vh - 80px);
         }
 
-        .accounts-content {
+        .admin-content {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
@@ -194,116 +187,87 @@
             margin: 0;
         }
 
-        .accounts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-top: 30px;
         }
 
-        .account-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-            position: relative;
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+        .admin-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
             font-weight: 600;
         }
 
-        .status-connected {
-            background: #d4edda;
-            color: #155724;
+        .admin-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        .account-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            margin-top: 20px;
+        .admin-table tr:hover {
+            background: #f8f9fa;
         }
 
-        .account-avatar {
-            width: 50px;
-            height: 50px;
-            background: #28a745;
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 20px;
         }
 
-        .account-info h3 {
-            margin: 0;
-            color: #2d3748;
+        .status-online {
+            color: #28a745;
+            font-weight: 600;
         }
 
-        .account-id {
-            color: #6c757d;
-            font-family: monospace;
-        }
-
-        .account-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .stat-number {
-            font-weight: bold;
-            color: #2d3748;
-        }
-
-        .stat-label {
-            font-size: 12px;
+        .status-offline {
             color: #6c757d;
         }
 
-        .btn-manage, .btn-settings {
-            margin: 5px;
-            padding: 8px 16px;
+        .action-btn {
+            padding: 6px 12px;
+            margin: 2px;
             border: none;
-            border-radius: 6px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             transition: all 0.3s ease;
         }
 
-        .btn-manage {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .btn-edit {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-delete {
+            background: #dc3545;
             color: white;
         }
 
-        .btn-settings {
-            background: #6c757d;
+        .btn-add {
+            background: #28a745;
             color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-bottom: 20px;
         }
 
-        .btn-manage:hover, .btn-settings:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* Responsive Design */
@@ -327,9 +291,13 @@
                 padding: 15px 20px;
             }
 
-            .accounts-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
+            .admin-table {
+                font-size: 14px;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 10px 8px;
             }
         }
 
@@ -351,7 +319,7 @@
     </style>
 </head>
 <body>
-    <div class="accounts-container">
+    <div class="admin-container">
         <!-- Top Navigation -->
         <nav class="navbar" style="opacity: 0; animation: slideInDown 0.6s ease 0.1s forwards;">
             <div class="nav-brand">
@@ -387,19 +355,27 @@
                     <i class="icon">📊</i>
                     <span class="menu-text">แดชบอร์ด</span>
                 </a>
-                <a href="#" class="menu-item active" data-page="accounts">
+                <a href="/accounts-working.html" class="menu-item active" data-page="accounts">
                     <i class="icon">📱</i>
                     <span class="menu-text">บัญชี LINE OA</span>
+                </a>
+                <a href="/line-connect.html" class="menu-item" data-page="line-connect">
+                    <i class="icon">🔗</i>
+                    <span class="menu-text">เชื่อมต่อ LINE OA</span>
                 </a>
                 <a href="/customers-working.html" class="menu-item" data-page="customers">
                     <i class="icon">👥</i>
                     <span class="menu-text">รายชื่อลูกค้า</span>
                 </a>
+                <a href="/quick-messages-working.html" class="menu-item" data-page="quick-messages">
+                    <i class="icon">⚡</i>
+                    <span class="menu-text">ข้อความด่วน</span>
+                </a>
                 <a href="/settings-working.html" class="menu-item" data-page="settings">
                     <i class="icon">⚙️</i>
                     <span class="menu-text">ตั้งค่า</span>
                 </a>
-                <a href="/admin-working" class="menu-item" data-page="admin">
+                <a href="/admin-working.html" class="menu-item" data-page="admin">
                     <i class="icon">👨‍💼</i>
                     <span class="menu-text">จัดการแอดมิน</span>
                 </a>
@@ -408,120 +384,102 @@
 
         <!-- Main Content -->
         <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
-            <div class="accounts-content">
+            <div class="admin-content">
                 <div class="page-header" style="text-align: center; margin-bottom: 40px;">
-                    <h1>📱 บัญชี LINE OA</h1>
+                    <h1>� บัญชี LINE OA</h1>
                     <p>จัดการบัญชี LINE Official Account</p>
                 </div>
 
-                <div class="accounts-grid">
-                    <div class="account-card">
-                        <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>
-                        <div class="account-header">
-                            <div class="account-avatar">K</div>
-                            <div class="account-info">
-                                <h3>KingChat Shop</h3>
-                                <div class="account-id">@kingchat-shop</div>
-                            </div>
-                        </div>
-                        <div class="account-stats">
-                            <div class="stat-item">
-                                <div class="stat-number">1,250</div>
-                                <div class="stat-label">ผู้ติดตาม</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">432</div>
-                                <div class="stat-label">ข้อความวันนี้</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">98%</div>
-                                <div class="stat-label">อัตราตอบกลับ</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">5 นาทีที่แล้ว</div>
-                                <div class="stat-label">ใช้งานล่าสุด</div>
-                            </div>
-                        </div>
-                        <button class="btn-manage" onclick="alert('จัดการบัญชี KingChat Shop')">📊 จัดการ</button>
-                        <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี KingChat Shop')">⚙️ ตั้งค่า</button>
-                    </div>
+                <button class="btn-add action-btn" onclick="alert('เพิ่มแอดมินใหม่')">➕ เพิ่มแอดมินใหม่</button>
 
-                    <div class="account-card">
-                        <span class="status-badge status-connected">🟢 เชื่อมต่อแล้ว</span>
-                        <div class="account-header">
-                            <div class="account-avatar" style="background: #dc3545;">S</div>
-                            <div class="account-info">
-                                <h3>Support Center</h3>
-                                <div class="account-id">@support-center</div>
-                            </div>
-                        </div>
-                        <div class="account-stats">
-                            <div class="stat-item">
-                                <div class="stat-number">850</div>
-                                <div class="stat-label">ผู้ติดตาม</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">123</div>
-                                <div class="stat-label">ข้อความวันนี้</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">95%</div>
-                                <div class="stat-label">อัตราตอบกลับ</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">15 นาทีที่แล้ว</div>
-                                <div class="stat-label">ใช้งานล่าสุด</div>
-                            </div>
-                        </div>
-                        <button class="btn-manage" onclick="alert('จัดการบัญชี Support Center')">📊 จัดการ</button>
-                        <button class="btn-settings" onclick="alert('ตั้งค่าบัญชี Support Center')">⚙️ ตั้งค่า</button>
-                    </div>
-
-                    <div class="account-card">
-                        <span class="status-badge" style="background: #ffeaa7; color: #d63031;">🟡 รอเชื่อมต่อ</span>
-                        <div class="account-header">
-                            <div class="account-avatar" style="background: #6c757d;">?</div>
-                            <div class="account-info">
-                                <h3>บัญชีใหม่</h3>
-                                <div class="account-id">ยังไม่ได้เชื่อมต่อ</div>
-                            </div>
-                        </div>
-                        <div class="account-stats">
-                            <div class="stat-item">
-                                <div class="stat-number">-</div>
-                                <div class="stat-label">ผู้ติดตาม</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">-</div>
-                                <div class="stat-label">ข้อความวันนี้</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">-</div>
-                                <div class="stat-label">อัตราตอบกลับ</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">-</div>
-                                <div class="stat-label">ใช้งานล่าสุด</div>
-                            </div>
-                        </div>
-                        <button class="btn-manage" onclick="alert('เชื่อมต่อบัญชีใหม่')">🔗 เชื่อมต่อ</button>
-                        <button class="btn-settings" onclick="alert('ตั้งค่าการเชื่อมต่อ')">⚙️ ตั้งค่า</button>
-                    </div>
-                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>แอดมิน</th>
+                            <th>อีเมล</th>
+                            <th>บทบาท</th>
+                            <th>สถานะ</th>
+                            <th>เข้าสู่ระบบล่าสุด</th>
+                            <th>การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar">A</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Admin</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ผู้ดูแลระบบหลัก</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>admin@kingchat.com</td>
+                            <td><span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Super Admin</span></td>
+                            <td><span class="status-online">🟢 ออนไลน์</span></td>
+                            <td>5 นาทีที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Admin')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Admin')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #28a745, #20c997);">M</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Manager</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ผู้จัดการระบบ</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>manager@kingchat.com</td>
+                            <td><span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Manager</span></td>
+                            <td><span class="status-online">🟢 ออนไลน์</span></td>
+                            <td>15 นาทีที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Manager')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Manager')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="admin-avatar" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">S</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Support</div>
+                                        <div style="font-size: 12px; color: #6c757d;">ฝ่ายสนับสนุน</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>support@kingchat.com</td>
+                            <td><span style="background: #ffc107; color: #212529; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Support</span></td>
+                            <td><span class="status-offline">⚫ ออฟไลน์</span></td>
+                            <td>2 ชั่วโมงที่แล้ว</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="alert('แก้ไขแอดมิน: Support')">✏️ แก้ไข</button>
+                                <button class="action-btn btn-delete" onclick="alert('ลบแอดมิน: Support')">🗑️ ลบ</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Authentication Check
+        // Simple authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
             if (!token) {
+                console.log('No token found, redirecting to login...');
                 window.location.href = '/login.html';
                 return;
             }
+            
+            console.log('Admin page: Authentication successful for:', user.username || 'Unknown');
             
             // Update user info
             if (user.username) {
@@ -544,8 +502,27 @@
             sidebar.classList.toggle('mobile-open');
         }
 
-        // Initialize
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInDown {
+                from { transform: translateY(-100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes slideInLeft {
+                from { transform: translateX(-100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeInUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin management page loaded');
             checkAuth();
         });
     </script>

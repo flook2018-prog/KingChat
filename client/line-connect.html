@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 เชื่อมต่อ LINE OA - KingChat</title>
+    <style>
+        /* Enhanced Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #28a745;
+            margin-top: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 30px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 80px;
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .connect-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d3748 !important;
+            margin: 0 0 10px 0;
+            text-shadow: none !important;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: #4a5568 !important;
+            margin: 0;
+        }
+
+        /* Connection Steps */
+        .connection-steps {
+            margin: 40px 0;
+        }
+
+        .step {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-content {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-left: 55px;
+        }
+
+        .step-content ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .step-content li {
+            margin-bottom: 8px;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+
+        /* Connection Form */
+        .connection-form {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-input.success {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .form-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .form-help {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .btn-primary, .btn-secondary, .btn-test {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .btn-test {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .webhook-info {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .webhook-url {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                margin-top: 80px;
+                padding: 20px;
+            }
+
+            .navbar {
+                padding: 15px 20px;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; transition: opacity 0.5s ease;">
+        <div style="text-align: center; color: white;">
+            <div style="width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+            <h2 style="margin: 0; font-weight: 300;">กำลังโหลด...</h2>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <div id="app" style="opacity: 0; transition: opacity 0.5s ease;">
+        <!-- Top Navigation -->
+        <nav class="navbar" style="opacity: 0; animation: slideInLeft 0.6s ease forwards;">
+            <div class="nav-brand">
+                <span class="brand-logo">👑</span>
+                <span>KingChat</span>
+            </div>
+            <div class="nav-user">
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-status">
+                        <span class="status-dot"></span>
+                        <span>ออนไลน์</span>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <span>🚪</span>
+                    <span>ออกจากระบบ</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
+            <div class="sidebar-menu">
+                <a href="/chat.html" class="menu-item" data-page="chat">
+                    <i class="icon">💬</i>
+                    <span class="menu-text">แชท</span>
+                </a>
+                <a href="/dashboard-working.html" class="menu-item" data-page="dashboard">
+                    <i class="icon">📊</i>
+                    <span class="menu-text">แดชบอร์ด</span>
+                </a>
+                <a href="/accounts-working.html" class="menu-item" data-page="accounts">
+                    <i class="icon">📱</i>
+                    <span class="menu-text">บัญชี LINE OA</span>
+                </a>
+                <a href="/line-connect.html" class="menu-item active" data-page="line-connect">
+                    <i class="icon">🔗</i>
+                    <span class="menu-text">เชื่อมต่อ LINE OA</span>
+                </a>
+                <a href="/customers-working.html" class="menu-item" data-page="customers">
+                    <i class="icon">👥</i>
+                    <span class="menu-text">รายชื่อลูกค้า</span>
+                </a>
+                <a href="/quick-messages-working.html" class="menu-item" data-page="quick-messages">
+                    <i class="icon">⚡</i>
+                    <span class="menu-text">ข้อความด่วน</span>
+                </a>
+                <a href="/settings-working.html" class="menu-item" data-page="settings">
+                    <i class="icon">⚙️</i>
+                    <span class="menu-text">ตั้งค่า</span>
+                </a>
+                <a href="/admin-working.html" class="menu-item" data-page="admin">
+                    <i class="icon">👨‍💼</i>
+                    <span class="menu-text">จัดการแอดมิน</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
+            <div class="connect-content">
+                <div class="page-header" style="text-align: center; margin-bottom: 40px;">
+                    <h1>🔗 เชื่อมต่อ LINE Official Account</h1>
+                    <p>เชื่อมต่อบัญชี LINE OA ของคุณเข้ากับระบบ KingChat</p>
+                </div>
+
+                <!-- Connection Steps -->
+                <div class="connection-steps">
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-number">1</span>
+                            สร้างบัญชี LINE Developers
+                        </div>
+                        <div class="step-content">
+                            <p>เข้าไปที่ <strong>LINE Developers Console</strong> และสร้างแอปพลิเคชันใหม่:</p>
+                            <ul>
+                                <li>ไปที่ <a href="https://developers.line.biz/console/" target="_blank">developers.line.biz/console</a></li>
+                                <li>สร้าง Provider ใหม่หรือเลือก Provider ที่มีอยู่</li>
+                                <li>คลิก "Create a new channel" → เลือก "Messaging API"</li>
+                                <li>กรอกข้อมูลและยอมรับเงื่อนไข</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-number">2</span>
+                            ตั้งค่า Webhook URL
+                        </div>
+                        <div class="step-content">
+                            <p>คัดลอก Webhook URL นี้ไปใส่ในหน้า LINE Developers Console:</p>
+                            <div class="webhook-info">
+                                <strong>🌐 Webhook URL ของคุณ:</strong>
+                                <div class="webhook-url" id="webhookUrl">
+                                    https://kingchat.up.railway.app/webhook/line
+                                </div>
+                                <button class="btn-secondary" onclick="copyWebhookUrl()">📋 คัดลอก</button>
+                            </div>
+                            <p><strong>ขั้นตอน:</strong></p>
+                            <ul>
+                                <li>ไปที่แท็บ "Messaging API" ใน LINE Console</li>
+                                <li>เลื่อนลงไปหาส่วน "Webhook settings"</li>
+                                <li>ใส่ URL ด้านบนและเปิดใช้งาน "Use webhook"</li>
+                                <li>คลิก "Verify" เพื่อทดสอบการเชื่อมต่อ</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-number">3</span>
+                            ดึงข้อมูลการเชื่อมต่อ
+                        </div>
+                        <div class="step-content">
+                            <p>คัดลอกข้อมูลเหล่านี้จาก LINE Developers Console:</p>
+                            <div class="highlight">
+                                <p><strong>📍 ตำแหน่งข้อมูลใน Console:</strong></p>
+                                <ul>
+                                    <li><strong>Channel ID:</strong> หน้า "Basic settings" → Channel ID</li>
+                                    <li><strong>Channel Secret:</strong> หน้า "Basic settings" → Channel secret (คลิก Issue)</li>
+                                    <li><strong>Channel Access Token:</strong> หน้า "Messaging API" → Channel access token (คลิก Issue)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Form -->
+                <div class="connection-form">
+                    <h3 style="color: #2d3748; margin-bottom: 25px;">🔑 กรอกข้อมูลการเชื่อมต่อ</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">📌 ชื่อบัญชี LINE OA</label>
+                        <input type="text" class="form-input" id="channelName" placeholder="เช่น: KingChat Shop">
+                        <div class="form-help">ชื่อที่จะแสดงในระบบ (ตั้งเองได้)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🆔 Channel ID</label>
+                        <input type="text" class="form-input" id="channelId" placeholder="2007723051">
+                        <div class="form-help">ตัวเลข Channel ID จาก LINE Developers Console</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🔐 Channel Secret</label>
+                        <input type="password" class="form-input" id="channelSecret" placeholder="a4719acc696186068a848449e93f4247">
+                        <div class="form-help">Channel Secret จากหน้า Basic settings</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🎫 Channel Access Token</label>
+                        <input type="password" class="form-input" id="accessToken" placeholder="Token ยาวๆ จาก Messaging API">
+                        <div class="form-help">Channel Access Token จากหน้า Messaging API</div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn-test" onclick="testConnection()">🧪 ทดสอบการเชื่อมต่อ</button>
+                        <button class="btn-primary" onclick="saveConnection()">💾 บันทึกการเชื่อมต่อ</button>
+                        <button class="btn-secondary" onclick="clearForm()">🗑️ ล้างข้อมูล</button>
+                    </div>
+
+                    <div id="connectionStatus" style="margin-top: 20px; text-align: center;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('kingchat_token') || 
+                         sessionStorage.getItem('kingchat_token') ||
+                         localStorage.getItem('authToken') || 
+                         localStorage.getItem('token') ||
+                         sessionStorage.getItem('authToken') ||
+                         sessionStorage.getItem('token');
+            
+            if (!token) {
+                alert('กรุณาเข้าสู่ระบบก่อน');
+                window.location.href = '/login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('kingchat_token');
+            sessionStorage.removeItem('kingchat_token');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userData');
+            
+            window.location.href = '/login.html';
+        }
+
+        // Copy webhook URL
+        function copyWebhookUrl() {
+            const webhookUrl = document.getElementById('webhookUrl').textContent;
+            navigator.clipboard.writeText(webhookUrl).then(() => {
+                alert('🎉 คัดลอก Webhook URL แล้ว!');
+            }).catch(err => {
+                console.error('Error copying text: ', err);
+                alert('❌ ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยมือ');
+            });
+        }
+
+        // Test connection
+        async function testConnection() {
+            const channelId = document.getElementById('channelId').value.trim();
+            const channelSecret = document.getElementById('channelSecret').value.trim();
+            const accessToken = document.getElementById('accessToken').value.trim();
+
+            if (!channelId || !channelSecret || !accessToken) {
+                showStatus('❌ กรุณากรอกข้อมูลให้ครบทุกช่อง', 'error');
+                return;
+            }
+
+            showStatus('🔄 กำลังทดสอบการเชื่อมต่อ...', 'pending');
+
+            try {
+                // Test LINE API
+                const response = await fetch('/api/line/test-connection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        channelId,
+                        channelSecret,
+                        accessToken
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatus('✅ การเชื่อมต่อสำเร็จ! พร้อมใช้งาน', 'success');
+                    
+                    // Mark inputs as success
+                    document.getElementById('channelId').classList.add('success');
+                    document.getElementById('channelSecret').classList.add('success');
+                    document.getElementById('accessToken').classList.add('success');
+                } else {
+                    showStatus('❌ การเชื่อมต่อล้มเหลว: ' + result.message, 'error');
+                    
+                    // Mark inputs as error
+                    document.getElementById('channelId').classList.add('error');
+                    document.getElementById('channelSecret').classList.add('error');
+                    document.getElementById('accessToken').classList.add('error');
+                }
+            } catch (error) {
+                console.error('Test connection error:', error);
+                showStatus('❌ เกิดข้อผิดพลาดในการทดสอบ: ' + error.message, 'error');
+            }
+        }
+
+        // Save connection
+        async function saveConnection() {
+            const channelName = document.getElementById('channelName').value.trim();
+            const channelId = document.getElementById('channelId').value.trim();
+            const channelSecret = document.getElementById('channelSecret').value.trim();
+            const accessToken = document.getElementById('accessToken').value.trim();
+
+            if (!channelName || !channelId || !channelSecret || !accessToken) {
+                showStatus('❌ กรุณากรอกข้อมูลให้ครบทุกช่อง', 'error');
+                return;
+            }
+
+            showStatus('💾 กำลังบันทึกการเชื่อมต่อ...', 'pending');
+
+            try {
+                const response = await fetch('/api/line/save-connection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        channelName,
+                        channelId,
+                        channelSecret,
+                        accessToken
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatus('🎉 บันทึกการเชื่อมต่อสำเร็จ!', 'success');
+                    
+                    setTimeout(() => {
+                        if (confirm('ต้องการไปดูบัญชี LINE OA ที่เชื่อมต่อแล้วหรือไม่?')) {
+                            window.location.href = '/accounts-working.html';
+                        }
+                    }, 2000);
+                } else {
+                    showStatus('❌ ไม่สามารถบันทึกได้: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Save connection error:', error);
+                showStatus('❌ เกิดข้อผิดพลาดในการบันทึก: ' + error.message, 'error');
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            if (confirm('ต้องการล้างข้อมูลทั้งหมดหรือไม่?')) {
+                document.getElementById('channelName').value = '';
+                document.getElementById('channelId').value = '';
+                document.getElementById('channelSecret').value = '';
+                document.getElementById('accessToken').value = '';
+                
+                // Remove status classes
+                const inputs = document.querySelectorAll('.form-input');
+                inputs.forEach(input => {
+                    input.classList.remove('success', 'error');
+                });
+                
+                showStatus('🗑️ ล้างข้อมูลแล้ว', 'pending');
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = `<div class="status-indicator status-${type}">${message}</div>`;
+            
+            if (type !== 'pending') {
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkAuth()) return;
+            
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loading').style.opacity = '0';
+                document.getElementById('app').style.opacity = '1';
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

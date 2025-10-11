@@ -208,6 +208,14 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/accounts-working.html'));
   });
   
+  app.get('/line-connect', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/line-connect.html'));
+  });
+  
+  app.get('/line-connect.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/line-connect.html'));
+  });
+  
   app.get('/customers', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/customers-working.html'));
   });
