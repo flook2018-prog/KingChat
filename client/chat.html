@@ -20,6 +20,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             overflow-x: hidden;
+            padding-top: 80px;
         }
 
         /* แก้สีตัวหนังสือสีขาวให้เป็นสีเข้ม */
@@ -190,10 +191,10 @@
 
         .chat-container {
             display: flex;
-            height: 100%;
+            height: calc(100vh - 140px);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            margin: 20px;
+            margin: 20px 20px 20px 300px;
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -781,7 +782,7 @@
                 </div>
 
                 <!-- Sidebar -->
-                <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
+                <div class="sidebar" style="opacity: 1;">
                     <div class="sidebar-menu">
                         <a href="#" class="menu-item active" data-page="chat">
                             <i class="icon">💬</i>
