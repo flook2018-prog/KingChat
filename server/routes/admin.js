@@ -60,10 +60,12 @@ router.get('/admin-users', auth, async (req, res) => {
     
     // Get admins with pagination
     const [admins] = await sequelize.query(`
-      SELECT id, username, email, "displayName", role, "isActive", "createdAt"
-      FROM admins
+      SELECT 
+        id, username, email, role, status as "isActive", 
+        last_login as "last_activity", created_at as "createdAt"
+      FROM users
       ${searchCondition}
-      ORDER BY "createdAt" DESC
+      ORDER BY created_at DESC
       LIMIT :limit OFFSET :offset;
     `, {
       replacements
@@ -71,7 +73,7 @@ router.get('/admin-users', auth, async (req, res) => {
     
     // Get total count
     const [countResult] = await sequelize.query(`
-      SELECT COUNT(*) as count FROM admins ${searchCondition};
+      SELECT COUNT(*) as count FROM users ${searchCondition};
     `, {
       replacements: search ? { search: `%${search}%` } : {}
     });
@@ -81,7 +83,11 @@ router.get('/admin-users', auth, async (req, res) => {
     console.log(`📊 Found ${total} admins, returning ${admins.length} for page ${page}`);
     
     res.json({
-      admins,
+      admins: admins.map(admin => ({
+        ...admin,
+        isActive: admin.isActive === 'active',
+        displayName: admin.username // Use username as displayName
+      })),
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(total / limit),
@@ -99,18 +105,20 @@ router.get('/admin-users', auth, async (req, res) => {
 router.post('/admin-users', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
-    const { username, email, password, displayName, role = 'admin' } = req.body;
+    const { username, email, password, displayName, role = 'admin', isActive = true } = req.body;
+
+    console.log('📝 Creating new admin:', { username, email, role });
 
     // Validate required fields
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Username, email, and password are required' });
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
     }
 
     // Check if user already exists
     const [existingUser] = await sequelize.query(`
-      SELECT id FROM admins WHERE username = :username OR email = :email;
+      SELECT id FROM users WHERE username = :username OR email = :email;
     `, {
-      replacements: { username, email }
+      replacements: { username, email: email || '' }
     });
 
     if (existingUser.length > 0) {
@@ -122,26 +130,32 @@ router.post('/admin-users', auth, async (req, res) => {
 
     // Create new admin
     const [result] = await sequelize.query(`
-      INSERT INTO admins (username, email, password, "displayName", role, permissions, "isActive")
-      VALUES (:username, :email, :password, :displayName, :role, '["all"]', true)
-      RETURNING id, username, email, "displayName", role, "isActive", "createdAt";
+      INSERT INTO users (username, email, password_hash, role, status, created_at)
+      VALUES (:username, :email, :password, :role, :status, CURRENT_TIMESTAMP)
+      RETURNING id, username, email, role, status, created_at;
     `, {
       replacements: {
         username,
-        email,
+        email: email || null,
         password: hashedPassword,
-        displayName: displayName || username,
-        role
+        role,
+        status: isActive ? 'active' : 'inactive'
       }
     });
 
+    console.log('✅ Admin created successfully:', result[0]);
+
     res.status(201).json({
       message: 'Admin created successfully',
-      admin: result[0]
+      admin: {
+        ...result[0],
+        isActive: result[0].status === 'active',
+        displayName: result[0].username
+      }
     });
   } catch (error) {
-    console.error('Create admin error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Create admin error:', error);
+    res.status(500).json({ error: 'Server error: ' + error.message });
   }
 });
 
@@ -150,11 +164,13 @@ router.put('/admin-users/:id', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
     const { id } = req.params;
-    const { username, email, displayName, role, isActive } = req.body;
+    const { username, email, role, isActive } = req.body;
+
+    console.log('📝 Updating admin:', id, { username, email, role, isActive });
 
     // Check if admin exists
     const [existingAdmin] = await sequelize.query(`
-      SELECT id FROM admins WHERE id = :id;
+      SELECT id FROM users WHERE id = :id;
     `, {
       replacements: { id }
     });
@@ -166,9 +182,9 @@ router.put('/admin-users/:id', auth, async (req, res) => {
     // Check if username/email already exists (excluding current admin)
     if (username || email) {
       const [duplicateCheck] = await sequelize.query(`
-        SELECT id FROM admins WHERE (username = :username OR email = :email) AND id != :id;
+        SELECT id FROM users WHERE (username = :username OR email = :email) AND id != :id;
       `, {
-        replacements: { username, email, id }
+        replacements: { username: username || '', email: email || '', id }
       });
 
       if (duplicateCheck.length > 0) {
@@ -178,12 +194,39 @@ router.put('/admin-users/:id', auth, async (req, res) => {
 
     // Update admin
     const [result] = await sequelize.query(`
-      UPDATE admins 
+      UPDATE users 
       SET username = COALESCE(:username, username),
           email = COALESCE(:email, email),
-          "displayName" = COALESCE(:displayName, "displayName"),
           role = COALESCE(:role, role),
-          "isActive" = COALESCE(:isActive, "isActive"),
+          status = COALESCE(:status, status),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = :id
+      RETURNING id, username, email, role, status, updated_at;
+    `, {
+      replacements: {
+        id,
+        username,
+        email,
+        role,
+        status: isActive ? 'active' : 'inactive'
+      }
+    });
+
+    console.log('✅ Admin updated successfully:', result[0]);
+
+    res.json({
+      message: 'Admin updated successfully',
+      admin: {
+        ...result[0],
+        isActive: result[0].status === 'active',
+        displayName: result[0].username
+      }
+    });
+  } catch (error) {
+    console.error('❌ Update admin error:', error);
+    res.status(500).json({ error: 'Server error: ' + error.message });
+  }
+});
           "updatedAt" = CURRENT_TIMESTAMP
       WHERE id = :id
       RETURNING id, username, email, "displayName", role, "isActive", "updatedAt";
@@ -215,9 +258,11 @@ router.delete('/admin-users/:id', auth, async (req, res) => {
     const { sequelize } = require('../config/database');
     const { id } = req.params;
 
+    console.log('🗑️ Deleting admin:', id);
+
     // Check if admin exists
     const [existingAdmin] = await sequelize.query(`
-      SELECT id, username, role FROM admins WHERE id = :id;
+      SELECT id, username, role FROM users WHERE id = :id;
     `, {
       replacements: { id }
     });
@@ -228,7 +273,7 @@ router.delete('/admin-users/:id', auth, async (req, res) => {
 
     // Check if this is the last admin
     const [adminCount] = await sequelize.query(`
-      SELECT COUNT(*) as count FROM admins WHERE role = 'admin' AND "isActive" = true;
+      SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND status = 'active';
     `);
 
     if (adminCount[0].count <= 1 && existingAdmin[0].role === 'admin') {
@@ -237,10 +282,12 @@ router.delete('/admin-users/:id', auth, async (req, res) => {
 
     // Delete admin
     await sequelize.query(`
-      DELETE FROM admins WHERE id = :id;
+      DELETE FROM users WHERE id = :id;
     `, {
       replacements: { id }
     });
+
+    console.log('✅ Admin deleted successfully:', existingAdmin[0].username);
 
     res.json({
       message: 'Admin deleted successfully',
@@ -248,8 +295,8 @@ router.delete('/admin-users/:id', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Delete admin error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Delete admin error:', error);
+    res.status(500).json({ error: 'Server error: ' + error.message });
   }
 });
 
@@ -258,7 +305,9 @@ router.put('/admin-users/:id/password', auth, async (req, res) => {
   try {
     const { sequelize } = require('../config/database');
     const { id } = req.params;
-    const { newPassword, currentPassword } = req.body;
+    const { newPassword } = req.body;
+
+    console.log('🔑 Changing password for admin:', id);
 
     // Validate new password
     if (!newPassword || newPassword.length < 6) {
@@ -267,7 +316,7 @@ router.put('/admin-users/:id/password', auth, async (req, res) => {
 
     // Check if admin exists
     const [admin] = await sequelize.query(`
-      SELECT id, password FROM admins WHERE id = :id;
+      SELECT id, password_hash FROM users WHERE id = :id;
     `, {
       replacements: { id }
     });
@@ -281,18 +330,20 @@ router.put('/admin-users/:id/password', auth, async (req, res) => {
 
     // Update password
     await sequelize.query(`
-      UPDATE admins 
-      SET password = :password, "updatedAt" = CURRENT_TIMESTAMP
+      UPDATE users 
+      SET password_hash = :password, updated_at = CURRENT_TIMESTAMP
       WHERE id = :id;
     `, {
       replacements: { password: hashedPassword, id }
     });
 
+    console.log('✅ Password updated successfully for admin:', id);
+
     res.json({ message: 'Password updated successfully' });
 
   } catch (error) {
-    console.error('Update password error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Update password error:', error);
+    res.status(500).json({ error: 'Server error: ' + error.message });
   }
 });
 
