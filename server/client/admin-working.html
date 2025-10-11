@@ -817,6 +817,9 @@
                 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
                 console.log('🔑 Token found:', token ? 'YES' : 'NO');
                 
+                // Update current user activity
+                await updateUserActivity();
+                
                 const response = await fetch('/api/admin/admin-users', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -889,8 +892,10 @@
                         'viewer': 'Viewer'
                     };
 
-                    const isOnline = admin.last_activity && (new Date() - new Date(admin.last_activity)) < 300000; // 5 minutes
-                    const lastActivity = admin.last_activity ? formatTime(admin.last_activity) : 'ไม่เคยเข้าใช้';
+                    // Use real-time calculations for online status and time
+                    const isOnline = isUserOnline(admin.last_activity);
+                    const lastActivity = formatTime(admin.last_activity);
+                    const currentUserRole = getCurrentUserRole();
                     
                     const row = document.createElement('tr');
                     row.style.opacity = '0';
@@ -914,9 +919,14 @@
                         <td><span class="${isOnline ? 'status-online' : 'status-offline'}">${isOnline ? '🟢 ออนไลน์' : '⚫ ออฟไลน์'}</span></td>
                         <td>${lastActivity}</td>
                         <td>
-                            <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
+                            ${currentUserRole === 'admin' ? `
+                                <button class="action-btn btn-edit" onclick="editAdmin(${admin.id}, '${admin.username}')">✏️ แก้ไข</button>
+                                <button class="action-btn" onclick="showPassword(${admin.id}, '${admin.username}')" style="background: #6f42c1; color: white;">🔑 รหัสผ่าน</button>
+                            ` : ''}
                             <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
-                            <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
+                            ${currentUserRole === 'admin' && admin.role !== 'admin' ? `
+                                <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
+                            ` : ''}
                         </td>
                     `;
                     
@@ -951,6 +961,70 @@
                 'viewer': 'ผู้ดูข้อมูล'
             };
             return descriptions[role] || 'บทบาทไม่ระบุ';
+        }
+
+        // Update user activity
+        async function updateUserActivity() {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                await fetch('/api/admin/update-activity', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (error) {
+                console.log('Activity update failed:', error);
+            }
+        }
+
+        // Check if user is online (last activity within 5 minutes)
+        function isUserOnline(lastActivity) {
+            if (!lastActivity) return false;
+            const now = new Date();
+            const time = new Date(lastActivity);
+            const diffMs = now - time;
+            return diffMs < 300000; // 5 minutes
+        }
+
+        // Get current user role
+        function getCurrentUserRole() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            return user.role || 'agent';
+        }
+
+        // Check if current user can manage other admins
+        function canManageAdmin(targetRole) {
+            const currentRole = getCurrentUserRole();
+            return currentRole === 'admin'; // Only super admin can manage others
+        }
+
+        // Show admin password (Super Admin only)
+        async function showPassword(adminId, username) {
+            if (getCurrentUserRole() !== 'admin') {
+                showNotification('เฉพาะ Super Admin เท่านั้นที่ดูรหัสผ่านได้', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`/api/admin/admin-users/${adminId}/details`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`รหัสผ่าน Hash ของ ${username}:\n${result.admin.password_hash}`);
+                } else {
+                    throw new Error('ไม่สามารถดูรหัสผ่านได้');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
         }
 
         function formatTime(timeString) {
@@ -1285,6 +1359,12 @@
                 console.log('🔄 Starting to load admins...');
                 loadAdmins();
             }, 500);
+
+            // Auto-refresh every 30 seconds for real-time updates
+            setInterval(() => {
+                console.log('🔄 Auto-refreshing admin data...');
+                loadAdmins();
+            }, 30000);
         });
     </script>
 </body>

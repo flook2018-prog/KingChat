@@ -42,6 +42,62 @@ router.get('/debug/users', async (req, res) => {
   }
 });
 
+// Update last login when user accesses admin panel
+router.post('/update-activity', auth, async (req, res) => {
+  try {
+    const { sequelize } = require('../config/database');
+    const userId = req.user.id;
+    
+    await sequelize.query(`
+      UPDATE users 
+      SET last_login = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE id = :userId;
+    `, {
+      replacements: { userId }
+    });
+    
+    res.json({ message: 'Activity updated' });
+  } catch (error) {
+    console.error('Update activity error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get admin details with password (for super admin only)
+router.get('/admin-users/:id/details', auth, async (req, res) => {
+  try {
+    const { sequelize } = require('../config/database');
+    const { id } = req.params;
+    
+    // Check if current user is super admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied. Super Admin only.' });
+    }
+    
+    const [admin] = await sequelize.query(`
+      SELECT id, username, email, role, status, last_login, created_at, password_hash
+      FROM users 
+      WHERE id = :id;
+    `, {
+      replacements: { id }
+    });
+    
+    if (admin.length === 0) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+    
+    res.json({
+      admin: {
+        ...admin[0],
+        password_hash: admin[0].password_hash // Include password hash for super admin
+      }
+    });
+  } catch (error) {
+    console.error('Get admin details error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Permission levels
 const PERMISSIONS = {
   SUPER_ADMIN: 'super_admin',
