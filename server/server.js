@@ -11,7 +11,7 @@ const path = require('path');
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Import database models
-const { pool } = require('./models/database');
+const { pool, testConnection } = require('./models/database');
 
 // Debug environment variables
 console.log('🔧 Environment check:');

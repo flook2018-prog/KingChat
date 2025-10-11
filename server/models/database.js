@@ -7,6 +7,18 @@ const pool = new Pool({
 });
 
 // Test database connection
+const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    console.log('✅ Database connection test successful');
+    client.release();
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection test failed:', error);
+    throw error;
+  }
+};
+
 pool.on('connect', () => {
   console.log('✅ Connected to PostgreSQL database');
 });
@@ -285,6 +297,7 @@ class User {
 
 module.exports = {
   pool,
+  testConnection,
   LineAccount,
   Customer,
   ChatMessage,
