@@ -648,6 +648,7 @@
                 </div>
 
                 <button class="btn-add action-btn" onclick="showCreateModal()">➕ เพิ่มแอดมินใหม่</button>
+                <button class="btn-add action-btn" onclick="fixUserRole()" style="background: #dc3545; margin-left: 10px;">🔧 แก้ไข Role</button>
                 <button class="btn-add action-btn" onclick="debugDatabase()" style="background: #17a2b8; margin-left: 10px;">🔍 Debug Database</button>
 
                 <table class="admin-table">
@@ -835,6 +836,37 @@
         function fixUserRole() {
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             console.log('🔧 FIXING USER ROLE - Current user:', user);
+            console.log('🔧 User object keys:', Object.keys(user));
+            console.log('🔧 User object length:', Object.keys(user).length);
+            
+            // If user object is empty or missing data, create new user data
+            if (Object.keys(user).length === 0 || !user.username) {
+                console.log('🔧 MANUAL FIX: Creating user data for SSSs');
+                const newUser = {
+                    id: 1,
+                    username: 'SSSs',
+                    email: 'SSSs@kingchat.com',
+                    role: 'admin',
+                    displayName: 'SSSs',
+                    isActive: true
+                };
+                
+                localStorage.setItem('user', JSON.stringify(newUser));
+                sessionStorage.setItem('user', JSON.stringify(newUser));
+                console.log('✅ MANUAL FIX: User data created:', newUser);
+                
+                // Update display immediately
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = newUser.username;
+                }
+                
+                // Reload admins to show buttons
+                setTimeout(() => {
+                    loadAdmins();
+                }, 100);
+                return;
+            }
             
             // If this is SSSs or Xinon, set role to admin
             if (user.username === 'SSSs' || user.username === 'Xinon' || user.email === 'SSSs@kingchat.com' || user.email === 'Xinon@kingchat.com') {
