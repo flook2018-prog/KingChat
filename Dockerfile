@@ -10,9 +10,9 @@ RUN npm install --production
 
 RUN apk add --no-cache curl
 
-EXPOSE 8080
+EXPOSE 5001
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:5001/health || exit 1
 
-CMD ["node", "server-v2.js"]
+CMD ["node", "server-simple.js"]
