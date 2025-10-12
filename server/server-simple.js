@@ -54,7 +54,13 @@ app.use(helmet({
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
+    console.log('🔍 CORS Origin check:', origin);
+    
+    // Allow same-origin requests (no origin header)
+    if (!origin) {
+      console.log('✅ CORS: Same-origin request allowed');
+      return callback(null, true);
+    }
     
     const allowedOrigins = [
       'http://localhost:3000',
@@ -65,9 +71,17 @@ const corsOptions = {
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
+    // Allow all Railway subdomains
+    if (origin.includes('.railway.app')) {
+      console.log('✅ CORS: Railway domain allowed:', origin);
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS: Origin allowed:', origin);
       callback(null, true);
     } else {
+      console.log('❌ CORS: Origin blocked:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
