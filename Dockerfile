@@ -8,8 +8,10 @@ WORKDIR /app/server
 
 RUN npm install --production
 
-RUN apk add --no-cache curl
+# Debug: List files and check server-simple.js exists
+RUN ls -la && echo "Checking server-simple.js:" && ls -la server-simple.js
 
 EXPOSE $PORT
 
-CMD ["node", "server-simple.js"]
+# Add some debug output
+CMD echo "Starting server..." && ls -la && node --version && npm --version && node server-simple.js
