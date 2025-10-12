@@ -5,19 +5,27 @@ const { Pool } = require('pg');
 
 const router = express.Router();
 
+console.log('🔧 Loading auth-simple.js routes...');
+
 // PostgreSQL connection using your exact connection string
 const pool = new Pool({
   connectionString: 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway',
   ssl: false
 });
 
+console.log('✅ Auth routes: router created and pool configured');
+
 // Login endpoint
 router.post('/login', async (req, res) => {
+  console.log('🚀 AUTH ROUTE HIT: POST /login');
+  console.log('📦 Request body:', req.body);
+  
   try {
     console.log('🔐 Login attempt for:', req.body.username);
     const { username, password } = req.body;
 
     if (!username || !password) {
+      console.log('❌ Missing username or password');
       return res.status(400).json({ error: 'Username and password required' });
     }
 
@@ -106,11 +114,14 @@ router.get('/verify', async (req, res) => {
 
 // Health check endpoint
 router.get('/health', (req, res) => {
+  console.log('🏥 AUTH HEALTH CHECK HIT');
   res.json({ 
     status: 'ok', 
     message: 'Auth service is running',
     timestamp: new Date().toISOString()
   });
 });
+
+console.log('✅ Auth routes defined: POST /login, GET /verify, GET /health');
 
 module.exports = router;

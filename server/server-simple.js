@@ -256,6 +256,7 @@ async function loadApiRoutes() {
     // Mount all routes
     app.use('/api/auth', authRoutes);
     console.log('🔗 Auth routes mounted at /api/auth');
+    console.log('🔍 Auth routes stack:', authRoutes.stack?.map(layer => layer.route?.path) || 'No stack info');
     
     app.use('/api/admin', adminRoutes);
     console.log('🔗 Admin routes mounted at /api/admin');
