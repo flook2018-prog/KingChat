@@ -34,6 +34,24 @@
             flex-direction: column;
         }
 
+        /* Chat Main Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        /* Right Sidebar - Customer Profile */
+        .customer-profile-sidebar {
+            width: 320px;
+            background: #f8f9fa;
+            border-left: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
         /* Chat Header */
         .chat-header {
             background: #06C755;
@@ -620,6 +638,179 @@
             margin-top: 80px;
             height: calc(100vh - 80px);
         }
+
+        /* Customer Profile Sidebar Styles */
+        .profile-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #06C755;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .profile-status {
+            color: #06C755;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .close-case-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .close-case-btn:hover {
+            background: #c82333;
+        }
+
+        .profile-content {
+            padding: 20px;
+            background: white;
+            margin: 1px 0;
+        }
+
+        .profile-section {
+            margin-bottom: 25px;
+        }
+
+        .profile-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .profile-field {
+            margin-bottom: 15px;
+        }
+
+        .profile-field-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-field-value {
+            font-size: 14px;
+            color: #2d3748;
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            min-height: 20px;
+        }
+
+        .profile-field-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .profile-field-input:focus {
+            outline: none;
+            border-color: #06C755;
+            box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.1);
+        }
+
+        .profile-field-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .profile-field-textarea:focus {
+            outline: none;
+            border-color: #06C755;
+            box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.1);
+        }
+
+        .save-profile-btn {
+            background: #06C755;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .save-profile-btn:hover {
+            background: #05b350;
+        }
+
+        .case-history {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .case-history-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 13px;
+        }
+
+        .case-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .case-history-date {
+            color: #6c757d;
+            font-size: 11px;
+        }
+
+        .case-history-admin {
+            color: #06C755;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -759,6 +950,81 @@
                 </div>
             </div>
         </div>
+
+        <!-- Right Sidebar - Customer Profile -->
+        <div class="customer-profile-sidebar">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">M</div>
+                <div class="profile-name" id="profileName">Melendez</div>
+                <div class="profile-status">
+                    <span class="status-dot" style="background: #06C755; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                    ออนไลน์
+                </div>
+                <button class="close-case-btn" onclick="closeCase()">🔒 ปิดเคส</button>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <!-- Customer Information -->
+                <div class="profile-section">
+                    <div class="profile-section-title">ข้อมูลลูกค้า</div>
+                    
+                    <div class="profile-field">
+                        <div class="profile-field-label">ชื่อผู้ใช้</div>
+                        <input type="text" class="profile-field-input" id="customerUsername" value="Melendez" placeholder="ชื่อผู้ใช้">
+                    </div>
+
+                    <div class="profile-field">
+                        <div class="profile-field-label">เบอร์โทรศัพท์</div>
+                        <input type="tel" class="profile-field-input" id="customerPhone" value="081-234-5678" placeholder="เบอร์โทรศัพท์">
+                    </div>
+
+                    <div class="profile-field">
+                        <div class="profile-field-label">หมายเหตุ</div>
+                        <textarea class="profile-field-textarea" id="customerNotes" placeholder="เพิ่มหมายเหตุเกี่ยวกับลูกค้า...">ลูกค้าสำคัญ สอบถามเรื่องสินค้าบ่อยครั้ง</textarea>
+                    </div>
+
+                    <button class="save-profile-btn" onclick="saveCustomerProfile()">💾 บันทึกข้อมูล</button>
+                </div>
+
+                <!-- Case History -->
+                <div class="profile-section">
+                    <div class="profile-section-title">ประวัติการปิดเคส</div>
+                    <div class="case-history">
+                        <div class="case-history-item">
+                            <div>เคสปิดโดย: <span class="case-history-admin">Admin สมชาย</span></div>
+                            <div class="case-history-date">15 ต.ค. 2024 เวลา 14:30</div>
+                        </div>
+                        <div class="case-history-item">
+                            <div>เคสปิดโดย: <span class="case-history-admin">Admin สุภา</span></div>
+                            <div class="case-history-date">10 ต.ค. 2024 เวลา 09:15</div>
+                        </div>
+                        <div class="case-history-item">
+                            <div>เคสปิดโดย: <span class="case-history-admin">Admin สมชาย</span></div>
+                            <div class="case-history-date">5 ต.ค. 2024 เวลา 16:45</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Stats -->
+                <div class="profile-section">
+                    <div class="profile-section-title">สถิติ</div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">จำนวนข้อความ</div>
+                        <div class="profile-field-value">247 ข้อความ</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">เคสที่ปิดแล้ว</div>
+                        <div class="profile-field-value">12 เคส</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-field-label">ลูกค้าตั้งแต่</div>
+                        <div class="profile-field-value">1 ก.ย. 2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -813,6 +1079,73 @@
         // Open quick messages page
         function openQuickMessages() {
             window.open('quick-messages-working.html', '_blank', 'width=800,height=600');
+        }
+
+        // Customer Profile Functions
+        function saveCustomerProfile() {
+            const username = document.getElementById('customerUsername').value;
+            const phone = document.getElementById('customerPhone').value;
+            const notes = document.getElementById('customerNotes').value;
+            
+            // Here you would typically send this data to the server
+            console.log('Saving customer profile:', { username, phone, notes });
+            
+            // Show success message
+            alert('✅ บันทึกข้อมูลลูกค้าเรียบร้อยแล้ว');
+            
+            // You can add API call here
+            // Example:
+            // fetch('/api/customers/profile', {
+            //     method: 'PUT',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ username, phone, notes })
+            // });
+        }
+
+        function closeCase() {
+            const currentUser = getCurrentUser();
+            const adminName = currentUser?.username || currentUser?.name || 'Admin';
+            
+            if (confirm('คุณต้องการปิดเคสนี้หรือไม่?')) {
+                // Add case closure to history
+                const caseHistory = document.querySelector('.case-history');
+                const newCaseItem = document.createElement('div');
+                newCaseItem.className = 'case-history-item';
+                newCaseItem.innerHTML = `
+                    <div>เคสปิดโดย: <span class="case-history-admin">${adminName}</span></div>
+                    <div class="case-history-date">${new Date().toLocaleDateString('th-TH')} เวลา ${new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</div>
+                `;
+                caseHistory.insertBefore(newCaseItem, caseHistory.firstChild);
+                
+                // Show success message
+                alert('🔒 ปิดเคสเรียบร้อยแล้ว');
+                
+                // You can add API call here to update case status
+                console.log('Case closed by:', adminName);
+            }
+        }
+
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || 
+                                localStorage.getItem('userData') || sessionStorage.getItem('userData') || 
+                                localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function updateCustomerProfile(customerData) {
+            if (!customerData) return;
+            
+            // Update profile header
+            document.getElementById('profileAvatar').textContent = customerData.name?.charAt(0)?.toUpperCase() || 'U';
+            document.getElementById('profileName').textContent = customerData.name || 'Unknown User';
+            
+            // Update profile form
+            document.getElementById('customerUsername').value = customerData.name || '';
+            document.getElementById('customerPhone').value = customerData.phone || '';
+            document.getElementById('customerNotes').value = customerData.notes || '';
         }
 
         // Authentication check
@@ -923,8 +1256,39 @@
                 
                 document.querySelector('.current-customer-info h3').textContent = name;
                 document.querySelector('.current-customer-avatar').textContent = avatar;
+                
+                // Update customer profile
+                const customerData = {
+                    name: name,
+                    avatar: avatar,
+                    phone: getCustomerPhone(name), // You can implement this function
+                    notes: getCustomerNotes(name)  // You can implement this function
+                };
+                
+                updateCustomerProfile(customerData);
             });
         });
+
+        // Helper functions for customer data (you can replace with actual API calls)
+        function getCustomerPhone(name) {
+            const phoneMap = {
+                'Melendez': '081-234-5678',
+                'สศิภรร': '082-345-6789',
+                'ลุงค้างไผ่': '083-456-7890',
+                'อุทมินใจ': '084-567-8901'
+            };
+            return phoneMap[name] || '';
+        }
+
+        function getCustomerNotes(name) {
+            const notesMap = {
+                'Melendez': 'ลูกค้าสำคัญ สอบถามเรื่องสินค้าบ่อยครั้ง',
+                'สศิภรร': 'ลูกค้าใหม่ สนใจสินค้าหลายประเภท',
+                'ลุงค้างไผ่': 'ลูกค้าเก่า ซื้อสินค้าเป็นประจำ',
+                'อุทมินใจ': 'ลูกค้า VIP ต้องให้ความสำคัญพิเศษ'
+            };
+            return notesMap[name] || '';
+        }
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
