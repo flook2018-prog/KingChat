@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📱 จัดการบัญชี LINE OA - KingChat</title>
+    <script src="js/menu.js"></script>
     <style>
         /* Enhanced Styles */
         body {
@@ -424,54 +425,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <div class="navbar">
-        <div class="nav-brand">
-            <span class="brand-logo">👑</span>
-            <span>KingChat</span>
-        </div>
-        
-        <div class="nav-user">
-            <div class="user-info">
-                <span class="user-name">สวัสดี, <span id="userName">Loading...</span></span>
-                <div class="user-status">
-                    <div class="status-dot"></div>
-                    ออนไลน์
-                </div>
-            </div>
-            <button class="btn-logout" onclick="logout()">
-                <span>🚪</span>
-                ออกจากระบบ
-            </button>
-        </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="dashboard.html" class="menu-item">
-            <i>🏠</i>
-            <span>แดชบอร์ด</span>
-        </a>
-        <a href="accounts-working.html" class="menu-item active">
-            <i>📱</i>
-            <span>จัดการบัญชี LINE OA</span>
-        </a>
-        <a href="customers-working.html" class="menu-item">
-            <i>👥</i>
-            <span>รายชื่อลูกค้า</span>
-        </a>
-        <a href="chat.html" class="menu-item">
-            <i>💬</i>
-            <span>แชท</span>
-        </a>
-        <a href="settings-working.html" class="menu-item">
-            <i>⚙️</i>
-            <span>ตั้งค่า</span>
-        </a>
-        <a href="admin-working.html" class="menu-item">
-            <i>👨‍💼</i>
-            <span>จัดการแอดมิน</span>
-        </a>
-    </div>
+    <div id="menu-container"></div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -781,7 +735,9 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
+            // Initialize centralized menu
+            new KingChatMenu();
+            
             loadAccounts();
         });
     </script>
