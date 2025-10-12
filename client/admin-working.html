@@ -794,17 +794,14 @@
             } catch (error) {
                 console.error('Error loading admins:', error);
                 hideLoadingSpinner();
+                showErrorMessage('❌ ไม่สามารถเชื่อมต่อ Database ได้: ' + error.message + '\n📞 กรุณาติดต่อผู้ดูแลระบบ');
                 
-                // Show info message explaining fallback to demo data
-                showInfoMessage('ℹ️ เชื่อมต่อ Database ไม่ได้ กำลังใช้ข้อมูลตัวอย่าง');
-                
-                // Use demo data as fallback
-                admins = getDemoData();
+                // Show empty state - no fallback data
+                admins = [];
                 displayAdmins(admins);
                 
-                // Add API test button if not exists
+                // Add API test button
                 addApiTestButton();
-                showInfoMessage('🔄 ใช้ข้อมูลตัวอย่างชั่วคราว');
             }
         }
 
@@ -819,53 +816,7 @@
             });
         }
 
-        // Demo data fallback
-        function getDemoData() {
-            return [
-                {
-                    id: 1,
-                    fullName: 'สมชาย ใจดี',
-                    username: 'admin',
-                    role: 'super_admin',
-                    level: 100,
-                    points: 4500,
-                    messagesHandled: 450,
-                    lastLogin: '2024-10-12 14:30:00'
-                },
-                {
-                    id: 2,
-                    fullName: 'สุภา รักงาน',
-                    username: 'supha_admin',
-                    role: 'admin',
-                    level: 80,
-                    points: 2300,
-                    messagesHandled: 230,
-                    lastLogin: '2024-10-12 13:45:00'
-                },
-                {
-                    id: 3,
-                    fullName: 'วิชัย เก่งงาน',
-                    username: 'vichai_admin',
-                    role: 'admin',
-                    level: 80,
-                    points: 1800,
-                    messagesHandled: 180,
-                    lastLogin: '2024-10-12 12:15:00'
-                },
-                {
-                    id: 4,
-                    fullName: 'นันทพร ขยันดี',
-                    username: 'nantaporn_admin',
-                    role: 'admin',
-                    level: 80,
-                    points: 6500,
-                    messagesHandled: 650,
-                    lastLogin: '2024-10-12 16:20:00'
-                }
-            ];
-        }
-
-        // Create admin via API or demo
+        // Create admin via API (Database only)
         async function createAdmin(adminData) {
             try {
                 showLoadingSpinner();
@@ -891,26 +842,31 @@
             } catch (error) {
                 console.error('Error creating admin:', error);
                 hideLoadingSpinner();
-                
-                // Fallback to demo data creation
-                showInfoMessage('ℹ️ ไม่สามารถบันทึกลง Database ได้ เพิ่มในข้อมูลตัวอย่าง');
-                
-                const newAdmin = {
-                    id: Date.now(), // Use timestamp as ID for demo
-                    ...adminData,
-                    level: adminData.role === 'super_admin' ? 100 : 80,
-                    messagesHandled: 0,
-                    lastLogin: new Date().toISOString().slice(0, 19).replace('T', ' ')
-                };
-                
-                admins.push(newAdmin);
-                displayAdmins(admins);
-                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว (ข้อมูลตัวอย่าง)');
-                return newAdmin;
+                showErrorMessage('❌ ไม่สามารถเพิ่มแอดมินได้: ' + error.message);
+                throw error;
             }
         }
 
         // Update admin via API or demo
+        async function updateAdmin(id, adminData) {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(`${API_BASE_URL}/admin/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const updatedAdmin = await response.json();
+                const index = admins.findIndex(a => a.id == id);
+        // Update admin via API
         async function updateAdmin(id, adminData) {
             try {
                 showLoadingSpinner();
@@ -934,26 +890,17 @@
                     displayAdmins(admins);
                 }
                 hideLoadingSpinner();
-                showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว (Database)');
+                showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว');
                 return updatedAdmin;
             } catch (error) {
                 console.error('Error updating admin:', error);
                 hideLoadingSpinner();
-                
-                // Fallback to demo data update
-                showInfoMessage('ℹ️ ไม่สามารถอัพเดท Database ได้ แก้ไขในข้อมูลตัวอย่าง');
-                
-                const index = admins.findIndex(a => a.id == id);
-                if (index > -1) {
-                    admins[index] = { ...admins[index], ...adminData };
-                    displayAdmins(admins);
-                    showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว (ข้อมูลตัวอย่าง)');
-                }
-                return admins[index];
+                showErrorMessage('❌ ไม่สามารถอัพเดทแอดมินได้: ' + error.message);
+                throw error;
             }
         }
 
-        // Delete admin via API or demo
+        // Delete admin via API
         async function deleteAdminAPI(id) {
             try {
                 showLoadingSpinner();
@@ -972,20 +919,12 @@
                     displayAdmins(admins);
                 }
                 hideLoadingSpinner();
-                showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว (Database)');
+                showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว');
             } catch (error) {
                 console.error('Error deleting admin:', error);
                 hideLoadingSpinner();
-                
-                // Fallback to demo data deletion
-                showInfoMessage('ℹ️ ไม่สามารถลบจาก Database ได้ ลบในข้อมูลตัวอย่าง');
-                
-                const index = admins.findIndex(a => a.id == id);
-                if (index > -1) {
-                    admins.splice(index, 1);
-                    displayAdmins(admins);
-                    showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว (ข้อมูลตัวอย่าง)');
-                }
+                showErrorMessage('❌ ไม่สามารถลบแอดมินได้: ' + error.message);
+                throw error;
             }
         }
 

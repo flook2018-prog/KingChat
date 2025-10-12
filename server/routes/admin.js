@@ -1,102 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
-// Try to load Admin model with fallback
-let Admin;
-try {
-  Admin = require('../models/Admin');
-} catch (error) {
-  console.error('❌ Admin model not found, using fallback');
-  // Create a fallback Admin class
-  Admin = {
-    async getAll() {
-      // Return demo data if model fails
-      return [
-        {
-          id: 1,
-          display_name: 'สมชาย ใจดี',
-          username: 'admin',
-          role: 'super_admin',
-          level: 100,
-          points: 4500,
-          messages_handled: 450,
-          created_at: new Date()
-        },
-        {
-          id: 2,
-          display_name: 'สุภา รักงาน',
-          username: 'supha_admin',
-          role: 'admin',
-          level: 80,
-          points: 2300,
-          messages_handled: 230,
-          created_at: new Date()
-        },
-        {
-          id: 3,
-          display_name: 'วิชัย เก่งงาน',
-          username: 'vichai_admin',
-          role: 'admin',
-          level: 80,
-          points: 1800,
-          messages_handled: 180,
-          created_at: new Date()
-        },
-        {
-          id: 4,
-          display_name: 'นันทพร ขยันดี',
-          username: 'nantaporn_admin',
-          role: 'admin',
-          level: 80,
-          points: 6500,
-          messages_handled: 650,
-          created_at: new Date()
-        }
-      ];
-    },
-    async getById(id) {
-      const admins = await this.getAll();
-      return admins.find(admin => admin.id == id);
-    },
-    async create(data) {
-      // Mock create - return demo admin
-      return {
-        id: Date.now(),
-        display_name: data.fullName,
-        username: data.username,
-        role: data.role,
-        level: data.role === 'super_admin' ? 100 : 80,
-        points: data.points || 0,
-        messages_handled: Math.floor((data.points || 0) / 10),
-        created_at: new Date()
-      };
-    },
-    async update(id, data) {
-      const admin = await this.getById(id);
-      if (!admin) return null;
-      return { ...admin, ...data, display_name: data.fullName };
-    },
-    async delete(id) {
-      return { id, deleted: true };
-    }
-  };
-}
+// Use direct database connection instead of Sequelize
+const { pool } = require('../models/database');
+console.log('✅ Admin routes loading with direct PostgreSQL connection');
 
 // GET /api/admin - Get all admins
 router.get('/', async (req, res) => {
   try {
-    const admins = await Admin.getAll();
+    const result = await pool.query(
+      'SELECT id, username, email, "displayName", role FROM admins ORDER BY id'
+    );
     
     // Transform data to match frontend expectations
-    const transformedAdmins = admins.map(admin => ({
+    const transformedAdmins = result.rows.map(admin => ({
       id: admin.id,
-      fullName: admin.full_name || admin.display_name,
+      fullName: admin.displayName || admin.username,
       username: admin.username,
       role: admin.role,
-      level: admin.level,
-      points: admin.points,
-      messagesHandled: admin.messages_handled,
-      lastLogin: admin.created_at
+      level: admin.role === 'admin' ? 100 : 80,
+      points: 0, // Could be calculated or stored separately
+      messagesHandled: 0, // Could be calculated from messages table
+      lastLogin: admin.updatedAt || admin.createdAt
     }));
     
     res.json(transformedAdmins);
@@ -109,14 +34,14 @@ router.get('/', async (req, res) => {
 // GET /api/admin/:id - Get admin by ID
 router.get('/:id', async (req, res) => {
   try {
-    const admin = await Admin.getById(req.params.id);
+    const admin = await Admin.findByPk(req.params.id);
     if (!admin) {
       return res.status(404).json({ error: 'Admin not found' });
     }
     
     const transformedAdmin = {
       id: admin.id,
-      fullName: admin.full_name || admin.display_name,
+      fullName: admin.full_name,
       username: admin.username,
       role: admin.role,
       level: admin.level,
@@ -143,20 +68,26 @@ router.post('/', async (req, res) => {
         error: 'Missing required fields: fullName, username, password, role' 
       });
     }
+
+    // Hash password
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     const adminData = {
-      fullName,
+      full_name: fullName,
       username,
-      password,
+      password: hashedPassword,
       role,
-      points: points || 0
+      level: role === 'super_admin' ? 100 : 80,
+      points: points || 0,
+      messages_handled: 0
     };
     
     const newAdmin = await Admin.create(adminData);
     
     const transformedAdmin = {
       id: newAdmin.id,
-      fullName: newAdmin.full_name || newAdmin.display_name,
+      fullName: newAdmin.full_name,
       username: newAdmin.username,
       role: newAdmin.role,
       level: newAdmin.level,
@@ -168,8 +99,8 @@ router.post('/', async (req, res) => {
     res.status(201).json(transformedAdmin);
   } catch (error) {
     console.error('Error creating admin:', error);
-    if (error.code === '23505') { // Unique violation
-      res.status(409).json({ error: 'Username already exists' });
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      res.status(400).json({ error: 'Username already exists' });
     } else {
       res.status(500).json({ error: 'Failed to create admin' });
     }
@@ -182,21 +113,31 @@ router.put('/:id', async (req, res) => {
     const { fullName, username, password, role, points } = req.body;
     
     const updateData = {};
-    if (fullName) updateData.fullName = fullName;
+    if (fullName) updateData.full_name = fullName;
     if (username) updateData.username = username;
-    if (password) updateData.password = password;
-    if (role) updateData.role = role;
+    if (password) {
+      const bcrypt = require('bcrypt');
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+    if (role) {
+      updateData.role = role;
+      updateData.level = role === 'super_admin' ? 100 : 80;
+    }
     if (points !== undefined) updateData.points = points;
     
-    const updatedAdmin = await Admin.update(req.params.id, updateData);
+    const [affectedRows] = await Admin.update(updateData, {
+      where: { id: req.params.id }
+    });
     
-    if (!updatedAdmin) {
+    if (affectedRows === 0) {
       return res.status(404).json({ error: 'Admin not found' });
     }
     
+    const updatedAdmin = await Admin.findByPk(req.params.id);
+    
     const transformedAdmin = {
       id: updatedAdmin.id,
-      fullName: updatedAdmin.full_name || updatedAdmin.display_name,
+      fullName: updatedAdmin.full_name,
       username: updatedAdmin.username,
       role: updatedAdmin.role,
       level: updatedAdmin.level,
@@ -208,8 +149,8 @@ router.put('/:id', async (req, res) => {
     res.json(transformedAdmin);
   } catch (error) {
     console.error('Error updating admin:', error);
-    if (error.code === '23505') { // Unique violation
-      res.status(409).json({ error: 'Username already exists' });
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      res.status(400).json({ error: 'Username already exists' });
     } else {
       res.status(500).json({ error: 'Failed to update admin' });
     }
@@ -219,9 +160,11 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/admin/:id - Delete admin
 router.delete('/:id', async (req, res) => {
   try {
-    const deletedAdmin = await Admin.delete(req.params.id);
+    const deletedRows = await Admin.destroy({
+      where: { id: req.params.id }
+    });
     
-    if (!deletedAdmin) {
+    if (deletedRows === 0) {
       return res.status(404).json({ error: 'Admin not found' });
     }
     

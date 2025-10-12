@@ -790,15 +790,18 @@
                 admins = await response.json();
                 displayAdmins(admins);
                 hideLoadingSpinner();
+                showSuccessMessage('✅ โหลดข้อมูลแอดมินจาก Database สำเร็จ');
             } catch (error) {
                 console.error('Error loading admins:', error);
                 hideLoadingSpinner();
-                showErrorMessage('❌ ไม่สามารถโหลดข้อมูลแอดมินได้: ' + error.message);
+                showErrorMessage('❌ ไม่สามารถเชื่อมต่อ Database ได้: ' + error.message + '\n📞 กรุณาติดต่อผู้ดูแลระบบ');
                 
-                // Use demo data as fallback
-                admins = getDemoData();
+                // Show empty state - no fallback data
+                admins = [];
                 displayAdmins(admins);
-                showInfoMessage('🔄 ใช้ข้อมูลตัวอย่างชั่วคราว');
+                
+                // Add API test button
+                addApiTestButton();
             }
         }
 
@@ -813,53 +816,7 @@
             });
         }
 
-        // Demo data fallback
-        function getDemoData() {
-            return [
-                {
-                    id: 1,
-                    fullName: 'สมชาย ใจดี',
-                    username: 'admin',
-                    role: 'super_admin',
-                    level: 100,
-                    points: 4500,
-                    messagesHandled: 450,
-                    lastLogin: '2024-10-12 14:30:00'
-                },
-                {
-                    id: 2,
-                    fullName: 'สุภา รักงาน',
-                    username: 'supha_admin',
-                    role: 'admin',
-                    level: 80,
-                    points: 2300,
-                    messagesHandled: 230,
-                    lastLogin: '2024-10-12 13:45:00'
-                },
-                {
-                    id: 3,
-                    fullName: 'วิชัย เก่งงาน',
-                    username: 'vichai_admin',
-                    role: 'admin',
-                    level: 80,
-                    points: 1800,
-                    messagesHandled: 180,
-                    lastLogin: '2024-10-12 12:15:00'
-                },
-                {
-                    id: 4,
-                    fullName: 'นันทพร ขยันดี',
-                    username: 'nantaporn_admin',
-                    role: 'admin',
-                    level: 80,
-                    points: 6500,
-                    messagesHandled: 650,
-                    lastLogin: '2024-10-12 16:20:00'
-                }
-            ];
-        }
-
-        // Create new admin via API
+        // Create admin via API (Database only)
         async function createAdmin(adminData) {
             try {
                 showLoadingSpinner();
@@ -880,7 +837,7 @@
                 admins.push(newAdmin);
                 displayAdmins(admins);
                 hideLoadingSpinner();
-                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว');
+                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว (Database)');
                 return newAdmin;
             } catch (error) {
                 console.error('Error creating admin:', error);
@@ -890,6 +847,25 @@
             }
         }
 
+        // Update admin via API or demo
+        async function updateAdmin(id, adminData) {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(`${API_BASE_URL}/admin/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const updatedAdmin = await response.json();
+                const index = admins.findIndex(a => a.id == id);
         // Update admin via API
         async function updateAdmin(id, adminData) {
             try {
@@ -950,6 +926,31 @@
                 showErrorMessage('❌ ไม่สามารถลบแอดมินได้: ' + error.message);
                 throw error;
             }
+        }
+
+        // Display admins in table
+        function displayAdmins(adminList) {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            if (adminList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                            <h3>ยังไม่มีข้อมูลแอดมิน</h3>
+                            <p>คลิกปุ่ม "เพิ่มแอดมินใหม่" เพื่อเริ่มต้น</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            adminList.forEach((admin, index) => {
+                const row = createAdminRow(admin);
+                row.style.animationDelay = `${index * 0.1}s`;
+                tbody.appendChild(row);
+            });
         }
 
         // Show loading spinner
@@ -1110,11 +1111,7 @@
                     await createAdmin(formData);
                 }
                 closeModal();
-            } catch (error) {
-                console.error('Form submission error:', error);
-            }
-        });
-
+        // Show success message
         function showSuccessMessage(message) {
             const successMsg = document.createElement('div');
             successMsg.style.cssText = `
@@ -1132,6 +1129,97 @@
                 successMsg.remove();
             }, 3000);
         }
+
+        // Add API test button for debugging
+        function addApiTestButton() {
+            if (document.getElementById('apiTestBtn')) return; // Already exists
+            
+            const testBtn = document.createElement('button');
+            testBtn.id = 'apiTestBtn';
+            testBtn.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px; 
+                background: #007bff; color: white; 
+                padding: 12px 20px; border: none; border-radius: 25px; 
+                cursor: pointer; font-weight: 500; z-index: 2000;
+                box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+                animation: pulse 2s infinite;
+            `;
+            testBtn.innerHTML = '🔧 ทดสอบ API';
+            testBtn.onclick = testApiConnection;
+            document.body.appendChild(testBtn);
+            
+            // Add pulse animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Test API connection
+        async function testApiConnection() {
+            const testBtn = document.getElementById('apiTestBtn');
+            if (testBtn) {
+                testBtn.innerHTML = '🔄 กำลังทดสอบ...';
+                testBtn.disabled = true;
+            }
+            
+            try {
+                // Test basic API endpoint
+                const response = await fetch(`${API_BASE_URL}/admin/test`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccessMessage('✅ API ทำงานปกติ: ' + data.message);
+                    // Remove test button if API works
+                    if (testBtn) testBtn.remove();
+                    // Reload admins from API
+                    loadAdmins();
+                } else {
+                    throw new Error(data.error || 'API Test Failed');
+                }
+            } catch (error) {
+                console.error('API test failed:', error);
+                showErrorMessage('❌ API ไม่ทำงาน: ' + error.message + '\n💡 กำลังใช้ข้อมูลตัวอย่าง');
+                
+                if (testBtn) {
+                    testBtn.innerHTML = '🔧 ทดสอบ API';
+                    testBtn.disabled = false;
+                }
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('adminForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value,
+                points: parseInt(document.getElementById('points').value) || 0
+            };
+
+            try {
+                if (currentEditId) {
+                    // Don't send password if it's empty during edit
+                    if (!formData.password) {
+                        delete formData.password;
+                    }
+                    await updateAdmin(currentEditId, formData);
+                } else {
+                    await createAdmin(formData);
+                }
+                closeModal();
+            } catch (error) {
+                console.error('Form submission error:', error);
+            }
+        });
 
         // Close modal when clicking outside
         window.addEventListener('click', function(e) {

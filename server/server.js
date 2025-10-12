@@ -148,10 +148,22 @@ const connectDatabase = async () => {
 connectDatabase();
 
 // Import routes with error handling
-let authRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
+let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
 try {
   authRoutes = require('./routes/auth');
+  
+  // Load admin authentication routes
+  try {
+    adminAuthRoutes = require('./routes/admin-auth');
+    console.log('✅ Admin auth routes loaded');
+  } catch (error) {
+    console.error('❌ Failed to load admin auth routes:', error.message);
+    adminAuthRoutes = require('express').Router();
+    adminAuthRoutes.all('*', (req, res) => {
+      res.status(503).json({ error: 'Admin auth not available' });
+    });
+  }
   
   // Try admin route files for Railway deployment
   try {
@@ -180,11 +192,12 @@ try {
   
   // Create fallback routes
   authRoutes = require('express').Router();
+  adminAuthRoutes = require('express').Router();
   adminRoutes = require('express').Router();
   lineAccountRoutes = require('express').Router();
   
   // Add error responses
-  [authRoutes, adminRoutes, lineAccountRoutes, rolesRoutes].forEach(router => {
+  [authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes].forEach(router => {
     router.all('*', (req, res) => {
       res.status(503).json({ error: 'Database not available' });
     });
@@ -193,7 +206,8 @@ try {
 
 // API routes
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin-auth', adminAuthRoutes);  // Admin authentication
+app.use('/api/admin', adminRoutes);           // Admin CRUD operations
 app.use('/api/line', lineAccountRoutes);
 app.use('/api/roles', rolesRoutes);
 
