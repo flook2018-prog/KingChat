@@ -239,7 +239,7 @@ async function loadApiRoutes() {
     const authRoutes = require('./routes/auth-simple');
     console.log('✅ Auth routes loaded');
     
-    const adminRoutes = require('./routes/admin-GUARANTEED');
+    const adminRoutes = require('./routes/admin');
     console.log('✅ Admin routes loaded (PostgreSQL)');
     
     const lineOARoutes = require('./routes/lineoa');
