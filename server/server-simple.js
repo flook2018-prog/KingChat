@@ -219,10 +219,21 @@ function setupStaticFiles() {
 async function loadApiRoutes() {
   try {
     // Initialize database first
-    const { initializeDatabase } = require('./setupDatabase');
-    await initializeDatabase();
+    console.log('🔧 Attempting to initialize database...');
+    try {
+      const { initializeDatabase } = require('./setupDatabase');
+      await initializeDatabase();
+      console.log('✅ Database initialized successfully');
+    } catch (dbError) {
+      console.log('⚠️ Database initialization failed, continuing without it:', dbError.message);
+    }
     
     console.log('📡 Loading API routes...');
+    
+    // Load health check first (simplest)
+    const healthRoutes = require('./routes/health');
+    app.use('/api/health', healthRoutes);
+    console.log('✅ Health routes loaded');
     
     const authRoutes = require('./routes/auth-simple');
     console.log('✅ Auth routes loaded');
@@ -242,6 +253,7 @@ async function loadApiRoutes() {
     const settingsRoutes = require('./routes/settings');
     console.log('✅ Settings routes loaded');
     
+    // Mount all routes
     app.use('/api/auth', authRoutes);
     console.log('🔗 Auth routes mounted at /api/auth');
     
@@ -266,6 +278,17 @@ async function loadApiRoutes() {
     console.error('❌ Error loading API routes:', error.message);
     console.error('📋 Stack trace:', error.stack);
     console.log('⚠️  Some API routes may not be available');
+    
+    // Add minimal fallback routes
+    app.use('/api/health', (req, res) => {
+      res.json({ status: 'fallback', message: 'Fallback health endpoint' });
+    });
+    
+    app.use('/api/auth/login', (req, res) => {
+      res.status(503).json({ error: 'Auth service temporarily unavailable' });
+    });
+    
+    console.log('🔄 Fallback API routes added');
   }
 }
 
