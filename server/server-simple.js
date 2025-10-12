@@ -111,10 +111,10 @@ app.use((req, res, next) => {
 
 // Basic routes
 app.get('/', (req, res) => {
-  // Serve login.html directly
+  // Serve chat.html as homepage
   const path = require('path');
-  const loginPath = path.join(global.clientPath || __dirname + '/client', 'login.html');
-  res.sendFile(loginPath);
+  const chatPath = path.join(global.clientPath || __dirname + '/client', 'chat.html');
+  res.sendFile(chatPath);
 });
 
 // Explicit routes for HTML pages

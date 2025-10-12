@@ -1,103 +1,435 @@
-// Global User Menu Component
+// Simple User Display Manager// Simple Global User Display Manager// Enhanced Global User Menu Component// Global User Menu Component
+
+console.log('Loading Simple User Display Manager...');
+
 (function() {
-    'use strict';
 
-    // Function to create user menu popup
-    function createUserMenu() {
-        if (!window.auth || !window.auth.user) {
-            console.warn('Auth or user data not available for user menu');
+function getCurrentUser() {
+
+    try {    'use strict';(function() {(function() {
+
+        if (window.auth && window.auth.user) {
+
+            return window.auth.user;
+
+        }
+
+            function getCurrentUser() {    'use strict';    'use strict';
+
+        const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+
+        if (userData) {        try {
+
+            return JSON.parse(userData);
+
+        }            if (window.auth && window.auth.user) {
+
+        
+
+        return null;                return window.auth.user;
+
+    } catch (error) {
+
+        console.error('Error getting current user:', error);            }    // Function to get current user from various sources// Global User Menu Component
+
+        return null;
+
+    }            
+
+}
+
+            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');    function getCurrentUser() {(function() {
+
+function updateUserDisplay() {
+
+    const user = getCurrentUser();            if (userData) {
+
+    if (!user) {
+
+        console.log('No user data available');                return JSON.parse(userData);        try {    'use strict';
+
+        return;
+
+    }            }
+
+
+
+    const displayName = user.displayName || user.username || 'ผู้ใช้';                        // Try auth object first
+
+    
+
+    // Update all user display elements            return null;
+
+    const userElements = document.querySelectorAll('#userDisplayName, .user-name, [data-user-display]');
+
+    userElements.forEach(function(el) {        } catch (error) {            if (window.auth && window.auth.user) {    // Function to get current user from various sources
+
+        el.textContent = displayName;
+
+    });            console.error('Error getting current user:', error);
+
+
+
+    console.log('Updated user display elements:', displayName);            return null;                return window.auth.user;    function getCurrentUser() {
+
+}
+
+        }
+
+function initUserDisplay() {
+
+    let attempts = 0;    }            }        try {
+
+    const maxAttempts = 50;
+
+    
+
+    function tryUpdate() {
+
+        attempts++;    function updateUserDisplay() {                        // Try auth object first
+
+        const user = getCurrentUser();
+
+                const user = getCurrentUser();
+
+        if (user) {
+
+            updateUserDisplay();        if (!user) return;            // Try localStorage            if (window.auth && window.auth.user) {
+
             return;
+
         }
 
-        const user = window.auth.user;
-        const displayName = user.displayName || user.username || 'ผู้ใช้';
+        
 
-        // Check if user menu already exists
-        const existingMenu = document.getElementById('globalUserMenu');
-        if (existingMenu) {
-            console.log('User menu already exists, updating display name...');
-            const nameElement = document.getElementById('globalUserName');
-            if (nameElement) {
-                nameElement.textContent = displayName;
+        if (attempts < maxAttempts) {        const displayName = user.displayName || user.username || 'ผู้ใช้';            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');                return window.auth.user;
+
+            setTimeout(tryUpdate, 100);
+
+        } else {        
+
+            console.warn('Could not load user data after 5 seconds');
+
+        }        // Update all user display elements            if (userData) {            }
+
+    }
+
+            const userDisplays = document.querySelectorAll('#userDisplayName, .user-name, [data-user-display]');
+
+    tryUpdate();
+
+}        userDisplays.forEach(el => {                return JSON.parse(userData);            
+
+
+
+// Auto-update every 3 seconds            el.textContent = displayName;
+
+setInterval(function() {
+
+    const user = getCurrentUser();        });            }            // Try localStorage
+
+    if (user) {
+
+        updateUserDisplay();
+
+    }
+
+}, 3000);        console.log('Updated user display:', displayName);                        const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
+
+
+
+// Initialize when DOM is ready    }
+
+if (document.readyState === 'loading') {
+
+    document.addEventListener('DOMContentLoaded', function() {            return null;            if (userData) {
+
+        setTimeout(initUserDisplay, 100);
+
+    });    function initializeUserDisplay() {
+
+} else {
+
+    setTimeout(initUserDisplay, 100);        let attempts = 0;        } catch (error) {                return JSON.parse(userData);
+
+}
+
+        const maxAttempts = 50;
+
+// Make functions available globally
+
+window.getCurrentUser = getCurrentUser;                    console.error('Error getting current user:', error);            }
+
+window.updateUserDisplay = updateUserDisplay;
+
+        const tryUpdate = () => {
+
+console.log('Simple User Display Manager loaded successfully');
+            attempts++;            return null;            
+
+            const user = getCurrentUser();
+
+                    }            return null;
+
+            if (user) {
+
+                updateUserDisplay();    }        } catch (error) {
+
+                return;
+
+            }            console.error('Error getting current user:', error);
+
+            
+
+            if (attempts < maxAttempts) {    // Function to generate initials from name            return null;
+
+                setTimeout(tryUpdate, 100);
+
+            } else {    function getInitials(name) {        }
+
+                console.warn('Could not load user data after 5 seconds');
+
+            }        if (!name) return '?';    }
+
+        };
+
+                const words = name.split(' ');
+
+        tryUpdate();
+
+    }        if (words.length >= 2) {    // Function to create user menu popup
+
+
+
+    // Auto-update every 3 seconds            return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();    function createUserMenu() {
+
+    setInterval(() => {
+
+        const user = getCurrentUser();        }        const user = getCurrentUser();
+
+        if (user) {
+
+            updateUserDisplay();        return name.charAt(0).toUpperCase();        
+
+        }
+
+    }, 3000);    }        if (!user) {
+
+
+
+    // Initialize when DOM is ready            console.warn('No user data available for user menu');
+
+    if (document.readyState === 'loading') {
+
+        document.addEventListener('DOMContentLoaded', function() {    // Function to update user display in navbar            return;
+
+            setTimeout(initializeUserDisplay, 100);
+
+        });    function updateUserDisplayInNavbar() {        }
+
+    } else {
+
+        setTimeout(initializeUserDisplay, 100);        const user = getCurrentUser();
+
+    }
+
+        if (!user) return;        const displayName = user.displayName || user.username || 'ผู้ใช้';
+
+    // Expose functions globally
+
+    window.getCurrentUser = getCurrentUser;
+
+    window.updateUserDisplay = updateUserDisplay;
+
+        const displayName = user.displayName || user.username || 'ผู้ใช้';        // Check if user menu already exists
+
+    console.log('Global User Display Manager loaded');
+
+})();                const existingMenu = document.getElementById('globalUserMenu');
+
+        // Update all user display elements        if (existingMenu) {
+
+        const userDisplays = document.querySelectorAll('#userDisplayName, .user-name, [data-user-display]');            console.log('User menu already exists, updating display name...');
+
+        userDisplays.forEach(el => {            const nameElement = document.getElementById('globalUserName');
+
+            el.textContent = displayName;            if (nameElement) {
+
+        });                nameElement.textContent = displayName;
+
             }
-            return; // Already exists
-        }
 
-        console.log('Creating user menu for:', displayName);
+        // Update user avatar            return; // Already exists
+
+        const userAvatars = document.querySelectorAll('#userAvatar, .user-avatar, [data-user-avatar]');        }
+
+        userAvatars.forEach(el => {
+
+            el.textContent = getInitials(displayName);        console.log('✨ Creating user menu for:', displayName);
+
+        });
 
         // Create user menu HTML
-        const userMenuHTML = `
-            <div class="user-menu" id="globalUserMenu">
+
+        console.log('✅ Updated user display elements:', displayName);        const userMenuHTML = `
+
+    }            <div class="user-menu" id="globalUserMenu">
+
                 <div class="user-info" onclick="toggleUserDropdown()">
-                    <div class="user-avatar" id="globalUserAvatar">${getInitials(displayName)}</div>
-                    <span class="user-name" id="globalUserName">${displayName}</span>
-                    <span class="dropdown-arrow">▼</span>
-                </div>
-                <div class="user-dropdown" id="globalUserDropdown" style="display: none;">
-                    <a href="../pages/profile.html" class="dropdown-item">
-                        <span class="dropdown-icon">👤</span>
-                        โปรไฟล์
-                    </a>
-                    <a href="../pages/settings.html" class="dropdown-item">
-                        <span class="dropdown-icon">⚙️</span>
+
+    // Function to handle logout                    <div class="user-avatar" id="globalUserAvatar">${getInitials(displayName)}</div>
+
+    window.handleGlobalLogout = function() {                    <span class="user-name" id="globalUserName">${displayName}</span>
+
+        if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {                    <span class="dropdown-arrow">▼</span>
+
+            // Clear all stored data                </div>
+
+            localStorage.clear();                <div class="user-dropdown" id="globalUserDropdown" style="display: none;">
+
+            sessionStorage.clear();                    <div class="dropdown-header">
+
+                                    <div class="user-details">
+
+            // Redirect to login                            <div class="user-fullname">${displayName}</div>
+
+            window.location.href = '/login.html';                            <div class="user-username">@${user.username || ''}</div>
+
+        }                            <div class="user-role">${user.role || 'ผู้ใช้'}</div>
+
+    };                        </div>
+
+                    </div>
+
+    // Function to toggle user dropdown                    <div class="dropdown-divider"></div>
+
+    window.toggleUserDropdown = function() {                    <a href="pages/profile.html" class="dropdown-item">
+
+        const dropdown = document.getElementById('globalUserDropdown');                        <span class="dropdown-icon">👤</span>
+
+        if (dropdown) {                        โปรไฟล์
+
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';                    </a>
+
+        }                    <a href="pages/settings.html" class="dropdown-item">
+
+    };                        <span class="dropdown-icon">⚙️</span>
+
                         ตั้งค่า
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" onclick="handleGlobalLogout()" class="dropdown-item logout">
-                        <span class="dropdown-icon">🚪</span>
-                        ออกจากระบบ
-                    </a>
-                </div>
-            </div>
-        `;
 
-        // Add CSS styles
-        const userMenuStyles = `
-            <style id="globalUserMenuStyles">
-                .user-menu {
-                    position: relative;
-                    display: inline-block;
-                    z-index: 1000;
-                }
+    // Close dropdown when clicking outside                    </a>
 
-                .user-info {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 8px 12px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 25px;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    border: 2px solid transparent;
-                }
+    document.addEventListener('click', function(e) {                    <div class="dropdown-divider"></div>
 
-                .user-info:hover {
-                    background: rgba(255, 255, 255, 0.2);
+        const dropdown = document.getElementById('globalUserDropdown');                    <a href="#" onclick="handleGlobalLogout()" class="dropdown-item logout">
+
+        const userMenu = document.getElementById('globalUserMenu');                        <span class="dropdown-icon">🚪</span>
+
+                                ออกจากระบบ
+
+        if (dropdown && userMenu && !userMenu.contains(e.target)) {                    </a>
+
+            dropdown.style.display = 'none';                </div>
+
+        }            </div>
+
+    });        `;
+
+
+
+    // Initialize user display        // Add CSS styles
+
+    function initializeUserDisplay() {        const userMenuStyles = `
+
+        let attempts = 0;            <style id="globalUserMenuStyles">
+
+        const maxAttempts = 50;                .user-menu {
+
+                            position: relative;
+
+        const tryUpdate = () => {                    display: inline-block;
+
+            attempts++;                    z-index: 1000;
+
+            const user = getCurrentUser();                }
+
+            
+
+            if (user) {                .user-info {
+
+                updateUserDisplayInNavbar();                    display: flex;
+
+                return;                    align-items: center;
+
+            }                    gap: 8px;
+
+                                padding: 8px 12px;
+
+            if (attempts < maxAttempts) {                    background: rgba(255, 255, 255, 0.1);
+
+                setTimeout(tryUpdate, 100);                    border-radius: 25px;
+
+            } else {                    cursor: pointer;
+
+                console.warn('Could not load user data after 5 seconds');                    transition: all 0.3s ease;
+
+            }                    border: 2px solid transparent;
+
+        };                }
+
+        
+
+        tryUpdate();                .user-info:hover {
+
+    }                    background: rgba(255, 255, 255, 0.2);
+
                     border-color: rgba(255, 255, 255, 0.3);
-                    transform: translateY(-1px);
-                }
 
-                .user-avatar {
-                    width: 32px;
-                    height: 32px;
-                    background: linear-gradient(135deg, #00c851, #00a644);
+    // Auto-update user display every 3 seconds                    transform: translateY(-1px);
+
+    setInterval(() => {                }
+
+        const user = getCurrentUser();
+
+        if (user) {                .user-avatar {
+
+            updateUserDisplayInNavbar();                    width: 32px;
+
+        }                    height: 32px;
+
+    }, 3000);                    background: linear-gradient(135deg, #00c851, #00a644);
+
                     border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: bold;
-                    color: white;
-                    font-size: 14px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-                }
 
-                .user-name {
-                    color: white;
-                    font-weight: 500;
+    // Initialize when DOM is ready                    display: flex;
+
+    if (document.readyState === 'loading') {                    align-items: center;
+
+        document.addEventListener('DOMContentLoaded', function() {                    justify-content: center;
+
+            setTimeout(initializeUserDisplay, 100);                    font-weight: bold;
+
+        });                    color: white;
+
+    } else {                    font-size: 14px;
+
+        setTimeout(initializeUserDisplay, 100);                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    }                }
+
+
+
+    // Expose functions globally                .user-name {
+
+    window.getCurrentUser = getCurrentUser;                    color: white;
+
+    window.updateUserDisplayInNavbar = updateUserDisplayInNavbar;                    font-weight: 500;
+
                     font-size: 14px;
-                    white-space: nowrap;
-                    max-width: 120px;
+
+    console.log('👤 Enhanced Global User Menu loaded');                    white-space: nowrap;
+
+})();                    max-width: 120px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }

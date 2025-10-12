@@ -792,6 +792,7 @@
             <div class="message-input-container">
                 <div class="message-input-wrapper">
                     <div class="input-actions">
+                        <button class="input-action-btn" title="ข้อความด่วน" onclick="openQuickMessages()">⚡</button>
                         <button class="input-action-btn" title="ไฟล์">📎</button>
                         <button class="input-action-btn" title="สติ๊กเกอร์">😊</button>
                         <button class="input-action-btn" title="เพลง">🎵</button>
@@ -808,6 +809,59 @@
     </div>
 
     <script>
+        // Check for quick message from sessionStorage
+        function checkQuickMessage() {
+            const quickMessage = sessionStorage.getItem('quickMessage');
+            if (quickMessage) {
+                try {
+                    const message = JSON.parse(quickMessage);
+                    const messageInput = document.querySelector('.message-input');
+                    
+                    // Handle text message
+                    if (message.text) {
+                        messageInput.value = message.text;
+                    }
+                    
+                    // Handle image message
+                    if (message.images && message.images.length > 0) {
+                        sendQuickImages(message.images);
+                    }
+                    
+                    sessionStorage.removeItem('quickMessage');
+                } catch (e) {
+                    console.error('Error processing quick message:', e);
+                }
+            }
+        }
+
+        // Send quick images
+        function sendQuickImages(images) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            
+            images.forEach(imageData => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message sent';
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">คุ</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <img src="${imageData}" style="max-width: 200px; max-height: 200px; border-radius: 8px;" />
+                        </div>
+                        <div class="message-time">${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'})}</div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+            });
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Open quick messages page
+        function openQuickMessages() {
+            window.open('quick-messages-working.html', '_blank', 'width=800,height=600');
+        }
+
         // Authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -902,6 +956,10 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
+            checkQuickMessage(); // Check for quick messages when page loads
+            
+            // Check for quick messages every 1 second
+            setInterval(checkQuickMessage, 1000);
         });
     </script>
 </body>

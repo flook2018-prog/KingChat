@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - KingChat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .users-list {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .user-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 KingChat Login Tester</h1>
+        
+        <div class="form-group">
+            <button onclick="loadDatabaseUsers()">🔍 ดูข้อมูลผู้ใช้ในฐานข้อมูล</button>
+            <button onclick="testCommonCredentials()">🧪 ทดสอบรหัสผ่านทั่วไป</button>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">ชื่อผู้ใช้:</label>
+                <input type="text" id="username" name="username" value="admin" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">รหัสผ่าน:</label>
+                <input type="password" id="password" name="password" value="admin123" required>
+            </div>
+            
+            <button type="submit">🔑 ทดสอบ Login</button>
+            <button type="button" onclick="clearResults()">🗑️ ล้างผลลัพธ์</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = '<div class="info">🔄 กำลังทดสอบการ login...</div>';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.token) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Login สำเร็จ!
+                            
+                            Token: ${data.token}
+                            
+                            ข้อมูลผู้ใช้:
+                            - Username: ${data.user.username}
+                            - Display Name: ${data.user.displayName}
+                            - Email: ${data.user.email}
+                            - Role: ${data.user.role}
+                            - Active: ${data.user.isActive}
+                        </div>
+                    `;
+                    
+                    // Store auth data
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    
+                    // Add redirect button
+                    resultDiv.innerHTML += `
+                        <div style="margin-top: 15px;">
+                            <button onclick="window.location.href='/dashboard.html'" style="background: #28a745;">
+                                🏠 ไปยังหน้า Dashboard
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ Login ไม่สำเร็จ
+                            
+                            Response Status: ${response.status}
+                            Error: ${data.message || 'Unknown error'}
+                            
+                            Response Data: ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ เกิดข้อผิดพลาด
+                        
+                        Error: ${error.message}
+                        
+                        Stack: ${error.stack}
+                    </div>
+                `;
+            }
+        });
+
+        async function loadDatabaseUsers() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="info">🔄 กำลังโหลดข้อมูลผู้ใช้...</div>';
+            
+            try {
+                const response = await fetch('/api/admin/show-passwords');
+                const data = await response.json();
+                
+                if (data.success && data.users) {
+                    let html = '<div class="users-list"><h3>👥 ผู้ใช้ในฐานข้อมูล:</h3>';
+                    
+                    data.users.forEach(user => {
+                        html += `
+                            <div class="user-item">
+                                <strong>Username:</strong> ${user.username}<br>
+                                <strong>Display Name:</strong> ${user.displayName}<br>
+                                <strong>Email:</strong> ${user.email || 'N/A'}<br>
+                                <strong>Role:</strong> ${user.role}<br>
+                                <strong>Active:</strong> ${user.isActive ? 'Yes' : 'No'}<br>
+                                <button onclick="fillCredentials('${user.username}')" style="margin-top: 5px; background: #17a2b8;">
+                                    📝 ใช้ username นี้
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ ไม่สามารถโหลดข้อมูลผู้ใช้ได้
+                            
+                            Response: ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้
+                        
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function fillCredentials(username) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').focus();
+        }
+
+        async function testCommonCredentials() {
+            const commonPasswords = ['admin123', 'king123456', '123456', 'password', 'admin', 'kingchat'];
+            const username = document.getElementById('username').value || 'admin';
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = '<div class="info">🧪 กำลังทดสอบรหัสผ่านทั่วไป...</div>';
+            
+            for (let password of commonPasswords) {
+                try {
+                    resultDiv.innerHTML += `<div>ทดสอบ: ${username} / ${password}</div>`;
+                    
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success && data.token) {
+                        resultDiv.innerHTML = `
+                            <div class="success">
+                                🎉 พบรหัสผ่านที่ถูกต้อง!
+                                
+                                Username: ${username}
+                                Password: ${password}
+                                
+                                ข้อมูลผู้ใช้:
+                                - Display Name: ${data.user.displayName}
+                                - Email: ${data.user.email}
+                                - Role: ${data.user.role}
+                            </div>
+                        `;
+                        
+                        document.getElementById('username').value = username;
+                        document.getElementById('password').value = password;
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Error testing:', username, password, error);
+                }
+                
+                // Wait a bit between attempts
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            resultDiv.innerHTML += `
+                <div class="error">
+                    ❌ ไม่พบรหัสผ่านที่ถูกต้องจากรายการที่ทดสอบ
+                    
+                    ทดสอบแล้ว: ${commonPasswords.join(', ')}
+                </div>
+            `;
+        }
+
+        function clearResults() {
+            document.getElementById('result').innerHTML = '';
+        }
+
+        // Check if already logged in
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        if (token) {
+            document.getElementById('result').innerHTML = `
+                <div class="success">
+                    ℹ️ คุณล็อกอินอยู่แล้ว
+                    
+                    <button onclick="window.location.href='/dashboard.html'" style="background: #28a745;">
+                        🏠 ไปยังหน้า Dashboard
+                    </button>
+                    
+                    <button onclick="localStorage.clear(); location.reload()" style="background: #dc3545;">
+                        🚪 Logout
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
