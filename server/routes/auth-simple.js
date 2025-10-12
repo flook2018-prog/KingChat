@@ -7,9 +7,9 @@ const router = express.Router();
 
 console.log('🔧 Loading auth-simple.js routes...');
 
-// PostgreSQL connection using your exact connection string
+// PostgreSQL connection using public URL for Railway compatibility
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway',
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@ballast.proxy.rlwy.net:38432/railway',
   ssl: false
 });
 
