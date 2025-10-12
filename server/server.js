@@ -153,27 +153,21 @@ let authRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 try {
   authRoutes = require('./routes/auth');
   
-  // Try multiple admin route files for Railway deployment
+  // Try admin route files for Railway deployment
   try {
-    adminRoutes = require('./routes/admin-GUARANTEED');
-    console.log('✅ Using admin-GUARANTEED routes (PostgreSQL)');
+    adminRoutes = require('./routes/admin');
+    console.log('✅ Using admin routes (PostgreSQL)');
   } catch {
     try {
-      adminRoutes = require('./routes/admin-REAL-DATA');
-      console.log('✅ Using admin-REAL-DATA routes');
+      adminRoutes = require('./routes/admin-backup');
+      console.log('✅ Using admin-backup routes');
     } catch {
-      try {
-        adminRoutes = require('./routes/admin-GUARANTEED-NEW');
-        console.log('✅ Using admin-GUARANTEED-NEW routes');
-      } catch {
-        try {
-          adminRoutes = require('./routes/admin-railway-ready');
-          console.log('✅ Using admin-railway-ready routes');
-        } catch {
-          adminRoutes = require('./routes/admin');
-          console.log('✅ Using default admin routes');
-        }
-      }
+      // Create fallback admin routes
+      adminRoutes = require('express').Router();
+      adminRoutes.all('*', (req, res) => {
+        res.status(503).json({ error: 'Admin routes not available' });
+      });
+      console.log('⚠️ Using fallback admin routes');
     }
   }
   
@@ -206,8 +200,64 @@ app.use('/api/roles', rolesRoutes);
 // Serve static files from client directory (for Railway deployment)
 if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   console.log('🌐 Serving static files from client directory');
-  app.use(express.static(path.join(__dirname, '../client')));
-  app.use(express.static(path.join(__dirname, 'client'))); // Also serve from server/client
+  
+  // Primary static files - serve both directories for maximum compatibility
+  app.use(express.static(path.join(__dirname, 'client'), {
+    maxAge: '1d',
+    etag: false,
+    setHeaders: (res, path) => {
+      if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
+  
+  app.use(express.static(path.join(__dirname, '../client'), {
+    maxAge: '1d',
+    etag: false,
+    setHeaders: (res, path) => {
+      if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
+  
+  // Serve CSS and JS specifically
+  app.get('/css/*', (req, res) => {
+    const filePath = path.join(__dirname, 'client', req.path);
+    res.setHeader('Content-Type', 'text/css');
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        const fallbackPath = path.join(__dirname, '../client', req.path);
+        res.sendFile(fallbackPath, (err2) => {
+          if (err2) {
+            res.status(404).send('CSS file not found');
+          }
+        });
+      }
+    });
+  });
+  
+  app.get('/js/*', (req, res) => {
+    const filePath = path.join(__dirname, 'client', req.path);
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        const fallbackPath = path.join(__dirname, '../client', req.path);
+        res.sendFile(fallbackPath, (err2) => {
+          if (err2) {
+            res.status(404).send('JS file not found');
+          }
+        });
+      }
+    });
+  });
   
   // Serve client pages
   app.get('/pages/*', (req, res) => {
