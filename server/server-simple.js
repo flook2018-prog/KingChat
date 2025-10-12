@@ -216,11 +216,15 @@ function setupStaticFiles() {
 }
 
 // Load API routes
-function loadApiRoutes() {
+async function loadApiRoutes() {
   try {
+    // Initialize database first
+    const { initializeDatabase } = require('./setupDatabase');
+    await initializeDatabase();
+    
     console.log('📡 Loading API routes...');
     
-    const authRoutes = require('./routes/auth');
+    const authRoutes = require('./routes/auth-simple');
     console.log('✅ Auth routes loaded');
     
     const adminRoutes = require('./routes/admin-GUARANTEED');
@@ -302,7 +306,7 @@ app.use((req, res) => {
 // Start server
 const PORT = process.env.PORT || 8080;
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   
@@ -310,7 +314,7 @@ server.listen(PORT, '0.0.0.0', () => {
   setupStaticFiles();
   
   // Then load API routes
-  loadApiRoutes();
+  await loadApiRoutes();
   
   // Initialize database in background after server starts
   setTimeout(() => {
