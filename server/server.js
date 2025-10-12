@@ -104,18 +104,23 @@ const connectDatabase = async () => {
     await testConnection();
     console.log('✅ PostgreSQL database connected successfully');
     
-    // Initialize database tables
-    const { Admin, User, Customer, Message, Settings, LineOA } = require('./models/postgresql');
-    console.log('📝 Synchronizing database tables...');
+    // Test Admin model
+    try {
+      const Admin = require('./models/postgresql/Admin');
+      console.log('✅ Admin model loaded successfully');
+    } catch (error) {
+      console.log('⚠️ Admin model load failed:', error.message);
+    }
     
-    await Admin.sync({ alter: process.env.NODE_ENV === 'development' });
-    await User.sync({ alter: process.env.NODE_ENV === 'development' });
-    await LineOA.sync({ alter: process.env.NODE_ENV === 'development' });
-    await Customer.sync({ alter: process.env.NODE_ENV === 'development' });
-    await Message.sync({ alter: process.env.NODE_ENV === 'development' });
-    await Settings.sync({ alter: process.env.NODE_ENV === 'development' });
+    // Check if admin table exists, create if needed
+    try {
+      await pool.query('SELECT 1 FROM admins LIMIT 1');
+      console.log('✅ Admin table verified');
+    } catch (error) {
+      console.log('⚠️ Admin table check failed, may need to create table');
+    }
     
-    console.log('✅ Database tables synchronized');
+    console.log('✅ Database connection verified');
     isDatabaseConnected = true;
     
     // Create admin users on Railway

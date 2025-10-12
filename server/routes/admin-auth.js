@@ -8,6 +8,28 @@ const { pool } = require('../models/database');
 
 console.log('✅ Admin auth routes loading with direct PostgreSQL connection');
 
+// Demo data for when database is not available
+const demoAdmins = [
+  {
+    id: 1,
+    username: 'admin',
+    email: 'admin@kingchat.com',
+    displayname: 'System Administrator',
+    role: 'admin',
+    password: '$2a$12$x3Fadf4Vfm/lPy0umF5sO.V5UEUu2LPe28KrL5W.FIAQE5d.kdD1y' // admin123
+  }
+];
+
+// Check if database is available
+async function isDatabaseAvailable() {
+  try {
+    await pool.query('SELECT 1');
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 // Admin login endpoint
 router.post('/login', async (req, res) => {
   try {
@@ -22,21 +44,36 @@ router.post('/login', async (req, res) => {
 
     console.log('🔐 Admin login attempt for:', username);
 
-    // Find admin in database using raw SQL
-    const result = await pool.query(
-      'SELECT * FROM admins WHERE username = $1 OR email = $1 LIMIT 1',
-      [username]
-    );
+    const dbAvailable = await isDatabaseAvailable();
+    let admin = null;
 
-    if (result.rows.length === 0) {
+    if (dbAvailable) {
+      console.log('📁 Using database for authentication');
+      // Find admin in database using raw SQL
+      const result = await pool.query(
+        'SELECT * FROM admins WHERE username = $1 OR email = $1 LIMIT 1',
+        [username]
+      );
+
+      if (result.rows.length > 0) {
+        admin = result.rows[0];
+      }
+    } else {
+      console.log('💾 Using demo data for authentication');
+      // Find admin in demo data
+      admin = demoAdmins.find(a => 
+        a.username.toLowerCase() === username.toLowerCase() || 
+        a.email.toLowerCase() === username.toLowerCase()
+      );
+    }
+
+    if (!admin) {
       console.log('❌ Admin not found:', username);
       return res.status(401).json({ 
         success: false, 
         message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' 
       });
     }
-
-    const admin = result.rows[0];
 
     // Check password
     const isMatch = await bcrypt.compare(password, admin.password);
@@ -63,11 +100,13 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    // Update last login
-    await pool.query(
-      'UPDATE admins SET "updatedAt" = NOW() WHERE id = $1',
-      [admin.id]
-    );
+    // Update last login (only if using database)
+    if (dbAvailable) {
+      await pool.query(
+        'UPDATE admins SET "updatedAt" = NOW() WHERE id = $1',
+        [admin.id]
+      );
+    }
 
     res.json({
       success: true,
@@ -76,7 +115,7 @@ router.post('/login', async (req, res) => {
       admin: {
         id: admin.id,
         username: admin.username,
-        fullName: admin.displayname || admin.username,
+        fullName: admin.displayname || admin.displayName || admin.username,
         role: admin.role,
         email: admin.email
       }

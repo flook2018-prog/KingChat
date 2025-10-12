@@ -9,40 +9,36 @@ async function createAdminsOnRailway() {
     // Admin accounts for login
     const defaultAdmins = [
       {
-        full_name: 'ผู้ดูแลระบบหลัก',
+        displayName: 'ผู้ดูแลระบบหลัก',
         username: 'admin',
+        email: 'admin@kingchat.com',
         password: 'admin123',
         role: 'super_admin',
-        level: 100,
-        points: 5000,
-        messages_handled: 500
+        permissions: ['all']
       },
       {
-        full_name: 'สมชาย ใจดี',
+        displayName: 'สมชาย ใจดี',
         username: 'somchai',
+        email: 'somchai@kingchat.com',
         password: 'somchai123',
         role: 'admin',
-        level: 80,
-        points: 3500,
-        messages_handled: 350
+        permissions: ['admin']
       },
       {
-        full_name: 'สุภา รักงาน',
+        displayName: 'สุภา รักงาน',
         username: 'supha',
+        email: 'supha@kingchat.com',
         password: 'supha123',
         role: 'admin',
-        level: 80,
-        points: 2800,
-        messages_handled: 280
+        permissions: ['admin']
       },
       {
-        full_name: 'วิชัย เก่งงาน',
+        displayName: 'วิชัย เก่งงาน',
         username: 'vichai',
+        email: 'vichai@kingchat.com',
         password: 'vichai123',
         role: 'admin',
-        level: 80,
-        points: 2200,
-        messages_handled: 220
+        permissions: ['admin']
       }
     ];
 
@@ -67,7 +63,7 @@ async function createAdminsOnRailway() {
           password: hashedPassword
         });
 
-        console.log(`✅ Created admin: ${adminData.username} (${adminData.full_name})`);
+        console.log(`✅ Created admin: ${adminData.username} (${adminData.displayName})`);
         
       } catch (error) {
         console.error(`❌ Failed to create admin '${adminData.username}':`, error.message);
