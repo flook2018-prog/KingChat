@@ -122,6 +122,18 @@ app.get('/login', (req, res) => {
   res.redirect('/login.html');
 });
 
+app.get('/chat.html', (req, res) => {
+  const path = require('path');
+  const chatPath = path.join(global.clientPath || __dirname + '/client', 'chat.html');
+  res.sendFile(chatPath);
+});
+
+app.get('/admin-working.html', (req, res) => {
+  const path = require('path');
+  const adminPath = path.join(global.clientPath || __dirname + '/client', 'admin-working.html');
+  res.sendFile(adminPath);
+});
+
 app.get('/dashboard', (req, res) => {
   res.redirect('/dashboard.html');
 });
@@ -273,8 +285,13 @@ app.use((req, res) => {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   
-  // For HTML requests or pages, redirect to login
-  if (req.headers.accept?.includes('text/html')) {
+  // For static files (.css, .js, .ico, etc.), try to serve from static middleware
+  if (req.url.match(/\.(css|js|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/)) {
+    return res.status(404).send('File not found');
+  }
+  
+  // For HTML pages, only redirect unknown pages to login
+  if (req.headers.accept?.includes('text/html') && !req.url.endsWith('.html')) {
     return res.redirect('/login.html');
   }
   

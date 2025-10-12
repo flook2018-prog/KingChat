@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+    <script src="js/role-manager.js"></script>
     <style>
         /* Enhanced Styles - Same as other working pages */
         body {
@@ -587,6 +588,7 @@
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
                 <div class="user-info">
                     <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole" style="font-size: 12px; color: #6c757d;">Super Admin</div>
                     <div class="user-status">
                         <span class="status-dot"></span>
                         <span>ออนไลน์</span>
@@ -709,8 +711,8 @@
                     <label for="role">บทบาท *</label>
                     <select id="role" required>
                         <option value="">เลือกบทบาท</option>
-                        <option value="admin">Super Admin - เข้าถึงทุกอย่าง</option>
-                        <option value="user">Admin - จัดการข้อมูลและระบบ</option>
+                        <option value="super_admin">Super Admin - ทำได้ทุกอย่าง</option>
+                        <option value="admin">Admin - จัดการข้อความด่วน, ลูกค้า, LINE OA, แชท</option>
                     </select>
                 </div>
 
@@ -791,6 +793,42 @@
     </div>
 
     <script>
+        // Role-based access control
+        function checkAdminAccess() {
+            // Wait for role manager to be initialized
+            const checkRoleManager = setInterval(() => {
+                if (window.roleManager && window.roleManager.isInitialized) {
+                    clearInterval(checkRoleManager);
+                    
+                    // Check if user has admin management permission (Super Admin only)
+                    if (!window.roleManager.hasLevel(100)) {
+                        document.body.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; font-family: 'Inter', sans-serif;">
+                                <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; backdrop-filter: blur(20px);">
+                                    <div style="font-size: 72px; margin-bottom: 20px;">🚫</div>
+                                    <h1 style="margin: 0 0 10px 0; font-size: 32px;">Access Denied</h1>
+                                    <p style="margin: 0 0 20px 0; font-size: 18px; opacity: 0.9;">คุณไม่มีสิทธิ์เข้าถึงหน้าจัดการแอดมิน</p>
+                                    <p style="margin: 0 0 30px 0; font-size: 16px; opacity: 0.7;">ฟีเจอร์นี้สำหรับ <strong>Super Admin</strong> เท่านั้น</p>
+                                    <button onclick="window.location.href='/dashboard-working.html'" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600;">กลับหน้าแรก</button>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    console.log('✅ Admin access granted for Super Admin');
+                }
+            }, 100);
+
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                clearInterval(checkRoleManager);
+                if (!window.roleManager || !window.roleManager.isInitialized) {
+                    console.warn('⚠️ Role manager initialization timeout - allowing access');
+                }
+            }, 10000);
+        }
+
         // Simple authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -830,6 +868,29 @@
                 } else {
                     console.log('❌ userName element not found!');
                 }
+            }
+
+            // Update user role from role manager
+            const updateUserRole = () => {
+                if (window.roleManager && window.roleManager.isInitialized) {
+                    const userRoleElement = document.getElementById('userRole');
+                    if (userRoleElement) {
+                        userRoleElement.textContent = window.roleManager.getRoleDisplayName(window.roleManager.currentUser.role);
+                    }
+                }
+            };
+
+            // Try immediate update or wait for role manager
+            if (window.roleManager && window.roleManager.isInitialized) {
+                updateUserRole();
+            } else {
+                const checkRoleManager = setInterval(() => {
+                    if (window.roleManager && window.roleManager.isInitialized) {
+                        clearInterval(checkRoleManager);
+                        updateUserRole();
+                    }
+                }, 100);
+                setTimeout(() => clearInterval(checkRoleManager), 5000);
             }
         }
 
@@ -959,13 +1020,13 @@
                     const avatarColor = avatarColors[index % avatarColors.length];
                     
                     const roleColors = {
-                        'admin': '#007bff',
-                        'user': '#28a745'
+                        'super_admin': '#ffd700',
+                        'admin': '#007bff'
                     };
 
                     const roleNames = {
-                        'admin': 'Super Admin',
-                        'user': 'Admin'
+                        'super_admin': 'Super Admin',
+                        'admin': 'Admin'
                     };
 
                     // Use real-time calculations for online status and time
@@ -1004,9 +1065,7 @@
                                 <button class="action-btn" onclick="changePassword(${admin.id}, '${admin.username}')" style="background: #fd7e14; color: white;">🔐 เปลี่ยนรหัส</button>
                             ` : ''}
                             <button class="action-btn btn-view" onclick="viewActivity(${admin.id}, '${admin.username}')" style="background: #17a2b8; color: white;">📊 ประวัติ</button>
-                            ${currentUserRole === 'admin' ? `
-                                <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
-                            ` : currentUserRole === 'user' && admin.role === 'user' ? `
+                            ${canManageAdmin(admin.role) ? `
                                 <button class="action-btn btn-delete" onclick="deleteAdmin(${admin.id}, '${admin.username}')">🗑️ ลบ</button>
                             ` : ''}
                         </td>
@@ -1037,8 +1096,8 @@
         // Helper functions
         function getRoleDescription(role) {
             const descriptions = {
-                'admin': 'ผู้ดูแลระบบหลัก',
-                'user': 'ผู้ดูแลระบบ'
+                'super_admin': 'ซุปเปอร์แอดมิน - ทำได้ทุกอย่าง',
+                'admin': 'แอดมิน - จัดการหลัก'
             };
             return descriptions[role] || 'บทบาทไม่ระบุ';
         }
@@ -1070,24 +1129,34 @@
 
         // Get current user role
         function getCurrentUserRole() {
+            if (window.roleManager && window.roleManager.isInitialized) {
+                return window.roleManager.currentUser.role;
+            }
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-            return user.role || 'user';
+            return user.role || 'admin';
         }
 
         // Check if current user can manage other admins
         function canManageAdmin(targetRole) {
-            const currentRole = getCurrentUserRole();
-            // Super Admin can manage everyone
-            if (currentRole === 'admin') return true;
-            // Admin can manage only other Admin (user role)
-            if (currentRole === 'user' && targetRole === 'user') return true;
-            // No other permissions
-            return false;
+            // Get current user info
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const currentRole = user.role;
+            
+            console.log('🔍 canManageAdmin check:', {
+                currentUser: user.username,
+                currentRole: currentRole,
+                targetRole: targetRole,
+                canManage: currentRole === 'admin' || currentRole === 'super_admin'
+            });
+            
+            // For now, allow all admins to manage (since we only have 2 roles)
+            // In our system: admin in database = Super Admin in UI
+            return currentRole === 'admin' || currentRole === 'super_admin';
         }
 
         // Show admin password (Super Admin only)
         async function showPassword(adminId, username) {
-            if (getCurrentUserRole() !== 'admin') {
+            if (!window.roleManager.hasLevel(100)) {
                 showNotification('เฉพาะ Super Admin เท่านั้นที่ดูรหัสผ่านได้', 'error');
                 return;
             }
@@ -1357,7 +1426,86 @@
             }
         }
 
+        // Delete admin function - Real delete
+        // Delete admin function - Real delete
+        async function deleteAdmin(id, username) {
+            // Get current user info
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const currentRole = user.role;
+            
+            console.log('🗑️ Delete admin request:', {
+                targetId: id,
+                targetUsername: username,
+                currentUser: user.username,
+                currentRole: currentRole,
+                canDelete: currentRole === 'admin' || currentRole === 'super_admin'
+            });
 
+            // Check permission
+            if (currentRole !== 'admin' && currentRole !== 'super_admin') {
+                showNotification('เฉพาะ Admin ขึ้นไปเท่านั้นที่สามารถลบผู้ใช้ได้', 'error');
+                return;
+            }
+
+            // Prevent self-deletion  
+            if (user.id && user.id.toString() === id.toString()) {
+                showNotification('ไม่สามารถลบบัญชีของตนเองได้', 'error');
+                return;
+            }
+            
+            // Show confirmation dialog
+            if (confirm(`⚠️ คำเตือน!\n\nคุณต้องการลบแอดมิน "${username}" หรือไม่?\n\n❗ การดำเนินการนี้จะ:\n- ลบข้อมูลผู้ใช้ออกจาก PostgreSQL\n- ไม่สามารถกู้คืนได้\n- ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก\n\nแน่ใจหรือไม่?`)) {
+                
+                // Show loading state
+                const deleteButton = document.querySelector(`button[onclick="deleteAdmin(${id}, '${username}')"]`);
+                if (deleteButton) {
+                    deleteButton.disabled = true;
+                    deleteButton.innerHTML = '⏳ กำลังลบ...';
+                }
+
+                try {
+                    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                    
+                    console.log('🔄 Sending DELETE request to PostgreSQL for admin ID:', id);
+                    
+                    const response = await fetch(`/api/admin/admin-users/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log('📡 Delete response status:', response.status);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('✅ Delete successful from PostgreSQL:', result);
+                        
+                        showNotification(`ลบแอดมิน "${username}" สำเร็จจาก PostgreSQL`, 'success');
+                        
+                        // Refresh the admin list
+                        console.log('🔄 Refreshing admin list...');
+                        await loadAdmins();
+                        
+                    } else {
+                        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                        console.error('❌ Delete failed:', errorData);
+                        throw new Error(errorData.message || errorData.error || `HTTP Error: ${response.status}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error deleting admin:', error);
+                    showNotification(`เกิดข้อผิดพลาดในการลบแอดมิน: ${error.message}`, 'error');
+                    
+                    // Restore button state
+                    if (deleteButton) {
+                        deleteButton.disabled = false;
+                        deleteButton.innerHTML = '🗑️ ลบ';
+                    }
+                }
+            }
+        }
 
         async function deleteAdminConfirm(id, username) {
             try {
@@ -1393,14 +1541,69 @@
             activityList.innerHTML = '<div style="text-align: center; padding: 20px;">กำลังโหลด...</div>';
             
             try {
-                // Mock activity data (replace with real API)
-                const activities = [
-                    { action: 'เข้าสู่ระบบ', time: new Date(Date.now() - 300000), icon: '🔑', color: '#28a745' },
-                    { action: 'ดูหน้าแดชบอร์ด', time: new Date(Date.now() - 600000), icon: '📊', color: '#17a2b8' },
-                    { action: 'จัดการลูกค้า', time: new Date(Date.now() - 1800000), icon: '👥', color: '#ffc107' },
-                    { action: 'แก้ไขข้อความด่วน', time: new Date(Date.now() - 3600000), icon: '⚡', color: '#6f42c1' },
-                    { action: 'ออกจากระบบ', time: new Date(Date.now() - 86400000), icon: '🚪', color: '#dc3545' }
-                ];
+                // Get real user data from API
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`/api/admin/admin-users/${adminId}/details`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+                const user = result.admin;
+
+                console.log('👤 User activity data:', user);
+
+                // Generate real activity based on user data
+                const activities = [];
+                
+                if (user.last_login) {
+                    activities.push({
+                        action: 'เข้าสู่ระบบครั้งล่าสุด',
+                        time: new Date(user.last_login),
+                        icon: '🔑',
+                        color: '#28a745'
+                    });
+                }
+
+                if (user.last_activity) {
+                    activities.push({
+                        action: 'กิจกรรมล่าสุด',
+                        time: new Date(user.last_activity),
+                        icon: '⚡',
+                        color: '#17a2b8'
+                    });
+                }
+
+                if (user.created_at) {
+                    activities.push({
+                        action: 'สร้างบัญชี',
+                        time: new Date(user.created_at),
+                        icon: '�',
+                        color: '#6f42c1'
+                    });
+                }
+
+                // Add login count info
+                activities.push({
+                    action: `เข้าสู่ระบบแล้ว ${user.login_count || 0} ครั้ง`,
+                    time: new Date(),
+                    icon: '📊',
+                    color: '#ffc107'
+                });
+
+                // Add status info
+                activities.push({
+                    action: user.online_status === 'online' ? 'ออนไลน์' : 'ออฟไลน์',
+                    time: new Date(),
+                    icon: user.online_status === 'online' ? '🟢' : '�',
+                    color: user.online_status === 'online' ? '#28a745' : '#dc3545'
+                });
 
                 if (activities.length === 0) {
                     activityList.innerHTML = `
@@ -1414,6 +1617,10 @@
                 }
 
                 activityList.innerHTML = '';
+                
+                // Sort activities by time (newest first)
+                activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+                
                 activities.forEach(activity => {
                     const item = document.createElement('div');
                     item.className = 'activity-item';
@@ -1429,9 +1636,27 @@
                     activityList.appendChild(item);
                 });
 
+                // Add summary info
+                const summaryDiv = document.createElement('div');
+                summaryDiv.style.cssText = 'margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 14px; color: #6c757d;';
+                summaryDiv.innerHTML = `
+                    <div><strong>สรุปข้อมูล:</strong></div>
+                    <div>• บทบาท: ${user.role === 'super_admin' ? 'Super Admin' : 'Admin'}</div>
+                    <div>• สถานะ: ${user.status === 'active' ? 'ใช้งานได้' : 'ปิดใช้งาน'}</div>
+                    <div>• อีเมล: ${user.email}</div>
+                    <div>• ID: ${user.id}</div>
+                `;
+                activityList.appendChild(summaryDiv);
+
             } catch (error) {
                 console.error('Error loading activity:', error);
-                activityList.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">เกิดข้อผิดพลาดในการโหลดประวัติ</div>';
+                activityList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #dc3545;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                        <div>เกิดข้อผิดพลาดในการโหลดประวัติ</div>
+                        <div style="font-size: 12px; margin-top: 5px;">Error: ${error.message}</div>
+                    </div>
+                `;
             }
         }
 
@@ -1445,7 +1670,7 @@
             document.getElementById('passwordHelp').textContent = 'รหัสผ่านอย่างน้อย 6 ตัวอักษร';
             
             // Reset permissions
-            updatePermissions('agent');
+            updatePermissions('admin');
             
             document.getElementById('adminModal').style.display = 'flex';
         }
@@ -1509,10 +1734,8 @@
         // Role permissions mapping
         function updatePermissions(role) {
             const permissions = {
-                'admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
-                'manager': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'reports'],
-                'agent': ['dashboard', 'chat', 'customers', 'quick_messages'],
-                'viewer': ['dashboard']
+                'super_admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
+                'admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages']
             };
 
             const rolePerms = permissions[role] || ['dashboard'];
@@ -1521,13 +1744,16 @@
             document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(checkbox => {
                 const permName = checkbox.id.replace('perm_', '');
                 checkbox.checked = rolePerms.includes(permName);
-                checkbox.disabled = permName !== 'dashboard'; // Dashboard is always required
+                checkbox.disabled = permName === 'dashboard'; // Dashboard is always required for all
             });
         }
 
         // Role change handler
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Page loaded, running initialization...');
+            
+            // Check admin access first
+            checkAdminAccess();
             
             // Fix user role for Super Admin users
             fixUserRole();
