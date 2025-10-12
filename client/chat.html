@@ -864,15 +864,35 @@
 
         // Authentication check
         function checkAuth() {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token') || 
+                         localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
             
-            if (!token || !user.username) {
+            // Try multiple possible user data keys
+            let user = null;
+            try {
+                user = JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || '{}') ||
+                       JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData') || '{}') ||
+                       JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+            
+            console.log('🔐 Chat Auth Check:', { 
+                token: !!token, 
+                user: user?.username || user?.name || 'No username found',
+                userKeys: Object.keys(user || {})
+            });
+            
+            if (!token || (!user?.username && !user?.name)) {
+                console.log('❌ Auth failed - redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
             
-            document.getElementById('userName').textContent = user.username;
+            // Set username in UI
+            const displayName = user.displayName || user.username || user.name || 'Unknown User';
+            document.getElementById('userName').textContent = displayName;
+            console.log('✅ Auth successful for:', displayName);
         }
 
         // Logout function
