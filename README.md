@@ -2,6 +2,9 @@
 
 👑 A comprehensive customer service management system for LINE Official Account integration with real-time chat capabilities.
 
+🌐 **Live Demo:** https://kingchat.up.railway.app  
+🔑 **Login:** admin / admin123
+
 ## ✨ Features
 
 ### 🏢 LINE OA Management
@@ -335,5 +338,6 @@ CMD ["npm", "start"]
 
 ---
 
-**KingChat** - Empowering customer service through intelligent LINE OA integration 👑 
+**KingChat** - Empowering customer service through intelligent LINE OA integration 👑
+ 
  
