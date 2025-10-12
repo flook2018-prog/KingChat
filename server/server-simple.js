@@ -309,8 +309,8 @@ async function initializeDatabase() {
     await testConnection();
     console.log('✅ PostgreSQL database connected successfully');
     
-    // Create default admin using raw SQL (fallback method)
-    await createDefaultAdminFallback();
+    // Check if admins table exists and create if needed
+    await ensureAdminsTable();
     
   } catch (error) {
     console.error('❌ Database initialization failed:', error.message);
@@ -318,21 +318,17 @@ async function initializeDatabase() {
   }
 }
 
-// Fallback method to create admin using raw SQL
-async function createDefaultAdminFallback() {
+// Ensure admins table exists (without creating default user)
+async function ensureAdminsTable() {
   try {
     const { sequelize } = require('./config/database');
     const bcrypt = require('bcryptjs');
     
     console.log('👤 Checking for admin user...');
     
-    // Drop and recreate admins table to ensure correct structure
+    // Create admins table if not exists (don't drop existing data)
     await sequelize.query(`
-      DROP TABLE IF EXISTS admins CASCADE;
-    `);
-    
-    await sequelize.query(`
-      CREATE TABLE admins (
+      CREATE TABLE IF NOT EXISTS admins (
         id SERIAL PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -341,28 +337,29 @@ async function createDefaultAdminFallback() {
         role VARCHAR(50) DEFAULT 'admin',
         permissions TEXT DEFAULT '["all"]',
         "isActive" BOOLEAN DEFAULT true,
+        "lastLogin" TIMESTAMP,
         "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
     
-    console.log('✅ Admins table created with proper structure');
+    console.log('✅ Admins table ready');
     
-    // Always create default admin since we dropped the table
-    console.log('👤 Creating default admin user...');
-    const hashedPassword = await bcrypt.hash('admin123', 12);
+    // Check if any admin exists
+    const [results] = await sequelize.query('SELECT COUNT(*) as count FROM admins');
+    const adminCount = results[0].count;
     
-    await sequelize.query(`
-      INSERT INTO admins (username, email, password, "displayName", role, permissions, "isActive")
-      VALUES ('admin', 'admin@kingchat.com', :password, 'System Administrator', 'admin', '["all"]', true);
-    `, {
-      replacements: { password: hashedPassword }
-    });
+    console.log(`📊 Database initialized with ${adminCount} admins`);
     
-    console.log('✅ Default admin created: admin / admin123');
+    if (adminCount === 0) {
+      console.log('⚠️  No admin users found in database');
+      console.log('💡 Please create an admin user manually or import existing users');
+    } else {
+      console.log('✅ Admin users found in database');
+    }
     
   } catch (error) {
-    console.error('❌ Error creating admin:', error.message);
+    console.error('❌ Error checking admins table:', error.message);
   }
 }
 
