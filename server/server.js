@@ -276,18 +276,6 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, 'client/admin-working.html'));
   });
 
-  app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
-  });
-  
-  app.get('/dashboard-fixed', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
-  });
-  
-  app.get('/dashboard-simple', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dashboard-working.html'));
-  });
-
   // Default route serves login page
   app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/login.html'));

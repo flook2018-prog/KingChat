@@ -139,10 +139,6 @@ app.get('/admin-working.html', (req, res) => {
   res.sendFile(adminPath);
 });
 
-app.get('/dashboard', (req, res) => {
-  res.redirect('/dashboard.html');
-});
-
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 

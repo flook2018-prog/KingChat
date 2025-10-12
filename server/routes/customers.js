@@ -26,7 +26,7 @@ const mockCustomers = [
 ];
 
 // Get all customers
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     console.log('📋 GET /api/customers - Fetching all customers');
     res.json({ 

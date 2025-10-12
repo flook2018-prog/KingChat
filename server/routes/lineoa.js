@@ -14,6 +14,16 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// Get all LINE OA accounts (alternative route)
+router.get('/accounts', auth, async (req, res) => {
+  try {
+    const accounts = await LineOA.findAll();
+    res.json(accounts);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Create new LINE OA account
 router.post('/', auth, async (req, res) => {
   try {
