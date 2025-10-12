@@ -81,6 +81,18 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Setup static files early
+if (process.env.NODE_ENV === 'production') {
+  const fs = require('fs');
+  const clientPath = path.join(__dirname, 'client');
+  
+  if (fs.existsSync(clientPath)) {
+    console.log('🌐 Setting up early static files for:', clientPath);
+    app.use(express.static(clientPath));
+    global.clientPath = clientPath;
+  }
+}
+
 // Debug middleware to log all requests
 app.use((req, res, next) => {
   console.log(`🌐 ${req.method} ${req.url} from ${req.ip}`);
@@ -99,8 +111,10 @@ app.use((req, res, next) => {
 
 // Basic routes
 app.get('/', (req, res) => {
-  // Redirect to login page for web browsers
-  res.redirect('/login.html');
+  // Serve login.html directly
+  const path = require('path');
+  const loginPath = path.join(global.clientPath || __dirname + '/client', 'login.html');
+  res.sendFile(loginPath);
 });
 
 // Explicit routes for HTML pages
