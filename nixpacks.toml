@@ -2,10 +2,10 @@
 nixPkgs = ['nodejs-18_x', 'npm-9_x']
 
 [phases.install]
-cmds = ['npm ci --only=production']
+cmds = ['cd server && npm ci --only=production']
 
 [phases.build]
 cmds = ['echo "No build step required"']
 
 [start]
-cmd = 'node server-simple.js'
+cmd = 'cd server && node server-simple.js'
