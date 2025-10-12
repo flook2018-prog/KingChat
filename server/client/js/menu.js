@@ -8,11 +8,16 @@ class KingChatMenu {
     }
 
     getCurrentUser() {
-        const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
+        // รองรับ multiple user data keys
+        let userData = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') ||
+                      localStorage.getItem('userData') || sessionStorage.getItem('userData') ||
+                      localStorage.getItem('user') || sessionStorage.getItem('user');
+        
         if (userData) {
             try {
                 return JSON.parse(userData);
             } catch (e) {
+                console.error('Error parsing user data:', e);
                 return null;
             }
         }
@@ -20,8 +25,12 @@ class KingChatMenu {
     }
 
     checkAuth() {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!token || !this.currentUser) {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token') || 
+                     localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        
+        this.currentUser = this.getCurrentUser(); // refresh user data
+        
+        if (!token || !this.currentUser || (!this.currentUser.username && !this.currentUser.name)) {
             window.location.href = 'login.html';
             return false;
         }
@@ -81,9 +90,17 @@ class KingChatMenu {
                 <i>💬</i>
                 <span>แชท</span>
             </a>
+            <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard' ? 'active' : ''}">
+                <i>🏠</i>
+                <span>แดชบอร์ด</span>
+            </a>
             <a href="accounts-working.html" class="menu-item ${currentPage === 'accounts' ? 'active' : ''}">
                 <i>📱</i>
                 <span>จัดการบัญชี</span>
+            </a>
+            <a href="customers-working.html" class="menu-item ${currentPage === 'customers' ? 'active' : ''}">
+                <i>👥</i>
+                <span>รายชื่อลูกค้า</span>
             </a>
             <a href="quick-messages-working.html" class="menu-item ${currentPage === 'quick-messages' ? 'active' : ''}">
                 <i>⚡</i>
@@ -105,17 +122,20 @@ class KingChatMenu {
     getCurrentPage() {
         const path = window.location.pathname;
         if (path.includes('chat')) return 'chat';
+        if (path.includes('dashboard')) return 'dashboard';
         if (path.includes('accounts')) return 'accounts';
+        if (path.includes('customers')) return 'customers';
         if (path.includes('quick-messages')) return 'quick-messages';
         if (path.includes('settings')) return 'settings';
         if (path.includes('admin')) return 'admin';
-        return 'chat'; // default
+        return 'chat'; // default เปลี่ยนเป็น chat
     }
 
     updateUserInfo() {
         const userNameElement = document.getElementById('userName');
         if (userNameElement && this.currentUser) {
-            userNameElement.textContent = this.currentUser.username;
+            const displayName = this.currentUser.displayName || this.currentUser.username || this.currentUser.name || 'Unknown User';
+            userNameElement.textContent = displayName;
         }
     }
 
