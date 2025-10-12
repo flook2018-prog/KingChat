@@ -1,293 +1,2363 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+
 <html lang="th">
-<head>
+
+<head><html lang="th"><html lang="th">
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
+
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
-    <script src="js/menu.js"></script>
-    <script src="js/role-manager.js"></script>
+
+    <script src="js/menu.js"></script>    <meta charset="UTF-8">    <meta charset="UTF-8">
+
     <style>
-        /* Enhanced Styles - Same as other working pages */
-        body {
+
+        * {    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
             margin: 0;
-            padding: 0;
+
+            padding: 0;    <title>👨‍💼 จัดการแอดมิน - KingChat</title>    <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+
+            box-sizing: border-box;
+
+        }    <script src="js/menu.js"></script>    <script src="js/menu.js"></script>
+
+
+
+        body {    <style>    <style>
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+            background: #f8f9fa;        /* Reset and Base Styles */        /* Reset and Base Styles */
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 24px;
-            color: #2d3748;
-        }
-
-        .brand-logo {
-            font-size: 28px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-user {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-info {
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 16px;
-        }
-
-        .user-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #28a745;
-            margin-top: 4px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #28a745;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-        }
-
-        .btn-logout {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 500;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+
+        }        * {        * {
+
+
+
+        body.dark-mode {            margin: 0;            margin: 0;
+
+            background: #1a1a1a;
+
+            color: #ffffff;            padding: 0;            padding: 0;
+
         }
 
-        .btn-logout:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 280px;
-            height: calc(100vh - 80px);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-menu {
-            padding: 30px 0;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 30px;
-            text-decoration: none;
-            color: #4a5568;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-
-        .menu-item:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border-left-color: #667eea;
-            transform: translateX(5px);
-        }
-
-        .menu-item.active {
-            background: rgba(102, 126, 234, 0.15);
-            color: #667eea;
-            border-left-color: #667eea;
-            font-weight: 600;
-        }
-
-        .icon {
-            font-size: 20px;
-            width: 24px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 280px;
-            margin-top: 80px;
-            padding: 30px;
-            min-height: calc(100vh - 80px);
-        }
+            box-sizing: border-box;            box-sizing: border-box;
 
         .admin-content {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+
+            margin-left: 260px;        }        }
+
+            margin-top: 80px;
+
             padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            min-height: calc(100vh - 80px);
+
+        }        body {        body {
+
+
+
+        .page-header {            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+            text-align: center;
+
+            margin-bottom: 40px;            background: #f8f9fa;            background: #f8f9fa;
+
+            padding: 30px;
+
+            background: white;            transition: all 0.3s ease;            transition: all 0.3s ease;
+
+            border-radius: 20px;
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);        }        }
+
         }
 
-        .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: #2d3748 !important;
-            margin: 0 0 10px 0;
-            text-shadow: none !important;
+
+
+        body.dark-mode .page-header {
+
+            background: #2d2d2d;        /* Dark Mode */        /* Dark Mode */
+
+            color: white;
+
+        }        body.dark-mode {        body.dark-mode {
+
+
+
+        .page-header h1 {            background: #1a1a1a;            background: #1a1a1a;
+
+            font-size: 32px;
+
+            color: #2d3748;            color: #ffffff;            color: #ffffff;
+
+            margin-bottom: 10px;
+
+            background: linear-gradient(135deg, #667eea, #764ba2);        }        }
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
+        }        /* Admin Content Styles */        /* Admin Content Styles */
+
+
+
+        .page-header p {        .admin-content {        .admin-content {
+
+            color: #6c757d;
+
+            font-size: 16px;            margin-left: 260px;            margin-left: 260px;
+
         }
 
-        .page-header p {
+            margin-top: 80px;            margin-top: 80px;
+
+        .rank-showcase {
+
+            display: grid;            padding: 40px;            padding: 40px;
+
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+            gap: 20px;            min-height: calc(100vh - 80px);            min-height: calc(100vh - 80px);
+
+            margin-bottom: 40px;
+
+        }        }        }
+
+
+
+        .rank-card {
+
+            background: white;
+
+            border-radius: 15px;        .page-header {        .page-header {
+
+            padding: 20px;
+
+            text-align: center;            text-align: center;            text-align: center;
+
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+
+            transition: transform 0.3s ease;            margin-bottom: 40px;            margin-bottom: 40px;
+
+            border: 3px solid;
+
+        }            padding: 30px;            padding: 30px;
+
+
+
+        .rank-card:hover {            background: white;            background: white;
+
+            transform: translateY(-5px);
+
+        }            border-radius: 20px;            border-radius: 20px;
+
+
+
+        body.dark-mode .rank-card {            box-shadow: 0 10px 30px rgba(0,0,0,0.1);            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+            background: #2d2d2d;
+
+            color: white;        }        }
+
+        }
+
+
+
+        .rank-bronze { border-color: #CD7F32; }
+
+        .rank-silver { border-color: #C0C0C0; }        body.dark-mode .page-header {        body.dark-mode .page-header {
+
+        .rank-gold { border-color: #FFD700; }
+
+        .rank-platinum { border-color: #E5E4E2; }            background: #2d2d2d;            background: #2d2d2d;
+
+        .rank-diamond { border-color: #B9F2FF; }
+
+        .rank-master { border-color: #9966CC; }            color: white;            color: white;
+
+        .rank-grandmaster { border-color: #FF1493; }
+
+        .rank-conqueror { border-color: #FF4500; }        }        }
+
+
+
+        .rank-image {
+
+            width: 80px;
+
+            height: 80px;        .page-header h1 {        .page-header h1 {
+
+            margin: 0 auto 15px;
+
+            border-radius: 15px;            font-size: 32px;            font-size: 32px;
+
+            display: flex;
+
+            align-items: center;            color: #2d3748;            color: #2d3748;
+
+            justify-content: center;
+
+            font-size: 48px;            margin-bottom: 10px;            margin-bottom: 10px;
+
+            background: linear-gradient(135deg, var(--rank-color, #667eea), var(--rank-color-dark, #764ba2));
+
+            color: white;            background: linear-gradient(135deg, #667eea, #764ba2);            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            font-weight: bold;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);            -webkit-background-clip: text;            -webkit-background-clip: text;
+
+        }
+
+            -webkit-text-fill-color: transparent;            -webkit-text-fill-color: transparent;
+
+        .rank-bronze .rank-image { --rank-color: #CD7F32; --rank-color-dark: #B8860B; }
+
+        .rank-silver .rank-image { --rank-color: #C0C0C0; --rank-color-dark: #A9A9A9; }            background-clip: text;            background-clip: text;
+
+        .rank-gold .rank-image { --rank-color: #FFD700; --rank-color-dark: #FFA500; }
+
+        .rank-platinum .rank-image { --rank-color: #E5E4E2; --rank-color-dark: #C0C0C0; }        }        }
+
+        .rank-diamond .rank-image { --rank-color: #B9F2FF; --rank-color-dark: #87CEEB; }
+
+        .rank-master .rank-image { --rank-color: #9966CC; --rank-color-dark: #8A2BE2; }
+
+        .rank-grandmaster .rank-image { --rank-color: #FF1493; --rank-color-dark: #DC143C; }
+
+        .rank-conqueror .rank-image { --rank-color: #FF4500; --rank-color-dark: #FF6347; }        .page-header p {        body.dark-mode .page-header h1 {
+
+
+
+        .rank-name {            color: #6c757d;            background: linear-gradient(135deg, #667eea, #764ba2);
+
             font-size: 18px;
-            color: #4a5568 !important;
-            margin: 0;
+
+            font-weight: 600;            font-size: 16px;            -webkit-background-clip: text;
+
+            margin-bottom: 5px;
+
+        }        }            -webkit-text-fill-color: transparent;
+
+
+
+        .rank-points {            background-clip: text;
+
+            color: #6c757d;
+
+            font-size: 14px;        /* Rank System Styles */        }
+
         }
+
+        .rank-showcase {
+
+        .admin-table-container {
+
+            background: white;            display: grid;        .page-header p {
+
+            border-radius: 15px;
+
+            overflow: hidden;            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));            color: #6c757d;
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+        }            gap: 20px;            font-size: 16px;
+
+
+
+        body.dark-mode .admin-table-container {            margin-bottom: 40px;        }
+
+            background: #2d2d2d;
+
+        }        }
+
+
+
+        .table-header {        /* Rank System Styles */
+
+            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            color: white;        .rank-card {        .rank-showcase {
+
+            padding: 20px;
+
+            display: flex;            background: white;            display: grid;
+
+            justify-content: space-between;
+
+            align-items: center;            border-radius: 15px;            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+        }
+
+            padding: 20px;            gap: 20px;
+
+        .table-title {
+
+            font-size: 20px;            text-align: center;            margin-bottom: 40px;
+
+            font-weight: 600;
+
+        }            box-shadow: 0 8px 25px rgba(0,0,0,0.1);        }
+
+
+
+        .add-admin-btn {            transition: transform 0.3s ease;
+
+            background: rgba(255,255,255,0.2);
+
+            border: none;            border: 2px solid transparent;        .rank-card {
+
+            color: white;
+
+            padding: 10px 20px;        }            background: white;
+
+            border-radius: 25px;
+
+            cursor: pointer;            border-radius: 15px;
+
+            font-size: 14px;
+
+            transition: all 0.3s ease;        .rank-card:hover {            padding: 20px;
+
+        }
+
+            transform: translateY(-5px);            text-align: center;
+
+        .add-admin-btn:hover {
+
+            background: rgba(255,255,255,0.3);        }            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+
+        }
+
+            transition: transform 0.3s ease;
 
         .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-top: 30px;
-        }
 
-        .admin-table th {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
+            width: 100%;        body.dark-mode .rank-card {            border: 2px solid transparent;
+
+            border-collapse: collapse;
+
+        }            background: #2d2d2d;        }
+
+
+
+        .admin-table th,            color: white;
 
         .admin-table td {
-            padding: 15px;
-            border-bottom: 1px solid #e2e8f0;
+
+            padding: 15px;        }        .rank-card:hover {
+
+            text-align: left;
+
+            border-bottom: 1px solid #e9ecef;            transform: translateY(-5px);
+
         }
 
-        .admin-table tr:hover {
+        .rank-bronze { border-color: #CD7F32; }        }
+
+        body.dark-mode .admin-table th,
+
+        body.dark-mode .admin-table td {        .rank-silver { border-color: #C0C0C0; }
+
+            border-bottom-color: #444;
+
+        }        .rank-gold { border-color: #FFD700; }        body.dark-mode .rank-card {
+
+
+
+        .admin-table th {        .rank-platinum { border-color: #E5E4E2; }            background: #2d2d2d;
+
             background: #f8f9fa;
+
+            font-weight: 600;        .rank-diamond { border-color: #B9F2FF; }            color: white;
+
+            color: #495057;
+
+        }        .rank-master { border-color: #9966CC; }        }
+
+
+
+        body.dark-mode .admin-table th {        .rank-grandmaster { border-color: #FF1493; }
+
+            background: #333;
+
+            color: #fff;        .rank-conqueror { border-color: #FF4500; }        .rank-bronze { border-color: #CD7F32; }
+
         }
+
+        .rank-silver { border-color: #C0C0C0; }
+
+        .admin-table tbody tr:hover {
+
+            background: #f8f9fa;        .rank-image {        .rank-gold { border-color: #FFD700; }
+
+        }
+
+            width: 80px;        .rank-platinum { border-color: #E5E4E2; }
+
+        body.dark-mode .admin-table tbody tr:hover {
+
+            background: #3a3a3a;            height: 80px;        .rank-diamond { border-color: #B9F2FF; }
+
+        }
+
+            margin: 0 auto 15px;        .rank-master { border-color: #9966CC; }
 
         .admin-avatar {
-            width: 40px;
+
+            width: 40px;            border-radius: 50%;        .rank-grandmaster { border-color: #FF1493; }
+
             height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            border-radius: 50%;            overflow: hidden;        .rank-conqueror { border-color: #FF4500; }
+
+            background: #667eea;
+
+            color: white;            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
             display: flex;
-            align-items: center;
+
+            align-items: center;            display: flex;        .rank-image {
+
             justify-content: center;
-            color: white;
-            font-weight: bold;
+
+            font-weight: 600;            align-items: center;            width: 80px;
+
+            margin-right: 15px;
+
+        }            justify-content: center;            height: 80px;
+
+
+
+        .admin-info {            background: #f0f0f0;            margin: 0 auto 15px;
+
+            display: flex;
+
+            align-items: center;        }            border-radius: 50%;
+
         }
 
-        .status-online {
-            color: #28a745;
-            font-weight: 600;
+            overflow: hidden;
+
+        .admin-details {
+
+            flex: 1;        .rank-image img {            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
         }
 
-        .status-offline {
+            width: 100%;        }
+
+        .admin-name {
+
+            font-weight: 600;            height: 100%;
+
+            margin-bottom: 5px;
+
+        }            object-fit: cover;        .rank-image img {
+
+
+
+        .admin-username {        }            width: 100%;
+
             color: #6c757d;
+
+            font-size: 14px;            height: 100%;
+
         }
 
-        .action-btn {
-            padding: 6px 12px;
-            margin: 2px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
+        .rank-name {            object-fit: cover;
+
+        .rank-badge {
+
+            display: inline-flex;            font-size: 18px;        }
+
+            align-items: center;
+
+            gap: 8px;            font-weight: 600;
+
+            padding: 5px 12px;
+
+            border-radius: 20px;            margin-bottom: 5px;        .rank-name {
+
             font-size: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+
+            font-weight: 600;        }            font-size: 18px;
+
+            color: white;
+
+        }            font-weight: 600;
+
+
+
+        .progress-bar {        .rank-points {            margin-bottom: 5px;
+
+            width: 100px;
+
+            height: 8px;            color: #6c757d;        }
+
+            background: #e9ecef;
+
+            border-radius: 4px;            font-size: 14px;
+
+            overflow: hidden;
+
+        }        }        .rank-points {
+
+
+
+        .progress-fill {            color: #6c757d;
+
+            height: 100%;
+
+            background: linear-gradient(90deg, #667eea, #764ba2);        /* Admin Table Styles */            font-size: 14px;
+
+            transition: width 0.5s ease;
+
+        }        .admin-table-container {        }
+
+
+
+        .action-buttons {            background: white;
+
+            display: flex;
+
+            gap: 8px;            border-radius: 15px;        /* Admin Table Styles */
+
         }
 
-        .btn-edit {
-            background: #ffc107;
-            color: #212529;
+            overflow: hidden;        .admin-table-container {
+
+        .btn {
+
+            padding: 6px 12px;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);            background: white;
+
+            border: none;
+
+            border-radius: 6px;        }            border-radius: 15px;
+
+            cursor: pointer;
+
+            font-size: 12px;            overflow: hidden;
+
+            transition: all 0.3s ease;
+
+        }        body.dark-mode .admin-table-container {            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+
+
+        .btn-edit {            background: #2d2d2d;        }
+
+            background: #28a745;
+
+            color: white;        }
+
         }
+
+        body.dark-mode .admin-table-container {
+
+        .btn-edit:hover {
+
+            background: #218838;        .table-header {            background: #2d2d2d;
+
+        }
+
+            background: linear-gradient(135deg, #667eea, #764ba2);        }
 
         .btn-delete {
-            background: #dc3545;
+
+            background: #dc3545;            color: white;
+
             color: white;
+
+        }            padding: 20px;        .table-header {
+
+
+
+        .btn-delete:hover {            display: flex;            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            background: #c82333;
+
+        }            justify-content: space-between;            color: white;
+
+
+
+        .modal {            align-items: center;            padding: 20px;
+
+            display: none;
+
+            position: fixed;        }            display: flex;
+
+            top: 0;
+
+            left: 0;            justify-content: space-between;
+
+            width: 100%;
+
+            height: 100%;        .table-title {            align-items: center;
+
+            background: rgba(0,0,0,0.5);
+
+            z-index: 2000;            font-size: 20px;        }
+
         }
 
-        .btn-add {
-            background: #28a745;
-            color: white;
+            font-weight: 600;
+
+        .modal-content {
+
+            position: absolute;        }        .table-title {
+
+            top: 50%;
+
+            left: 50%;            font-size: 20px;
+
+            transform: translate(-50%, -50%);
+
+            background: white;        .add-admin-btn {            font-weight: 600;
+
+            border-radius: 15px;
+
+            padding: 30px;            background: rgba(255,255,255,0.2);        }
+
+            width: 90%;
+
+            max-width: 500px;            border: none;
+
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+        }            color: white;        .add-admin-btn {
+
+
+
+        body.dark-mode .modal-content {            padding: 10px 20px;            background: rgba(255,255,255,0.2);
+
+            background: #2d2d2d;
+
+            color: white;            border-radius: 25px;            border: none;
+
+        }
+
+            cursor: pointer;            color: white;
+
+        .modal-header {
+
+            margin-bottom: 20px;            font-size: 14px;            padding: 10px 20px;
+
+        }
+
+            transition: all 0.3s ease;            border-radius: 25px;
+
+        .modal-title {
+
+            font-size: 20px;        }            cursor: pointer;
+
+            font-weight: 600;
+
+            color: #2d3748;            font-size: 14px;
+
+        }
+
+        .add-admin-btn:hover {            transition: all 0.3s ease;
+
+        body.dark-mode .modal-title {
+
+            color: white;            background: rgba(255,255,255,0.3);        }
+
+        }
+
+        }
+
+        .form-group {
+
+            margin-bottom: 20px;        .add-admin-btn:hover {
+
+        }
+
+        .admin-table {            background: rgba(255,255,255,0.3);
+
+        .form-label {
+
+            display: block;            width: 100%;        }
+
+            margin-bottom: 8px;
+
+            font-weight: 500;            border-collapse: collapse;
+
+            color: #495057;
+
+        }        }        .admin-table {
+
+
+
+        body.dark-mode .form-label {            width: 100%;
+
+            color: #ccc;
+
+        }        .admin-table th,            border-collapse: collapse;
+
+
+
+        .form-control {        .admin-table td {        }
+
+            width: 100%;
+
+            padding: 12px;            padding: 15px;
+
+            border: 1px solid #e9ecef;
+
+            border-radius: 8px;            text-align: left;        .admin-table th,
+
+            font-size: 14px;
+
+            transition: border-color 0.3s ease;            border-bottom: 1px solid #e9ecef;        .admin-table td {
+
+        }
+
+        }            padding: 15px;
+
+        .form-control:focus {
+
+            outline: none;            text-align: left;
+
+            border-color: #667eea;
+
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);        body.dark-mode .admin-table th,            border-bottom: 1px solid #e9ecef;
+
+        }
+
+        body.dark-mode .admin-table td {        }
+
+        body.dark-mode .form-control {
+
+            background: #3a3a3a;            border-bottom-color: #444;
+
+            border-color: #555;
+
+            color: white;        }        body.dark-mode .admin-table th,
+
+        }
+
+        body.dark-mode .admin-table td {
+
+        .form-actions {
+
+            display: flex;        .admin-table th {            border-bottom-color: #444;
+
+            gap: 10px;
+
+            justify-content: flex-end;            background: #f8f9fa;        }
+
+            margin-top: 30px;
+
+        }            font-weight: 600;
+
+
+
+        .btn-primary {            color: #495057;        .admin-table th {
+
+            background: #667eea;
+
+            color: white;        }            background: #f8f9fa;
+
             padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 16px;
-            margin-bottom: 20px;
+
+            border: none;            font-weight: 600;
+
+            border-radius: 8px;
+
+            cursor: pointer;        body.dark-mode .admin-table th {            color: #495057;
+
+            font-size: 14px;
+
+            transition: all 0.3s ease;            background: #333;        }
+
         }
 
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: #fff;
+
+        .btn-primary:hover {
+
+            background: #5a6fd8;        }        body.dark-mode .admin-table th {
+
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
+            background: #333;
 
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
+        .btn-secondary {
 
-            .main-content {
-                margin-left: 0;
-                margin-top: 80px;
+            background: #6c757d;        .admin-table tbody tr:hover {            color: #fff;
+
+            color: white;
+
+            padding: 12px 24px;            background: #f8f9fa;        }
+
+            border: none;
+
+            border-radius: 8px;        }
+
+            cursor: pointer;
+
+            font-size: 14px;        .admin-table tbody tr:hover {
+
+            transition: all 0.3s ease;
+
+        }        body.dark-mode .admin-table tbody tr:hover {            background: #f8f9fa;
+
+
+
+        .btn-secondary:hover {            background: #3a3a3a;        }
+
+            background: #5a6268;
+
+        }        }
+
+
+
+        @media (max-width: 768px) {        body.dark-mode .admin-table tbody tr:hover {
+
+            .admin-content {
+
+                margin-left: 0;        .admin-avatar {            background: #3a3a3a;
+
                 padding: 20px;
+
+            }            width: 40px;        }
+
+
+
+            .rank-showcase {            height: 40px;
+
+                grid-template-columns: 1fr;
+
+            }            border-radius: 50%;        .admin-avatar {
+
+
+
+            .admin-table-container {            background: #667eea;            width: 40px;
+
+                overflow-x: auto;
+
+            }            color: white;            height: 40px;
+
+        }
+
+    </style>            display: flex;            border-radius: 50%;
+
+</head>
+
+<body>            align-items: center;            background: #667eea;
+
+    <div id="menu-container"></div>
+
+            justify-content: center;            color: white;
+
+    <div class="admin-content">
+
+        <div class="page-header">            font-weight: 600;            display: flex;
+
+            <h1>👨‍💼 จัดการแอดมิน</h1>
+
+            <p>จัดการผู้ใช้แอดมินและระบบเรติ้ง KingChat</p>            margin-right: 15px;            align-items: center;
+
+        </div>
+
+        }            justify-content: center;
+
+        <div class="rank-showcase">
+
+            <div class="rank-card rank-bronze">            font-weight: 600;
+
+                <div class="rank-image">🥉</div>
+
+                <div class="rank-name">Bronze (บรอนซ์)</div>        .admin-info {            margin-right: 15px;
+
+                <div class="rank-points">0 - 999 คะแนน</div>
+
+            </div>            display: flex;        }
+
+            <div class="rank-card rank-silver">
+
+                <div class="rank-image">🥈</div>            align-items: center;
+
+                <div class="rank-name">Silver (ซิลเวอร์)</div>
+
+                <div class="rank-points">1000 - 1999 คะแนน</div>        }        .admin-info {
+
+            </div>
+
+            <div class="rank-card rank-gold">            display: flex;
+
+                <div class="rank-image">🥇</div>
+
+                <div class="rank-name">Gold (โกลด์)</div>        .admin-details {            align-items: center;
+
+                <div class="rank-points">2000 - 2999 คะแนน</div>
+
+            </div>            flex: 1;        }
+
+            <div class="rank-card rank-platinum">
+
+                <div class="rank-image">💎</div>        }
+
+                <div class="rank-name">Platinum (แพลทินัม)</div>
+
+                <div class="rank-points">3000 - 3999 คะแนน</div>        .admin-details {
+
+            </div>
+
+            <div class="rank-card rank-diamond">        .admin-name {            flex: 1;
+
+                <div class="rank-image">💠</div>
+
+                <div class="rank-name">Diamond (ไดมอนด์)</div>            font-weight: 600;        }
+
+                <div class="rank-points">4000 - 4999 คะแนน</div>
+
+            </div>            margin-bottom: 5px;
+
+            <div class="rank-card rank-master">
+
+                <div class="rank-image">⭐</div>        }        .admin-name {
+
+                <div class="rank-name">Master (มาสเตอร์)</div>
+
+                <div class="rank-points">5000 - 5999 คะแนน</div>            font-weight: 600;
+
+            </div>
+
+            <div class="rank-card rank-grandmaster">        .admin-username {            margin-bottom: 5px;
+
+                <div class="rank-image">🌟</div>
+
+                <div class="rank-name">Grand Master (แกรนด์มาสเตอร์)</div>            color: #6c757d;        }
+
+                <div class="rank-points">6000 - 6999 คะแนน</div>
+
+            </div>            font-size: 14px;
+
+            <div class="rank-card rank-conqueror">
+
+                <div class="rank-image">👑</div>        }        .admin-username {
+
+                <div class="rank-name">Conqueror (คองเควอร์เรอร์)</div>
+
+                <div class="rank-points">7000+ คะแนน</div>            color: #6c757d;
+
+            </div>
+
+        </div>        .rank-badge {            font-size: 14px;
+
+
+
+        <div class="admin-table-container">            display: inline-flex;        }
+
+            <div class="table-header">
+
+                <div class="table-title">รายชื่อแอดมิน</div>            align-items: center;
+
+                <button class="add-admin-btn" onclick="openAddModal()">➕ เพิ่มแอดมินใหม่</button>
+
+            </div>            gap: 8px;        .rank-badge {
+
+            <table class="admin-table">
+
+                <thead>            padding: 5px 12px;            display: inline-flex;
+
+                    <tr>
+
+                        <th>ข้อมูลแอดมิน</th>            border-radius: 20px;            align-items: center;
+
+                        <th>ระดับ</th>
+
+                        <th>คะแนน</th>            font-size: 12px;            gap: 8px;
+
+                        <th>ความคืบหน้า</th>
+
+                        <th>การจัดการ</th>            font-weight: 600;            padding: 5px 12px;
+
+                    </tr>
+
+                </thead>            color: white;            border-radius: 20px;
+
+                <tbody id="adminTableBody">
+
+                    <!-- Admin data will be loaded here -->        }            font-size: 12px;
+
+                </tbody>
+
+            </table>            font-weight: 600;
+
+        </div>
+
+    </div>        .rank-badge img {            color: white;
+
+
+
+    <!-- Add/Edit Admin Modal -->            width: 16px;        }
+
+    <div id="adminModal" class="modal">
+
+        <div class="modal-content">            height: 16px;
+
+            <div class="modal-header">
+
+                <h3 class="modal-title" id="modalTitle">เพิ่มแอดมินใหม่</h3>            border-radius: 50%;        .progress-bar {
+
+            </div>
+
+            <form id="adminForm">        }            width: 100px;
+
+                <div class="form-group">
+
+                    <label class="form-label">ชื่อจริง</label>            height: 8px;
+
+                    <input type="text" class="form-control" id="fullName" required>
+
+                </div>        .progress-bar {            background: #e9ecef;
+
+                <div class="form-group">
+
+                    <label class="form-label">ชื่อผู้ใช้</label>            width: 100px;            border-radius: 4px;
+
+                    <input type="text" class="form-control" id="username" required>
+
+                </div>            height: 8px;            overflow: hidden;
+
+                <div class="form-group">
+
+                    <label class="form-label">รหัสผ่าน</label>            background: #e9ecef;        }
+
+                    <input type="password" class="form-control" id="password" required>
+
+                </div>            border-radius: 4px;
+
+                <div class="form-group">
+
+                    <label class="form-label">ระดับสิทธิ์</label>            overflow: hidden;        .progress-fill {
+
+                    <select class="form-control" id="role" required>
+
+                        <option value="admin">Admin (ระดับ 80)</option>        }            height: 100%;
+
+                        <option value="super_admin">Super Admin (ระดับ 100)</option>
+
+                    </select>            background: linear-gradient(90deg, #667eea, #764ba2);
+
+                </div>
+
+                <div class="form-group">        .progress-fill {            transition: width 0.5s ease;
+
+                    <label class="form-label">คะแนนเริ่มต้น</label>
+
+                    <input type="number" class="form-control" id="points" value="0" min="0">            height: 100%;        }
+
+                </div>
+
+                <div class="form-actions">            background: linear-gradient(90deg, #667eea, #764ba2);
+
+                    <button type="button" class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+
+                    <button type="submit" class="btn-primary">บันทึก</button>            transition: width 0.5s ease;        .action-buttons {
+
+                </div>
+
+            </form>        }            display: flex;
+
+        </div>
+
+    </div>            gap: 8px;
+
+
+
+    <script>        .action-buttons {        }
+
+        // Global theme toggle function
+
+        function toggleTheme() {            display: flex;
+
+            document.body.classList.toggle('dark-mode');
+
+            const isDark = document.body.classList.contains('dark-mode');            gap: 8px;        .btn {
+
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+        }        }            padding: 6px 12px;
+
+
+
+        // Load saved theme            border: none;
+
+        function loadTheme() {
+
+            const savedTheme = localStorage.getItem('theme');        .btn {            border-radius: 6px;
+
+            if (savedTheme === 'dark') {
+
+                document.body.classList.add('dark-mode');            padding: 6px 12px;            cursor: pointer;
+
             }
+
+        }            border: none;            font-size: 12px;
+
+
+
+        // Rank system configuration            border-radius: 6px;            transition: all 0.3s ease;
+
+        const RANKS = {
+
+            bronze: { name: 'Bronze', nameKey: 'บรอนซ์', min: 0, max: 999, color: '#CD7F32', icon: '🥉' },            cursor: pointer;        }
+
+            silver: { name: 'Silver', nameKey: 'ซิลเวอร์', min: 1000, max: 1999, color: '#C0C0C0', icon: '🥈' },
+
+            gold: { name: 'Gold', nameKey: 'โกลด์', min: 2000, max: 2999, color: '#FFD700', icon: '🥇' },            font-size: 12px;
+
+            platinum: { name: 'Platinum', nameKey: 'แพลทินัม', min: 3000, max: 3999, color: '#E5E4E2', icon: '💎' },
+
+            diamond: { name: 'Diamond', nameKey: 'ไดมอนด์', min: 4000, max: 4999, color: '#B9F2FF', icon: '💠' },            transition: all 0.3s ease;        .btn-edit {
+
+            master: { name: 'Master', nameKey: 'มาสเตอร์', min: 5000, max: 5999, color: '#9966CC', icon: '⭐' },
+
+            grandmaster: { name: 'Grand Master', nameKey: 'แกรนด์มาสเตอร์', min: 6000, max: 6999, color: '#FF1493', icon: '🌟' },        }            background: #28a745;
+
+            conqueror: { name: 'Conqueror', nameKey: 'คองเควอร์เรอร์', min: 7000, max: 99999, color: '#FF4500', icon: '👑' }
+
+        };            color: white;
+
+
+
+        function getRankByPoints(points) {        .btn-edit {        }
+
+            for (const [key, rank] of Object.entries(RANKS)) {
+
+                if (points >= rank.min && points <= rank.max) {            background: #28a745;
+
+                    return { key, ...rank };
+
+                }            color: white;        .btn-edit:hover {
+
+            }
+
+            return { key: 'bronze', ...RANKS.bronze };        }            background: #218838;
+
+        }
+
+        }
+
+        function calculateRankProgress(points) {
+
+            const rank = getRankByPoints(points);        .btn-edit:hover {
+
+            const progress = ((points - rank.min) / (rank.max - rank.min)) * 100;
+
+            return Math.min(Math.max(progress, 0), 100);            background: #218838;        .btn-delete {
+
+        }
+
+        }            background: #dc3545;
+
+        function createRankBadge(points) {
+
+            const rank = getRankByPoints(points);            color: white;
+
+            return `
+
+                <div class="rank-badge" style="background: ${rank.color};">        .btn-delete {        }
+
+                    <span style="font-size: 12px;">${rank.icon}</span>
+
+                    ${rank.nameKey}            background: #dc3545;
+
+                </div>
+
+            `;            color: white;        .btn-delete:hover {
+
+        }
+
+        }            background: #c82333;
+
+        function createProgressBar(points) {
+
+            const progress = calculateRankProgress(points);        }
+
+            return `
+
+                <div class="progress-bar">        .btn-delete:hover {
+
+                    <div class="progress-fill" style="width: ${progress}%"></div>
+
+                </div>            background: #c82333;        /* Modal Styles */
+
+            `;
+
+        }        }        .modal {
+
+
+
+        // Demo admin data            display: none;
+
+        const demoAdmins = [
+
+            {        /* Modal Styles */            position: fixed;
+
+                id: 1,
+
+                fullName: 'สมชาย ใจดี',        .modal {            top: 0;
+
+                username: 'admin',
+
+                role: 'super_admin',            display: none;            left: 0;
+
+                level: 100,
+
+                points: 4500,            position: fixed;            width: 100%;
+
+                messagesHandled: 450,
+
+                lastLogin: '2024-10-12 14:30:00'            top: 0;            height: 100%;
+
+            },
+
+            {            left: 0;            background: rgba(0,0,0,0.5);
+
+                id: 2,
+
+                fullName: 'สุภา รักงาน',            width: 100%;            z-index: 2000;
+
+                username: 'supha_admin',
+
+                role: 'admin',            height: 100%;        }
+
+                level: 80,
+
+                points: 2300,            background: rgba(0,0,0,0.5);
+
+                messagesHandled: 230,
+
+                lastLogin: '2024-10-12 13:45:00'            z-index: 2000;        .modal-content {
+
+            },
+
+            {        }            position: absolute;
+
+                id: 3,
+
+                fullName: 'วิชัย เก่งงาน',            top: 50%;
+
+                username: 'vichai_admin',
+
+                role: 'admin',        .modal-content {            left: 50%;
+
+                level: 80,
+
+                points: 1800,            position: absolute;            transform: translate(-50%, -50%);
+
+                messagesHandled: 180,
+
+                lastLogin: '2024-10-12 12:15:00'            top: 50%;            background: white;
+
+            }
+
+        ];            left: 50%;            border-radius: 15px;
+
+
+
+        function loadAdmins() {            transform: translate(-50%, -50%);            padding: 30px;
+
+            const tableBody = document.getElementById('adminTableBody');
+
+            tableBody.innerHTML = '';            background: white;            width: 90%;
+
+
+
+            demoAdmins.forEach(admin => {            border-radius: 15px;            max-width: 500px;
+
+                const row = createAdminRow(admin);
+
+                tableBody.appendChild(row);            padding: 30px;            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+            });
+
+        }            width: 90%;        }
+
+
+
+        function createAdminRow(admin) {            max-width: 500px;
+
+            const tr = document.createElement('tr');
+
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.2);        body.dark-mode .modal-content {
+
+            tr.innerHTML = `
+
+                <td>        }            background: #2d2d2d;
+
+                    <div class="admin-info">
+
+                        <div class="admin-avatar">${admin.fullName.charAt(0)}</div>            color: white;
+
+                        <div class="admin-details">
+
+                            <div class="admin-name">${admin.fullName}</div>        body.dark-mode .modal-content {        }
+
+                            <div class="admin-username">@${admin.username}</div>
+
+                        </div>            background: #2d2d2d;
+
+                    </div>
+
+                </td>            color: white;        .modal-header {
+
+                <td>${createRankBadge(admin.points)}</td>
+
+                <td>        }            margin-bottom: 20px;
+
+                    <strong>${admin.points.toLocaleString()}</strong> คะแนน<br>
+
+                    <small style="color: #6c757d;">${admin.messagesHandled} ข้อความ</small>        }
+
+                </td>
+
+                <td>${createProgressBar(admin.points)}</td>        .modal-header {
+
+                <td>
+
+                    <div class="action-buttons">            margin-bottom: 20px;        .modal-title {
+
+                        <button class="btn btn-edit" onclick="editAdmin(${admin.id})">✏️ แก้ไข</button>
+
+                        <button class="btn btn-delete" onclick="deleteAdmin(${admin.id})">🗑️ ลบ</button>        }            font-size: 20px;
+
+                    </div>
+
+                </td>            font-weight: 600;
+
+            `;
+
+        .modal-title {            color: #2d3748;
+
+            return tr;
+
+        }            font-size: 20px;        }
+
+
+
+        let currentEditId = null;            font-weight: 600;
+
+
+
+        function openAddModal() {            color: #2d3748;        body.dark-mode .modal-title {
+
+            currentEditId = null;
+
+            document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';        }            color: white;
+
+            document.getElementById('adminForm').reset();
+
+            document.getElementById('adminModal').style.display = 'block';        }
+
+        }
+
+        body.dark-mode .modal-title {
+
+        function editAdmin(id) {
+
+            const admin = demoAdmins.find(a => a.id === id);            color: white;        .form-group {
+
+            if (!admin) return;
+
+        }            margin-bottom: 20px;
+
+            currentEditId = id;
+
+            document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลแอดมิน';        }
+
+            document.getElementById('fullName').value = admin.fullName;
+
+            document.getElementById('username').value = admin.username;        .form-group {
+
+            document.getElementById('password').value = '';
+
+            document.getElementById('role').value = admin.role;            margin-bottom: 20px;        .form-label {
+
+            document.getElementById('points').value = admin.points;
+
+            document.getElementById('adminModal').style.display = 'block';        }            display: block;
+
+        }
+
+            margin-bottom: 8px;
+
+        function closeModal() {
+
+            document.getElementById('adminModal').style.display = 'none';        .form-label {            font-weight: 500;
+
+            currentEditId = null;
+
+        }            display: block;            color: #495057;
+
+
+
+        function deleteAdmin(id) {            margin-bottom: 8px;        }
+
+            if (confirm('คุณต้องการลบแอดมินนี้หรือไม่?')) {
+
+                const index = demoAdmins.findIndex(a => a.id === id);            font-weight: 500;
+
+                if (index > -1) {
+
+                    demoAdmins.splice(index, 1);            color: #495057;        body.dark-mode .form-label {
+
+                    loadAdmins();
+
+                    alert('ลบแอดมินเรียบร้อยแล้ว');        }            color: #ccc;
+
+                }
+
+            }        }
+
+        }
+
+        body.dark-mode .form-label {
+
+        document.getElementById('adminForm').addEventListener('submit', function(e) {
+
+            e.preventDefault();            color: #ccc;        .form-control {
+
+            
+
+            const formData = {        }            width: 100%;
+
+                fullName: document.getElementById('fullName').value,
+
+                username: document.getElementById('username').value,            padding: 12px;
+
+                password: document.getElementById('password').value,
+
+                role: document.getElementById('role').value,        .form-control {            border: 1px solid #e9ecef;
+
+                points: parseInt(document.getElementById('points').value) || 0
+
+            };            width: 100%;            border-radius: 8px;
+
+
+
+            if (currentEditId) {            padding: 12px;            font-size: 14px;
+
+                const admin = demoAdmins.find(a => a.id === currentEditId);
+
+                if (admin) {            border: 1px solid #e9ecef;            transition: border-color 0.3s ease;
+
+                    admin.fullName = formData.fullName;
+
+                    admin.username = formData.username;            border-radius: 8px;        }
+
+                    if (formData.password) {
+
+                        admin.password = formData.password;            font-size: 14px;
+
+                    }
+
+                    admin.role = formData.role;            transition: border-color 0.3s ease;        .form-control:focus {
+
+                    admin.level = formData.role === 'super_admin' ? 100 : 80;
+
+                    admin.points = formData.points;        }            outline: none;
+
+                    admin.messagesHandled = Math.floor(formData.points / 10);
+
+                }            border-color: #667eea;
+
+                alert('อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว');
+
+            } else {        .form-control:focus {            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+
+                const newAdmin = {
+
+                    id: Math.max(...demoAdmins.map(a => a.id)) + 1,            outline: none;        }
+
+                    ...formData,
+
+                    level: formData.role === 'super_admin' ? 100 : 80,            border-color: #667eea;
+
+                    messagesHandled: Math.floor(formData.points / 10),
+
+                    lastLogin: new Date().toISOString().slice(0, 19).replace('T', ' ')            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);        body.dark-mode .form-control {
+
+                };
+
+                demoAdmins.push(newAdmin);        }            background: #3a3a3a;
+
+                alert('เพิ่มแอดมินใหม่เรียบร้อยแล้ว');
+
+            }            border-color: #555;
+
+
+
+            loadAdmins();        body.dark-mode .form-control {            color: white;
+
+            closeModal();
+
+        });            background: #3a3a3a;        }
+
+
+
+        window.addEventListener('click', function(e) {            border-color: #555;
+
+            if (e.target === document.getElementById('adminModal')) {
+
+                closeModal();            color: white;        .form-actions {
+
+            }
+
+        });        }            display: flex;
+
+
+
+        document.addEventListener('DOMContentLoaded', function() {            gap: 10px;
+
+            loadTheme();
+
+            new KingChatMenu();        .form-actions {            justify-content: flex-end;
+
+            loadAdmins();
+
+        });            display: flex;            margin-top: 30px;
+
+    </script>
+
+</body>            gap: 10px;        }
+
+</html>
+            justify-content: flex-end;
+
+            margin-top: 30px;        .btn-primary {
+
+        }            background: #667eea;
+
+            color: white;
+
+        .btn-primary {            padding: 12px 24px;
+
+            background: #667eea;            border: none;
+
+            color: white;            border-radius: 8px;
+
+            padding: 12px 24px;            cursor: pointer;
+
+            border: none;            font-size: 14px;
+
+            border-radius: 8px;            transition: all 0.3s ease;
+
+            cursor: pointer;        }
+
+            font-size: 14px;
+
+            transition: all 0.3s ease;        .btn-primary:hover {
+
+        }            background: #5a6fd8;
+
+        }
+
+        .btn-primary:hover {
+
+            background: #5a6fd8;        .btn-secondary {
+
+        }            background: #6c757d;
+
+            color: white;
+
+        .btn-secondary {            padding: 12px 24px;
+
+            background: #6c757d;            border: none;
+
+            color: white;            border-radius: 8px;
+
+            padding: 12px 24px;            cursor: pointer;
+
+            border: none;            font-size: 14px;
+
+            border-radius: 8px;            transition: all 0.3s ease;
+
+            cursor: pointer;        }
+
+            font-size: 14px;
+
+            transition: all 0.3s ease;        .btn-secondary:hover {
+
+        }            background: #5a6268;
+
+        }
+
+        .btn-secondary:hover {
+
+            background: #5a6268;        /* Responsive Design */
+
+        }        @media (max-width: 768px) {
+
+            .admin-content {
+
+        /* Responsive Design */                margin-left: 0;
+
+        @media (max-width: 768px) {                padding: 20px;
+
+            .admin-content {            }
+
+                margin-left: 0;
+
+                padding: 20px;            .rank-showcase {
+
+            }                grid-template-columns: 1fr;
+
+            }
+
+            .rank-showcase {
+
+                grid-template-columns: 1fr;            .admin-table-container {
+
+            }                overflow-x: auto;
+
+            }
+
+            .admin-table-container {        }
+
+                overflow-x: auto;    </style>
+
+            }</head>
+
+        }<body>
+
+    </style>    <div id="menu-container"></div>
+
+</head>
+
+<body>    <div class="admin-content">
+
+    <div id="menu-container"></div>        <!-- Page Header -->
+
+        <div class="page-header">
+
+    <div class="admin-content">            <h1>👨‍💼 จัดการแอดมิน</h1>
+
+        <!-- Page Header -->            <p>จัดการผู้ใช้แอดมินและระบบเรติ้ง KingChat</p>
+
+        <div class="page-header">        </div>
+
+            <h1>👨‍💼 จัดการแอดมิน</h1>
+
+            <p>จัดการผู้ใช้แอดมินและระบบเรติ้ง KingChat</p>        <!-- Rank Showcase -->
+
+        </div>        <div class="rank-showcase">
+
+            <div class="rank-card rank-bronze">
+
+        <!-- Rank Showcase -->                <div class="rank-image">
+
+        <div class="rank-showcase">                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/0/0d/Bronze.png" alt="Bronze" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-bronze">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Bronze (บรอนซ์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/0/0d/Bronze.png" alt="Bronze" onerror="this.style.display='none';">                <div class="rank-points">0 - 999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Bronze (บรอนซ์)</div>            <div class="rank-card rank-silver">
+
+                <div class="rank-points">0 - 999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/a/a7/Silver.png" alt="Silver" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-silver">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Silver (ซิลเวอร์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/a/a7/Silver.png" alt="Silver" onerror="this.style.display='none';">                <div class="rank-points">1000 - 1999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Silver (ซิลเวอร์)</div>            <div class="rank-card rank-gold">
+
+                <div class="rank-points">1000 - 1999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/7/76/Gold.png" alt="Gold" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-gold">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Gold (โกลด์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/7/76/Gold.png" alt="Gold" onerror="this.style.display='none';">                <div class="rank-points">2000 - 2999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Gold (โกลด์)</div>            <div class="rank-card rank-platinum">
+
+                <div class="rank-points">2000 - 2999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/1/15/Platinum.png" alt="Platinum" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-platinum">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Platinum (แพลทินัม)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/1/15/Platinum.png" alt="Platinum" onerror="this.style.display='none';">                <div class="rank-points">3000 - 3999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Platinum (แพลทินัม)</div>            <div class="rank-card rank-diamond">
+
+                <div class="rank-points">3000 - 3999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/9/94/Diamond.png" alt="Diamond" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-diamond">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Diamond (ไดมอนด์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/9/94/Diamond.png" alt="Diamond" onerror="this.style.display='none';">                <div class="rank-points">4000 - 4999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Diamond (ไดมอนด์)</div>            <div class="rank-card rank-master">
+
+                <div class="rank-points">4000 - 4999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/b/bb/Master.png" alt="Master" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-master">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Master (มาสเตอร์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/b/bb/Master.png" alt="Master" onerror="this.style.display='none';">                <div class="rank-points">5000 - 5999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Master (มาสเตอร์)</div>            <div class="rank-card rank-grandmaster">
+
+                <div class="rank-points">5000 - 5999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/2/20/Grandmaster.png" alt="Grandmaster" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-grandmaster">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Grand Master (แกรนด์มาสเตอร์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/2/20/Grandmaster.png" alt="Grandmaster" onerror="this.style.display='none';">                <div class="rank-points">6000 - 6999 คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Grand Master (แกรนด์มาสเตอร์)</div>            <div class="rank-card rank-conqueror">
+
+                <div class="rank-points">6000 - 6999 คะแนน</div>                <div class="rank-image">
+
+            </div>                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/f/ff/Conqueror.png" alt="Conqueror" style="width: 100%; height: 100%; object-fit: cover;">
+
+            <div class="rank-card rank-conqueror">                </div>
+
+                <div class="rank-image">                <div class="rank-name">Conqueror (คองเควอร์เรอร์)</div>
+
+                    <img src="https://static.wikia.nocookie.net/arena-of-valor/images/f/ff/Conqueror.png" alt="Conqueror" onerror="this.style.display='none';">                <div class="rank-points">7000+ คะแนน</div>
+
+                </div>            </div>
+
+                <div class="rank-name">Conqueror (คองเควอร์เรอร์)</div>        </div>
+
+                <div class="rank-points">7000+ คะแนน</div>
+
+            </div>        <!-- Admin Table -->
+
+        </div>        <div class="admin-table-container">
+
+            <div class="table-header">
+
+        <!-- Admin Table -->                <div class="table-title">รายชื่อแอดมิน</div>
+
+        <div class="admin-table-container">                <button class="add-admin-btn" onclick="openAddModal()">➕ เพิ่มแอดมินใหม่</button>
+
+            <div class="table-header">            </div>
+
+                <div class="table-title">รายชื่อแอดมิน</div>            <table class="admin-table">
+
+                <button class="add-admin-btn" onclick="openAddModal()">➕ เพิ่มแอดมินใหม่</button>                <thead>
+
+            </div>                    <tr>
+
+            <table class="admin-table">                        <th>ข้อมูลแอดมิน</th>
+
+                <thead>                        <th>ระดับ</th>
+
+                    <tr>                        <th>คะแนน</th>
+
+                        <th>ข้อมูลแอดมิน</th>                        <th>ความคืบหน้า</th>
+
+                        <th>ระดับ</th>                        <th>การจัดการ</th>
+
+                        <th>คะแนน</th>                    </tr>
+
+                        <th>ความคืบหน้า</th>                </thead>
+
+                        <th>การจัดการ</th>                <tbody id="adminTableBody">
+
+                    </tr>                    <!-- Admin data will be loaded here -->
+
+                </thead>                </tbody>
+
+                <tbody id="adminTableBody">            </table>
+
+                    <!-- Admin data will be loaded here -->        </div>
+
+                </tbody>    </div>
+
+            </table>
+
+        </div>    <!-- Add/Edit Admin Modal -->
+
+    </div>    <div id="adminModal" class="modal">
+
+        <div class="modal-content">
+
+    <!-- Add/Edit Admin Modal -->            <div class="modal-header">
+
+    <div id="adminModal" class="modal">                <h3 class="modal-title" id="modalTitle">เพิ่มแอดมินใหม่</h3>
+
+        <div class="modal-content">            </div>
+
+            <div class="modal-header">            <form id="adminForm">
+
+                <h3 class="modal-title" id="modalTitle">เพิ่มแอดมินใหม่</h3>                <div class="form-group">
+
+            </div>                    <label class="form-label">ชื่อจริง</label>
+
+            <form id="adminForm">                    <input type="text" class="form-control" id="fullName" required>
+
+                <div class="form-group">                </div>
+
+                    <label class="form-label">ชื่อจริง</label>                <div class="form-group">
+
+                    <input type="text" class="form-control" id="fullName" required>                    <label class="form-label">ชื่อผู้ใช้</label>
+
+                </div>                    <input type="text" class="form-control" id="username" required>
+
+                <div class="form-group">                </div>
+
+                    <label class="form-label">ชื่อผู้ใช้</label>                <div class="form-group">
+
+                    <input type="text" class="form-control" id="username" required>                    <label class="form-label">รหัสผ่าน</label>
+
+                </div>                    <input type="password" class="form-control" id="password" required>
+
+                <div class="form-group">                </div>
+
+                    <label class="form-label">รหัสผ่าน</label>                <div class="form-group">
+
+                    <input type="password" class="form-control" id="password" required>                    <label class="form-label">ระดับสิทธิ์</label>
+
+                </div>                    <select class="form-control" id="role" required>
+
+                <div class="form-group">                        <option value="admin">Admin (ระดับ 80)</option>
+
+                    <label class="form-label">ระดับสิทธิ์</label>                        <option value="super_admin">Super Admin (ระดับ 100)</option>
+
+                    <select class="form-control" id="role" required>                    </select>
+
+                        <option value="admin">Admin (ระดับ 80)</option>                </div>
+
+                        <option value="super_admin">Super Admin (ระดับ 100)</option>                <div class="form-group">
+
+                    </select>                    <label class="form-label">คะแนนเริ่มต้น</label>
+
+                </div>                    <input type="number" class="form-control" id="points" value="0" min="0">
+
+                <div class="form-group">                </div>
+
+                    <label class="form-label">คะแนนเริ่มต้น</label>                <div class="form-actions">
+
+                    <input type="number" class="form-control" id="points" value="0" min="0">                    <button type="button" class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+
+                </div>                    <button type="submit" class="btn-primary">บันทึก</button>
+
+                <div class="form-actions">                </div>
+
+                    <button type="button" class="btn-secondary" onclick="closeModal()">ยกเลิก</button>            </form>
+
+                    <button type="submit" class="btn-primary">บันทึก</button>        </div>
+
+                </div>    </div>
+
+            </form>
+
+        </div>        .user-info {
+
+    </div>            text-align: right;
+
+        }
+
+    <script>
+
+        // Rank system configuration        .user-name {
+
+        const RANKS = {            font-weight: 600;
+
+            bronze: { name: 'Bronze', nameKey: 'บรอนซ์', min: 0, max: 999, color: '#CD7F32' },            color: #2d3748;
+
+            silver: { name: 'Silver', nameKey: 'ซิลเวอร์', min: 1000, max: 1999, color: '#C0C0C0' },            font-size: 16px;
+
+            gold: { name: 'Gold', nameKey: 'โกลด์', min: 2000, max: 2999, color: '#FFD700' },        }
+
+            platinum: { name: 'Platinum', nameKey: 'แพลทินัม', min: 3000, max: 3999, color: '#E5E4E2' },
+
+            diamond: { name: 'Diamond', nameKey: 'ไดมอนด์', min: 4000, max: 4999, color: '#B9F2FF' },        .user-status {
+
+            master: { name: 'Master', nameKey: 'มาสเตอร์', min: 5000, max: 5999, color: '#9966CC' },            display: flex;
+
+            grandmaster: { name: 'Grand Master', nameKey: 'แกรนด์มาสเตอร์', min: 6000, max: 6999, color: '#FF1493' },            align-items: center;
+
+            conqueror: { name: 'Conqueror', nameKey: 'คองเควอร์เรอร์', min: 7000, max: 99999, color: '#FF4500' }            gap: 6px;
+
+        };            font-size: 14px;
+
+            color: #28a745;
+
+        // Get rank based on points            margin-top: 4px;
+
+        function getRankByPoints(points) {        }
+
+            for (const [key, rank] of Object.entries(RANKS)) {
+
+                if (points >= rank.min && points <= rank.max) {        .status-dot {
+
+                    return { key, ...rank };            width: 8px;
+
+                }            height: 8px;
+
+            }            background: #28a745;
+
+            return { key: 'bronze', ...RANKS.bronze };            border-radius: 50%;
+
+        }            animation: pulse 2s infinite;
+
+        }
+
+        // Calculate progress within current rank
+
+        function calculateRankProgress(points) {        @keyframes pulse {
+
+            const rank = getRankByPoints(points);            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+
+            const progress = ((points - rank.min) / (rank.max - rank.min)) * 100;            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+
+            return Math.min(Math.max(progress, 0), 100);            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+
+        }        }
+
+
+
+        // Create rank badge HTML        .btn-logout {
+
+        function createRankBadge(points) {            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+
+            const rank = getRankByPoints(points);            color: white;
+
+            return `            border: none;
+
+                <div class="rank-badge" style="background: ${rank.color};">            padding: 10px 20px;
+
+                    <span style="font-size: 12px;">🏆</span>            border-radius: 25px;
+
+                    ${rank.nameKey}            cursor: pointer;
+
+                </div>            font-weight: 500;
+
+            `;            transition: all 0.3s ease;
+
+        }            display: flex;
+
+            align-items: center;
+
+        // Create progress bar HTML            gap: 8px;
+
+        function createProgressBar(points) {        }
+
+            const progress = calculateRankProgress(points);
+
+            return `        .btn-logout:hover {
+
+                <div class="progress-bar">            transform: translateY(-2px);
+
+                    <div class="progress-fill" style="width: ${progress}%"></div>            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+
+                </div>        }
+
+            `;
+
+        }        .sidebar {
+
+            position: fixed;
+
+        // Demo admin data with ranking system            top: 80px;
+
+        const demoAdmins = [            left: 0;
+
+            {            width: 280px;
+
+                id: 1,            height: calc(100vh - 80px);
+
+                fullName: 'สมชาย ใจดี',            background: rgba(255, 255, 255, 0.95);
+
+                username: 'admin',            backdrop-filter: blur(20px);
+
+                role: 'super_admin',            border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+                level: 100,            overflow-y: auto;
+
+                points: 4500,            z-index: 100;
+
+                messagesHandled: 450,            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+
+                lastLogin: '2024-10-12 14:30:00'        }
+
+            },
+
+            {        .sidebar-menu {
+
+                id: 2,            padding: 30px 0;
+
+                fullName: 'สุภา รักงาน',        }
+
+                username: 'supha_admin',
+
+                role: 'admin',        .menu-item {
+
+                level: 80,            display: flex;
+
+                points: 2300,            align-items: center;
+
+                messagesHandled: 230,            gap: 15px;
+
+                lastLogin: '2024-10-12 13:45:00'            padding: 15px 30px;
+
+            },            text-decoration: none;
+
+            {            color: #4a5568;
+
+                id: 3,            font-weight: 500;
+
+                fullName: 'วิชัย เก่งงาน',            transition: all 0.3s ease;
+
+                username: 'vichai_admin',            border-left: 4px solid transparent;
+
+                role: 'admin',        }
+
+                level: 80,
+
+                points: 1800,        .menu-item:hover {
+
+                messagesHandled: 180,            background: rgba(102, 126, 234, 0.1);
+
+                lastLogin: '2024-10-12 12:15:00'            color: #667eea;
+
+            }            border-left-color: #667eea;
+
+        ];            transform: translateX(5px);
+
+        }
+
+        // Load admin data
+
+        function loadAdmins() {        .menu-item.active {
+
+            const tableBody = document.getElementById('adminTableBody');            background: rgba(102, 126, 234, 0.15);
+
+            tableBody.innerHTML = '';            color: #667eea;
+
+            border-left-color: #667eea;
+
+            demoAdmins.forEach(admin => {            font-weight: 600;
+
+                const row = createAdminRow(admin);        }
+
+                tableBody.appendChild(row);
+
+            });        .icon {
+
+        }            font-size: 20px;
+
+            width: 24px;
+
+        // Create admin table row            text-align: center;
+
+        function createAdminRow(admin) {        }
+
+            const tr = document.createElement('tr');
+
+                    /* Main Content */
+
+            tr.innerHTML = `        .main-content {
+
+                <td>            margin-left: 280px;
+
+                    <div class="admin-info">            margin-top: 80px;
+
+                        <div class="admin-avatar">${admin.fullName.charAt(0)}</div>            padding: 30px;
+
+                        <div class="admin-details">            min-height: calc(100vh - 80px);
+
+                            <div class="admin-name">${admin.fullName}</div>        }
+
+                            <div class="admin-username">@${admin.username}</div>
+
+                        </div>        .admin-content {
+
+                    </div>            background: rgba(255, 255, 255, 0.95);
+
+                </td>            backdrop-filter: blur(20px);
+
+                <td>${createRankBadge(admin.points)}</td>            border-radius: 20px;
+
+                <td>            padding: 40px;
+
+                    <strong>${admin.points.toLocaleString()}</strong> คะแนน<br>            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+                    <small style="color: #6c757d;">${admin.messagesHandled} ข้อความ</small>            border: 1px solid rgba(255, 255, 255, 0.2);
+
+                </td>        }
+
+                <td>${createProgressBar(admin.points)}</td>
+
+                <td>        .page-header h1 {
+
+                    <div class="action-buttons">            font-size: 36px;
+
+                        <button class="btn btn-edit" onclick="editAdmin(${admin.id})">✏️ แก้ไข</button>            font-weight: 700;
+
+                        <button class="btn btn-delete" onclick="deleteAdmin(${admin.id})">🗑️ ลบ</button>            color: #2d3748 !important;
+
+                    </div>            margin: 0 0 10px 0;
+
+                </td>            text-shadow: none !important;
+
+            `;        }
+
+
+
+            return tr;        .page-header p {
+
+        }            font-size: 18px;
+
+            color: #4a5568 !important;
+
+        // Modal functions            margin: 0;
+
+        let currentEditId = null;        }
+
+
+
+        function openAddModal() {        .admin-table {
+
+            currentEditId = null;            width: 100%;
+
+            document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';            border-collapse: collapse;
+
+            document.getElementById('adminForm').reset();            background: white;
+
+            document.getElementById('adminModal').style.display = 'block';            border-radius: 15px;
+
+        }            overflow: hidden;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+        function editAdmin(id) {            margin-top: 30px;
+
+            const admin = demoAdmins.find(a => a.id === id);        }
+
+            if (!admin) return;
+
+        .admin-table th {
+
+            currentEditId = id;            background: linear-gradient(135deg, #667eea, #764ba2);
+
+            document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลแอดมิน';            color: white;
+
+            document.getElementById('fullName').value = admin.fullName;            padding: 15px;
+
+            document.getElementById('username').value = admin.username;            text-align: left;
+
+            document.getElementById('password').value = '';            font-weight: 600;
+
+            document.getElementById('role').value = admin.role;        }
+
+            document.getElementById('points').value = admin.points;
+
+            document.getElementById('adminModal').style.display = 'block';        .admin-table td {
+
+        }            padding: 15px;
+
+            border-bottom: 1px solid #e2e8f0;
+
+        function closeModal() {        }
+
+            document.getElementById('adminModal').style.display = 'none';
+
+            currentEditId = null;        .admin-table tr:hover {
+
+        }            background: #f8f9fa;
+
+        }
+
+        function deleteAdmin(id) {
+
+            if (confirm('คุณต้องการลบแอดมินนี้หรือไม่?')) {        .admin-avatar {
+
+                const index = demoAdmins.findIndex(a => a.id === id);            width: 40px;
+
+                if (index > -1) {            height: 40px;
+
+                    demoAdmins.splice(index, 1);            border-radius: 50%;
+
+                    loadAdmins();            background: linear-gradient(135deg, #667eea, #764ba2);
+
+                    alert('ลบแอดมินเรียบร้อยแล้ว');            display: flex;
+
+                }            align-items: center;
+
+            }            justify-content: center;
+
+        }            color: white;
+
+            font-weight: bold;
+
+        // Form submission        }
+
+        document.getElementById('adminForm').addEventListener('submit', function(e) {
+
+            e.preventDefault();        .status-online {
+
+                        color: #28a745;
+
+            const formData = {            font-weight: 600;
+
+                fullName: document.getElementById('fullName').value,        }
+
+                username: document.getElementById('username').value,
+
+                password: document.getElementById('password').value,        .status-offline {
+
+                role: document.getElementById('role').value,            color: #6c757d;
+
+                points: parseInt(document.getElementById('points').value) || 0        }
+
+            };
+
+        .action-btn {
+
+            if (currentEditId) {            padding: 6px 12px;
+
+                // Edit existing admin            margin: 2px;
+
+                const admin = demoAdmins.find(a => a.id === currentEditId);            border: none;
+
+                if (admin) {            border-radius: 15px;
+
+                    admin.fullName = formData.fullName;            cursor: pointer;
+
+                    admin.username = formData.username;            font-size: 12px;
+
+                    if (formData.password) {            font-weight: 500;
+
+                        admin.password = formData.password;            transition: all 0.3s ease;
+
+                    }        }
+
+                    admin.role = formData.role;
+
+                    admin.level = formData.role === 'super_admin' ? 100 : 80;        .btn-edit {
+
+                    admin.points = formData.points;            background: #ffc107;
+
+                    admin.messagesHandled = Math.floor(formData.points / 10);            color: #212529;
+
+                }        }
+
+                alert('อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว');
+
+            } else {        .btn-delete {
+
+                // Add new admin            background: #dc3545;
+
+                const newAdmin = {            color: white;
+
+                    id: Math.max(...demoAdmins.map(a => a.id)) + 1,        }
+
+                    ...formData,
+
+                    level: formData.role === 'super_admin' ? 100 : 80,        .btn-add {
+
+                    messagesHandled: Math.floor(formData.points / 10),            background: #28a745;
+
+                    lastLogin: new Date().toISOString().slice(0, 19).replace('T', ' ')            color: white;
+
+                };            padding: 12px 24px;
+
+                demoAdmins.push(newAdmin);            border-radius: 25px;
+
+                alert('เพิ่มแอดมินใหม่เรียบร้อยแล้ว');            font-size: 16px;
+
+            }            margin-bottom: 20px;
+
+        }
+
+            loadAdmins();
+
+            closeModal();        .action-btn:hover {
+
+        });            transform: translateY(-1px);
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+        // Close modal when clicking outside        }
+
+        window.addEventListener('click', function(e) {
+
+            if (e.target === document.getElementById('adminModal')) {        /* Responsive Design */
+
+                closeModal();        @media (max-width: 768px) {
+
+            }            .sidebar {
+
+        });                transform: translateX(-100%);
+
+                transition: transform 0.3s ease;
+
+        // Initialize page            }
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Initialize centralized menu            .sidebar.mobile-open {
+
+            new KingChatMenu();                transform: translateX(0);
+
+                        }
+
+            // Load admin data
+
+            loadAdmins();            .main-content {
+
+        });                margin-left: 0;
+
+    </script>                margin-top: 80px;
+
+</body>                padding: 20px;
+
+</html>            }
 
             .navbar {
                 padding: 15px 20px;
