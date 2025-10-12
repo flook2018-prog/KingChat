@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Simple Login - KingChat</title>
+</head>
+<body style="font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto;">
+    <h1>🔐 Simple Hardcode Login</h1>
+    <p>ใช้เมื่อ API ไม่ทำงาน - ระบบจะ bypass API</p>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3>📋 รหัสที่ใช้ได้:</h3>
+        <ul>
+            <li><strong>admin</strong> / <strong>admin123</strong> (Super Admin)</li>
+            <li><strong>kingchat</strong> / <strong>kingchat2024</strong> (Admin)</li>
+            <li><strong>test</strong> / <strong>test123</strong> (User)</li>
+        </ul>
+    </div>
+    
+    <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <h3>🔑 Login Form</h3>
+        <form onsubmit="simpleLogin(event)" style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label>Username:</label><br>
+                <input type="text" id="username" value="admin" style="width: 100%; padding: 10px; font-size: 16px;">
+            </div>
+            
+            <div>
+                <label>Password:</label><br>
+                <input type="password" id="password" value="admin123" style="width: 100%; padding: 10px; font-size: 16px;">
+            </div>
+            
+            <button type="submit" style="background: #28a745; color: white; padding: 15px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                🚀 Simple Login (Bypass API)
+            </button>
+        </form>
+        
+        <div id="result" style="margin-top: 20px; padding: 15px; border-radius: 5px; display: none;"></div>
+    </div>
+
+    <script>
+        // Hardcoded users (for when API doesn't work)
+        const hardcodedUsers = {
+            'admin': { password: 'admin123', level: 100, role: 'super_admin', displayName: 'System Administrator' },
+            'kingchat': { password: 'kingchat2024', level: 80, role: 'admin', displayName: 'KingChat Admin' },
+            'test': { password: 'test123', level: 50, role: 'user', displayName: 'Test User' }
+        };
+        
+        function simpleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            console.log('🔐 Simple login attempt:', username);
+            
+            // Check hardcoded users
+            const user = hardcodedUsers[username];
+            
+            if (!user) {
+                showResult('❌ ไม่พบผู้ใช้นี้ในระบบ', 'error');
+                return;
+            }
+            
+            if (user.password !== password) {
+                showResult('❌ รหัสผ่านไม่ถูกต้อง', 'error');
+                return;
+            }
+            
+            // Success - Store auth data
+            const authData = {
+                id: Math.floor(Math.random() * 1000),
+                username: username,
+                displayName: user.displayName,
+                role: user.role,
+                level: user.level,
+                loginTime: new Date().toISOString()
+            };
+            
+            const token = 'simple-token-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            
+            // Store in localStorage (same as real login)
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('token', token);
+            localStorage.setItem('currentUser', JSON.stringify(authData));
+            localStorage.setItem('userData', JSON.stringify(authData));
+            
+            console.log('✅ Simple login successful!', authData);
+            
+            showResult(`
+                🎉 เข้าสู่ระบบสำเร็จ!<br>
+                <strong>ยินดีต้อนรับ ${authData.displayName}</strong><br>
+                Level: ${authData.level} (${authData.role})<br><br>
+                <button onclick="window.location.href='/chat.html'" 
+                        style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                    🏠 ไปหน้าแชท
+                </button>
+                <button onclick="window.location.href='/dashboard.html'" 
+                        style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                    📊 ไปแดชบอร์ด
+                </button>
+            `, 'success');
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                resultDiv.style.background = '#d4edda';
+                resultDiv.style.color = '#155724';
+                resultDiv.style.border = '1px solid #c3e6cb';
+            } else {
+                resultDiv.style.background = '#f8d7da';
+                resultDiv.style.color = '#721c24';
+                resultDiv.style.border = '1px solid #f5c6cb';
+            }
+        }
+        
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (token && user.username) {
+                showResult(`
+                    ℹ️ คุณเข้าสู่ระบบอยู่แล้ว<br>
+                    <strong>${user.displayName || user.username}</strong><br><br>
+                    <button onclick="window.location.href='/chat.html'" 
+                            style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                        🏠 ไปหน้าแชท
+                    </button>
+                    <button onclick="clearAuth()" 
+                            style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                        🗑️ ออกจากระบบ
+                    </button>
+                `, 'success');
+            }
+        });
+        
+        function clearAuth() {
+            localStorage.clear();
+            sessionStorage.clear();
+            location.reload();
+        }
+    </script>
+</body>
+</html>
