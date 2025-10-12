@@ -223,6 +223,10 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     res.sendFile(path.join(__dirname, '../client/login.html'));
   });
   
+  app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/login.html'));
+  });
+  
   app.get('/chat', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/chat.html'));
   });
@@ -294,9 +298,9 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   });
 }
 
-// Root route
+// Root route - Redirect to login page
 app.get('/', (req, res) => {
-  res.redirect('/chat.html');
+  res.redirect('/login.html');
 });
 
 // Socket.IO connection handling
