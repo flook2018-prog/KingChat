@@ -136,6 +136,8 @@ app.get('/api/test', (req, res) => {
 
 // Setup static files FIRST
 function setupStaticFiles() {
+  const fs = require('fs');
+  
   console.log('🌐 Setting up static file serving...');
   console.log('📂 Current working directory:', process.cwd());
   console.log('📁 __dirname:', __dirname);
