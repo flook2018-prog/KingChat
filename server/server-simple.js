@@ -134,7 +134,60 @@ app.get('/api/test', (req, res) => {
   });
 });
 
-// Load API routes immediately
+// Setup static files FIRST
+function setupStaticFiles() {
+  console.log('🌐 Setting up static file serving...');
+  console.log('📂 Current working directory:', process.cwd());
+  console.log('📁 __dirname:', __dirname);
+  
+  // Try multiple paths for client directory
+  const possibleClientPaths = [
+    path.join(__dirname, 'client'),
+    path.join(__dirname, '..', 'client'),
+    path.join(process.cwd(), 'client'),
+    path.join(process.cwd(), 'server', 'client')
+  ];
+  
+  let foundClientPath = null;
+  
+  for (const clientPath of possibleClientPaths) {
+    console.log('🔍 Checking client path:', clientPath);
+    if (fs.existsSync(clientPath)) {
+      console.log('✅ Found client directory at:', clientPath);
+      foundClientPath = clientPath;
+      break;
+    }
+  }
+  
+  if (foundClientPath) {
+    console.log('✅ Client directory found');
+    console.log('📁 Setting up express.static for:', foundClientPath);
+    app.use(express.static(foundClientPath));
+    global.clientPath = foundClientPath;
+    
+    // Verify static files are accessible
+    const loginFile = path.join(foundClientPath, 'login.html');
+    console.log('🔍 Verifying login.html exists:', fs.existsSync(loginFile));
+  } else {
+    console.log('❌ Client directory not found, trying alternative paths...');
+    
+    // Try serving from alternative paths
+    const altPaths = [
+      path.join(__dirname, '..', '..', 'client'),
+      '/app/client'
+    ];
+    
+    for (const altPath of altPaths) {
+      if (fs.existsSync(altPath)) {
+        console.log('✅ Found alternative client at:', altPath);
+        app.use(express.static(altPath));
+        break;
+      }
+    }
+  }
+}
+
+// Load API routes
 function loadApiRoutes() {
   try {
     console.log('📡 Loading API routes...');
@@ -184,62 +237,6 @@ function loadApiRoutes() {
   }
 }
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  console.log('🌐 Serving static files from client directory');
-  
-  // Debug: Log current directory and check if client exists
-  console.log('📂 Current working directory:', process.cwd());
-  console.log('📁 __dirname:', __dirname);
-  
-  // Try multiple client paths
-  const clientPaths = [
-    path.join(__dirname, 'client'),           // server/client
-    path.join(__dirname, '..', 'client'),     // ../client
-    path.join(process.cwd(), 'client'),       // /app/client
-    '/app/client'                             // absolute path
-  ];
-  
-  let foundClientPath = null;
-  const fs = require('fs');
-  
-  for (const clientPath of clientPaths) {
-    console.log(`🔍 Checking client path: ${clientPath}`);
-    if (fs.existsSync(clientPath)) {
-      console.log(`✅ Found client directory at: ${clientPath}`);
-      foundClientPath = clientPath;
-      break;
-    }
-  }
-  
-  if (foundClientPath) {
-    console.log('✅ Client directory found');
-    console.log('📁 Setting up express.static for:', foundClientPath);
-    app.use(express.static(foundClientPath));
-    global.clientPath = foundClientPath;
-    
-    // Verify static files are accessible
-    const loginFile = path.join(foundClientPath, 'login.html');
-    console.log('🔍 Verifying login.html exists:', fs.existsSync(loginFile));
-  } else {
-    console.log('❌ Client directory not found, trying alternative paths...');
-    const altPaths = [
-      path.join(process.cwd(), 'client'),
-      path.join(__dirname, '..', 'client'),
-      '/app/client'
-    ];
-    
-    for (const altPath of altPaths) {
-      try {
-        app.use(express.static(altPath));
-        console.log(`📁 Added fallback static path: ${altPath}`);
-      } catch (e) {
-        console.log(`❌ Failed to add static path: ${altPath}`);
-      }
-    }
-  }
-}
-
 // Socket.IO setup
 const io = socketIO(server, {
   cors: corsOptions
@@ -276,7 +273,10 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   
-  // Load API routes immediately
+  // Setup static files FIRST
+  setupStaticFiles();
+  
+  // Then load API routes
   loadApiRoutes();
   
   // Initialize database in background after server starts
