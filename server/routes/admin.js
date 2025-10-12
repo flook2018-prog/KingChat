@@ -69,40 +69,49 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Hash password
+    console.log('🔐 Creating new admin:', username);
+
+    // Hash password using bcrypt
     const bcrypt = require('bcrypt');
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12); // Use same rounds as existing hash
     
-    const adminData = {
-      full_name: fullName,
-      username,
-      password: hashedPassword,
-      role,
-      level: role === 'super_admin' ? 100 : 80,
-      points: points || 0,
-      messages_handled: 0
-    };
-    
-    const newAdmin = await Admin.create(adminData);
+    console.log('✅ Password hashed successfully');
+
+    // Insert new admin into database
+    const result = await pool.query(
+      `INSERT INTO admins (username, email, password, "displayName", role, "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+       RETURNING id, username, email, "displayName", role, "createdAt"`,
+      [
+        username.toLowerCase(),
+        `${username}@kingchat.com`, // Generate email
+        hashedPassword,
+        fullName,
+        role
+      ]
+    );
+
+    const newAdmin = result.rows[0];
+    console.log('✅ Admin created successfully:', newAdmin.username);
     
     const transformedAdmin = {
       id: newAdmin.id,
-      fullName: newAdmin.full_name,
+      fullName: newAdmin.displayName,
       username: newAdmin.username,
       role: newAdmin.role,
-      level: newAdmin.level,
-      points: newAdmin.points,
-      messagesHandled: newAdmin.messages_handled,
-      lastLogin: newAdmin.created_at
+      level: role === 'super_admin' ? 100 : 80,
+      points: points || 0,
+      messagesHandled: 0,
+      lastLogin: newAdmin.createdAt
     };
     
     res.status(201).json(transformedAdmin);
   } catch (error) {
     console.error('Error creating admin:', error);
-    if (error.name === 'SequelizeUniqueConstraintError') {
+    if (error.code === '23505') { // Unique constraint violation
       res.status(400).json({ error: 'Username already exists' });
     } else {
-      res.status(500).json({ error: 'Failed to create admin' });
+      res.status(500).json({ error: 'Failed to create admin: ' + error.message });
     }
   }
 });
@@ -112,47 +121,78 @@ router.put('/:id', async (req, res) => {
   try {
     const { fullName, username, password, role, points } = req.body;
     
-    const updateData = {};
-    if (fullName) updateData.full_name = fullName;
-    if (username) updateData.username = username;
+    console.log('🔄 Updating admin ID:', req.params.id);
+
+    // Build update query dynamically
+    const updateFields = [];
+    const updateValues = [];
+    let paramIndex = 1;
+
+    if (fullName) {
+      updateFields.push(`"displayName" = $${paramIndex++}`);
+      updateValues.push(fullName);
+    }
+    if (username) {
+      updateFields.push(`username = $${paramIndex++}`);
+      updateValues.push(username.toLowerCase());
+    }
     if (password) {
+      console.log('🔐 Hashing new password...');
       const bcrypt = require('bcrypt');
-      updateData.password = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 12);
+      updateFields.push(`password = $${paramIndex++}`);
+      updateValues.push(hashedPassword);
+      console.log('✅ Password hashed and ready for update');
     }
     if (role) {
-      updateData.role = role;
-      updateData.level = role === 'super_admin' ? 100 : 80;
+      updateFields.push(`role = $${paramIndex++}`);
+      updateValues.push(role);
     }
-    if (points !== undefined) updateData.points = points;
+
+    // Add updated timestamp
+    updateFields.push(`"updatedAt" = NOW()`);
     
-    const [affectedRows] = await Admin.update(updateData, {
-      where: { id: req.params.id }
-    });
+    // Add ID for WHERE clause
+    updateValues.push(req.params.id);
     
-    if (affectedRows === 0) {
+    if (updateFields.length === 1) { // Only timestamp was added
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    const updateQuery = `
+      UPDATE admins 
+      SET ${updateFields.join(', ')} 
+      WHERE id = $${paramIndex}
+      RETURNING id, username, email, "displayName", role, "updatedAt"
+    `;
+
+    const result = await pool.query(updateQuery, updateValues);
+    
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Admin not found' });
     }
-    
-    const updatedAdmin = await Admin.findByPk(req.params.id);
+
+    const updatedAdmin = result.rows[0];
+    console.log('✅ Admin updated successfully:', updatedAdmin.username);
     
     const transformedAdmin = {
       id: updatedAdmin.id,
-      fullName: updatedAdmin.full_name,
+      fullName: updatedAdmin.displayName,
       username: updatedAdmin.username,
       role: updatedAdmin.role,
-      level: updatedAdmin.level,
-      points: updatedAdmin.points,
-      messagesHandled: updatedAdmin.messages_handled,
-      lastLogin: updatedAdmin.created_at
+      level: updatedAdmin.role === 'super_admin' ? 100 : 80,
+      points: points || 0,
+      messagesHandled: 0,
+      lastLogin: updatedAdmin.updatedAt
     };
     
     res.json(transformedAdmin);
   } catch (error) {
     console.error('Error updating admin:', error);
-    if (error.name === 'SequelizeUniqueConstraintError') {
+    if (error.code === '23505') { // Unique constraint violation
       res.status(400).json({ error: 'Username already exists' });
     } else {
-      res.status(500).json({ error: 'Failed to update admin' });
+      res.status(500).json({ error: 'Failed to update admin: ' + error.message });
     }
   }
 });
@@ -160,18 +200,26 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/admin/:id - Delete admin
 router.delete('/:id', async (req, res) => {
   try {
-    const deletedRows = await Admin.destroy({
-      where: { id: req.params.id }
-    });
+    const result = await pool.query(
+      'DELETE FROM admins WHERE id = $1 RETURNING id, username',
+      [req.params.id]
+    );
     
-    if (deletedRows === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Admin not found' });
     }
+
+    const deletedAdmin = result.rows[0];
+    console.log('✅ Admin deleted successfully:', deletedAdmin.username);
     
-    res.json({ message: 'Admin deleted successfully', id: req.params.id });
+    res.json({ 
+      message: 'Admin deleted successfully', 
+      id: req.params.id,
+      username: deletedAdmin.username
+    });
   } catch (error) {
     console.error('Error deleting admin:', error);
-    res.status(500).json({ error: 'Failed to delete admin' });
+    res.status(500).json({ error: 'Failed to delete admin: ' + error.message });
   }
 });
 
@@ -180,11 +228,12 @@ router.get('/test', (req, res) => {
   res.json({ 
     message: '✅ Admin API is working!', 
     timestamp: new Date(),
+    database: 'PostgreSQL with raw SQL queries',
     endpoints: [
       'GET /api/admin - Get all admins',
       'GET /api/admin/:id - Get admin by ID',
-      'POST /api/admin - Create admin',
-      'PUT /api/admin/:id - Update admin',
+      'POST /api/admin - Create admin (with password hashing)',
+      'PUT /api/admin/:id - Update admin (with password hashing)',
       'DELETE /api/admin/:id - Delete admin'
     ]
   });
