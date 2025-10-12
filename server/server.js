@@ -207,6 +207,7 @@ app.use('/api/roles', rolesRoutes);
 if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
   console.log('🌐 Serving static files from client directory');
   app.use(express.static(path.join(__dirname, '../client')));
+  app.use(express.static(path.join(__dirname, 'client'))); // Also serve from server/client
   
   // Serve client pages
   app.get('/pages/*', (req, res) => {
@@ -282,6 +283,7 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
 
   // Default route serves login page
   app.get('/', (req, res) => {
+    console.log('🏠 Root route accessed, redirecting to login');
     res.sendFile(path.join(__dirname, '../client/login.html'));
   });
 } else {
@@ -297,11 +299,6 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     });
   });
 }
-
-// Root route - Redirect to login page
-app.get('/', (req, res) => {
-  res.redirect('/login.html');
-});
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Admin API Test - KingChat</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .result.success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .result.error { background: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Admin API Test Suite</h1>
+        <p>ทดสอบ API endpoints สำหรับระบบ Admin ของ KingChat</p>
+
+        <div class="test-section">
+            <h3>📋 1. GET /api/admin - ดึงข้อมูลแอดมินทั้งหมด</h3>
+            <button class="btn" onclick="testGetAllAdmins()">🔍 ทดสอบ GET All Admins</button>
+            <div id="getAllResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>➕ 2. POST /api/admin - เพิ่มแอดมินใหม่</h3>
+            <button class="btn btn-success" onclick="testCreateAdmin()">➕ ทดสอบ Create Admin</button>
+            <div id="createResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>✏️ 3. PUT /api/admin/:id - แก้ไขแอดมิน</h3>
+            <input type="number" id="updateId" placeholder="Admin ID" value="1">
+            <button class="btn" onclick="testUpdateAdmin()">✏️ ทดสอบ Update Admin</button>
+            <div id="updateResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 4. GET /api/admin/:id - ดึงข้อมูลแอดมิน 1 คน</h3>
+            <input type="number" id="getOneId" placeholder="Admin ID" value="1">
+            <button class="btn" onclick="testGetOneAdmin()">🔍 ทดสอบ GET One Admin</button>
+            <div id="getOneResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 5. Database Connection Test</h3>
+            <button class="btn" onclick="testDatabaseConnection()">🔌 ทดสอบการเชื่อมต่อฐานข้อมูล</button>
+            <div id="dbResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+
+        async function testGetAllAdmins() {
+            const resultDiv = document.getElementById('getAllResult');
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! พบแอดมิน ${data.length} คน\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        async function testCreateAdmin() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            const testAdmin = {
+                fullName: 'ทดสอบ แอดมิน',
+                username: 'test_admin_' + Date.now(),
+                password: 'test123456',
+                role: 'admin',
+                points: 1000
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testAdmin)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! สร้างแอดมินใหม่\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        async function testUpdateAdmin() {
+            const resultDiv = document.getElementById('updateResult');
+            const adminId = document.getElementById('updateId').value;
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            const updateData = {
+                fullName: 'อัพเดท ทดสอบ',
+                points: 2500
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/${adminId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! อัพเดทแอดมิน ID ${adminId}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        async function testGetOneAdmin() {
+            const resultDiv = document.getElementById('getOneResult');
+            const adminId = document.getElementById('getOneId').value;
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/${adminId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! ข้อมูลแอดมิน ID ${adminId}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        async function testDatabaseConnection() {
+            const resultDiv = document.getElementById('dbResult');
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin`);
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ การเชื่อมต่อฐานข้อมูลทำงานปกติ!\nStatus: ${response.status}\nResponse Time: ${new Date().toLocaleString()}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้: ${error.message}`;
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            setTimeout(testDatabaseConnection, 1000);
+        });
+    </script>
+</body>
+</html>
