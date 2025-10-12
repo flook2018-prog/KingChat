@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚙️ ตั้งค่า - KingChat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
     <style>
-        /* Enhanced Styles - Same as Chat */
+        /* Enhanced Styles */
         body {
             margin: 0;
             padding: 0;
@@ -20,6 +13,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             overflow-x: hidden;
+            padding-top: 80px;
         }
 
         .navbar {
@@ -110,25 +104,23 @@
 
         .btn-logout:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
         }
 
+        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 80px;
             left: 0;
-            width: 280px;
+            width: 260px;
             height: calc(100vh - 80px);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-menu {
             padding: 30px 0;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 999;
         }
 
         .menu-item {
@@ -136,28 +128,27 @@
             align-items: center;
             gap: 15px;
             padding: 15px 30px;
-            text-decoration: none;
             color: #4a5568;
-            font-weight: 500;
+            text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-weight: 500;
         }
 
         .menu-item:hover {
             background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
             border-left-color: #667eea;
-            transform: translateX(5px);
+            color: #667eea;
         }
 
         .menu-item.active {
             background: rgba(102, 126, 234, 0.15);
-            color: #667eea;
             border-left-color: #667eea;
+            color: #667eea;
             font-weight: 600;
         }
 
-        .icon {
+        .menu-item i {
             font-size: 20px;
             width: 24px;
             text-align: center;
@@ -165,134 +156,173 @@
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
-            margin-top: 80px;
-            padding: 30px;
-            min-height: calc(100vh - 80px);
+            margin-left: 260px;
+            padding: 40px;
+            min-height: calc(100vh - 120px);
         }
 
-        .settings-content {
+        .page-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .page-header h1 {
             font-size: 36px;
             font-weight: 700;
-            color: #2d3748 !important;
+            color: #2d3748;
             margin: 0 0 10px 0;
-            text-shadow: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
 
         .page-header p {
             font-size: 18px;
-            color: #4a5568 !important;
+            color: #4a5568;
             margin: 0;
         }
 
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .setting-card {
-            background: white;
+        /* Settings Sections */
+        .settings-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .setting-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .setting-icon {
-            font-size: 32px;
-        }
-
-        .setting-title {
-            font-size: 20px;
+        .section-title {
+            font-size: 24px;
             font-weight: 600;
             color: #2d3748;
-            margin: 0;
-        }
-
-        .setting-description {
-            color: #6c757d;
-            font-size: 14px;
-            margin: 5px 0 0 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #f1f3f4;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .setting-item:last-child {
             border-bottom: none;
         }
 
+        .setting-info {
+            flex: 1;
+        }
+
         .setting-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 5px;
         }
 
-        .setting-desc {
-            font-size: 12px;
+        .setting-description {
             color: #6c757d;
-            margin-top: 2px;
+            font-size: 14px;
         }
 
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        /* Toggle Switch */
         .toggle-switch {
             position: relative;
-            width: 50px;
-            height: 24px;
-            background: #ccc;
-            border-radius: 12px;
+            width: 60px;
+            height: 30px;
+            background: #ddd;
+            border-radius: 30px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .toggle-switch.active {
-            background: #28a745;
+            background: #667eea;
         }
 
-        .toggle-switch::after {
-            content: '';
+        .toggle-slider {
             position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
             background: white;
             border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        .toggle-switch.active::after {
-            transform: translateX(26px);
-        }
-
-        .btn-setting {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -300,358 +330,442 @@
             color: white;
         }
 
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        }
+
         .btn-secondary {
-            background: #6c757d;
-            color: white;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(102, 126, 234, 0.2);
         }
 
         .btn-danger {
-            background: #dc3545;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
         }
 
-        .btn-setting:hover {
+        .btn-danger:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.3);
         }
 
-        /* Responsive Design */
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
             }
 
-            .sidebar.mobile-open {
+            .sidebar.open {
                 transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0;
-                margin-top: 80px;
                 padding: 20px;
             }
-
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .settings-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
         }
 
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #2d3748;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
+
+        .settings-section {
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        .settings-section:nth-child(2) { animation-delay: 0.1s; }
+        .settings-section:nth-child(3) { animation-delay: 0.2s; }
+        .settings-section:nth-child(4) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
-    <div class="settings-container">
-        <!-- Top Navigation -->
-        <nav class="navbar" style="opacity: 0; animation: slideInDown 0.6s ease 0.1s forwards;">
-            <div class="nav-brand">
-                <span class="brand-logo">👑</span>
-                <span>KingChat</span>
-            </div>
-            <div class="nav-user">
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-                <div class="user-info">
-                    <div class="user-name" id="userName">Admin</div>
-                    <div class="user-status">
-                        <span class="status-dot"></span>
-                        <span>ออนไลน์</span>
-                    </div>
-                </div>
-                <div class="user-menu">
-                    <button class="btn-logout" onclick="logout()">
-                        <span>🚪</span>
-                        <span>ออกจากระบบ</span>
-                    </button>
+    <!-- Navigation -->
+    <div class="navbar">
+        <div class="nav-brand">
+            <span class="brand-logo">👑</span>
+            <span>KingChat</span>
+        </div>
+        
+        <div class="nav-user">
+            <div class="user-info">
+                <span class="user-name">สวัสดี, <span id="userName">Loading...</span></span>
+                <div class="user-status">
+                    <div class="status-dot"></div>
+                    ออนไลน์
                 </div>
             </div>
-        </nav>
+            <button class="btn-logout" onclick="logout()">
+                <span>🚪</span>
+                ออกจากระบบ
+            </button>
+        </div>
+    </div>
 
-        <!-- Sidebar -->
-        <div class="sidebar" style="opacity: 0; animation: slideInLeft 0.6s ease 0.2s forwards;">
-            <div class="sidebar-menu">
-                <a href="/chat.html" class="menu-item" data-page="chat">
-                    <i class="icon">💬</i>
-                    <span class="menu-text">แชท</span>
-                </a>
-                <a href="/dashboard-working.html" class="menu-item" data-page="dashboard">
-                    <i class="icon">📊</i>
-                    <span class="menu-text">แดชบอร์ด</span>
-                </a>
-                <a href="/accounts-working.html" class="menu-item" data-page="accounts">
-                    <i class="icon">📱</i>
-                    <span class="menu-text">บัญชี LINE OA</span>
-                </a>
-                <a href="/line-connect.html" class="menu-item" data-page="line-connect">
-                    <i class="icon">🔗</i>
-                    <span class="menu-text">เชื่อมต่อ LINE OA</span>
-                </a>
-                <a href="/customers-working.html" class="menu-item" data-page="customers">
-                    <i class="icon">👥</i>
-                    <span class="menu-text">รายชื่อลูกค้า</span>
-                </a>
-                <a href="/quick-messages-working.html" class="menu-item" data-page="quick-messages">
-                    <i class="icon">⚡</i>
-                    <span class="menu-text">ข้อความด่วน</span>
-                </a>
-                <a href="#" class="menu-item active" data-page="settings">
-                    <i class="icon">⚙️</i>
-                    <span class="menu-text">ตั้งค่า</span>
-                </a>
-                <a href="/admin-working.html" class="menu-item" data-page="admin">
-                    <i class="icon">👨‍💼</i>
-                    <span class="menu-text">จัดการแอดมิน</span>
-                </a>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="dashboard.html" class="menu-item">
+            <i>🏠</i>
+            <span>แดชบอร์ด</span>
+        </a>
+        <a href="accounts-working.html" class="menu-item">
+            <i>📱</i>
+            <span>จัดการบัญชี</span>
+        </a>
+        <a href="customers-working.html" class="menu-item">
+            <i>👥</i>
+            <span>รายชื่อลูกค้า</span>
+        </a>
+        <a href="chat.html" class="menu-item">
+            <i>💬</i>
+            <span>แชท</span>
+        </a>
+        <a href="settings-working.html" class="menu-item active">
+            <i>⚙️</i>
+            <span>ตั้งค่า</span>
+        </a>
+        <a href="admin-working.html" class="menu-item">
+            <i>👨‍💼</i>
+            <span>จัดการแอดมิน</span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <span>⚙️</span>
+                ตั้งค่าระบบ
+            </h1>
+            <p>จัดการการตั้งค่าและการแจ้งเตือนของระบบ KingChat</p>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="settings-section">
+            <h2 class="section-title">
+                🔔 การแจ้งเตือน
+            </h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">แจ้งเตือนข้อความใหม่</div>
+                    <div class="setting-description">รับการแจ้งเตือนเมื่อมีข้อความใหม่จากลูกค้า</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this, 'newMessage')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">เสียงแจ้งเตือน</div>
+                    <div class="setting-description">เปิดเสียงเมื่อมีการแจ้งเตือน</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this, 'notificationSound')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">แจ้งเตือนทางอีเมล</div>
+                    <div class="setting-description">ส่งสรุปรายการข้อความไปยังอีเมล</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleSetting(this, 'emailNotification')">
+                    <div class="toggle-slider"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
-            <div class="settings-content">
-                <div class="page-header" style="text-align: center; margin-bottom: 40px;">
-                    <h1>⚙️ ตั้งค่า</h1>
-                    <p>จัดการการตั้งค่าระบบและกำหนดลักษณะการทำงาน</p>
+        <!-- Chat Settings -->
+        <div class="settings-section">
+            <h2 class="section-title">
+                💬 การตั้งค่าแชท
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">การตอบกลับอัตโนมัติ</label>
+                <select class="form-select" id="autoReplyMode">
+                    <option value="off">ปิดใช้งาน</option>
+                    <option value="basic" selected>ข้อความต้อนรับเบื้องต้น</option>
+                    <option value="advanced">ตอบกลับอัตโนมัติขั้นสูง</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ข้อความต้อนรับ</label>
+                <textarea class="form-input" rows="4" id="welcomeMessage" placeholder="ข้อความที่จะส่งให้ลูกค้าใหม่...">สวัสดีครับ! ยินดีต้อนรับสู่ KingChat 👋
+
+ขอบคุณที่ติดต่อเรา เราจะตอบกลับให้คุณในเร็วที่สุด
+
+หากต้องการความช่วยเหลือเร่งด่วน กรุณาโทร 02-xxx-xxxx</textarea>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">แสดงสถานะการพิมพ์</div>
+                    <div class="setting-description">แสดงไอคอน "กำลังพิมพ์..." เมื่อมีคนพิมพ์ข้อความ</div>
                 </div>
-
-                <div class="settings-grid">
-                    <div class="setting-card">
-                        <div class="setting-header">
-                            <div class="setting-icon">🔔</div>
-                            <div>
-                                <div class="setting-title">การแจ้งเตือน</div>
-                                <div class="setting-description">จัดการการแจ้งเตือนต่างๆ</div>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">แจ้งเตือนข้อความใหม่</div>
-                                <div class="setting-desc">รับการแจ้งเตือนเมื่อมีข้อความใหม่</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">แจ้งเตือนลูกค้าใหม่</div>
-                                <div class="setting-desc">รับการแจ้งเตือนเมื่อมีลูกค้าใหม่</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">เสียงแจ้งเตือน</div>
-                                <div class="setting-desc">เปิดเสียงแจ้งเตือน</div>
-                            </div>
-                            <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
-                        </div>
-                    </div>
-
-                    <div class="setting-card">
-                        <div class="setting-header">
-                            <div class="setting-icon">💬</div>
-                            <div>
-                                <div class="setting-title">การแชท</div>
-                                <div class="setting-description">ตั้งค่าเกี่ยวกับการแชท</div>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">ตอบกลับอัตโนมัติ</div>
-                                <div class="setting-desc">ส่งข้อความตอบกลับอัตโนมัติ</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">บันทึกประวัติแชท</div>
-                                <div class="setting-desc">เก็บบันทึกการสนทนา</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">แสดงสถานะการอ่าน</div>
-                                <div class="setting-desc">แสดงว่าอ่านข้อความแล้ว</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                    </div>
-
-                    <div class="setting-card">
-                        <div class="setting-header">
-                            <div class="setting-icon">🔐</div>
-                            <div>
-                                <div class="setting-title">ความปลอดภัย</div>
-                                <div class="setting-description">จัดการความปลอดภัยบัญชี</div>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">การยืนยันตัวตน 2 ขั้น</div>
-                                <div class="setting-desc">เพิ่มความปลอดภัยให้บัญชี</div>
-                            </div>
-                            <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">เปลี่ยนรหัสผ่าน</div>
-                                <div class="setting-desc">อัพเดทรหัสผ่านใหม่</div>
-                            </div>
-                            <button class="btn-setting btn-primary" onclick="alert('เปิดหน้าเปลี่ยนรหัสผ่าน')">เปลี่ยน</button>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">ออกจากระบบทุกอุปกรณ์</div>
-                                <div class="setting-desc">ออกจากระบบในทุกอุปกรณ์</div>
-                            </div>
-                            <button class="btn-setting btn-danger" onclick="alert('ออกจากระบบทุกอุปกรณ์')">ออกจากระบบ</button>
-                        </div>
-                    </div>
-
-                    <div class="setting-card">
-                        <div class="setting-header">
-                            <div class="setting-icon">⚡</div>
-                            <div>
-                                <div class="setting-title">ข้อความด่วน</div>
-                                <div class="setting-description">จัดการข้อความแม่แบบที่ใช้บ่อย</div>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">จำนวนข้อความด่วน</div>
-                                <div class="setting-desc" id="quickMessageCount">กำลังโหลด...</div>
-                            </div>
-                            <button class="btn-setting btn-primary" onclick="window.location.href='/quick-messages-working.html'">จัดการ</button>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">เปิดใช้ข้อความด่วน</div>
-                                <div class="setting-desc">แสดงปุ่มข้อความด่วนในหน้าแชท</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">เรียงลำดับ</div>
-                                <div class="setting-desc">จัดเรียงข้อความด่วนตามความถี่ใช้งาน</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                        </div>
-                    </div>
-
-                    <div class="setting-card">
-                        <div class="setting-header">
-                            <div class="setting-icon">🎨</div>
-                            <div>
-                                <div class="setting-title">การแสดงผล</div>
-                                <div class="setting-description">ปรับแต่งรูปแบบการแสดงผล</div>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">โหมดมืด</div>
-                                <div class="setting-desc">เปลี่ยนเป็นธีมสีเข้ม</div>
-                            </div>
-                            <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">ขนาดตัวอักษร</div>
-                                <div class="setting-desc">ปรับขนาดตัวอักษร</div>
-                            </div>
-                            <button class="btn-setting btn-secondary" onclick="alert('ปรับขนาดตัวอักษร')">ปรับแต่ง</button>
-                        </div>
-                        <div class="setting-item">
-                            <div>
-                                <div class="setting-label">ภาษา</div>
-                                <div class="setting-desc">เปลี่ยนภาษาของระบบ</div>
-                            </div>
-                            <button class="btn-setting btn-secondary" onclick="alert('เปลี่ยนภาษา')">เปลี่ยน</button>
-                        </div>
-                    </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this, 'typingIndicator')">
+                    <div class="toggle-slider"></div>
                 </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">บันทึกประวัติการสนทนา</div>
+                    <div class="setting-description">เก็บประวัติการสนทนาทั้งหมดในระบบ</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this, 'chatHistory')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="settings-section">
+            <h2 class="section-title">
+                🔧 ระบบ
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">ภาษาของระบบ</label>
+                <select class="form-select" id="systemLanguage">
+                    <option value="th" selected>ไทย</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">เขตเวลา</label>
+                <select class="form-select" id="timezone">
+                    <option value="Asia/Bangkok" selected>Asia/Bangkok (UTC+7)</option>
+                    <option value="Asia/Singapore">Asia/Singapore (UTC+8)</option>
+                    <option value="UTC">UTC (UTC+0)</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">โหมดมืด</div>
+                    <div class="setting-description">เปลี่ยนธีมของระบบเป็นโหมดมืด</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleSetting(this, 'darkMode')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">การอัปเดตอัตโนมัติ</div>
+                    <div class="setting-description">อัปเดตระบบและฟีเจอร์ใหม่โดยอัตโนมัติ</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this, 'autoUpdate')">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="settings-section">
+            <h2 class="section-title">
+                💾 บันทึกการตั้งค่า
+            </h2>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    💾 บันทึกการตั้งค่า
+                </button>
+                
+                <button class="btn btn-secondary" onclick="resetSettings()">
+                    🔄 รีเซ็ตเป็นค่าเริ่มต้น
+                </button>
+                
+                <button class="btn btn-danger" onclick="clearAllData()">
+                    🗑️ ล้างข้อมูลทั้งหมด
+                </button>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: rgba(6, 199, 85, 0.1); border-radius: 8px; color: #05a847;">
+                💡 <strong>หมายเหตุ:</strong> การตั้งค่าจะถูกบันทึกโดยอัตโนมัติ และมีผลทันทีที่เปลี่ยนแปลง
             </div>
         </div>
     </div>
 
     <script>
-        // Authentication Check
+        // Authentication check
         function checkAuth() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
-            if (!token) {
-                window.location.href = '/login.html';
+            if (!token || !user.username) {
+                window.location.href = 'login.html';
                 return;
             }
             
-            // Update user info
-            if (user.username) {
-                document.getElementById('userName').textContent = user.username;
-            }
+            document.getElementById('userName').textContent = user.username;
         }
 
         // Logout function
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            sessionStorage.removeItem('token');
-            sessionStorage.removeItem('user');
-            window.location.href = '/login.html';
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
         }
 
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            const sidebar = document.querySelector('.sidebar');
-            sidebar.classList.toggle('mobile-open');
+        // Toggle setting
+        function toggleSetting(element, settingName) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            
+            // Save to localStorage
+            localStorage.setItem(`setting_${settingName}`, isActive);
+            
+            // Apply setting immediately
+            applySetting(settingName, isActive);
+            
+            console.log(`Setting ${settingName} changed to:`, isActive);
         }
 
-        // Load settings data
-        async function loadSettings() {
-            try {
-                // Load quick messages count
-                const response = await fetch('/api/quick-messages');
-                if (response.ok) {
-                    const result = await response.json();
-                    const count = result.data ? result.data.length : 0;
-                    document.getElementById('quickMessageCount').textContent = `${count} ข้อความ`;
-                } else {
-                    document.getElementById('quickMessageCount').textContent = '0 ข้อความ';
-                }
-            } catch (error) {
-                console.error('Error loading settings:', error);
-                document.getElementById('quickMessageCount').textContent = 'ไม่สามารถโหลดได้';
+        // Apply setting
+        function applySetting(settingName, value) {
+            switch(settingName) {
+                case 'darkMode':
+                    if (value) {
+                        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                    } else {
+                        document.body.style.filter = 'none';
+                    }
+                    break;
+                    
+                case 'notificationSound':
+                    if (value) {
+                        // Enable notification sounds
+                        console.log('Notification sounds enabled');
+                    } else {
+                        console.log('Notification sounds disabled');
+                    }
+                    break;
+                    
+                // Add more settings as needed
             }
         }
 
-        // Toggle switch functionality
-        function toggleSwitch(element) {
-            element.classList.toggle('active');
-            const isActive = element.classList.contains('active');
-            console.log('Toggle switch:', isActive ? 'ON' : 'OFF');
+        // Save all settings
+        function saveSettings() {
+            const settings = {
+                autoReplyMode: document.getElementById('autoReplyMode').value,
+                welcomeMessage: document.getElementById('welcomeMessage').value,
+                systemLanguage: document.getElementById('systemLanguage').value,
+                timezone: document.getElementById('timezone').value
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('chatSettings', JSON.stringify(settings));
+            
+            // Show success message
+            alert('✅ บันทึกการตั้งค่าเรียบร้อยแล้ว!');
+            
+            console.log('Settings saved:', settings);
         }
 
-        // Initialize
+        // Reset settings
+        function resetSettings() {
+            if (confirm('ต้องการรีเซ็ตการตั้งค่าทั้งหมดเป็นค่าเริ่มต้นหรือไม่?')) {
+                // Clear all settings
+                const settingKeys = Object.keys(localStorage).filter(key => key.startsWith('setting_'));
+                settingKeys.forEach(key => localStorage.removeItem(key));
+                localStorage.removeItem('chatSettings');
+                
+                // Reload page to apply defaults
+                location.reload();
+            }
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('⚠️ การดำเนินการนี้จะลบข้อมูลทั้งหมด รวมถึงประวัติการสนทนา\n\nต้องการดำเนินการต่อหรือไม่?')) {
+                if (confirm('คุณแน่ใจหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้!')) {
+                    // Clear all data except authentication
+                    const token = localStorage.getItem('token');
+                    const user = localStorage.getItem('user');
+                    
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Restore authentication
+                    if (token) localStorage.setItem('token', token);
+                    if (user) localStorage.setItem('user', user);
+                    
+                    alert('✅ ล้างข้อมูลเรียบร้อยแล้ว');
+                    location.reload();
+                }
+            }
+        }
+
+        // Load saved settings
+        function loadSettings() {
+            // Load toggle settings
+            const settingKeys = Object.keys(localStorage).filter(key => key.startsWith('setting_'));
+            settingKeys.forEach(key => {
+                const settingName = key.replace('setting_', '');
+                const value = localStorage.getItem(key) === 'true';
+                
+                // Find toggle and apply state
+                const toggles = document.querySelectorAll('.toggle-switch');
+                toggles.forEach(toggle => {
+                    if (toggle.onclick.toString().includes(settingName)) {
+                        if (value) {
+                            toggle.classList.add('active');
+                        } else {
+                            toggle.classList.remove('active');
+                        }
+                        applySetting(settingName, value);
+                    }
+                });
+            });
+            
+            // Load form settings
+            const chatSettings = JSON.parse(localStorage.getItem('chatSettings') || '{}');
+            if (chatSettings.autoReplyMode) {
+                document.getElementById('autoReplyMode').value = chatSettings.autoReplyMode;
+            }
+            if (chatSettings.welcomeMessage) {
+                document.getElementById('welcomeMessage').value = chatSettings.welcomeMessage;
+            }
+            if (chatSettings.systemLanguage) {
+                document.getElementById('systemLanguage').value = chatSettings.systemLanguage;
+            }
+            if (chatSettings.timezone) {
+                document.getElementById('timezone').value = chatSettings.timezone;
+            }
+        }
+
+        // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             loadSettings();
+            
+            // Auto-save form changes
+            document.getElementById('autoReplyMode').addEventListener('change', saveSettings);
+            document.getElementById('welcomeMessage').addEventListener('blur', saveSettings);
+            document.getElementById('systemLanguage').addEventListener('change', saveSettings);
+            document.getElementById('timezone').addEventListener('change', saveSettings);
         });
     </script>
 </body>
