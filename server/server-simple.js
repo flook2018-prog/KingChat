@@ -104,6 +104,11 @@ app.use((req, res, next) => {
     if (req.body && Object.keys(req.body).length > 0) {
       console.log(`📦 Body:`, Object.keys(req.body));
     }
+    
+    // Check if this is an auth route
+    if (req.url.startsWith('/api/auth')) {
+      console.log(`🔐 AUTH REQUEST DETECTED: ${req.method} ${req.url}`);
+    }
   }
   
   next();
@@ -298,6 +303,19 @@ const io = socketIO(server, {
   cors: corsOptions
 });
 
+// Load API routes BEFORE fallback handlers
+async function initializeApiRoutes() {
+  try {
+    await loadApiRoutes();
+    console.log('🎯 API routes initialized before fallback handlers');
+  } catch (error) {
+    console.error('❌ Failed to initialize API routes:', error);
+  }
+}
+
+// Initialize API routes immediately
+initializeApiRoutes();
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
@@ -334,11 +352,11 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   
-  // Setup static files FIRST
+  // Setup static files
   setupStaticFiles();
   
-  // Then load API routes
-  await loadApiRoutes();
+  // API routes already loaded before fallback handlers
+  console.log('ℹ️ API routes were loaded during app initialization');
   
   // Initialize database in background after server starts
   setTimeout(() => {
