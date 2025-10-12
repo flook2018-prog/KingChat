@@ -661,11 +661,7 @@
                     <label>สิทธิ์การเข้าถึง</label>
                     <div class="permissions-grid">
                         <label class="permission-item">
-                            <input type="checkbox" id="perm_dashboard" checked disabled>
-                            <span>📊 ดูแดชบอร์ด</span>
-                        </label>
-                        <label class="permission-item">
-                            <input type="checkbox" id="perm_chat">
+                            <input type="checkbox" id="perm_chat" checked>
                             <span>💬 จัดการแชท</span>
                         </label>
                         <label class="permission-item">
@@ -750,7 +746,7 @@
                                     <h1 style="margin: 0 0 10px 0; font-size: 32px;">Access Denied</h1>
                                     <p style="margin: 0 0 20px 0; font-size: 18px; opacity: 0.9;">คุณไม่มีสิทธิ์เข้าถึงหน้าจัดการแอดมิน</p>
                                     <p style="margin: 0 0 30px 0; font-size: 16px; opacity: 0.7;">ฟีเจอร์นี้สำหรับ <strong>Super Admin</strong> เท่านั้น</p>
-                                    <button onclick="window.location.href='/dashboard-working.html'" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600;">กลับหน้าแรก</button>
+                                    <button onclick="window.location.href='/chat.html'" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600;">กลับหน้าแชท</button>
                                 </div>
                             </div>
                         `;
@@ -1675,17 +1671,15 @@
         // Role permissions mapping
         function updatePermissions(role) {
             const permissions = {
-                'super_admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
-                'admin': ['dashboard', 'chat', 'customers', 'line_accounts', 'quick_messages']
+                'super_admin': ['chat', 'customers', 'line_accounts', 'quick_messages', 'settings', 'admin', 'reports'],
+                'admin': ['chat', 'customers', 'line_accounts', 'quick_messages']
             };
-
-            const rolePerms = permissions[role] || ['dashboard'];
             
-            // Reset all permissions
+            const rolePerms = permissions[role] || ['chat'];            // Reset all permissions
             document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(checkbox => {
                 const permName = checkbox.id.replace('perm_', '');
                 checkbox.checked = rolePerms.includes(permName);
-                checkbox.disabled = permName === 'dashboard'; // Dashboard is always required for all
+                checkbox.disabled = permName === 'chat'; // Chat is always required for all
             });
         }
 
