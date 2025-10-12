@@ -4,41 +4,456 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💬 แชท - KingChat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/loading.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
     <style>
-        /* Enhanced Chat Styles */
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-top: 80px;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* แก้สีตัวหนังสือสีขาวให้เป็นสีเข้ม */
-        .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: #2d3748 !important; /* เปลี่ยนจากสีขาวเป็นสีเข้ม */
-            margin: 0 0 10px 0;
-            text-shadow: none !important; /* ลบ text-shadow */
+        /* Main Layout */
+        .chat-container {
+            display: flex;
+            height: 100vh;
         }
 
-        .page-header p {
+        /* Left Sidebar - Customer List */
+        .customer-sidebar {
+            width: 350px;
+            background: white;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Chat Header */
+        .chat-header {
+            background: #06C755;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chat-header .brand-logo {
+            font-size: 24px;
+        }
+
+        .chat-header h1 {
             font-size: 18px;
-            color: #4a5568 !important; /* เปลี่ยนจากสีขาวจางเป็นสีเข้ม */
-            margin: 0;
+            font-weight: 600;
         }
 
-        .navbar {
+        .chat-count {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        /* Search Box */
+        .search-container {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #06C755;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        /* Customer List */
+        .customers-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .customer-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f8f9fa;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .customer-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .customer-item.active {
+            background-color: #e8f5e8;
+            border-right: 3px solid #06C755;
+        }
+
+        .customer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #06C755, #05a847);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .customer-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .customer-last-message {
+            color: #6c757d;
+            font-size: 14px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .customer-meta {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .unread-badge {
+            background: #06C755;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 2px;
+        }
+
+        .status-online { background: #06C755; }
+        .status-offline { background: #dee2e6; }
+
+        /* Right Side - Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        /* Chat Header */
+        .chat-main-header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .current-customer-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #06C755, #05a847);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .current-customer-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+
+        .current-customer-status {
+            color: #06C755;
+            font-size: 14px;
+        }
+
+        .chat-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .chat-action-btn:hover {
+            background: #e9ecef;
+        }
+
+        /* Messages Area */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #06C755, #05a847);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 8px;
+            flex-shrink: 0;
+        }
+
+        .message.sent .message-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-bubble {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .message.sent .message-bubble {
+            background: #06C755;
+            color: white;
+        }
+
+        .message.received .message-bubble::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 10px;
+            width: 0;
+            height: 0;
+            border: 5px solid transparent;
+            border-right-color: white;
+        }
+
+        .message.sent .message-bubble::before {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 10px;
+            width: 0;
+            height: 0;
+            border: 5px solid transparent;
+            border-left-color: #06C755;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 4px;
+            align-self: flex-end;
+        }
+
+        .message.sent .message-time {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Message Input */
+        .message-input-container {
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 15px 20px;
+        }
+
+        .message-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 5px;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 5px;
+            padding: 8px;
+        }
+
+        .input-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .input-action-btn:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 12px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            max-height: 100px;
+            min-height: 20px;
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            background: #06C755;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            margin: 4px;
+        }
+
+        .send-btn:hover {
+            background: #05a847;
+        }
+
+        .send-btn:disabled {
+            background: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        /* Welcome State */
+        .welcome-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .welcome-text h3 {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Top Navigation */
+        .top-nav {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -126,25 +541,23 @@
 
         .btn-logout:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
         }
 
+        /* Sidebar Menu */
         .sidebar {
             position: fixed;
             top: 80px;
             left: 0;
-            width: 280px;
+            width: 260px;
             height: calc(100vh - 80px);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-menu {
             padding: 30px 0;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 999;
         }
 
         .menu-item {
@@ -152,1096 +565,344 @@
             align-items: center;
             gap: 15px;
             padding: 15px 30px;
-            text-decoration: none;
             color: #4a5568;
-            font-weight: 500;
+            text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-weight: 500;
         }
 
         .menu-item:hover {
             background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
             border-left-color: #667eea;
-            transform: translateX(5px);
+            color: #667eea;
         }
 
         .menu-item.active {
             background: rgba(102, 126, 234, 0.15);
-            color: #667eea;
             border-left-color: #667eea;
+            color: #667eea;
             font-weight: 600;
         }
 
-        .icon {
+        .menu-item i {
             font-size: 20px;
             width: 24px;
             text-align: center;
         }
 
-        /* Chat Layout */
-        .main-content {
-            margin-left: 280px;
-            margin-top: 80px;
-            padding: 0;
-            height: calc(100vh - 80px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-container {
-            display: flex;
-            height: calc(100vh - 140px);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            margin: 20px 20px 20px 300px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-        }
-
-        /* Customer List */
-        .customer-list {
-            width: 350px;
-            border-right: 1px solid rgba(102, 126, 234, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .customer-list-header {
-            padding: 25px;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .customer-list-header h2 {
-            margin: 0 0 15px 0;
-            font-size: 22px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 20px 12px 45px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 25px;
-            font-size: 14px;
-            color: #2d3748;
-            background: white;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #718096;
-            font-size: 16px;
-        }
-
-        .customers {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 0;
-        }
-
-        .customer-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-
-        .customer-item:hover {
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .customer-item.active {
-            background: rgba(102, 126, 234, 0.1);
-            border-left-color: #667eea;
-        }
-
-        .customer-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .customer-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .customer-name {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .customer-last-message {
-            color: #718096;
-            font-size: 14px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .line-oa-tag {
-            font-size: 12px;
-            color: #00c851;
-            background: rgba(0, 200, 81, 0.1);
-            padding: 2px 6px;
-            border-radius: 8px;
-            margin-top: 4px;
-            display: inline-block;
-            font-weight: 500;
-        }
-
-        .customer-status {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        .message-time {
-            font-size: 12px;
-            color: #a0aec0;
-        }
-
-        .unread-badge {
-            background: #ef4444;
-            color: white;
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: 12px;
-            font-weight: 600;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .online-indicator {
-            width: 12px;
-            height: 12px;
-            background: #10b981;
-            border: 2px solid white;
-            border-radius: 50%;
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
-        }
-
-        /* Chat Area */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            padding: 25px;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-            background: rgba(102, 126, 234, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .chat-customer-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            position: relative;
-        }
-
-        .chat-customer-info h3 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .chat-customer-status {
-            font-size: 14px;
-            color: #10b981;
-            margin-top: 2px;
-        }
-
-        .chat-actions {
-            margin-left: auto;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-action-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .chat-action-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* Messages Area */
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .message {
-            display: flex;
-            gap: 12px;
-            max-width: 70%;
-        }
-
-        .message.sent {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        .message-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .message.received .message-avatar {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .message.sent .message-avatar {
-            background: linear-gradient(135deg, #10b981, #059669);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .message-content {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .message-bubble {
-            padding: 12px 18px;
-            border-radius: 18px;
-            font-size: 15px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .message.received .message-bubble {
-            background: rgba(102, 126, 234, 0.1);
-            color: #2d3748;
-        }
-
-        .message.sent .message-bubble {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .message-time {
-            font-size: 12px;
-            color: #a0aec0;
-            padding: 0 5px;
-        }
-
-        /* Message Input */
-        .message-input-container {
-            padding: 25px;
-            border-top: 1px solid rgba(102, 126, 234, 0.1);
-            background: rgba(102, 126, 234, 0.02);
-        }
-
-        .message-input-box {
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .message-input {
-            flex: 1;
-            min-height: 45px;
-            max-height: 120px;
-            padding: 12px 20px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 25px;
-            font-size: 15px;
-            color: #2d3748;
-            background: white;
-            resize: none;
-            transition: all 0.3s ease;
-        }
-
-        .message-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .message-input::placeholder {
-            color: #a0aec0;
-        }
-
-        .input-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .input-action-btn {
-            width: 45px;
-            height: 45px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .attach-btn {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-        }
-
-        .attach-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .send-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Welcome State */
-        .welcome-state {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-            color: #718096;
-        }
-
-        .welcome-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .welcome-text h3 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 10px;
-        }
-
-        .welcome-text p {
-            font-size: 16px;
-            color: #718096;
-            margin: 0;
-        }
-
-        /* Loading Animation */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading-overlay.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
             }
-            
-            .sidebar.mobile-open {
+
+            .sidebar.open {
                 transform: translateX(0);
             }
-            
-            .main-content {
+
+            .chat-container {
                 margin-left: 0;
+                margin-top: 80px;
             }
-            
-            .customer-list {
+
+            .customer-sidebar {
                 width: 100%;
-                display: none;
-            }
-            
-            .customer-list.mobile-show {
-                display: flex;
-            }
-            
-            .chat-area {
-                display: none;
-            }
-            
-            .chat-area.mobile-show {
-                display: flex;
+                max-width: 400px;
             }
         }
 
-        /* Animation Classes */
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Chat with sidebar offset */
+        .chat-container {
+            margin-left: 260px;
+            margin-top: 80px;
+            height: calc(100vh - 80px);
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner"></div>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="nav-brand">
+            <span class="brand-logo">👑</span>
+            <span>KingChat</span>
+        </div>
+        
+        <div class="nav-user">
+            <div class="user-info">
+                <span class="user-name">สวัสดี, <span id="userName">Loading...</span></span>
+                <div class="user-status">
+                    <div class="status-dot"></div>
+                    ออนไลน์
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <span>🚪</span>
+                ออกจากระบบ
+            </button>
+        </div>
     </div>
 
-    <!-- Main Structure -->
-    <div id="mainContent">
-        <!-- This will be populated after auth check -->
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="dashboard.html" class="menu-item">
+            <i>🏠</i>
+            <span>แดชบอร์ด</span>
+        </a>
+        <a href="accounts-working.html" class="menu-item">
+            <i>📱</i>
+            <span>จัดการบัญชี</span>
+        </a>
+        <a href="customers-working.html" class="menu-item">
+            <i>👥</i>
+            <span>รายชื่อลูกค้า</span>
+        </a>
+        <a href="chat.html" class="menu-item active">
+            <i>💬</i>
+            <span>แชท</span>
+        </a>
+        <a href="settings-working.html" class="menu-item">
+            <i>⚙️</i>
+            <span>ตั้งค่า</span>
+        </a>
+        <a href="admin-working.html" class="menu-item">
+            <i>👨‍💼</i>
+            <span>จัดการแอดมิน</span>
+        </a>
+    </div>
+
+    <!-- Main Chat Container -->
+    <div class="chat-container">
+        <!-- Left Sidebar - Customer List -->
+        <div class="customer-sidebar">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <span class="brand-logo">💬</span>
+                <h1>แชทลูกค้า</h1>
+                <span class="chat-count" id="chatCount">(4)</span>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="ค้นหาลูกค้า...">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+
+            <!-- Customer List -->
+            <div class="customers-list" id="customersList">
+                <!-- Customers will be loaded here -->
+                <div class="customer-item active">
+                    <div class="customer-avatar">M</div>
+                    <div class="customer-info">
+                        <div class="customer-name">Melendez</div>
+                        <div class="customer-last-message">ข้อความข้อมูลงานที่ต้องดำ...</div>
+                    </div>
+                    <div class="customer-meta">
+                        <div class="message-time">วันนี้</div>
+                        <div class="status-indicator status-online"></div>
+                    </div>
+                </div>
+
+                <div class="customer-item">
+                    <div class="customer-avatar">ส</div>
+                    <div class="customer-info">
+                        <div class="customer-name">สศิภรร</div>
+                        <div class="customer-last-message">น้องส้ม</div>
+                    </div>
+                    <div class="customer-meta">
+                        <div class="message-time">เมื่อวาน</div>
+                        <div class="status-indicator status-offline"></div>
+                    </div>
+                </div>
+
+                <div class="customer-item">
+                    <div class="customer-avatar">ลุ</div>
+                    <div class="customer-info">
+                        <div class="customer-name">ลุงค้างไผ่</div>
+                        <div class="customer-last-message">สวัสดีครับสิมรคอบเรื่อบ</div>
+                    </div>
+                    <div class="customer-meta">
+                        <div class="message-time">14:30</div>
+                        <div class="status-indicator status-offline"></div>
+                    </div>
+                </div>
+
+                <div class="customer-item">
+                    <div class="customer-avatar">คุ</div>
+                    <div class="customer-info">
+                        <div class="customer-name">คุณสมใจ</div>
+                        <div class="customer-last-message">ขอบคุณมากครับ</div>
+                    </div>
+                    <div class="customer-meta">
+                        <div class="message-time">13:15</div>
+                        <div class="unread-badge">2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Chat Area -->
+        <div class="chat-main">
+            <!-- Chat Header -->
+            <div class="chat-main-header">
+                <div class="current-customer-avatar">M</div>
+                <div class="current-customer-info">
+                    <h3>Melendez</h3>
+                    <div class="current-customer-status">ออนไลน์</div>
+                </div>
+                <div class="chat-actions">
+                    <button class="chat-action-btn" title="โทร">📞</button>
+                    <button class="chat-action-btn" title="อีเมล">📧</button>
+                    <button class="chat-action-btn" title="โน๊ต">📝</button>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be loaded here -->
+                <div class="message received">
+                    <div class="message-avatar">M</div>
+                    <div class="message-content">
+                        <div class="message-bubble">ข้อความข้อมูลงานที่ต้องดำ... ข้อมูลเสียงวันครม ลาก... Line</div>
+                        <div class="message-time">9:36 PM</div>
+                    </div>
+                </div>
+
+                <div class="message received">
+                    <div class="message-avatar">M</div>
+                    <div class="message-content">
+                        <div class="message-bubble">สศิภรร</div>
+                        <div class="message-time">9:39 PM</div>
+                    </div>
+                </div>
+
+                <div class="message received">
+                    <div class="message-avatar">M</div>
+                    <div class="message-content">
+                        <div class="message-bubble">ข้อความ</div>
+                        <div class="message-time">3:29 PM</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Input -->
+            <div class="message-input-container">
+                <div class="message-input-wrapper">
+                    <div class="input-actions">
+                        <button class="input-action-btn" title="ไฟล์">📎</button>
+                        <button class="input-action-btn" title="สติ๊กเกอร์">😊</button>
+                        <button class="input-action-btn" title="เพลง">🎵</button>
+                        <button class="input-action-btn" title="ตำแหน่ง">📍</button>
+                        <button class="input-action-btn" title="ค้ำหรึง">🎤</button>
+                    </div>
+                    <textarea class="message-input" placeholder="พิมพ์ข้อความหาเก่าใหพอข้อเท่านั้น... (Ctrl+↓ เพื่อส่งแทนการใหร)" rows="1"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <span>➤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Chat Page Authentication and Loading
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📍 Chat page loading...');
+        // Authentication check
+        function checkAuth() {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             
-            // Show loading animation
-            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (!token || !user.username) {
+                window.location.href = 'login.html';
+                return;
+            }
             
-            // Simulate loading time for smooth UX
-            setTimeout(() => {
-                checkAuthentication();
-            }, 800);
+            document.getElementById('userName').textContent = user.username;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Send message
+        function sendMessage() {
+            const input = document.querySelector('.message-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                // Add message to chat
+                const messagesContainer = document.getElementById('messagesContainer');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message sent';
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">คุ</div>
+                    <div class="message-content">
+                        <div class="message-bubble">${message}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'})}</div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                input.value = '';
+                
+                // Simulate reply after 2 seconds
+                setTimeout(() => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'message received';
+                    replyDiv.innerHTML = `
+                        <div class="message-avatar">M</div>
+                        <div class="message-content">
+                            <div class="message-bubble">ขอบคุณสำหรับข้อความครับ 😊</div>
+                            <div class="message-time">${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'})}</div>
+                        </div>
+                    `;
+                    messagesContainer.appendChild(replyDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 2000);
+            }
+        }
+
+        // Auto-resize textarea
+        document.querySelector('.message-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
         });
 
-        function checkAuthentication() {
-            // Simple auth check
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            const userData = localStorage.getItem('userData') || localStorage.getItem('currentUser');
-            
-            console.log('🔐 Token:', token ? 'EXISTS' : 'NOT_FOUND');
-            console.log('👤 UserData:', userData ? 'EXISTS' : 'NOT_FOUND');
-            
-            if (!token || !userData) {
-                console.warn('⚠️ No authentication found - redirecting to login');
-                window.location.href = 'login.html';
-                return;
+        // Send on Enter (but not Shift+Enter)
+        document.querySelector('.message-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
             }
-            
-            let user = null;
-            try {
-                user = JSON.parse(userData);
-                if (!user || !user.username) {
-                    console.warn('⚠️ Invalid user data structure');
-                    window.location.href = 'login.html';
-                    return;
-                }
-            } catch (e) {
-                console.error('❌ Error parsing user data:', e);
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            console.log('✅ Valid authentication found for:', user.username);
-            hideLoading();
-            loadChatPage(user);
-        }
+        });
 
-        function hideLoading() {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            loadingOverlay.classList.add('fade-out');
-            setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-            }, 500);
-        }
-
-        // Load the chat page
-        function loadChatPage(user) {
-            document.getElementById('mainContent').innerHTML = `
-                <!-- Top Navigation -->
-                <div class="navbar" style="opacity: 0; animation: slideDown 0.6s ease forwards;">
-                    <div class="nav-brand" style="color: #2d3748 !important;">
-                        <span class="brand-logo">👑</span>
-                        <span style="color: #2d3748 !important;">KingChat</span>
-                    </div>
-                    
-                    <div class="nav-user">
-                        <div class="user-info">
-                            <span class="user-name" style="color: #2d3748 !important;">สวัสดี, ${user.username}</span>
-                            <div class="user-status online" style="color: #28a745 !important;">
-                                <div class="status-dot"></div>
-                                ออนไลน์
-                            </div>
-                        </div>
-                        <div class="user-menu">
-                            <button class="btn-logout" onclick="logout()">
-                                <i class="icon">🚪</i> ออกจากระบบ
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="sidebar" style="opacity: 1;">
-                    <div class="sidebar-menu">
-                        <a href="#" class="menu-item active" data-page="chat">
-                            <i class="icon">💬</i>
-                            <span class="menu-text">แชท</span>
-                        </a>
-                        <a href="/dashboard-working.html" class="menu-item" data-page="dashboard">
-                            <i class="icon">📊</i>
-                            <span class="menu-text">แดชบอร์ด</span>
-                        </a>
-                        <a href="/accounts-working.html" class="menu-item" data-page="accounts">
-                            <i class="icon">📱</i>
-                            <span class="menu-text">จัดการบัญชี</span>
-                        </a>
-                        <a href="/customers-working.html" class="menu-item" data-page="customers">
-                            <i class="icon">👥</i>
-                            <span class="menu-text">รายชื่อลูกค้า</span>
-                        </a>
-                        <a href="/quick-messages-working.html" class="menu-item" data-page="quick-messages">
-                            <i class="icon">⚡</i>
-                            <span class="menu-text">ข้อความด่วน</span>
-                        </a>
-                        <a href="/settings-working.html" class="menu-item" data-page="settings">
-                            <i class="icon">⚙️</i>
-                            <span class="menu-text">ตั้งค่า</span>
-                        </a>
-                        <a href="/admin-working.html" class="menu-item" data-page="admin">
-                            <i class="icon">👨‍💼</i>
-                            <span class="menu-text">จัดการแอดมิน</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Main Content -->
-                <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
-                    <div class="chat-container">
-                        <!-- Customer List -->
-                        <div class="customer-list" id="customerList">
-                            <div class="customer-list-header">
-                                <h2>💬 รายการแชท</h2>
-                                <div class="search-box">
-                                    <input type="text" class="search-input" placeholder="ค้นหาลูกค้า..." id="searchInput">
-                                    <span class="search-icon">🔍</span>
-                                </div>
-                            </div>
-                            <div class="customers" id="customersList">
-                                <!-- Customers will be loaded here -->
-                            </div>
-                        </div>
-
-                        <!-- Chat Area -->
-                        <div class="chat-area" id="chatArea">
-                            <div class="welcome-state" id="welcomeState">
-                                <div class="welcome-icon">💬</div>
-                                <div class="welcome-text">
-                                    <h3>ยินดีต้อนรับสู่ KingChat</h3>
-                                    <p>เลือกลูกค้าจากรายการเพื่อเริ่มสนทนา</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            console.log('✅ Chat page loaded successfully for user:', user.username);
-            
-            // Load sample customers
-            setTimeout(() => {
-                loadCustomers();
-            }, 1000);
-            
-            // Setup search functionality
-            setupSearch();
-        }
-
-        // Load customers from API
-        async function loadCustomers() {
-            try {
-                const response = await fetch('/api/customers');
+        // Customer item click
+        document.querySelectorAll('.customer-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active from all items
+                document.querySelectorAll('.customer-item').forEach(i => i.classList.remove('active'));
+                // Add active to clicked item
+                this.classList.add('active');
                 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch customers');
-                }
-
-                const result = await response.json();
-                const customers = result.data || [];
-
-                const customersList = document.getElementById('customersList');
-                if (!customersList) return;
-
-                if (customers.length === 0) {
-                    customersList.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #6c757d;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
-                            <h3>ยังไม่มีลูกค้า</h3>
-                            <p>เมื่อมีลูกค้าทัก LINE OA จะแสดงที่นี่</p>
-                            <p style="margin-top: 20px;">
-                                <a href="/line-connect.html" style="color: #667eea; text-decoration: none;">
-                                    🔗 เชื่อมต่อ LINE OA ก่อน
-                                </a>
-                            </p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Clear loading message
-                customersList.innerHTML = '';
+                // Update chat header
+                const name = this.querySelector('.customer-name').textContent;
+                const avatar = this.querySelector('.customer-avatar').textContent;
                 
-                customers.forEach((customer, index) => {
-                    setTimeout(() => {
-                        const isOnline = customer.last_activity && (new Date() - new Date(customer.last_activity)) < 300000; // 5 minutes
-                        const customerHTML = `
-                            <div class="customer-item" onclick="selectCustomer(${customer.id}, '${customer.display_name}', '${customer.display_name ? customer.display_name.charAt(0) : 'U'}', ${isOnline})" style="opacity: 0; animation: fadeInUp 0.5s ease forwards;">
-                                <div class="customer-avatar" style="position: relative;">
-                                    ${customer.display_name ? customer.display_name.charAt(0).toUpperCase() : 'U'}
-                                    ${isOnline ? '<div class="online-indicator"></div>' : ''}
-                                </div>
-                                <div class="customer-info">
-                                    <div class="customer-name">${customer.display_name || 'ไม่ระบุชื่อ'}</div>
-                                    <div class="customer-last-message">${customer.last_message || 'ยังไม่มีข้อความ'}</div>
-                                    <div class="line-oa-tag">จาก: ${customer.line_account_name || 'LINE OA'}</div>
-                                </div>
-                                <div class="customer-status">
-                                    <div class="message-time">${formatMessageTime(customer.last_message_time)}</div>
-                                    ${customer.unread_count > 0 ? `<div class="unread-badge">${customer.unread_count}</div>` : ''}
-                                </div>
-                            </div>
-                        `;
-                        customersList.insertAdjacentHTML('beforeend', customerHTML);
-                    }, index * 100);
-                });
-
-            } catch (error) {
-                console.error('Error loading customers:', error);
-                
-                const customersList = document.getElementById('customersList');
-                if (customersList) {
-                    customersList.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #dc3545;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                            <h3>เกิดข้อผิดพลาด</h3>
-                            <p>ไม่สามารถโหลดข้อมูลลูกค้าได้</p>
-                            <button onclick="loadCustomers()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">🔄 ลองใหม่</button>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Format message time
-        function formatMessageTime(timeString) {
-            if (!timeString) return '';
-            
-            const now = new Date();
-            const messageTime = new Date(timeString);
-            const diffMs = now - messageTime;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-
-            if (diffMins < 1) return 'เมื่อสักครู่';
-            if (diffMins < 60) return `${diffMins} นาทีที่แล้ว`;
-            if (diffHours < 24) return `${diffHours} ชั่วโมงที่แล้ว`;
-            if (diffDays === 1) return 'เมื่อวาน';
-            if (diffDays < 7) return `${diffDays} วันที่แล้ว`;
-            
-            return messageTime.toLocaleDateString('th-TH');
-        }
-
-        // Select customer and open chat
-        function selectCustomer(id, name, avatar, online) {
-            // Update active customer
-            document.querySelectorAll('.customer-item').forEach(item => {
-                item.classList.remove('active');
+                document.querySelector('.current-customer-info h3').textContent = name;
+                document.querySelector('.current-customer-avatar').textContent = avatar;
             });
-            event.currentTarget.classList.add('active');
-            
-            // Load chat for selected customer
-            loadChat(id, name, avatar, online);
-        }
+        });
 
-        // Load chat interface
-        function loadChat(customerId, customerName, customerAvatar, isOnline) {
-            const chatArea = document.getElementById('chatArea');
-            if (!chatArea) return;
-            
-            chatArea.innerHTML = `
-                <!-- Chat Header -->
-                <div class="chat-header">
-                    <div class="chat-customer-avatar" style="position: relative;">
-                        ${customerAvatar}
-                        ${isOnline ? '<div class="online-indicator"></div>' : ''}
-                    </div>
-                    <div class="chat-customer-info">
-                        <h3>${customerName}</h3>
-                        <div class="chat-customer-status">${isOnline ? '🟢 ออนไลน์' : '⚫ ออฟไลน์'}</div>
-                    </div>
-                    <div class="chat-actions">
-                        <button class="chat-action-btn" onclick="showCustomerInfo()" title="ข้อมูลลูกค้า">
-                            👤
-                        </button>
-                        <button class="chat-action-btn" onclick="showChatOptions()" title="ตัวเลือกเพิ่มเติม">
-                            ⚙️
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Messages Container -->
-                <div class="messages-container" id="messagesContainer">
-                    <!-- Sample messages -->
-                </div>
-
-                <!-- Message Input -->
-                <div class="message-input-container">
-                    <div class="message-input-box">
-                        <textarea class="message-input" id="messageInput" placeholder="พิมพ์ข้อความ..." rows="1"></textarea>
-                        <div class="input-actions">
-                            <button class="input-action-btn attach-btn" onclick="attachFile()" title="แนบไฟล์">
-                                📎
-                            </button>
-                            <button class="input-action-btn send-btn" id="sendBtn" onclick="sendMessage()" title="ส่งข้อความ">
-                                ➤
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Load sample messages
-            loadMessages(customerId);
-            
-            // Setup message input
-            setupMessageInput();
-        }
-
-        // Load chat messages from API
-        async function loadMessages(customerId) {
-            try {
-                const messagesContainer = document.getElementById('messagesContainer');
-                if (!messagesContainer) return;
-
-                // Show loading state
-                messagesContainer.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #6c757d;">
-                        <div class="loading-spinner"></div>
-                        <p>กำลังโหลดข้อความ...</p>
-                    </div>
-                `;
-
-                const response = await fetch(`/api/customers/${customerId}/messages`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch messages');
-                }
-
-                const result = await response.json();
-                const messages = result.data || [];
-
-                // Clear loading state
-                messagesContainer.innerHTML = '';
-
-                if (messages.length === 0) {
-                    messagesContainer.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #6c757d;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
-                            <h3>ยังไม่มีข้อความ</h3>
-                            <p>เริ่มต้นการสนทนากับลูกค้าได้เลย</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                messages.forEach((message, index) => {
-                    setTimeout(() => {
-                        const isReceived = message.message_type === 'received';
-                        const messageHTML = `
-                            <div class="message ${isReceived ? 'received' : 'sent'}" style="opacity: 0; animation: fadeInUp 0.4s ease forwards;">
-                                <div class="message-avatar">${isReceived ? (message.customer_name ? message.customer_name.charAt(0) : 'U') : '👑'}</div>
-                                <div class="message-content">
-                                    <div class="message-bubble">${message.content}</div>
-                                    <div class="message-time">${formatMessageTime(message.created_at)}</div>
-                                </div>
-                            </div>
-                        `;
-                        messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    }, index * 100);
-                });
-
-            } catch (error) {
-                console.error('Error loading messages:', error);
-                
-                const messagesContainer = document.getElementById('messagesContainer');
-                if (messagesContainer) {
-                    messagesContainer.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #dc3545;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                            <h3>เกิดข้อผิดพลาด</h3>
-                            <p>ไม่สามารถโหลดข้อความได้</p>
-                            <button onclick="loadMessages(${customerId})" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">🔄 ลองใหม่</button>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Setup message input functionality
-        function setupMessageInput() {
-            const messageInput = document.getElementById('messageInput');
-            const sendBtn = document.getElementById('sendBtn');
-            
-            if (!messageInput || !sendBtn) return;
-            
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                
-                // Enable/disable send button
-                sendBtn.disabled = !this.value.trim();
-            });
-            
-            // Send message on Enter (not Shift+Enter)
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-        }
-
-        // Setup search functionality
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            if (!searchInput) return;
-            
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const customerItems = document.querySelectorAll('.customer-item');
-                
-                customerItems.forEach(item => {
-                    const customerName = item.querySelector('.customer-name').textContent.toLowerCase();
-                    const lastMessage = item.querySelector('.customer-last-message').textContent.toLowerCase();
-                    
-                    if (customerName.includes(searchTerm) || lastMessage.includes(searchTerm)) {
-                        item.style.display = 'flex';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-            });
-        }
-
-        // Send message function
-        function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const messagesContainer = document.getElementById('messagesContainer');
-            
-            if (!messageInput || !messagesContainer) return;
-            
-            const text = messageInput.value.trim();
-            if (!text) return;
-            
-            // Add message to chat
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-            
-            const messageHTML = `
-                <div class="message sent" style="opacity: 0; animation: fadeInUp 0.4s ease forwards;">
-                    <div class="message-avatar">👑</div>
-                    <div class="message-content">
-                        <div class="message-bubble">${text}</div>
-                        <div class="message-time">${timeString}</div>
-                    </div>
-                </div>
-            `;
-            
-            messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            // Clear input
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            document.getElementById('sendBtn').disabled = true;
-            
-            // Simulate auto-reply after 2 seconds
-            setTimeout(() => {
-                const replyHTML = `
-                    <div class="message received" style="opacity: 0; animation: fadeInUp 0.4s ease forwards;">
-                        <div class="message-avatar">ส</div>
-                        <div class="message-content">
-                            <div class="message-bubble">ขอบคุณครับ ได้รับข้อความแล้ว</div>
-                            <div class="message-time">${timeString}</div>
-                        </div>
-                    </div>
-                `;
-                messagesContainer.insertAdjacentHTML('beforeend', replyHTML);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 2000);
-        }
-
-        // Other functions
-        function attachFile() {
-            alert('📎 ฟีเจอร์แนบไฟล์ (Coming Soon)');
-        }
-
-        function showCustomerInfo() {
-            alert('👤 ข้อมูลลูกค้า (Coming Soon)');
-        }
-
-        function showChatOptions() {
-            alert('⚙️ ตัวเลือกแชท (Coming Soon)');
-        }
-
-        // Navigation functions
-        function loadPage(page) {
-            console.log('Loading page:', page);
-            
-            switch(page) {
-                case 'dashboard':
-                    window.location.href = 'dashboard-fixed.html';
-                    break;
-                case 'accounts':
-                    alert('📱 จะเปิดหน้าจัดการบัญชี LINE OA');
-                    break;
-                case 'customers':
-                    alert('👥 จะเปิดหน้ารายชื่อลูกค้า');
-                    break;
-                case 'settings':
-                    alert('⚙️ จะเปิดหน้าตั้งค่า');
-                    break;
-                case 'admin':
-                    alert('👨‍💼 จะเปิดหน้าจัดการผู้ใช้');
-                    break;
-                default:
-                    // Stay on chat
-                    break;
-            }
-        }
-
-        function logout() {
-            if (confirm('🔒 คุณต้องการออกจากระบบหรือไม่?')) {
-                localStorage.clear();
-                sessionStorage.clear();
-                console.log('👋 User logged out');
-                window.location.href = 'login.html';
-            }
-        }
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
     </script>
 </body>
 </html>
