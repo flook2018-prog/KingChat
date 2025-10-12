@@ -790,14 +790,20 @@
                 admins = await response.json();
                 displayAdmins(admins);
                 hideLoadingSpinner();
+                showSuccessMessage('✅ โหลดข้อมูลแอดมินจาก Database สำเร็จ');
             } catch (error) {
                 console.error('Error loading admins:', error);
                 hideLoadingSpinner();
-                showErrorMessage('❌ ไม่สามารถโหลดข้อมูลแอดมินได้: ' + error.message);
+                
+                // Show info message explaining fallback to demo data
+                showInfoMessage('ℹ️ เชื่อมต่อ Database ไม่ได้ กำลังใช้ข้อมูลตัวอย่าง');
                 
                 // Use demo data as fallback
                 admins = getDemoData();
                 displayAdmins(admins);
+                
+                // Add API test button if not exists
+                addApiTestButton();
                 showInfoMessage('🔄 ใช้ข้อมูลตัวอย่างชั่วคราว');
             }
         }
@@ -859,7 +865,7 @@
             ];
         }
 
-        // Create new admin via API
+        // Create admin via API or demo
         async function createAdmin(adminData) {
             try {
                 showLoadingSpinner();
@@ -880,17 +886,31 @@
                 admins.push(newAdmin);
                 displayAdmins(admins);
                 hideLoadingSpinner();
-                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว');
+                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว (Database)');
                 return newAdmin;
             } catch (error) {
                 console.error('Error creating admin:', error);
                 hideLoadingSpinner();
-                showErrorMessage('❌ ไม่สามารถเพิ่มแอดมินได้: ' + error.message);
-                throw error;
+                
+                // Fallback to demo data creation
+                showInfoMessage('ℹ️ ไม่สามารถบันทึกลง Database ได้ เพิ่มในข้อมูลตัวอย่าง');
+                
+                const newAdmin = {
+                    id: Date.now(), // Use timestamp as ID for demo
+                    ...adminData,
+                    level: adminData.role === 'super_admin' ? 100 : 80,
+                    messagesHandled: 0,
+                    lastLogin: new Date().toISOString().slice(0, 19).replace('T', ' ')
+                };
+                
+                admins.push(newAdmin);
+                displayAdmins(admins);
+                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว (ข้อมูลตัวอย่าง)');
+                return newAdmin;
             }
         }
 
-        // Update admin via API
+        // Update admin via API or demo
         async function updateAdmin(id, adminData) {
             try {
                 showLoadingSpinner();
@@ -914,17 +934,26 @@
                     displayAdmins(admins);
                 }
                 hideLoadingSpinner();
-                showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว');
+                showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว (Database)');
                 return updatedAdmin;
             } catch (error) {
                 console.error('Error updating admin:', error);
                 hideLoadingSpinner();
-                showErrorMessage('❌ ไม่สามารถอัพเดทแอดมินได้: ' + error.message);
-                throw error;
+                
+                // Fallback to demo data update
+                showInfoMessage('ℹ️ ไม่สามารถอัพเดท Database ได้ แก้ไขในข้อมูลตัวอย่าง');
+                
+                const index = admins.findIndex(a => a.id == id);
+                if (index > -1) {
+                    admins[index] = { ...admins[index], ...adminData };
+                    displayAdmins(admins);
+                    showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว (ข้อมูลตัวอย่าง)');
+                }
+                return admins[index];
             }
         }
 
-        // Delete admin via API
+        // Delete admin via API or demo
         async function deleteAdminAPI(id) {
             try {
                 showLoadingSpinner();
@@ -943,13 +972,46 @@
                     displayAdmins(admins);
                 }
                 hideLoadingSpinner();
-                showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว');
+                showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว (Database)');
             } catch (error) {
                 console.error('Error deleting admin:', error);
                 hideLoadingSpinner();
-                showErrorMessage('❌ ไม่สามารถลบแอดมินได้: ' + error.message);
-                throw error;
+                
+                // Fallback to demo data deletion
+                showInfoMessage('ℹ️ ไม่สามารถลบจาก Database ได้ ลบในข้อมูลตัวอย่าง');
+                
+                const index = admins.findIndex(a => a.id == id);
+                if (index > -1) {
+                    admins.splice(index, 1);
+                    displayAdmins(admins);
+                    showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว (ข้อมูลตัวอย่าง)');
+                }
             }
+        }
+
+        // Display admins in table
+        function displayAdmins(adminList) {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            if (adminList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                            <h3>ยังไม่มีข้อมูลแอดมิน</h3>
+                            <p>คลิกปุ่ม "เพิ่มแอดมินใหม่" เพื่อเริ่มต้น</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            adminList.forEach((admin, index) => {
+                const row = createAdminRow(admin);
+                row.style.animationDelay = `${index * 0.1}s`;
+                tbody.appendChild(row);
+            });
         }
 
         // Show loading spinner
@@ -1110,11 +1172,7 @@
                     await createAdmin(formData);
                 }
                 closeModal();
-            } catch (error) {
-                console.error('Form submission error:', error);
-            }
-        });
-
+        // Show success message
         function showSuccessMessage(message) {
             const successMsg = document.createElement('div');
             successMsg.style.cssText = `
@@ -1132,6 +1190,97 @@
                 successMsg.remove();
             }, 3000);
         }
+
+        // Add API test button for debugging
+        function addApiTestButton() {
+            if (document.getElementById('apiTestBtn')) return; // Already exists
+            
+            const testBtn = document.createElement('button');
+            testBtn.id = 'apiTestBtn';
+            testBtn.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px; 
+                background: #007bff; color: white; 
+                padding: 12px 20px; border: none; border-radius: 25px; 
+                cursor: pointer; font-weight: 500; z-index: 2000;
+                box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+                animation: pulse 2s infinite;
+            `;
+            testBtn.innerHTML = '🔧 ทดสอบ API';
+            testBtn.onclick = testApiConnection;
+            document.body.appendChild(testBtn);
+            
+            // Add pulse animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Test API connection
+        async function testApiConnection() {
+            const testBtn = document.getElementById('apiTestBtn');
+            if (testBtn) {
+                testBtn.innerHTML = '🔄 กำลังทดสอบ...';
+                testBtn.disabled = true;
+            }
+            
+            try {
+                // Test basic API endpoint
+                const response = await fetch(`${API_BASE_URL}/admin/test`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccessMessage('✅ API ทำงานปกติ: ' + data.message);
+                    // Remove test button if API works
+                    if (testBtn) testBtn.remove();
+                    // Reload admins from API
+                    loadAdmins();
+                } else {
+                    throw new Error(data.error || 'API Test Failed');
+                }
+            } catch (error) {
+                console.error('API test failed:', error);
+                showErrorMessage('❌ API ไม่ทำงาน: ' + error.message + '\n💡 กำลังใช้ข้อมูลตัวอย่าง');
+                
+                if (testBtn) {
+                    testBtn.innerHTML = '🔧 ทดสอบ API';
+                    testBtn.disabled = false;
+                }
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('adminForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value,
+                points: parseInt(document.getElementById('points').value) || 0
+            };
+
+            try {
+                if (currentEditId) {
+                    // Don't send password if it's empty during edit
+                    if (!formData.password) {
+                        delete formData.password;
+                    }
+                    await updateAdmin(currentEditId, formData);
+                } else {
+                    await createAdmin(formData);
+                }
+                closeModal();
+            } catch (error) {
+                console.error('Form submission error:', error);
+            }
+        });
 
         // Close modal when clicking outside
         window.addEventListener('click', function(e) {
