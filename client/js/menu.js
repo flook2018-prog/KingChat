@@ -90,10 +90,6 @@ class KingChatMenu {
                 <i>💬</i>
                 <span>แชท</span>
             </a>
-            <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard' ? 'active' : ''}">
-                <i>🏠</i>
-                <span>แดชบอร์ด</span>
-            </a>
             <a href="accounts-working.html" class="menu-item ${currentPage === 'accounts' ? 'active' : ''}">
                 <i>📱</i>
                 <span>จัดการบัญชี</span>
@@ -122,13 +118,12 @@ class KingChatMenu {
     getCurrentPage() {
         const path = window.location.pathname;
         if (path.includes('chat')) return 'chat';
-        if (path.includes('dashboard')) return 'dashboard';
         if (path.includes('accounts')) return 'accounts';
         if (path.includes('customers')) return 'customers';
         if (path.includes('quick-messages')) return 'quick-messages';
         if (path.includes('settings')) return 'settings';
         if (path.includes('admin')) return 'admin';
-        return 'chat'; // default เปลี่ยนเป็น chat
+        return 'chat'; // default เป็น chat (ไม่มี dashboard แล้ว)
     }
 
     updateUserInfo() {
