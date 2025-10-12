@@ -771,59 +771,249 @@
             `;
         }
 
-        // Demo admin data
-        const demoAdmins = [
-            {
-                id: 1,
-                fullName: 'สมชาย ใจดี',
-                username: 'admin',
-                role: 'super_admin',
-                level: 100,
-                points: 4500,
-                messagesHandled: 450,
-                lastLogin: '2024-10-12 14:30:00'
-            },
-            {
-                id: 2,
-                fullName: 'สุภา รักงาน',
-                username: 'supha_admin',
-                role: 'admin',
-                level: 80,
-                points: 2300,
-                messagesHandled: 230,
-                lastLogin: '2024-10-12 13:45:00'
-            },
-            {
-                id: 3,
-                fullName: 'วิชัย เก่งงาน',
-                username: 'vichai_admin',
-                role: 'admin',
-                level: 80,
-                points: 1800,
-                messagesHandled: 180,
-                lastLogin: '2024-10-12 12:15:00'
-            },
-            {
-                id: 4,
-                fullName: 'นันทพร ขยันดี',
-                username: 'nantaporn_admin',
-                role: 'admin',
-                level: 80,
-                points: 6500,
-                messagesHandled: 650,
-                lastLogin: '2024-10-12 16:20:00'
-            }
-        ];
+        // API Configuration
+        const API_BASE_URL = window.location.origin + '/api';
+        
+        // Admin data storage
+        let admins = [];
 
-        function loadAdmins() {
+        // Load admins from API
+        async function loadAdmins() {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(`${API_BASE_URL}/admin`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                admins = await response.json();
+                displayAdmins(admins);
+                hideLoadingSpinner();
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                hideLoadingSpinner();
+                showErrorMessage('❌ ไม่สามารถโหลดข้อมูลแอดมินได้: ' + error.message);
+                
+                // Use demo data as fallback
+                admins = getDemoData();
+                displayAdmins(admins);
+                showInfoMessage('🔄 ใช้ข้อมูลตัวอย่างชั่วคราว');
+            }
+        }
+
+        function displayAdmins(adminList) {
             const tableBody = document.getElementById('adminTableBody');
             tableBody.innerHTML = '';
 
-            demoAdmins.forEach((admin, index) => {
+            adminList.forEach((admin, index) => {
                 const row = createAdminRow(admin);
                 row.style.animationDelay = `${(index + 1) * 0.1}s`;
                 tableBody.appendChild(row);
             });
+        }
+
+        // Demo data fallback
+        function getDemoData() {
+            return [
+                {
+                    id: 1,
+                    fullName: 'สมชาย ใจดี',
+                    username: 'admin',
+                    role: 'super_admin',
+                    level: 100,
+                    points: 4500,
+                    messagesHandled: 450,
+                    lastLogin: '2024-10-12 14:30:00'
+                },
+                {
+                    id: 2,
+                    fullName: 'สุภา รักงาน',
+                    username: 'supha_admin',
+                    role: 'admin',
+                    level: 80,
+                    points: 2300,
+                    messagesHandled: 230,
+                    lastLogin: '2024-10-12 13:45:00'
+                },
+                {
+                    id: 3,
+                    fullName: 'วิชัย เก่งงาน',
+                    username: 'vichai_admin',
+                    role: 'admin',
+                    level: 80,
+                    points: 1800,
+                    messagesHandled: 180,
+                    lastLogin: '2024-10-12 12:15:00'
+                },
+                {
+                    id: 4,
+                    fullName: 'นันทพร ขยันดี',
+                    username: 'nantaporn_admin',
+                    role: 'admin',
+                    level: 80,
+                    points: 6500,
+                    messagesHandled: 650,
+                    lastLogin: '2024-10-12 16:20:00'
+                }
+            ];
+        }
+
+        // Create new admin via API
+        async function createAdmin(adminData) {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(`${API_BASE_URL}/admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const newAdmin = await response.json();
+                admins.push(newAdmin);
+                displayAdmins(admins);
+                hideLoadingSpinner();
+                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว');
+                return newAdmin;
+            } catch (error) {
+                console.error('Error creating admin:', error);
+                hideLoadingSpinner();
+                showErrorMessage('❌ ไม่สามารถเพิ่มแอดมินได้: ' + error.message);
+                throw error;
+            }
+        }
+
+        // Update admin via API
+        async function updateAdmin(id, adminData) {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(`${API_BASE_URL}/admin/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const updatedAdmin = await response.json();
+                const index = admins.findIndex(a => a.id == id);
+                if (index > -1) {
+                    admins[index] = updatedAdmin;
+                    displayAdmins(admins);
+                }
+                hideLoadingSpinner();
+                showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว');
+                return updatedAdmin;
+            } catch (error) {
+                console.error('Error updating admin:', error);
+                hideLoadingSpinner();
+                showErrorMessage('❌ ไม่สามารถอัพเดทแอดมินได้: ' + error.message);
+                throw error;
+            }
+        }
+
+        // Delete admin via API
+        async function deleteAdminAPI(id) {
+            try {
+                showLoadingSpinner();
+                const response = await fetch(`${API_BASE_URL}/admin/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const index = admins.findIndex(a => a.id == id);
+                if (index > -1) {
+                    admins.splice(index, 1);
+                    displayAdmins(admins);
+                }
+                hideLoadingSpinner();
+                showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว');
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                hideLoadingSpinner();
+                showErrorMessage('❌ ไม่สามารถลบแอดมินได้: ' + error.message);
+                throw error;
+            }
+        }
+
+        // Show loading spinner
+        function showLoadingSpinner() {
+            let spinner = document.getElementById('loadingSpinner');
+            if (!spinner) {
+                spinner = document.createElement('div');
+                spinner.id = 'loadingSpinner';
+                spinner.style.cssText = `
+                    position: fixed; top: 50%; left: 50%; 
+                    transform: translate(-50%, -50%);
+                    background: rgba(0,0,0,0.8); color: white; 
+                    padding: 20px; border-radius: 10px; 
+                    z-index: 9999; font-size: 16px;
+                `;
+                spinner.innerHTML = '🔄 กำลังโหลด...';
+                document.body.appendChild(spinner);
+            }
+            spinner.style.display = 'block';
+        }
+
+        function hideLoadingSpinner() {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = 'none';
+            }
+        }
+
+        // Show error message
+        function showErrorMessage(message) {
+            const errorMsg = document.createElement('div');
+            errorMsg.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: #dc3545; color: white; 
+                padding: 15px 20px; border-radius: 10px; 
+                box-shadow: 0 4px 15px rgba(220,53,69,0.3); 
+                z-index: 3000; animation: fadeInUp 0.3s ease;
+                font-weight: 500; max-width: 400px;
+            `;
+            errorMsg.textContent = message;
+            document.body.appendChild(errorMsg);
+            
+            setTimeout(() => {
+                errorMsg.remove();
+            }, 5000);
+        }
+
+        // Show info message
+        function showInfoMessage(message) {
+            const infoMsg = document.createElement('div');
+            infoMsg.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: #17a2b8; color: white; 
+                padding: 15px 20px; border-radius: 10px; 
+                box-shadow: 0 4px 15px rgba(23,162,184,0.3); 
+                z-index: 3000; animation: fadeInUp 0.3s ease;
+                font-weight: 500; max-width: 400px;
+            `;
+            infoMsg.textContent = message;
+            document.body.appendChild(infoMsg);
+            
+            setTimeout(() => {
+                infoMsg.remove();
+            }, 4000);
         }
 
         function createAdminRow(admin) {
@@ -874,7 +1064,7 @@
         }
 
         function editAdmin(id) {
-            const admin = demoAdmins.find(a => a.id === id);
+            const admin = admins.find(a => a.id == id);
             if (!admin) return;
 
             currentEditId = id;
@@ -887,23 +1077,18 @@
             document.getElementById('adminModal').style.display = 'block';
         }
 
+        function deleteAdmin(id) {
+            if (confirm('🗑️ คุณต้องการลบแอดมินนี้หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้')) {
+                deleteAdminAPI(id);
+            }
+        }
+
         function closeModal() {
             document.getElementById('adminModal').style.display = 'none';
             currentEditId = null;
         }
 
-        function deleteAdmin(id) {
-            if (confirm('🗑️ คุณต้องการลบแอดมินนี้หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้')) {
-                const index = demoAdmins.findIndex(a => a.id === id);
-                if (index > -1) {
-                    demoAdmins.splice(index, 1);
-                    loadAdmins();
-                    showSuccessMessage('✅ ลบแอดมินเรียบร้อยแล้ว');
-                }
-            }
-        }
-
-        document.getElementById('adminForm').addEventListener('submit', function(e) {
+        document.getElementById('adminForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = {
@@ -914,34 +1099,20 @@
                 points: parseInt(document.getElementById('points').value) || 0
             };
 
-            if (currentEditId) {
-                const admin = demoAdmins.find(a => a.id === currentEditId);
-                if (admin) {
-                    admin.fullName = formData.fullName;
-                    admin.username = formData.username;
-                    if (formData.password) {
-                        admin.password = formData.password;
+            try {
+                if (currentEditId) {
+                    // Don't send password if it's empty during edit
+                    if (!formData.password) {
+                        delete formData.password;
                     }
-                    admin.role = formData.role;
-                    admin.level = formData.role === 'super_admin' ? 100 : 80;
-                    admin.points = formData.points;
-                    admin.messagesHandled = Math.floor(formData.points / 10);
+                    await updateAdmin(currentEditId, formData);
+                } else {
+                    await createAdmin(formData);
                 }
-                showSuccessMessage('✅ อัพเดทข้อมูลแอดมินเรียบร้อยแล้ว');
-            } else {
-                const newAdmin = {
-                    id: Math.max(...demoAdmins.map(a => a.id)) + 1,
-                    ...formData,
-                    level: formData.role === 'super_admin' ? 100 : 80,
-                    messagesHandled: Math.floor(formData.points / 10),
-                    lastLogin: new Date().toISOString().slice(0, 19).replace('T', ' ')
-                };
-                demoAdmins.push(newAdmin);
-                showSuccessMessage('✅ เพิ่มแอดมินใหม่เรียบร้อยแล้ว');
+                closeModal();
+            } catch (error) {
+                console.error('Form submission error:', error);
             }
-
-            loadAdmins();
-            closeModal();
         });
 
         function showSuccessMessage(message) {
