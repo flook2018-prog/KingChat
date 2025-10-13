@@ -156,7 +156,8 @@ connectDatabase();
 let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
 try {
-  authRoutes = require('./routes/auth');
+  authRoutes = require('./routes/auth-simple');
+  console.log('✅ Auth routes loaded from auth-simple.js');
   
   // Load admin authentication routes
   try {
