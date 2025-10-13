@@ -211,11 +211,23 @@ try {
 }
 
 // API routes
+console.log('🔗 Mounting API routes...');
 app.use('/api/auth', authRoutes);
+console.log('✅ Auth routes mounted at /api/auth');
 app.use('/api/admin-auth', adminAuthRoutes);  // Admin authentication
 app.use('/api/admin', adminRoutes);           // Admin CRUD operations
 app.use('/api/line', lineAccountRoutes);
 app.use('/api/roles', rolesRoutes);
+
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'API is working', 
+    timestamp: new Date().toISOString(),
+    auth_routes_loaded: !!authRoutes
+  });
+});
 
 // Serve static files from client directory (for Railway deployment)
 if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
