@@ -1,6 +1,32 @@
 -- KingChat Database Schema - Clean Version
 -- PostgreSQL Database for LINE OA Management System
 
+-- Table: admin (ผู้ดูแลระบบ)
+CREATE TABLE IF NOT EXISTS admin (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    display_name VARCHAR(255),
+    role VARCHAR(50) DEFAULT 'admin',
+    points INTEGER DEFAULT 0,
+    messages_handled INTEGER DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: users (ผู้ใช้ระบบ)
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'user',
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Table: line_accounts (บัญชี LINE OA)
 CREATE TABLE IF NOT EXISTS line_accounts (
     id SERIAL PRIMARY KEY,
@@ -22,6 +48,106 @@ CREATE TABLE IF NOT EXISTS customers (
     picture_url TEXT,
     phone_number VARCHAR(20),
     notes TEXT,
+    line_account_id INTEGER REFERENCES line_accounts(id) ON DELETE CASCADE,
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: chat_messages (ข้อความ)
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,
+    line_account_id INTEGER REFERENCES line_accounts(id) ON DELETE CASCADE,
+    message_type VARCHAR(50) DEFAULT 'text',
+    message_text TEXT,
+    image_url TEXT,
+    sticker_id VARCHAR(100),
+    sender VARCHAR(50) NOT NULL,
+    is_read BOOLEAN DEFAULT false,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: quick_messages (ข้อความด่วน)
+CREATE TABLE IF NOT EXISTS quick_messages (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message_text TEXT NOT NULL,
+    category VARCHAR(100),
+    is_active BOOLEAN DEFAULT true,
+    usage_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: settings (การตั้งค่า)
+CREATE TABLE IF NOT EXISTS settings (
+    id SERIAL PRIMARY KEY,
+    setting_key VARCHAR(100) UNIQUE NOT NULL,
+    setting_value TEXT,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_admin_username ON admin(username);
+CREATE INDEX IF NOT EXISTS idx_admin_points ON admin(points DESC);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_customers_line_user_id ON customers(line_user_id);
+CREATE INDEX IF NOT EXISTS idx_customers_line_account_id ON customers(line_account_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_timestamp ON chat_messages(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_customer_id ON chat_messages(customer_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_is_read ON chat_messages(is_read);
+
+-- Insert default admin users (password: admin123, somchai123, supha123, vichai123)
+INSERT INTO admin (username, password_hash, display_name, role, points, messages_handled) 
+VALUES 
+('admin', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ผู้ดูแลระบบหลัก', 'super_admin', 4500, 450),
+('somchai', '$2b$10$k8RQ4K9yOQJYvXUzFQnbh.eOqJ8QeKvR4yTgNcQS8zKqQgW3Md8QKxy', 'สมชาย ใจดี', 'admin', 3200, 320),
+('supha', '$2b$10$m9SL5N0pQJYvXUzFQnbh.eOqJ8QeKvR4yTgNcQS8zKqQgW3Md8QKxy', 'สุภา รักงาน', 'admin', 2300, 230),
+('vichai', '$2b$10$n6TM8O1qRJYvXUzFQnbh.eOqJ8QeKvR4yTgNcQS8zKqQgW3Md8QKxy', 'วิชัย เก่งงาน', 'admin', 1800, 180)
+ON CONFLICT (username) DO UPDATE SET
+    display_name = EXCLUDED.display_name,
+    points = EXCLUDED.points,
+    messages_handled = EXCLUDED.messages_handled;
+
+-- Insert default user (for legacy support)
+INSERT INTO users (username, email, password_hash, role) 
+VALUES ('admin', 'admin@kingchat.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin')
+ON CONFLICT (username) DO NOTHING;
+
+-- Insert demo LINE account data
+INSERT INTO line_accounts (name, channel_id, channel_secret, access_token, status) 
+VALUES ('Demo LINE OA', '2007723051', 'a4719acc696186068a848449e93f4247', 'demo_access_token_789', 'active')
+ON CONFLICT (channel_id) DO NOTHING;
+
+-- Insert demo customer data
+INSERT INTO customers (line_user_id, display_name, line_account_id, status)
+VALUES 
+('U1234567890', 'ลูกค้า A', 1, 'online'),
+('U2345678901', 'ลูกค้า B', 1, 'offline'),
+('U3456789012', 'ลูกค้า C', 1, 'inactive'),
+('U4567890123', 'ลูกค้า D', 1, 'online')
+ON CONFLICT (line_user_id) DO NOTHING;
+
+-- Insert demo quick messages
+INSERT INTO quick_messages (title, message_text, category) 
+VALUES 
+('ขอบคุณสำหรับการติดต่อ', 'ขอบคุณที่ติดต่อเรา เราจะตอบกลับโดยเร็วที่สุด', 'general'),
+('ช่วงเวลาทำการ', 'เวลาทำการ: จันทร์-ศุกร์ 9:00-18:00 น. เสาร์-อาทิตย์ 9:00-17:00 น.', 'info'),
+('ขอข้อมูลเพิ่มเติม', 'กรุณาส่งข้อมูลที่ต้องการเพิ่มเติมให้เราด้วยค่ะ', 'request')
+ON CONFLICT DO NOTHING;
+
+-- Insert demo settings
+INSERT INTO settings (setting_key, setting_value, description)
+VALUES 
+('site_name', 'KingChat', 'ชื่อเว็บไซต์'),
+('welcome_message', 'ยินดีต้อนรับสู่ KingChat', 'ข้อความต้อนรับ'),
+('auto_reply', 'true', 'เปิดใช้การตอบอัตโนมัติ'),
+('notification_sound', 'true', 'เปิดใช้เสียงแจ้งเตือน')
+ON CONFLICT (setting_key) DO NOTHING;
     line_account_id INTEGER REFERENCES line_accounts(id) ON DELETE SET NULL,
     status VARCHAR(50) DEFAULT 'active',
     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,6 +174,82 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 CREATE TABLE IF NOT EXISTS quick_messages (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
+    message_text TEXT NOT NULL,
+    category VARCHAR(100),
+    usage_count INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: settings (การตั้งค่าระบบ)
+CREATE TABLE IF NOT EXISTS settings (
+    id SERIAL PRIMARY KEY,
+    setting_key VARCHAR(255) UNIQUE NOT NULL,
+    setting_value TEXT,
+    description TEXT,
+    data_type VARCHAR(50) DEFAULT 'string',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_admin_username ON admin(username);
+CREATE INDEX IF NOT EXISTS idx_admin_points ON admin(points DESC);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_customers_line_user_id ON customers(line_user_id);
+CREATE INDEX IF NOT EXISTS idx_customers_line_account_id ON customers(line_account_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_timestamp ON chat_messages(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_customer_id ON chat_messages(customer_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_is_read ON chat_messages(is_read);
+
+-- Insert default admin users (password: admin123, somchai123, supha123, vichai123)
+INSERT INTO admin (username, password_hash, display_name, role, points, messages_handled) 
+VALUES 
+('admin', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ผู้ดูแลระบบหลัก', 'super_admin', 4500, 450),
+('somchai', '$2b$10$k8RQ4K9yOQJYvXUzFQnbh.eOqJ8QeKvR4yTgNcQS8zKqQgW3Md8QKxy', 'สมชาย ใจดี', 'admin', 3200, 320),
+('supha', '$2b$10$m9SL5N0pQJYvXUzFQnbh.eOqJ8QeKvR4yTgNcQS8zKqQgW3Md8QKxy', 'สุภา รักงาน', 'admin', 2300, 230),
+('vichai', '$2b$10$n6TM8O1qRJYvXUzFQnbh.eOqJ8QeKvR4yTgNcQS8zKqQgW3Md8QKxy', 'วิชัย เก่งงาน', 'admin', 1800, 180)
+ON CONFLICT (username) DO UPDATE SET
+    display_name = EXCLUDED.display_name,
+    points = EXCLUDED.points,
+    messages_handled = EXCLUDED.messages_handled;
+
+-- Insert default user (for legacy support)
+INSERT INTO users (username, email, password_hash, role) 
+VALUES ('admin', 'admin@kingchat.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin')
+ON CONFLICT (username) DO NOTHING;
+
+-- Insert demo LINE account data
+INSERT INTO line_accounts (name, channel_id, channel_secret, access_token, status) 
+VALUES ('Demo LINE OA', '2007723051', 'a4719acc696186068a848449e93f4247', 'demo_access_token_789', 'active')
+ON CONFLICT (channel_id) DO NOTHING;
+
+-- Insert demo customer data
+INSERT INTO customers (line_user_id, display_name, line_account_id, status)
+VALUES 
+('U1234567890', 'ลูกค้า A', 1, 'online'),
+('U2345678901', 'ลูกค้า B', 1, 'offline'),
+('U3456789012', 'ลูกค้า C', 1, 'inactive'),
+('U4567890123', 'ลูกค้า D', 1, 'online')
+ON CONFLICT (line_user_id) DO NOTHING;
+
+-- Insert demo quick messages
+INSERT INTO quick_messages (title, message_text, category) 
+VALUES 
+('ขอบคุณสำหรับการติดต่อ', 'ขอบคุณที่ติดต่อเรา เราจะตอบกลับโดยเร็วที่สุด', 'general'),
+('ช่วงเวลาทำการ', 'เวลาทำการ: จันทร์-ศุกร์ 9:00-18:00 น. เสาร์-อาทิตย์ 9:00-17:00 น.', 'info'),
+('ขอข้อมูลเพิ่มเติม', 'กรุณาส่งข้อมูลที่ต้องการเพิ่มเติมให้เราด้วยค่ะ', 'request')
+ON CONFLICT DO NOTHING;
+
+-- Insert demo settings
+INSERT INTO settings (setting_key, setting_value, description)
+VALUES 
+('site_name', 'KingChat', 'ชื่อเว็บไซต์'),
+('welcome_message', 'ยินดีต้อนรับสู่ KingChat', 'ข้อความต้อนรับ'),
+('auto_reply', 'true', 'เปิดใช้การตอบอัตโนมัติ'),
+('notification_sound', 'true', 'เปิดใช้เสียงแจ้งเตือน')
+ON CONFLICT (setting_key) DO NOTHING;
     content TEXT NOT NULL,
     category VARCHAR(100),
     is_active BOOLEAN DEFAULT true,
