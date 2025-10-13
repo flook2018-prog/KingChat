@@ -843,42 +843,37 @@
 
         // Load admins from API
         async function loadAdmins() {
-            return safeExecute(async () => {
+            try {
                 showLoadingSpinner();
+                console.log('🔄 Loading admins from API...');
+                
                 const response = await fetch(`${API_BASE_URL}/admin`);
+                console.log('📡 API Response status:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 admins = await response.json();
+                console.log('📊 Loaded admins:', admins.length, 'records');
+                console.log('👥 Admin data:', admins);
+                
                 displayAdmins(admins);
                 hideLoadingSpinner();
                 showSuccessMessage('✅ โหลดข้อมูลแอดมินจาก Database สำเร็จ');
-            }, 'loadAdmins').catch(error => {
-                console.error('Error loading admins:', error);
+                
+            } catch (error) {
+                console.error('❌ Error loading admins:', error);
                 hideLoadingSpinner();
                 showErrorMessage('❌ ไม่สามารถเชื่อมต่อ Database ได้: ' + error.message + '\n📞 กรุณาติดต่อผู้ดูแลระบบ');
                 
                 // Show empty state - no fallback data
                 admins = [];
                 displayAdmins(admins);
-                
-                // Add API test button
-                addApiTestButton();
-            });
+            }
         }
 
-        function displayAdmins(adminList) {
-            const tableBody = document.getElementById('adminTableBody');
-            tableBody.innerHTML = '';
-
-            adminList.forEach((admin, index) => {
-                const row = createAdminRow(admin);
-                row.style.animationDelay = `${(index + 1) * 0.1}s`;
-                tableBody.appendChild(row);
-            });
-        }
+        // First displayAdmins function removed - using the complete one below
 
         // Create admin via API (Database only)
         async function createAdmin(adminData) {
