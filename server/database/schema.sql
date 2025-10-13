@@ -71,6 +71,16 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table: settings (การตั้งค่า)
+CREATE TABLE IF NOT EXISTS settings (
+    id SERIAL PRIMARY KEY,
+    setting_key VARCHAR(100) UNIQUE NOT NULL,
+    setting_value TEXT,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Table: broadcast_messages (ข้อความประกาศ)
 CREATE TABLE IF NOT EXISTS broadcast_messages (
     id SERIAL PRIMARY KEY,
@@ -96,17 +106,48 @@ CREATE INDEX IF NOT EXISTS idx_line_accounts_channel_id ON line_accounts(channel
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
-    display_name VARCHAR(255),    status VARCHAR(50) DEFAULT 'active',
+-- Insert demo data only if tables are empty
 
-    picture_url TEXT,    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+-- Insert demo LINE accounts
+INSERT INTO line_accounts (name, channel_id, channel_secret, access_token, status)
+VALUES 
+('KingChat Demo', 'demo_channel_id', 'demo_channel_secret', 'demo_access_token', 'active'),
+('Test Account', 'test_channel_id', 'test_channel_secret', 'test_access_token', 'inactive')
+ON CONFLICT (channel_id) DO NOTHING;
 
-    phone_number VARCHAR(20),    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+-- Insert demo users
+INSERT INTO users (username, email, password, display_name, role, is_active)
+VALUES 
+('demo_user', 'demo@kingchat.com', '$2b$10$demo_hashed_password', 'Demo User', 'user', true),
+('manager', 'manager@kingchat.com', '$2b$10$manager_hashed_password', 'Manager', 'manager', true)
+ON CONFLICT (username) DO NOTHING;
 
-    notes TEXT,    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Insert demo quick messages
+INSERT INTO quick_messages (title, content, category, is_active)
+VALUES 
+('สวัสดี', 'สวัสดีครับ/ค่ะ ยินดีให้บริการ', 'greeting', true),
+('ขอบคุณ', 'ขอบคุณมากครับ/ค่ะ', 'thanks', true),
+('รอสักครู่', 'กรุณารอสักครู่นะครับ/ค่ะ กำลังตรวจสอบให้', 'wait', true),
+('ช่วยได้อีกไหม', 'มีอะไรให้ช่วยเหลืออีกไหมครับ/ค่ะ', 'help', true)
+ON CONFLICT DO NOTHING;
 
-    line_account_id INTEGER REFERENCES line_accounts(id) ON DELETE SET NULL,);
+-- Insert demo customers
+INSERT INTO customers (line_user_id, display_name, line_account_id, status)
+VALUES 
+('U1234567890', 'Melendez', 1, 'online'),
+('U2345678901', 'สถิการ', 1, 'offline'),
+('U3456789012', 'ลูกค้าไฟ', 1, 'inactive'),
+('U4567890123', 'คุณแม่ใจ', 1, 'online')
+ON CONFLICT (line_user_id) DO NOTHING;
 
-    status VARCHAR(50) DEFAULT 'active',
+-- Insert demo settings
+INSERT INTO settings (setting_key, setting_value, description)
+VALUES 
+('site_name', 'KingChat', 'ชื่อเว็บไซต์'),
+('welcome_message', 'ยินดีต้อนรับสู่ KingChat', 'ข้อความต้อนรับ'),
+('auto_reply', 'true', 'เปิดใช้การตอบอัตโนมัติ'),
+('notification_sound', 'true', 'เปิดใช้เสียงแจ้งเตือน')
+ON CONFLICT (setting_key) DO NOTHING;
 
     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,-- Table: chat_messages (ข้อความแชท)
 
