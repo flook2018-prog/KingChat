@@ -45,9 +45,10 @@ app.use('*', (req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`🚀 Debug server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 Server listening on 0.0.0.0:${PORT}`);
   console.log('📍 Available endpoints:');
   console.log('   GET / - Root test');
   console.log('   GET /api/health - Health check');

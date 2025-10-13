@@ -13,5 +13,5 @@ RUN ls -la && echo "Checking server-clean.js:" && ls -la server-clean.js
 
 EXPOSE $PORT
 
-# Start the debug server to test Railway routing
-CMD echo "Starting debug server for Railway testing..." && ls -la && node --version && npm --version && node debug-server.js
+# Start the clean server with proper API routes
+CMD echo "Starting KingChat with server-clean.js..." && ls -la && node --version && npm --version && node server-clean.js
