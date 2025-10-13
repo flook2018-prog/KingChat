@@ -501,6 +501,37 @@
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
+        /* Loading Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        body.dark-mode .loading-text {
+            color: #aaa;
+        }
+
         .btn-secondary {
             background: #6c757d;
             color: white;
@@ -704,19 +735,33 @@
     </div>
 
     <script>
+        // Error handling wrapper
+        function safeExecute(fn, context = 'Unknown') {
+            try {
+                return fn();
+            } catch (error) {
+                console.error(`Error in ${context}:`, error);
+                return null;
+            }
+        }
+
         // Global theme toggle function
         function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            safeExecute(() => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            }, 'toggleTheme');
         }
 
         // Load saved theme
         function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
+            safeExecute(() => {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                }
+            }, 'loadTheme');
         }
 
         // Rank system configuration
@@ -771,6 +816,25 @@
             `;
         }
 
+        // Utility functions
+        function showLoadingSpinner() {
+            safeExecute(() => {
+                const table = document.querySelector('#adminTable');
+                if (table) {
+                    table.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            <p style="margin-top: 16px; color: #666;">กำลังโหลดข้อมูล...</p>
+                        </div>
+                    `;
+                }
+            }, 'showLoadingSpinner');
+        }
+
+        function hideLoadingSpinner() {
+            // Loading will be hidden when data is loaded
+        }
+
         // API Configuration
         const API_BASE_URL = window.location.origin + '/api';
         
@@ -779,7 +843,7 @@
 
         // Load admins from API
         async function loadAdmins() {
-            try {
+            return safeExecute(async () => {
                 showLoadingSpinner();
                 const response = await fetch(`${API_BASE_URL}/admin`);
                 
@@ -791,7 +855,7 @@
                 displayAdmins(admins);
                 hideLoadingSpinner();
                 showSuccessMessage('✅ โหลดข้อมูลแอดมินจาก Database สำเร็จ');
-            } catch (error) {
+            }, 'loadAdmins').catch(error => {
                 console.error('Error loading admins:', error);
                 hideLoadingSpinner();
                 showErrorMessage('❌ ไม่สามารถเชื่อมต่อ Database ได้: ' + error.message + '\n📞 กรุณาติดต่อผู้ดูแลระบบ');
@@ -802,7 +866,7 @@
                 
                 // Add API test button
                 addApiTestButton();
-            }
+            });
         }
 
         function displayAdmins(adminList) {
