@@ -739,15 +739,100 @@
     </div>
 
     <script>
-        // Global function declarations to fix ReferenceErrors
-        window.openAddModal = function() {
-            console.log('🔘 openAddModal called');
-            if (typeof openAddModalInternal === 'function') {
-                openAddModalInternal();
-            } else {
-                // Fallback implementation
-                const modal = document.getElementById('adminModal');
-                if (modal) {
+        // Global functions - declare immediately
+        function openAddModal() {
+            console.log('🔘 Opening add admin modal...');
+            alert('ฟีเจอร์เพิ่มแอดมินจะเปิดใช้งานเร็วๆ นี้!');
+        }
+
+        function testLoadAdmins() {
+            console.log('🧪 Testing admin API...');
+            
+            // Show loading message
+            const tbody = document.getElementById('adminTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">🔄 กำลังทดสอบ API...</td></tr>';
+            }
+            
+            // Test API
+            fetch('/api/admin')
+                .then(response => {
+                    console.log('📡 API Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ API Success:', data);
+                    displayAdmins(data);
+                    alert(`✅ API ทำงานได้! พบแอดมิน ${data.length} คน`);
+                })
+                .catch(error => {
+                    console.error('❌ API Error:', error);
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: red;">❌ ข้อผิดพลาด: ${error.message}</td></tr>`;
+                    }
+                    alert(`❌ API ไม่ทำงาน: ${error.message}`);
+                });
+        }
+
+        function displayAdmins(adminList) {
+            console.log('🎯 Displaying admins:', adminList);
+            
+            const tbody = document.getElementById('adminTableBody');
+            if (!tbody) {
+                console.error('❌ adminTableBody not found!');
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            
+            if (!adminList || adminList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">👥 ไม่พบข้อมูลแอดมิน</td></tr>';
+                return;
+            }
+            
+            adminList.forEach(admin => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 40px; height: 40px; background: #4F46E5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                ${(admin.fullName || admin.username || 'A').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">${admin.fullName || admin.username || 'Unknown'}</div>
+                                <div style="color: #6b7280; font-size: 12px;">@${admin.username || 'unknown'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span style="background: #4F46E5; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">${admin.role || 'admin'}</span></td>
+                    <td>${admin.points || 0} คะแนน</td>
+                    <td>${admin.messagesHandled || 0} ข้อความ</td>
+                    <td>
+                        <button onclick="alert('ฟีเจอร์แก้ไขยังไม่พร้อม')" style="padding: 4px 8px; background: #3B82F6; color: white; border: none; border-radius: 4px; margin-right: 5px;">แก้ไข</button>
+                        <button onclick="alert('ฟีเจอร์ลบยังไม่พร้อม')" style="padding: 4px 8px; background: #EF4444; color: white; border: none; border-radius: 4px;">ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            console.log(`✅ Successfully displayed ${adminList.length} admins`);
+        }
+
+        // Auto-load admins when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Page loaded, testing admin API...');
+            
+            // Initialize menu
+            if (typeof KingChatMenu !== 'undefined') {
+                new KingChatMenu('.kingchat-menu');
+            }
+            
+            // Auto-test API after delay
+            setTimeout(testLoadAdmins, 2000);
+        });
                     modal.style.display = 'block';
                     document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';
                     document.getElementById('adminForm')?.reset();
