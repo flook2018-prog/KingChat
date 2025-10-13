@@ -4,49 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧪 API Test - KingChat</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: #4F46E5; text-align: center; }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        button {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        button:hover { background: #4338CA; }
+        .success { color: #059669; font-weight: 600; }
+        .error { color: #DC2626; font-weight: 600; }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result.success { background: #D1FAE5; border: 1px solid #059669; }
+        .result.error { background: #FEE2E2; border: 1px solid #DC2626; }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .admin-table th, .admin-table td {
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .admin-table th { background: #f3f4f6; font-weight: 600; }
+        input { padding: 8px; width: 200px; border: 1px solid #d1d5db; border-radius: 4px; }
+    </style>
 </head>
-<body style="font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto;">
-    <h1>🧪 KingChat API Tester</h1>
-    
-    <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-        <h3>🔐 Test Login API</h3>
-        <p><strong>Endpoint:</strong> /api/auth/login</p>
+<body>
+    <div class="container">
+        <h1>🧪 KingChat API Tester</h1>
         
-        <div style="margin: 10px 0;">
-            <label>Username:</label><br>
-            <input type="text" id="username" value="admin" style="padding: 8px; width: 200px;">
+        <div class="test-section">
+            <h3>🔗 1. ทดสอบการเชื่อมต่อ API</h3>
+            <button onclick="testConnection()">🌐 ทดสอบเชื่อมต่อ</button>
+            <div id="connectionResult"></div>
         </div>
-        
-        <div style="margin: 10px 0;">
-            <label>Password:</label><br>
-            <input type="password" id="password" value="admin123" style="padding: 8px; width: 200px;">
+
+        <div class="test-section">
+            <h3>❤️ 2. ทดสอบ Health API</h3>
+            <button onclick="testHealth()">💓 ทดสอบ Health</button>
+            <div id="healthResult"></div>
         </div>
-        
-        <button onclick="testLogin()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-            🔑 Test Login
-        </button>
-        
-        <div id="result" style="margin-top: 20px; padding: 15px; border-radius: 5px; display: none;"></div>
-    </div>
-    
-    <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-        <h3>🏥 Test Health Check</h3>
-        <button onclick="testHealth()" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-            ❤️ Check Server Health
-        </button>
-        
-        <div id="healthResult" style="margin-top: 20px; padding: 15px; border-radius: 5px; display: none;"></div>
+
+        <div class="test-section">
+            <h3>👥 3. ทดสอบ Admin API</h3>
+            <button onclick="testAdmin()">👨‍💼 ทดสอบ Admin API</button>
+            <div id="adminResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 4. ทดสอบ Login API</h3>
+            <div style="margin: 10px 0;">
+                <label>Username:</label><br>
+                <input type="text" id="username" value="admin">
+            </div>
+            <div style="margin: 10px 0;">
+                <label>Password:</label><br>
+                <input type="password" id="password" value="admin123">
+            </div>
+            <button onclick="testLogin()">🔑 ทดสอบ Login</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 5. แสดงข้อมูลแอดมิน</h3>
+            <div id="adminData"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 6. ข้อมูล Debug</h3>
+            <p><strong>Origin:</strong> <span id="origin"></span></p>
+            <p><strong>API Base URL:</strong> <span id="apiUrl"></span></p>
+            <p><strong>Current Time:</strong> <span id="currentTime"></span></p>
+        </div>
     </div>
 
     <script>
+        // Global variables
+        const API_BASE_URL = window.location.origin + '/api';
+        let adminData = [];
+
+        // Initialize debug info
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('origin').textContent = window.location.origin;
+            document.getElementById('apiUrl').textContent = API_BASE_URL;
+            document.getElementById('currentTime').textContent = new Date().toISOString();
+            
+            console.log('🚀 Admin API Tester loaded');
+            
+            // Auto test after 1 second
+            setTimeout(() => {
+                console.log('🔄 Starting auto-tests...');
+                testConnection();
+                setTimeout(testHealth, 1000);
+                setTimeout(testAdmin, 2000);
+            }, 1000);
+        });
+
+        // Helper function to show results
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+
+        // Test basic connection
+        async function testConnection() {
+            console.log('🔗 Testing connection...');
+            showResult('connectionResult', '🔄 กำลังทดสอบการเชื่อมต่อ...');
+            
+            try {
+                const response = await fetch('/');
+                const text = await response.text();
+                const statusCode = response.status;
+                
+                if (statusCode === 200) {
+                    showResult('connectionResult', `✅ เชื่อมต่อสำเร็จ!\nStatus: ${statusCode}\nResponse length: ${text.length} characters`);
+                } else {
+                    showResult('connectionResult', `⚠️ เชื่อมต่อได้แต่ status ไม่ปกติ: ${statusCode}`, false);
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ เชื่อมต่อไม่สำเร็จ: ${error.message}`, false);
+            }
+        }
+
+        // Test health API
+        async function testHealth() {
+            console.log('💓 Testing health API...');
+            showResult('healthResult', '🔄 กำลังทดสอบ Health API...');
+            
+            try {
+                const response = await fetch('/api/health');
+                console.log('Health response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('healthResult', `✅ Health API ทำงานได้!\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    const errorText = await response.text();
+                    showResult('healthResult', `❌ Health API Error: ${response.status}\n${errorText}`, false);
+                }
+            } catch (error) {
+                showResult('healthResult', `❌ Health API ไม่ทำงาน: ${error.message}`, false);
+            }
+        }
+
+        // Test admin API
+        async function testAdmin() {
+            console.log('👨‍💼 Testing admin API...');
+            showResult('adminResult', '🔄 กำลังทดสอบ Admin API...');
+            
+            try {
+                const response = await fetch('/api/admin');
+                console.log('Admin response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    adminData = data;
+                    console.log('Admin data received:', data);
+                    
+                    showResult('adminResult', `✅ Admin API ทำงานได้!\nจำนวนแอดมิน: ${data.length} คน\n${JSON.stringify(data, null, 2)}`);
+                    displayAdminTable(data);
+                } else {
+                    const errorText = await response.text();
+                    showResult('adminResult', `❌ Admin API Error: ${response.status}\n${errorText}`, false);
+                }
+            } catch (error) {
+                showResult('adminResult', `❌ Admin API ไม่ทำงาน: ${error.message}`, false);
+            }
+        }
+
+        // Display admin data in table
+        function displayAdminTable(admins) {
+            const container = document.getElementById('adminData');
+            
+            if (!admins || admins.length === 0) {
+                container.innerHTML = '<p class="error">❌ ไม่พบข้อมูลแอดมิน</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <h4>📊 รายชื่อแอดมิน (${admins.length} คน)</h4>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ชื่อเต็ม</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>คะแนน</th>
+                            <th>ข้อความ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            admins.forEach(admin => {
+                tableHTML += `
+                    <tr>
+                        <td>${admin.id || 'N/A'}</td>
+                        <td>${admin.fullName || admin.displayName || 'N/A'}</td>
+                        <td>@${admin.username || 'N/A'}</td>
+                        <td><span style="background: #4F46E5; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${admin.role || 'admin'}</span></td>
+                        <td>${admin.points || 0}</td>
+                        <td>${admin.messagesHandled || 0}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
         async function testLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const resultDiv = document.getElementById('result');
-            
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '⏳ Testing login...';
-            resultDiv.style.background = '#fff3cd';
+            showResult('loginResult', '🔄 กำลังทดสอบ Login API...');
             
             try {
                 console.log('🧪 Testing login API...');
@@ -62,63 +273,21 @@
                 });
                 
                 console.log('📡 Response status:', response.status);
-                console.log('📡 Response headers:', [...response.headers.entries()]);
-                
-                const data = await response.json();
-                console.log('📦 Response data:', data);
                 
                 if (response.ok) {
-                    resultDiv.innerHTML = `
-                        <h4>✅ Login Success!</h4>
-                        <p><strong>Status:</strong> ${response.status}</p>
-                        <p><strong>Token:</strong> ${data.token ? 'Present' : 'Missing'}</p>
-                        <p><strong>User:</strong> ${data.user?.username || 'N/A'}</p>
-                        <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
-                    `;
-                    resultDiv.style.background = '#d4edda';
+                    const data = await response.json();
+                    showResult('loginResult', `✅ Login สำเร็จ!\n${JSON.stringify(data, null, 2)}`);
                 } else {
-                    resultDiv.innerHTML = `
-                        <h4>❌ Login Failed</h4>
-                        <p><strong>Status:</strong> ${response.status}</p>
-                        <p><strong>Error:</strong> ${data.error || data.message || 'Unknown error'}</p>
-                        <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
-                    `;
-                    resultDiv.style.background = '#f8d7da';
+                    const errorText = await response.text();
+                    showResult('loginResult', `❌ Login Error: ${response.status}\n${errorText}`, false);
                 }
-                
             } catch (error) {
-                console.error('🚨 Login test error:', error);
-                resultDiv.innerHTML = `
-                    <h4>🚨 Network Error</h4>
-                    <p><strong>Error:</strong> ${error.message}</p>
-                    <p>This usually means the API endpoint doesn't exist or server is down.</p>
-                `;
-                resultDiv.style.background = '#f8d7da';
+                showResult('loginResult', `❌ Login ไม่ทำงาน: ${error.message}`, false);
             }
         }
-        
-        async function testHealth() {
-            const resultDiv = document.getElementById('healthResult');
-            
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '⏳ Checking server health...';
-            resultDiv.style.background = '#fff3cd';
-            
-            try {
-                const response = await fetch('/api/health');
-                const data = await response.json();
-                
-                if (response.ok) {
-                    resultDiv.innerHTML = `
-                        <h4>✅ Server Healthy!</h4>
-                        <p><strong>Status:</strong> ${response.status}</p>
-                        <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
-                    `;
-                    resultDiv.style.background = '#d4edda';
-                } else {
-                    resultDiv.innerHTML = `
-                        <h4>⚠️ Server Issues</h4>
-                        <p><strong>Status:</strong> ${response.status}</p>
+    </script>
+</body>
+</html>
                         <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
                     `;
                     resultDiv.style.background = '#fff3cd';
