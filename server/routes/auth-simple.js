@@ -129,7 +129,9 @@ router.post('/login', async (req, res) => {
 
     console.log('✅ Login successful for:', username);
 
+    // Return successful response with all required fields for frontend
     res.json({
+      success: true,
       message: 'Login successful',
       token,
       user: {
@@ -138,7 +140,9 @@ router.post('/login', async (req, res) => {
         email: user.email,
         displayName: user.displayName,
         role: user.role
-      }
+      },
+      timestamp: new Date().toISOString(),
+      database_connected: true
     });
 
   } catch (error) {
