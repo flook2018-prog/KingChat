@@ -7,6 +7,6 @@
     "numReplicas": 1,
     "sleepApplication": false,
     "restartPolicyType": "ON_FAILURE",
-    "startCommand": "node server-simple.js"
+    "startCommand": "cd server && node server-clean.js"
   }
 }
