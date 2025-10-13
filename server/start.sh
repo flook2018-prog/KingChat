@@ -5,4 +5,4 @@ echo "📋 Files in directory:"
 ls -la
 
 echo "🔧 Starting Node.js server..."
-node server-simple.js
+node server-clean.js
