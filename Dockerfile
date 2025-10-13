@@ -13,5 +13,5 @@ RUN ls -la && echo "Checking server-clean.js:" && ls -la server-clean.js
 
 EXPOSE $PORT
 
-# Start the clean server with proper API routes
-CMD echo "Starting KingChat with server-clean.js..." && ls -la && node --version && npm --version && node server-clean.js
+# Start the test server to verify routing
+CMD echo "Starting KingChat with server-test.js..." && ls -la && node --version && npm --version && node server-test.js
