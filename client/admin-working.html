@@ -676,6 +676,10 @@
                     <span>➕</span>
                     เพิ่มแอดมินใหม่
                 </button>
+                <button class="add-admin-btn" onclick="testLoadAdmins()" style="background: #28a745; margin-left: 10px;">
+                    <span>🔄</span>
+                    ทดสอบโหลดข้อมูล
+                </button>
             </div>
             <table class="admin-table">
                 <thead>
@@ -735,6 +739,30 @@
     </div>
 
     <script>
+        // Global function declarations to fix ReferenceErrors
+        window.openAddModal = function() {
+            console.log('🔘 openAddModal called');
+            if (typeof openAddModalInternal === 'function') {
+                openAddModalInternal();
+            } else {
+                // Fallback implementation
+                const modal = document.getElementById('adminModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';
+                    document.getElementById('adminForm')?.reset();
+                }
+            }
+        };
+
+        window.closeModal = function() {
+            console.log('🔘 closeModal called');
+            const modal = document.getElementById('adminModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        };
+
         // Error handling wrapper
         function safeExecute(fn, context = 'Unknown') {
             try {
@@ -833,6 +861,37 @@
 
         function hideLoadingSpinner() {
             // Loading will be hidden when data is loaded
+        }
+
+        // Test function สำหรับ debug
+        async function testLoadAdmins() {
+            console.log('🧪 Manual test loading admins...');
+            
+            try {
+                const response = await fetch('/api/admin');
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📊 API Data received:', data);
+                
+                // Force clear table first
+                const tbody = document.getElementById('adminTableBody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">กำลังโหลด...</td></tr>';
+                    
+                    // Manual display with timeout
+                    setTimeout(() => {
+                        console.log('🎯 Manual displayAdmins call...');
+                        displayAdmins(data);
+                    }, 1000);
+                } else {
+                    console.error('❌ Table body not found!');
+                }
+                
+            } catch (error) {
+                console.error('❌ Test failed:', error);
+                alert('ทดสอบไม่สำเร็จ: ' + error.message);
+            }
         }
 
         // API Configuration
@@ -995,25 +1054,34 @@
 
         // Display admins in table
         function displayAdmins(adminList) {
-            console.log('🎯 displayAdmins called with:', adminList.length, 'admins');
+            console.log('🎯 displayAdmins called with:', adminList?.length || 0, 'admins');
+            console.log('📊 Admin data:', adminList);
             
             const tbody = document.getElementById('adminTableBody');
             if (!tbody) {
-                console.error('❌ adminTableBody not found!');
+                console.error('❌ adminTableBody element not found!');
+                // Try alternative selectors
+                const altTbody = document.querySelector('tbody') || document.querySelector('#adminTable tbody');
+                if (altTbody) {
+                    console.log('✅ Found alternative tbody element');
+                    altTbody.id = 'adminTableBody'; // Set the ID
+                    return displayAdmins(adminList); // Retry
+                }
                 return;
             }
             
             console.log('✅ Found adminTableBody element');
             tbody.innerHTML = '';
 
-            if (adminList.length === 0) {
+            if (!adminList || adminList.length === 0) {
                 console.log('⚠️ No admins to display, showing empty state');
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
                             <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
-                            <h3>ยังไม่มีข้อมูลแอดมิน</h3>
-                            <p>คลิกปุ่ม "เพิ่มแอดมินใหม่" เพื่อเริ่มต้น</p>
+                            <h3>ไม่พบข้อมูลแอดมิน</h3>
+                            <p>กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
+                            <button onclick="loadAdmins()" style="margin-top: 15px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 โหลดข้อมูลใหม่</button>
                         </td>
                     </tr>
                 `;
@@ -1022,13 +1090,22 @@
 
             console.log('🔄 Creating admin rows...');
             adminList.forEach((admin, index) => {
-                console.log(`👤 Creating row for admin ${index + 1}:`, admin.username);
-                const row = createAdminRow(admin);
-                row.style.animationDelay = `${index * 0.1}s`;
-                tbody.appendChild(row);
+                console.log(`👤 Creating row ${index + 1} for:`, admin.username, admin.fullName);
+                try {
+                    const row = createAdminRow(admin);
+                    if (row) {
+                        row.style.animationDelay = `${index * 0.1}s`;
+                        tbody.appendChild(row);
+                        console.log(`✅ Row ${index + 1} added successfully`);
+                    } else {
+                        console.error(`❌ Failed to create row ${index + 1}`);
+                    }
+                } catch (rowError) {
+                    console.error(`❌ Error creating row ${index + 1}:`, rowError);
+                }
             });
             
-            console.log('✅ All admin rows created successfully');
+            console.log(`✅ Completed creating ${adminList.length} admin rows`);
         }
 
         // Show loading spinner
@@ -1135,7 +1212,7 @@
 
         let currentEditId = null;
 
-        function openAddModal() {
+        function openAddModalInternal() {
             currentEditId = null;
             document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';
             document.getElementById('adminForm').reset();
