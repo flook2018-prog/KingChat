@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     message_text TEXT,
     image_url TEXT,
     sticker_id VARCHAR(100),
-    sender VARCHAR(50) NOT NULL, -- 'customer' or 'admin'
+    sender VARCHAR(50) NOT NULL,
     is_read BOOLEAN DEFAULT false,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     display_name VARCHAR(255),
     role VARCHAR(50) DEFAULT 'user',
-    permissions TEXT, -- JSON string
+    permissions TEXT,
     is_active BOOLEAN DEFAULT true,
     last_login TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -87,10 +87,10 @@ CREATE TABLE IF NOT EXISTS broadcast_messages (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     line_account_id INTEGER REFERENCES line_accounts(id) ON DELETE CASCADE,
-    target_audience VARCHAR(100) DEFAULT 'all', -- all, active, inactive
+    target_audience VARCHAR(100) DEFAULT 'all',
     scheduled_time TIMESTAMP,
     sent_time TIMESTAMP,
-    status VARCHAR(50) DEFAULT 'draft', -- draft, scheduled, sent, failed
+    status VARCHAR(50) DEFAULT 'draft',
     sent_count INTEGER DEFAULT 0,
     created_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -148,16 +148,6 @@ VALUES
 ('auto_reply', 'true', 'เปิดใช้การตอบอัตโนมัติ'),
 ('notification_sound', 'true', 'เปิดใช้เสียงแจ้งเตือน')
 ON CONFLICT (setting_key) DO NOTHING;
-
-    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,-- Table: chat_messages (ข้อความแชท)
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,CREATE TABLE IF NOT EXISTS chat_messages (
-
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP    id SERIAL PRIMARY KEY,
-
-);    customer_id INTEGER REFERENCES customers(id),
-
-    line_account_id INTEGER REFERENCES line_accounts(id),
 
 -- Table: chat_messages (ข้อความ) - Fixed to use INTEGER for customer_id    message_type VARCHAR(50) NOT NULL, -- text, image, sticker, etc.
 
