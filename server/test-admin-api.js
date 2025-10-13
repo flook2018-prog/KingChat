@@ -1,5 +1,5 @@
 // Quick Admin API Test
-const fetch = require('node-fetch');
+// Using built-in fetch (Node.js 18+)
 
 async function testAdminAPI() {
   console.log('🧪 Testing Admin API...');

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+    <script src="js/menu.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* Admin Content */
+        .admin-content {
+            margin-left: 260px;
+            margin-top: 80px;
+            padding: 40px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode .page-header {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            color: #4F46E5;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        body.dark-mode .page-header h1 {
+            color: #818CF8;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Admin Management Section */
+        .admin-management {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        body.dark-mode .admin-management {
+            background: #2d2d2d;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        body.dark-mode .section-header {
+            border-bottom-color: #374151;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        body.dark-mode .section-title {
+            color: white;
+        }
+
+        .add-admin-btn {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Admin Table */
+        .admin-table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode .admin-table-container {
+            background: #2d2d2d;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        body.dark-mode .admin-table th,
+        body.dark-mode .admin-table td {
+            border-bottom-color: #374151;
+        }
+
+        .admin-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        body.dark-mode .admin-table th {
+            background: #1f2937;
+            color: #d1d5db;
+        }
+
+        .admin-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .admin-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        body.dark-mode .admin-table tbody tr:hover {
+            background: #374151;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2563EB;
+        }
+
+        .btn-delete {
+            background: #EF4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #DC2626;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4F46E5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error and Success Messages */
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .message.success {
+            background: #10B981;
+            color: white;
+        }
+
+        .message.error {
+            background: #EF4444;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        body.dark-mode .modal-content {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        body.dark-mode .close:hover {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        body.dark-mode .form-group label {
+            color: #d1d5db;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group select {
+            background: #374151;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4F46E5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338CA;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        /* Test Button */
+        .test-btn {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .test-btn:hover {
+            background: #047857;
+        }
+    </style>
+</head>
+<body>
+    <div class="kingchat-menu"></div>
+
+    <div class="admin-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <span>👨‍💼</span>
+                จัดการแอดมิน
+            </h1>
+            <p>จัดการผู้ใช้งานระบบและกำหนดสิทธิการเข้าถึง KingChat แบบ ROV</p>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>กำลังโหลดข้อมูล...</p>
+        </div>
+
+        <!-- Messages -->
+        <div id="successMessage" class="message success"></div>
+        <div id="errorMessage" class="message error"></div>
+
+        <!-- Admin Management Section -->
+        <div class="admin-management">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>👥</span>
+                    รายชื่อแอดมิน
+                </h2>
+                <div>
+                    <button class="add-admin-btn" onclick="openAddModal()">
+                        <span>➕</span>
+                        เพิ่มแอดมินใหม่
+                    </button>
+                    <button class="test-btn" onclick="testLoadAdmins()">
+                        🔄 ทดสอบโหลดข้อมูล
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อแอดมิน</th>
+                            <th>ระดับ</th>
+                            <th>คะแนน</th>
+                            <th>ความเก่ง</th>
+                            <th>การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <!-- Loading placeholder -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">⏳</div>
+                                <h3>กำลังโหลดข้อมูลแอดมิน...</h3>
+                                <p>กำลังเชื่อมต่อฐานข้อมูล</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div id="addAdminModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>เพิ่มแอดมินใหม่</h2>
+            <form id="addAdminForm">
+                <div class="form-group">
+                    <label for="fullName">ชื่อเต็ม</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="username">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">อีเมล</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">บทบาท</label>
+                    <select id="role" name="role">
+                        <option value="admin">Admin</option>
+                        <option value="moderator">Moderator</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn-primary">เพิ่มแอดมิน</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = window.location.origin + '/api';
+        console.log('🔗 API Base URL:', API_BASE_URL);
+
+        // Admin data storage
+        let admins = [];
+
+        // Global function declarations for modal handling
+        window.openAddModal = function() {
+            console.log('🎯 Opening add modal...');
+            document.getElementById('addAdminModal').style.display = 'block';
+        };
+
+        window.closeModal = function() {
+            console.log('🎯 Closing modal...');
+            document.getElementById('addAdminModal').style.display = 'none';
+            document.getElementById('addAdminForm').reset();
+        };
+
+        // Enhanced test function
+        async function testLoadAdmins() {
+            console.log('🧪 === STARTING ADMIN API TEST ===');
+            
+            try {
+                showLoadingSpinner();
+                
+                // Test API URL construction
+                const apiUrl = `${API_BASE_URL}/admin`;
+                console.log('🔗 Testing API URL:', apiUrl);
+                
+                // Test fetch request with detailed logging
+                console.log('📡 Sending API request...');
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('📡 Response received:');
+                console.log('   Status:', response.status);
+                console.log('   StatusText:', response.statusText);
+                console.log('   OK:', response.ok);
+                
+                if (response.ok) {
+                    const adminData = await response.json();
+                    console.log('✅ API Success!');
+                    console.log('📊 Admin data:', adminData);
+                    console.log('📊 Admin count:', adminData?.length || 0);
+                    
+                    // Update global admins
+                    admins = adminData;
+                    
+                    // Force display
+                    displayAdmins(adminData);
+                    hideLoadingSpinner();
+                    
+                    showSuccessMessage(`✅ ทดสอบสำเร็จ! โหลดข้อมูลแอดมิน ${adminData.length} คน`);
+                    
+                } else {
+                    console.error('❌ API Error:', response.status);
+                    const errorText = await response.text();
+                    console.error('❌ Error details:', errorText);
+                    
+                    hideLoadingSpinner();
+                    showErrorMessage(`❌ API Error: ${response.status} - ${errorText}`);
+                }
+                
+            } catch (error) {
+                console.error('💥 Test failed:', error);
+                hideLoadingSpinner();
+                showErrorMessage(`💥 การทดสอบล้มเหลว: ${error.message}`);
+            }
+            
+            console.log('🧪 === ADMIN API TEST COMPLETED ===');
+        }
+
+        // Load admins from API
+        async function loadAdmins() {
+            console.log('🔄 Loading admins from API...');
+            
+            try {
+                showLoadingSpinner();
+                
+                const response = await fetch(`${API_BASE_URL}/admin`);
+                console.log('📡 API Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const adminData = await response.json();
+                console.log('📊 Loaded admins:', adminData.length, 'records');
+                
+                admins = adminData;
+                displayAdmins(admins);
+                hideLoadingSpinner();
+                
+            } catch (error) {
+                console.error('❌ Error loading admins:', error);
+                hideLoadingSpinner();
+                
+                // Show empty state with error
+                const tbody = document.getElementById('adminTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #ef4444;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                                <h3>ไม่สามารถโหลดข้อมูลได้</h3>
+                                <p>ข้อผิดพลาด: ${error.message}</p>
+                                <button onclick="testLoadAdmins()" style="margin-top: 15px; padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 ลองใหม่</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        // Display admins in table
+        function displayAdmins(adminList) {
+            console.log('🎯 Displaying admins:', adminList?.length || 0);
+            
+            const tbody = document.getElementById('adminTableBody');
+            if (!tbody) {
+                console.error('❌ adminTableBody element not found!');
+                return;
+            }
+            
+            // Clear table
+            tbody.innerHTML = '';
+            
+            if (!adminList || adminList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                            <h3>ไม่พบข้อมูลแอดมิน</h3>
+                            <p>ยังไม่มีแอดมินในระบบ</p>
+                            <button onclick="testLoadAdmins()" style="margin-top: 15px; padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 ทดสอบโหลดข้อมูล</button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Create rows for each admin
+            adminList.forEach((admin, index) => {
+                const row = createAdminRow(admin);
+                tbody.appendChild(row);
+                console.log(`✅ Added admin row ${index + 1}: ${admin.username}`);
+            });
+            
+            console.log(`✅ Successfully displayed ${adminList.length} admins`);
+        }
+
+        // Create admin table row
+        function createAdminRow(admin) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #4F46E5, #7C3AED); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                            ${(admin.fullName || admin.username).charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">${admin.fullName || admin.username}</div>
+                            <div style="color: #6b7280; font-size: 12px;">@${admin.username}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span style="background: ${admin.role === 'admin' ? '#4F46E5' : '#059669'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                        ${admin.role || 'admin'}
+                    </span>
+                </td>
+                <td>${admin.points || 0} คะแนน</td>
+                <td>${admin.messagesHandled || 0} ข้อความ</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-edit" onclick="editAdmin(${admin.id})">แก้ไข</button>
+                        <button class="btn-delete" onclick="deleteAdmin(${admin.id})">ลบ</button>
+                    </div>
+                </td>
+            `;
+            return row;
+        }
+
+        // Utility functions
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        function showSuccessMessage(message) {
+            const element = document.getElementById('successMessage');
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 5000);
+        }
+
+        function showErrorMessage(message) {
+            const element = document.getElementById('errorMessage');
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 5000);
+        }
+
+        // Placeholder functions for CRUD operations
+        function editAdmin(id) {
+            console.log('Edit admin:', id);
+            showErrorMessage('ฟีเจอร์แก้ไขยังไม่พร้อมใช้งาน');
+        }
+
+        function deleteAdmin(id) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบแอดมินนี้?')) {
+                console.log('Delete admin:', id);
+                showErrorMessage('ฟีเจอร์ลบยังไม่พร้อมใช้งาน');
+            }
+        }
+
+        // Form handling
+        document.getElementById('addAdminForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Adding new admin...');
+            showErrorMessage('ฟีเจอร์เพิ่มแอดมินยังไม่พร้อมใช้งาน');
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Admin page loaded');
+            console.log('🔗 API Base URL:', API_BASE_URL);
+            
+            // Initialize KingChat menu
+            if (typeof KingChatMenu !== 'undefined') {
+                new KingChatMenu('.kingchat-menu');
+            }
+            
+            // Auto-load admins after a short delay
+            setTimeout(() => {
+                console.log('⏰ Auto-loading admins...');
+                loadAdmins();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
