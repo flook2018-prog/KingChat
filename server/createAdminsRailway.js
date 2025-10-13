@@ -1,8 +1,14 @@
 const bcrypt = require('bcrypt');
 
 async function createAdminsOnRailway() {
-  try {
-    const { Admin } = require('./models/postgresql');
+      console.log('🔐 LOGIN CREDENTIALS:');
+    console.log('====================');
+    console.log('Username: admin       | Password: admin123     | Role: Super Admin');
+    console.log('Username: somchai     | Password: somchai123   | Role: Admin');
+    console.log('Username: supha       | Password: supha123     | Role: Admin');
+    console.log('Username: vichai      | Password: vichai123    | Role: Admin');
+    console.log('Username: supha_admin | Password: password123  | Role: Admin');
+    console.log('====================');    const { Admin } = require('./models/postgresql');
     
     console.log('🏗️ Creating default admin users for Railway...');
     
@@ -37,6 +43,14 @@ async function createAdminsOnRailway() {
         username: 'vichai',
         email: 'vichai@kingchat.com',
         password: 'vichai123',
+        role: 'admin',
+        permissions: ['admin']
+      },
+      {
+        displayName: 'สุภา ผู้ดูแล',
+        username: 'supha_admin',
+        email: 'supha_admin@kingchat.com',
+        password: 'password123',
         role: 'admin',
         permissions: ['admin']
       }
