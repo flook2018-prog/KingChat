@@ -313,18 +313,82 @@ const io = socketIO(server, {
   cors: corsOptions
 });
 
-// Load API routes BEFORE fallback handlers
-async function initializeApiRoutes() {
-  try {
-    await loadApiRoutes();
-    console.log('🎯 API routes initialized before fallback handlers');
-  } catch (error) {
-    console.error('❌ Failed to initialize API routes:', error);
-  }
-}
+// Load API routes SYNCHRONOUSLY before fallback handlers
+console.log('🎯 Loading API routes synchronously...');
 
-// Initialize API routes immediately
-initializeApiRoutes();
+try {
+  // Initialize database first
+  console.log('🔧 Attempting to initialize database...');
+  try {
+    const { initializeDatabase } = require('./setupDatabase');
+    // Don't await - just start the process
+    initializeDatabase().catch(err => console.log('⚠️ Database init background error:', err.message));
+    console.log('✅ Database initialization started');
+  } catch (dbError) {
+    console.log('⚠️ Database initialization failed, continuing without it:', dbError.message);
+  }
+  
+  console.log('📡 Loading API routes...');
+  
+  // Load health check first (simplest)
+  const healthRoutes = require('./routes/health');
+  app.use('/api/health', healthRoutes);
+  console.log('✅ Health routes loaded');
+  
+  const authRoutes = require('./routes/auth-simple');
+  console.log('✅ Auth routes loaded');
+  
+  const adminRoutes = require('./routes/admin');
+  console.log('✅ Admin routes loaded (PostgreSQL)');
+  
+  const lineOARoutes = require('./routes/lineoa');
+  console.log('✅ LineOA routes loaded');
+  
+  const customerRoutes = require('./routes/customers');
+  console.log('✅ Customer routes loaded');
+  
+  const messageRoutes = require('./routes/messages');
+  console.log('✅ Message routes loaded');
+  
+  const settingsRoutes = require('./routes/settings');
+  console.log('✅ Settings routes loaded');
+  
+  // Mount all routes
+  app.use('/api/auth', authRoutes);
+  console.log('🔗 Auth routes mounted at /api/auth');
+  console.log('🔍 Auth routes stack:', authRoutes.stack?.map(layer => layer.route?.path) || 'No stack info');
+  
+  app.use('/api/admin', adminRoutes);
+  console.log('🔗 Admin routes mounted at /api/admin');
+  
+  app.use('/api/lineoa', lineOARoutes);
+  console.log('🔗 LineOA routes mounted at /api/lineoa');
+  
+  app.use('/api/customers', customerRoutes);
+  console.log('🔗 Customer routes mounted at /api/customers');
+  
+  app.use('/api/messages', messageRoutes);
+  console.log('🔗 Message routes mounted at /api/messages');
+  
+  app.use('/api/settings', settingsRoutes);
+  console.log('🔗 Settings routes mounted at /api/settings');
+  
+  console.log('✅ API routes loaded successfully');
+
+} catch (error) {
+  console.error('❌ Error loading API routes:', error.message);
+  console.log('⚠️  Some API routes may not be available');
+  console.log('📋 Stack trace:', error.stack);
+  
+  // Create fallback routes
+  const fallbackRouter = require('express').Router();
+  fallbackRouter.all('*', (req, res) => {
+    res.status(503).json({ error: 'API temporarily unavailable', details: error.message });
+  });
+  
+  app.use('/api/auth', fallbackRouter);
+  app.use('/api/admin', fallbackRouter);
+}
 
 // Global error handler
 app.use((err, req, res, next) => {
