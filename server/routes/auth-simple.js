@@ -1,5 +1,20 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
+
+// Try different bcrypt packages for Railway compatibility
+let bcrypt;
+try {
+  bcrypt = require('bcrypt');
+  console.log('✅ Using bcrypt package');
+} catch (error) {
+  try {
+    bcrypt = require('bcryptjs');
+    console.log('⚠️ Fallback to bcryptjs package');
+  } catch (fallbackError) {
+    console.error('❌ No bcrypt package available');
+    throw new Error('bcrypt package not found');
+  }
+}
+
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
@@ -8,10 +23,17 @@ const router = express.Router();
 console.log('🔧 Loading auth-simple.js routes...');
 
 // PostgreSQL connection using public URL for Railway compatibility
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@ballast.proxy.rlwy.net:38432/railway',
-  ssl: false
-});
+let pool;
+try {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@ballast.proxy.rlwy.net:38432/railway',
+    ssl: false
+  });
+  console.log('✅ PostgreSQL pool created for auth routes');
+} catch (error) {
+  console.error('❌ Failed to create PostgreSQL pool:', error.message);
+  throw error;
+}
 
 // Test database connection immediately
 pool.query('SELECT NOW()', (err, result) => {
@@ -23,6 +45,17 @@ pool.query('SELECT NOW()', (err, result) => {
 });
 
 console.log('✅ Auth routes: router created and pool configured');
+
+// Simple test route
+router.get('/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Auth routes are working!',
+    timestamp: new Date().toISOString(),
+    bcrypt_available: !!bcrypt,
+    pool_available: !!pool
+  });
+});
 
 // Login endpoint
 router.post('/login', async (req, res) => {

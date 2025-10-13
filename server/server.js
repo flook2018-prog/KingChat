@@ -158,6 +158,22 @@ let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 try {
   authRoutes = require('./routes/auth-simple');
   console.log('✅ Auth routes loaded from auth-simple.js');
+} catch (error) {
+  console.error('❌ Failed to load auth-simple.js:', error.message);
+  console.error('❌ Stack trace:', error.stack);
+  
+  // Try fallback to old auth.js
+  try {
+    authRoutes = require('./routes/auth');
+    console.log('⚠️ Using fallback auth.js');
+  } catch (fallbackError) {
+    console.error('❌ Fallback auth.js also failed:', fallbackError.message);
+    authRoutes = require('express').Router();
+    authRoutes.all('*', (req, res) => {
+      res.status(503).json({ error: 'Auth routes not available', details: error.message });
+    });
+  }
+}
   
   // Load admin authentication routes
   try {
