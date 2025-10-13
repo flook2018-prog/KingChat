@@ -8,10 +8,10 @@ WORKDIR /app/server
 
 RUN npm install --production
 
-# Debug: List files and check server-simple.js exists
-RUN ls -la && echo "Checking server-simple.js:" && ls -la server-simple.js
+# Debug: List files and check server-clean.js exists
+RUN ls -la && echo "Checking server-clean.js:" && ls -la server-clean.js
 
 EXPOSE $PORT
 
-# Add some debug output
-CMD echo "Starting server..." && ls -la && node --version && npm --version && node server-simple.js
+# Start the clean server
+CMD echo "Starting KingChat with server-clean.js..." && ls -la && node --version && npm --version && node server-clean.js
