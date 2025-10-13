@@ -846,6 +846,7 @@
             try {
                 showLoadingSpinner();
                 console.log('🔄 Loading admins from API...');
+                console.log('🔗 API URL:', `${API_BASE_URL}/admin`);
                 
                 const response = await fetch(`${API_BASE_URL}/admin`);
                 console.log('📡 API Response status:', response.status);
@@ -854,18 +855,23 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                admins = await response.json();
-                console.log('📊 Loaded admins:', admins.length, 'records');
-                console.log('👥 Admin data:', admins);
+                const adminData = await response.json();
+                console.log('📊 Loaded admins:', adminData.length, 'records');
+                console.log('👥 Raw admin data:', adminData);
                 
-                displayAdmins(admins);
-                hideLoadingSpinner();
-                showSuccessMessage('✅ โหลดข้อมูลแอดมินจาก Database สำเร็จ');
+                admins = adminData;
+                
+                // Force call displayAdmins
+                setTimeout(() => {
+                    console.log('🎯 Calling displayAdmins...');
+                    displayAdmins(admins);
+                    hideLoadingSpinner();
+                    console.log('✅ Display admins completed');
+                }, 100);
                 
             } catch (error) {
                 console.error('❌ Error loading admins:', error);
                 hideLoadingSpinner();
-                showErrorMessage('❌ ไม่สามารถเชื่อมต่อ Database ได้: ' + error.message + '\n📞 กรุณาติดต่อผู้ดูแลระบบ');
                 
                 // Show empty state - no fallback data
                 admins = [];
@@ -989,10 +995,19 @@
 
         // Display admins in table
         function displayAdmins(adminList) {
+            console.log('🎯 displayAdmins called with:', adminList.length, 'admins');
+            
             const tbody = document.getElementById('adminTableBody');
+            if (!tbody) {
+                console.error('❌ adminTableBody not found!');
+                return;
+            }
+            
+            console.log('✅ Found adminTableBody element');
             tbody.innerHTML = '';
 
             if (adminList.length === 0) {
+                console.log('⚠️ No admins to display, showing empty state');
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
@@ -1005,11 +1020,15 @@
                 return;
             }
 
+            console.log('🔄 Creating admin rows...');
             adminList.forEach((admin, index) => {
+                console.log(`👤 Creating row for admin ${index + 1}:`, admin.username);
                 const row = createAdminRow(admin);
                 row.style.animationDelay = `${index * 0.1}s`;
                 tbody.appendChild(row);
             });
+            
+            console.log('✅ All admin rows created successfully');
         }
 
         // Show loading spinner
@@ -1289,11 +1308,29 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOMContentLoaded fired');
             loadTheme();
             // Create global instance for theme toggle compatibility
             window.KingChatMenuInstance = new KingChatMenu();
-            loadAdmins();
+            
+            // Load admins with delay to ensure DOM is ready
+            setTimeout(() => {
+                console.log('⏰ Starting loadAdmins after delay');
+                loadAdmins();
+            }, 500);
         });
+
+        // Fallback initialization if DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            console.log('📄 Document still loading, waiting for DOMContentLoaded');
+        } else {
+            console.log('📄 Document already loaded, initializing immediately');
+            setTimeout(() => {
+                loadTheme();
+                window.KingChatMenuInstance = new KingChatMenu();
+                loadAdmins();
+            }, 100);
+        }
     </script>
 </body>
 </html>
