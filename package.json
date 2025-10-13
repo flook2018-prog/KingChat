@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "KingChat LINE OA Customer Service Management System",
   "scripts": {
-    "start": "cd server && node server.js",
-    "dev": "cd server && node server.js",
+    "start": "cd server && node server-clean.js",
+    "dev": "cd server && node server-clean.js",
     "stop": "taskkill /F /IM node.exe",
-    "backend": "cd server && node server.js",
+    "backend": "cd server && node server-clean.js",
     "frontend": "cd client && node frontend-server.js",
     "restart": "npm run stop && npm run start"
   },
