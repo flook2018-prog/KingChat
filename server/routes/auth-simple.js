@@ -1,5 +1,5 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
@@ -30,10 +30,12 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user
+    console.log('🔍 Searching for user:', username);
     const result = await pool.query(
       'SELECT * FROM admins WHERE username = $1 OR email = $1',
       [username]
     );
+    console.log('📊 Query result count:', result.rows.length);
 
     if (result.rows.length === 0) {
       console.log('❌ User not found:', username);
@@ -41,13 +43,19 @@ router.post('/login', async (req, res) => {
     }
 
     const user = result.rows[0];
+    console.log('👤 Found user:', { id: user.id, username: user.username, email: user.email, isActive: user.isActive });
 
     if (!user.isActive) {
+      console.log('❌ Account deactivated:', username);
       return res.status(400).json({ error: 'Account deactivated' });
     }
 
     // Check password
+    console.log('🔐 Checking password for:', username);
+    console.log('🔒 Stored password hash (first 10 chars):', user.password?.substring(0, 10));
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('✅ Password match result:', isMatch);
+    
     if (!isMatch) {
       console.log('❌ Wrong password for:', username);
       return res.status(400).json({ error: 'Invalid credentials' });
