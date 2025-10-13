@@ -13,6 +13,15 @@ const pool = new Pool({
   ssl: false
 });
 
+// Test database connection immediately
+pool.query('SELECT NOW()', (err, result) => {
+  if (err) {
+    console.error('❌ Auth route database connection failed:', err.message);
+  } else {
+    console.log('✅ Auth route database connected successfully at:', result.rows[0].now);
+  }
+});
+
 console.log('✅ Auth routes: router created and pool configured');
 
 // Login endpoint
@@ -21,12 +30,20 @@ router.post('/login', async (req, res) => {
   console.log('📦 Request body:', req.body);
   
   try {
+    // Test database connection before proceeding
+    console.log('🔗 Testing database connection...');
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection OK');
+    
     console.log('🔐 Login attempt for:', req.body.username);
     const { username, password } = req.body;
 
     if (!username || !password) {
       console.log('❌ Missing username or password');
-      return res.status(400).json({ error: 'Username and password required' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Username and password required' 
+      });
     }
 
     // Find user
@@ -39,7 +56,10 @@ router.post('/login', async (req, res) => {
 
     if (result.rows.length === 0) {
       console.log('❌ User not found:', username);
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid credentials' 
+      });
     }
 
     const user = result.rows[0];
@@ -47,7 +67,10 @@ router.post('/login', async (req, res) => {
 
     if (!user.isActive) {
       console.log('❌ Account deactivated:', username);
-      return res.status(400).json({ error: 'Account deactivated' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Account deactivated' 
+      });
     }
 
     // Check password
@@ -58,7 +81,10 @@ router.post('/login', async (req, res) => {
     
     if (!isMatch) {
       console.log('❌ Wrong password for:', username);
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid credentials' 
+      });
     }
 
     // Generate token
@@ -83,8 +109,12 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Login error:', error);
+    console.error('❌ Error stack:', error.stack);
+    res.status(500).json({ 
+      success: false,
+      error: 'Server error: ' + error.message 
+    });
   }
 });
 
@@ -131,5 +161,26 @@ router.get('/health', (req, res) => {
 });
 
 console.log('✅ Auth routes defined: POST /login, GET /verify, GET /health');
+
+// Health check for auth routes
+router.get('/health', async (req, res) => {
+  try {
+    const dbTest = await pool.query('SELECT COUNT(*) as admin_count FROM admins');
+    res.json({ 
+      success: true,
+      status: 'Auth routes healthy',
+      database: 'connected',
+      admin_count: dbTest.rows[0].admin_count,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      status: 'Auth routes unhealthy',
+      database: 'disconnected',
+      error: error.message 
+    });
+  }
+});
 
 module.exports = router;
