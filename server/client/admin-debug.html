@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Admin Debug - KingChat</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .debug-panel { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; overflow-x: auto; }
+        .admin-card { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; background: #fff; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin System Debug Panel</h1>
+        <p>เครื่องมือตรวจสอบและแก้ไขปัญหาระบบแอดมิน</p>
+        
+        <div class="grid">
+            <div>
+                <h3>🚀 การทดสอบ</h3>
+                <button onclick="testAPI()">📡 ทดสอบ API</button>
+                <button onclick="testLocalStorage()" class="btn-warning">💾 ทดสอบ LocalStorage</button>
+                <button onclick="testCORS()" class="btn-success">🌐 ทดสอบ CORS</button>
+                <button onclick="simulateAdminLoad()" class="btn-success">👥 จำลองโหลดแอดมิน</button>
+                <button onclick="clearAll()" class="btn-danger">🗑️ ล้างทั้งหมด</button>
+            </div>
+            
+            <div>
+                <h3>🔗 ลิงก์ด่วน</h3>
+                <button onclick="openAdminPage()">📋 เปิดหน้าแอดมิน</button>
+                <button onclick="openAPITest()">🧪 เปิดหน้าทดสอบ API</button>
+                <button onclick="openConsole()" class="btn-warning">🔍 เปิด Console</button>
+                <button onclick="location.reload()" class="btn-warning">🔄 Reload หน้า</button>
+            </div>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div id="adminDisplay" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://kingchat.up.railway.app/api';
+        
+        function addResult(message, type = 'debug-panel') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function clearAll() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('adminDisplay').innerHTML = '';
+        }
+        
+        async function testAPI() {
+            addResult('🚀 เริ่มทดสอบ API...');
+            
+            try {
+                // Test 1: Basic connectivity
+                const response = await fetch(`${API_BASE_URL}/admin`);
+                addResult(`📡 Response Status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ API Success! Admin count: ${data.length}`, 'success');
+                    
+                    // Display the data
+                    displayAdmins(data);
+                    
+                    // Test individual admin properties
+                    if (data.length > 0) {
+                        const firstAdmin = data[0];
+                        addResult(`👤 First Admin Properties:`, 'debug-panel');
+                        addResult(`<div class="code">${JSON.stringify(firstAdmin, null, 2)}</div>`, 'debug-panel');
+                    }
+                    
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ API Error: ${errorText}`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testLocalStorage() {
+            addResult('💾 ทดสอบ LocalStorage...');
+            
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                
+                addResult(`✅ LocalStorage works: ${value}`, 'success');
+                
+                // Check existing data
+                const keys = Object.keys(localStorage);
+                addResult(`📊 LocalStorage Keys: ${keys.join(', ')}`, 'debug-panel');
+                
+            } catch (error) {
+                addResult(`❌ LocalStorage Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCORS() {
+            addResult('🌐 ทดสอบ CORS...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin`, {
+                    method: 'OPTIONS'
+                });
+                
+                addResult(`📡 CORS Response: ${response.status}`, 'debug-panel');
+                addResult(`🔒 Access-Control-Allow-Origin: ${response.headers.get('access-control-allow-origin')}`, 'debug-panel');
+                addResult(`🔒 Access-Control-Allow-Methods: ${response.headers.get('access-control-allow-methods')}`, 'debug-panel');
+                
+                if (response.ok) {
+                    addResult('✅ CORS configured correctly', 'success');
+                } else {
+                    addResult('⚠️ CORS may have issues', 'warning');
+                }
+                
+            } catch (error) {
+                addResult(`❌ CORS Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function simulateAdminLoad() {
+            addResult('👥 จำลองการโหลดแอดมิน...');
+            
+            const mockAdmins = [
+                {
+                    id: 1,
+                    fullName: 'Test Administrator',
+                    username: 'testadmin',
+                    role: 'super_admin',
+                    points: 5000,
+                    messagesHandled: 250
+                },
+                {
+                    id: 2,
+                    fullName: 'Support Agent',
+                    username: 'support',
+                    role: 'admin',
+                    points: 3000,
+                    messagesHandled: 150
+                }
+            ];
+            
+            addResult(`✅ Mock data created: ${mockAdmins.length} admins`, 'success');
+            displayAdmins(mockAdmins);
+        }
+        
+        function displayAdmins(adminList) {
+            const displayDiv = document.getElementById('adminDisplay');
+            
+            if (!adminList || adminList.length === 0) {
+                displayDiv.innerHTML = '<div class="error">ไม่มีข้อมูลแอดมิน</div>';
+                return;
+            }
+            
+            let html = `<h3>👥 ข้อมูลแอดมิน (${adminList.length} คน)</h3>`;
+            
+            adminList.forEach(admin => {
+                html += `
+                    <div class="admin-card">
+                        <h4>👤 ${admin.fullName} (@${admin.username})</h4>
+                        <p><strong>Role:</strong> ${admin.role}</p>
+                        <p><strong>Points:</strong> ${admin.points || 0}</p>
+                        <p><strong>Messages:</strong> ${admin.messagesHandled || 0}</p>
+                        <p><strong>ID:</strong> ${admin.id}</p>
+                    </div>
+                `;
+            });
+            
+            displayDiv.innerHTML = html;
+            addResult(`✅ แสดงข้อมูลแอดมิน ${adminList.length} คน`, 'success');
+        }
+        
+        function openAdminPage() {
+            window.open('https://kingchat.up.railway.app/admin-working.html', '_blank');
+        }
+        
+        function openAPITest() {
+            window.open('https://kingchat.up.railway.app/admin-api-test.html', '_blank');
+        }
+        
+        function openConsole() {
+            addResult('🔍 กด F12 เพื่อเปิด Developer Console', 'warning');
+            console.log('🔧 KingChat Debug Console Ready');
+            console.log('📡 API Base URL:', API_BASE_URL);
+            console.log('🌐 Current URL:', window.location.href);
+        }
+        
+        // Auto-run basic test on load
+        window.onload = function() {
+            addResult('📄 Debug panel loaded successfully', 'success');
+            addResult(`🔗 API URL: ${API_BASE_URL}`, 'debug-panel');
+            addResult('💡 เลือกการทดสอบจากปุ่มด้านบน', 'debug-panel');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Quick Admin Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .admin-card { 
+            border: 1px solid #ddd; 
+            margin: 10px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            background: #f9f9f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 10px 5px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .loading { color: #ffc107; }
+        #status { 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 5px; 
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Quick Admin API Test</h1>
+        <p>เครื่องมือทดสอบ API แอดมินแบบง่าย</p>
+        
+        <div>
+            <button onclick="testAPI()">🚀 ทดสอบ API</button>
+            <button onclick="clearResults()">🗑️ ล้าง</button>
+            <button onclick="location.href='/admin-working.html'">📋 กลับหน้าแอดมิน</button>
+        </div>
+        
+        <div id="status">พร้อมทดสอบ...</div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            updateStatus('พร้อมทดสอบ...');
+        }
+        
+        async function testAPI() {
+            updateStatus('🔄 กำลังทดสอบ API...', 'loading');
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h3>📊 ผลการทดสอบ:</h3>';
+            
+            try {
+                // Test API call
+                const response = await fetch('/api/admin');
+                
+                resultsDiv.innerHTML += `<p><strong>Response Status:</strong> ${response.status}</p>`;
+                resultsDiv.innerHTML += `<p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    updateStatus(`✅ API ทำงาน! พบแอดมิน ${data.length} คน`, 'success');
+                    
+                    resultsDiv.innerHTML += `<p><strong>จำนวนแอดมิน:</strong> ${data.length}</p>`;
+                    resultsDiv.innerHTML += '<h4>📋 รายชื่อแอดมิน:</h4>';
+                    
+                    if (data.length > 0) {
+                        data.forEach((admin, index) => {
+                            resultsDiv.innerHTML += `
+                                <div class="admin-card">
+                                    <div>
+                                        <strong>${admin.fullName || admin.username}</strong><br>
+                                        <small>@${admin.username} • ${admin.role} • ${admin.points} คะแนน</small>
+                                    </div>
+                                    <div>ID: ${admin.id}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        // Add copy to admin page button
+                        resultsDiv.innerHTML += `
+                            <div style="margin-top: 20px; text-align: center;">
+                                <button onclick="copyToAdminPage()" style="background: #28a745;">
+                                    ✅ ข้อมูลถูกต้อง - ไปหน้าแอดมิน
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        resultsDiv.innerHTML += '<p>⚠️ ไม่มีข้อมูลแอดมิน</p>';
+                    }
+                    
+                } else {
+                    const errorText = await response.text();
+                    updateStatus(`❌ API Error: ${response.status}`, 'error');
+                    resultsDiv.innerHTML += `<p class="error"><strong>Error:</strong> ${errorText}</p>`;
+                }
+                
+            } catch (error) {
+                updateStatus(`❌ Connection Error: ${error.message}`, 'error');
+                resultsDiv.innerHTML += `<p class="error"><strong>Network Error:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        function copyToAdminPage() {
+            if (confirm('ข้อมูล API ทำงานถูกต้อง! ต้องการไปหน้าแอดมินหรือไม่?')) {
+                window.location.href = '/admin-working.html';
+            }
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            setTimeout(testAPI, 1000);
+        };
+    </script>
+</body>
+</html>
