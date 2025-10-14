@@ -917,7 +917,7 @@
             console.log('🧪 Manual test loading admins...');
             
             try {
-                const response = await fetch('/api/admin');
+                const response = await fetch('https://kingchat.up.railway.app/api/admin');
                 console.log('📡 Response status:', response.status);
                 
                 const data = await response.json();
@@ -1610,94 +1610,27 @@
             }
         });
 
-        // Initialize page with immediate data display
+        // Initialize page - SIMPLIFIED VERSION
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOMContentLoaded fired');
+            console.log('🚀 Admin Working Page loaded');
             
-            // Initialize theme
+            // Initialize theme and menu
             loadTheme();
-            
-            // Create global instance for theme toggle compatibility
-            window.KingChatMenuInstance = new KingChatMenu();
-            
-            // Show loading state immediately
-            const tbody = document.getElementById('adminTableBody');
-            if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: #007bff;">
-                            <div style="font-size: 32px; margin-bottom: 15px;">🔄</div>
-                            <h4>กำลังโหลดข้อมูลแอดมิน...</h4>
-                            <p style="margin-top: 10px; color: #666;">โปรดรอสักครู่</p>
-                        </td>
-                    </tr>
-                `;
+            if (typeof KingChatMenu !== 'undefined') {
+                window.KingChatMenuInstance = new KingChatMenu();
+            } else {
+                console.warn('⚠️ KingChatMenu not available');
             }
             
-            // Force load admins immediately
-            console.log('⚡ Force loading admins immediately...');
-            setTimeout(() => {
-                forceShowRealData();
-            }, 500);
+            // Load admin data directly like admin-status.html
+            loadAdmins();
             
-            // Add debugging buttons
+            // Add API test button
             setTimeout(() => {
                 addApiTestButton();
             }, 1000);
-            
-            // Backup attempts with fallback data
-            setTimeout(() => {
-                console.log('⏰ Backup attempt 1 (3 seconds)');
-                if (admins.length === 0) {
-                    console.log('🔄 No admins loaded yet, showing fallback...');
-                    admins = createFallbackAdmins();
-                    displayAdmins(admins);
-                    showInfoMessage('💡 แสดงข้อมูลตัวอย่าง - กด "แสดงข้อมูลจริง" เพื่อโหลดจากฐานข้อมูล');
-                }
-            }, 3000);
-            
-            // Emergency check
-            setTimeout(() => {
-                console.log('🚨 Emergency check (7 seconds)');
-                const tbody = document.getElementById('adminTableBody');
-                if (tbody && (!tbody.children.length || tbody.children.length === 1)) {
-                    console.log('🚨 Table still empty, creating emergency display...');
-                    const emergencyData = createFallbackAdmins();
-                    emergencyData.push({
-                        id: 99,
-                        fullName: '⚠️ ข้อมูลตัวอย่าง',
-                        username: 'sample',
-                        role: 'admin',
-                        points: 0,
-                        messagesHandled: 0
-                    });
-                    displayAdmins(emergencyData);
-                    showInfoMessage('⚠️ แสดงข้อมูลตัวอย่าง - ลองกดปุ่ม "แสดงข้อมูลจริง"');
-                }
-            }, 7000);
         });
 
-        // Ensure fallback for immediate execution
-        if (document.readyState === 'loading') {
-            console.log('📄 Document still loading, waiting for DOMContentLoaded');
-        } else {
-            console.log('📄 Document already loaded, initializing immediately');
-            setTimeout(() => {
-                loadTheme();
-                window.KingChatMenuInstance = new KingChatMenu();
-                loadAdmins();
-                addApiTestButton();
-                
-                // Quick fallback
-                setTimeout(() => {
-                    if (admins.length === 0) {
-                        console.log('🔄 Quick fallback: Using demo data');
-                        admins = createFallbackAdmins();
-                        displayAdmins(admins);
-                    }
-                }, 3000);
-            }, 100);
-        }
     </script>
 </body>
 </html>
