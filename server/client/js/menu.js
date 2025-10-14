@@ -429,23 +429,14 @@ class KingChatMenu {
                 }
             }
         `;
-                font-weight: 700;
-                font-size: 24px;
-                color: #2d3748;
-            }
 
-            .brand-logo {
-                font-size: 28px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
+        // เพิ่ม style element ลงใน head
+        const style = document.createElement('style');
+        style.innerHTML = menuCSS;
+        document.head.appendChild(style);
+    }
 
-            .nav-user {
-                display: flex;
-                align-items: center;
-                gap: 20px;
+    getCurrentPage() {
             }
 
             .user-info {

@@ -7,25 +7,25 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>💬 แชท - KingChat</title>
-    <script src="js/menu.js?v=20251014-2"></script>
+    <script src="js/menu-fixed.js?v=20251014-3"></script>
     <script>
         // Fallback menu loading
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof KingChatMenu === 'undefined') {
-                console.warn('Menu.js not loaded, trying alternative path...');
+                console.warn('Menu-fixed.js not loaded, trying alternative path...');
                 const script = document.createElement('script');
-                script.src = './js/menu.js?v=20251014-2';
+                script.src = './js/menu-fixed.js?v=20251014-3';
                 script.onload = function() {
-                    console.log('✅ Menu.js loaded via fallback method');
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
                 };
                 script.onerror = function() {
-                    console.error('❌ Failed to load menu.js even with fallback');
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
                 };
                 document.head.appendChild(script);
             }
         });
     </script>
-    <link rel="stylesheet" href="css/line-theme.css?v=20251014-2">
+    <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
     <style>
         * {
             margin: 0;
@@ -38,7 +38,7 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
-            /* Add margin for menu and header - FORCE RELOAD */
+            /* Always apply margins for layout consistency */
             margin-left: 260px !important;
             margin-top: 80px !important;
         }
@@ -1353,29 +1353,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Chat page loading...');
             
-            // Check if menu.js loaded
-            const menuScript = document.querySelector('script[src*="menu.js"]');
-            console.log('📂 Menu script element:', menuScript);
-            console.log('📂 Menu.js path:', menuScript?.src);
-            
-            // Initialize menu with multiple attempts
-            let menuInitialized = false;
-            
+            // Initialize menu with fixed version
             function initializeMenu() {
                 try {
                     if (typeof KingChatMenu !== 'undefined') {
                         console.log('✅ KingChatMenu class found');
-                        const menu = new KingChatMenu();
+                        kingChatMenu = new KingChatMenu();
                         console.log('✅ Menu initialized successfully');
-                        menuInitialized = true;
-                        
-                        // Force body margins after menu loads
-                        setTimeout(() => {
-                            document.body.style.marginLeft = '260px';
-                            document.body.style.marginTop = '80px';
-                            console.log('✅ Body margins applied');
-                        }, 100);
-                        
                         return true;
                     } else {
                         console.warn('⚠️ KingChatMenu class not found, retrying...');
@@ -1387,18 +1371,13 @@
                 }
             }
             
-            // Try to initialize menu immediately
+            // Try to initialize menu with retries
             if (!initializeMenu()) {
-                // Retry after short delay
                 setTimeout(() => {
                     if (!initializeMenu()) {
-                        // Final retry after longer delay
                         setTimeout(() => {
                             if (!initializeMenu()) {
                                 console.error('❌ Menu failed to load after multiple attempts');
-                                // Create basic fallback menu without popup
-                                document.body.style.marginLeft = '260px';
-                                document.body.style.marginTop = '80px';
                                 console.log('⚠️ Using fallback layout without menu');
                             }
                         }, 2000);
@@ -1406,9 +1385,7 @@
                 }, 500);
             }
             
-            checkQuickMessage(); // Check for quick messages when page loads
-            
-            // Check for quick messages every 1 second
+            checkQuickMessage();
             setInterval(checkQuickMessage, 1000);
         });
     </script>
