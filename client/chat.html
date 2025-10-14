@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>💬 แชท - KingChat</title>
-    <script src="js/menu.js"></script>
+    <script src="js/menu.js?v=20251014-2"></script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251014-2">
     <style>
         * {
             margin: 0;
@@ -17,9 +21,9 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
-            /* Add margin for menu and header */
-            margin-left: 260px;
-            margin-top: 80px;
+            /* Add margin for menu and header - FORCE RELOAD */
+            margin-left: 260px !important;
+            margin-top: 80px !important;
         }
 
         /* Main Layout */
@@ -1330,8 +1334,30 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize centralized menu
-            new KingChatMenu();
+            console.log('🚀 Chat page loading...');
+            console.log('📂 Menu.js path:', document.querySelector('script[src*="menu.js"]')?.src);
+            
+            // Force menu initialization with debug
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    console.log('✅ KingChatMenu class found');
+                    const menu = new KingChatMenu();
+                    console.log('✅ Menu initialized successfully');
+                    
+                    // Force body margins after menu loads
+                    setTimeout(() => {
+                        document.body.style.marginLeft = '260px';
+                        document.body.style.marginTop = '80px';
+                        console.log('✅ Body margins applied');
+                    }, 500);
+                } else {
+                    console.error('❌ KingChatMenu class not found!');
+                    alert('เมนูไม่สามารถโหลดได้ กรุณา refresh หน้าใหม่');
+                }
+            } catch (error) {
+                console.error('❌ Menu initialization failed:', error);
+                alert('เกิดข้อผิดพลาดในการโหลดเมนู: ' + error.message);
+            }
             
             checkQuickMessage(); // Check for quick messages when page loads
             
