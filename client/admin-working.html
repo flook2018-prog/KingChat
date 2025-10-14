@@ -680,6 +680,10 @@
                     <span>🔄</span>
                     ทดสอบโหลดข้อมูล
                 </button>
+                <button class="add-admin-btn" onclick="forceShowRealData()" style="background: #ffc107; color: black; margin-left: 10px;">
+                    <span>⚡</span>
+                    แสดงข้อมูลจริง
+                </button>
             </div>
             <table class="admin-table">
                 <thead>
@@ -861,6 +865,51 @@
 
         function hideLoadingSpinner() {
             // Loading will be hidden when data is loaded
+        }
+
+        // Force show real data from API
+        async function forceShowRealData() {
+            console.log('⚡ Force showing real data from API...');
+            showLoadingSpinner();
+            
+            try {
+                const response = await fetch('https://kingchat.up.railway.app/api/admin');
+                console.log('📡 Direct API call status:', response.status);
+                
+                if (response.ok) {
+                    const realData = await response.json();
+                    console.log('📊 Real admin data:', realData);
+                    
+                    // Force clear table first
+                    const tbody = document.getElementById('adminTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #007bff;">⚡ กำลังแสดงข้อมูลจริงจากฐานข้อมูล...</td></tr>';
+                        
+                        // Wait a bit then show real data
+                        setTimeout(() => {
+                            displayAdmins(realData);
+                            showSuccessMessage(`⚡ แสดงข้อมูลจริง ${realData.length} แอดมิน จากฐานข้อมูล Railway!`);
+                        }, 1000);
+                    }
+                    
+                    // Update global variable
+                    admins = realData;
+                    
+                } else {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('❌ Force show data failed:', error);
+                showErrorMessage(`❌ ไม่สามารถดึงข้อมูลจริงได้: ${error.message}`);
+                
+                // Show fallback data instead
+                const fallbackData = createFallbackAdmins();
+                displayAdmins(fallbackData);
+                admins = fallbackData;
+            }
+            
+            hideLoadingSpinner();
         }
 
         // Test function สำหรับ debug
@@ -1561,7 +1610,7 @@
             }
         });
 
-        // Initialize page with better error handling
+        // Initialize page with immediate data display
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOMContentLoaded fired');
             
@@ -1571,43 +1620,61 @@
             // Create global instance for theme toggle compatibility
             window.KingChatMenuInstance = new KingChatMenu();
             
+            // Show loading state immediately
+            const tbody = document.getElementById('adminTableBody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #007bff;">
+                            <div style="font-size: 32px; margin-bottom: 15px;">🔄</div>
+                            <h4>กำลังโหลดข้อมูลแอดมิน...</h4>
+                            <p style="margin-top: 10px; color: #666;">โปรดรอสักครู่</p>
+                        </td>
+                    </tr>
+                `;
+            }
+            
             // Force load admins immediately
             console.log('⚡ Force loading admins immediately...');
-            loadAdmins();
+            setTimeout(() => {
+                forceShowRealData();
+            }, 500);
             
             // Add debugging buttons
             setTimeout(() => {
                 addApiTestButton();
             }, 1000);
             
-            // Backup attempts
+            // Backup attempts with fallback data
             setTimeout(() => {
-                console.log('⏰ Backup attempt 1 (2 seconds)');
+                console.log('⏰ Backup attempt 1 (3 seconds)');
                 if (admins.length === 0) {
-                    console.log('🔄 No admins loaded yet, retrying...');
-                    loadAdmins();
-                }
-            }, 2000);
-            
-            setTimeout(() => {
-                console.log('⏰ Backup attempt 2 (5 seconds)');
-                if (admins.length === 0) {
-                    console.log('🔄 Still no admins, using fallback data...');
+                    console.log('🔄 No admins loaded yet, showing fallback...');
                     admins = createFallbackAdmins();
                     displayAdmins(admins);
-                    showInfoMessage('💡 กำลังใช้ข้อมูลตัวอย่าง เนื่องจากไม่สามารถเชื่อมต่อฐานข้อมูลได้');
+                    showInfoMessage('💡 แสดงข้อมูลตัวอย่าง - กด "แสดงข้อมูลจริง" เพื่อโหลดจากฐานข้อมูล');
                 }
-            }, 5000);
+            }, 3000);
             
             // Emergency check
             setTimeout(() => {
-                console.log('🚨 Emergency check (10 seconds)');
+                console.log('🚨 Emergency check (7 seconds)');
                 const tbody = document.getElementById('adminTableBody');
-                if (tbody && tbody.children.length === 0) {
-                    console.log('🚨 Table is empty, creating emergency display...');
-                    createEmergencyAdminDisplay(createFallbackAdmins());
+                if (tbody && (!tbody.children.length || tbody.children.length === 1)) {
+                    console.log('🚨 Table still empty, creating emergency display...');
+                    const emergencyData = createFallbackAdmins();
+                    emergencyData.push({
+                        id: 99,
+                        fullName: '⚠️ ข้อมูลตัวอย่าง',
+                        username: 'sample',
+                        role: 'admin',
+                        points: 0,
+                        messagesHandled: 0
+                    });
+                    displayAdmins(emergencyData);
+                    showInfoMessage('⚠️ แสดงข้อมูลตัวอย่าง - ลองกดปุ่ม "แสดงข้อมูลจริง"');
                 }
-            }, 10000);
+            }, 7000);
         });
 
         // Ensure fallback for immediate execution
