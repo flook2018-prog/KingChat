@@ -235,6 +235,24 @@ app.use('/api/admin', adminRoutes);           // Admin CRUD operations
 app.use('/api/line', lineAccountRoutes);
 app.use('/api/roles', rolesRoutes);
 
+// Customers API endpoint
+app.get('/api/customers', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM customers ORDER BY created_at DESC');
+    res.json({ 
+      success: true, 
+      data: result.rows 
+    });
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch customers',
+      data: []
+    });
+  }
+});
+
 // Test endpoint
 app.get('/api/test', (req, res) => {
   res.json({ 
