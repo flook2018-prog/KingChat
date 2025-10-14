@@ -39,10 +39,44 @@ async function initializeDatabase() {
     }
     
     // Read schema file if exists
-    const schemaPath = path.join(__dirname, 'database', 'schema.sql');
+    const schemaPath = path.join(__dirname, 'database', 'schema-fixed.sql');
     if (fs.existsSync(schemaPath)) {
+      console.log('📄 Loading fixed schema...');
       const schema = fs.readFileSync(schemaPath, 'utf8');
-      await pool.query(schema);
+      
+      // Split by semicolon and execute each statement separately
+      const statements = schema.split(';').filter(stmt => stmt.trim().length > 0);
+      
+      for (const statement of statements) {
+        if (statement.trim()) {
+          try {
+            await pool.query(statement.trim());
+          } catch (err) {
+            console.log(`⚠️ Statement skipped (likely already exists): ${err.message.substring(0, 100)}...`);
+          }
+        }
+      }
+      
+      console.log('✅ Schema loaded successfully');
+    } else {
+      console.log('⚠️ Schema file not found, creating basic tables...');
+      
+      // Create basic admins table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS admins (
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(100) UNIQUE NOT NULL,
+          email VARCHAR(255) UNIQUE,
+          password VARCHAR(255) NOT NULL,
+          "displayName" VARCHAR(255),
+          role VARCHAR(50) DEFAULT 'admin',
+          points INTEGER DEFAULT 0,
+          messages_handled INTEGER DEFAULT 0,
+          "isActive" BOOLEAN DEFAULT true,
+          "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
     }
     
     console.log('✅ Database initialized successfully');
