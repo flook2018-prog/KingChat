@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+    <script src="js/menu.js"></script>
     <style>
         * {
             margin: 0;
@@ -1621,15 +1622,34 @@
             }
         });
 
-        // Initialize page - ULTRA SIMPLE VERSION
+        // Initialize page - WITH MENU RESTORED
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Admin Working Page loaded - SIMPLE');
+            console.log('🚀 Admin Working Page loaded - WITH MENU');
             
-            // Load admin data directly - NO DEPENDENCIES
+            // Initialize theme (safe)
+            try {
+                if (typeof loadTheme !== 'undefined') {
+                    loadTheme();
+                }
+            } catch (e) {
+                console.warn('Theme loading failed:', e);
+            }
+            
+            // Initialize menu (safe)
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    window.KingChatMenuInstance = new KingChatMenu();
+                    console.log('✅ Menu initialized');
+                }
+            } catch (e) {
+                console.warn('Menu loading failed:', e);
+            }
+            
+            // Load admin data after menu
             setTimeout(() => {
                 console.log('📊 Starting direct admin load...');
                 loadAdminsSimple();
-            }, 1000);
+            }, 1500);
         });
         
         // Simple direct admin loading
