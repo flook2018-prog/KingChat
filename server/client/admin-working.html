@@ -17,12 +17,16 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
+            /* Add margin for menu and header */
+            margin-left: 260px;
+            margin-top: 80px;
         }
 
         /* Main Layout */
         .admin-container {
             display: flex;
-            height: 100vh;
+            height: calc(100vh - 80px); /* Subtract header height */
+            width: calc(100vw - 260px); /* Subtract menu width */
         }
 
         /* Left Sidebar - Admin List */
