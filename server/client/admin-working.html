@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
-    <script src="js/menu.js"></script>
+    <script src="js/menu-fixed.js?v=20251014-4"></script>
     <style>
         * {
             margin: 0;
@@ -596,7 +599,9 @@
                     loadTheme();
                 }
                 if (typeof KingChatMenu !== 'undefined') {
+                if (typeof KingChatMenu !== 'undefined') {
                     window.KingChatMenuInstance = new KingChatMenu();
+                }
                 }
             } catch (e) {
                 console.warn('Theme/Menu initialization failed:', e);

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚑 Emergency Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .fix-box { background: #fff3cd; border: 1px solid #ffc107; padding: 20px; margin: 10px 0; border-radius: 5px; }
+        button { background: #dc3545; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px; }
+        .success { background: #d4edda; border-color: #28a745; }
+        .result { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 3px solid #007bff; }
+    </style>
+</head>
+<body>
+    <h1>🚑 Emergency Admin Fix</h1>
+    
+    <div class="fix-box">
+        <h3>⚡ แก้ไขด่วน - สร้างแอดมินใหม่</h3>
+        <p>หากรหัสผ่านเก่าไม่ work ให้สร้างแอดมินใหม่ที่รู้รหัสผ่านแน่นอน</p>
+        
+        <button onclick="createWorkingAdmin()">🔧 สร้างแอดมิน working123</button>
+        <button onclick="resetDefaultAdmin()">🔄 รีเซ็ต admin เริ่มต้น</button>
+        <button onclick="fixExistingUser()">🛠️ แก้ไข aaa ให้ใช้ได้</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <div class="fix-box">
+        <h3>🧪 ทดสอบ Login</h3>
+        <input type="text" id="test-user" placeholder="Username" value="working123" style="padding: 10px; margin: 5px;">
+        <input type="password" id="test-pass" placeholder="Password" value="working123" style="padding: 10px; margin: 5px;">
+        <button onclick="testLogin()" style="background: #28a745;">🔑 ทดสอบ Login</button>
+        
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="fix-box">
+        <h3>📝 แอดมินที่ควรทำงาน</h3>
+        <div style="background: white; padding: 10px; border-radius: 3px;">
+            <strong>Default Admin:</strong> admin / admin123<br>
+            <strong>Working Admin:</strong> working123 / working123<br>
+            <strong>Fixed User:</strong> aaa / aaa123
+        </div>
+    </div>
+
+    <script>
+        async function createWorkingAdmin() {
+            try {
+                const result = document.getElementById('result');
+                result.innerHTML = '🔄 กำลังสร้างแอดมิน working123...';
+                
+                const response = await fetch('/api/admin/admin-users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'working123',
+                        displayName: 'Working Test Admin',
+                        password: 'working123',
+                        role: 'admin'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        ✅ สร้างแอดมินสำเร็จ!<br>
+                        <strong>Username:</strong> working123<br>
+                        <strong>Password:</strong> working123<br>
+                        <br>ตอนนี้ลองใช้ข้อมูลนี้ login ได้เลย
+                    `;
+                    result.className = 'result success';
+                } else {
+                    result.innerHTML = `❌ สร้างไม่สำเร็จ: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function resetDefaultAdmin() {
+            try {
+                const result = document.getElementById('result');
+                result.innerHTML = '🔄 กำลังรีเซ็ต admin เริ่มต้น...';
+                
+                const response = await fetch('/api/admin/fix-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        newPassword: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        ✅ รีเซ็ตสำเร็จ!<br>
+                        <strong>Username:</strong> admin<br>
+                        <strong>Password:</strong> admin123
+                    `;
+                    result.className = 'result success';
+                } else {
+                    result.innerHTML = `❌ รีเซ็ตไม่สำเร็จ: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function fixExistingUser() {
+            try {
+                const result = document.getElementById('result');
+                result.innerHTML = '🔄 กำลังแก้ไขผู้ใช้ aaa...';
+                
+                const response = await fetch('/api/admin/fix-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'aaa',
+                        newPassword: 'aaa123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        ✅ แก้ไขสำเร็จ!<br>
+                        <strong>Username:</strong> aaa<br>
+                        <strong>Password:</strong> aaa123
+                    `;
+                    result.className = 'result success';
+                    
+                    // Update test form
+                    document.getElementById('test-user').value = 'aaa';
+                    document.getElementById('test-pass').value = 'aaa123';
+                } else {
+                    result.innerHTML = `❌ แก้ไขไม่สำเร็จ: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function testLogin() {
+            const username = document.getElementById('test-user').value;
+            const password = document.getElementById('test-pass').value;
+            
+            try {
+                const result = document.getElementById('login-result');
+                result.innerHTML = `🔄 กำลังทดสอบ ${username}...`;
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        🎉 <strong>LOGIN สำเร็จ!</strong><br>
+                        Username: ${data.user.username}<br>
+                        Display Name: ${data.user.displayName}<br>
+                        Role: ${data.user.role}<br>
+                        <br>
+                        <button onclick="window.open('/login.html', '_blank')" style="background: #28a745; color: white; padding: 10px; border: none; border-radius: 3px;">
+                            ไปหน้า Login จริง
+                        </button>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    result.innerHTML = `❌ Login ล้มเหลว: ${data.error}`;
+                    result.className = 'result';
+                }
+                
+            } catch (error) {
+                document.getElementById('login-result').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

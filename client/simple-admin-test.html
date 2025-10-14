@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Simple Admin Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+        }
+        .admin-card { 
+            padding: 15px; 
+            margin: 10px 0; 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            border-left: 4px solid #007bff;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+        }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        .loading { background: #fff3cd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Simple Admin Test</h1>
+        <p>ทดสอบการโหลดข้อมูลแอดมินแบบง่าย ๆ</p>
+
+        <div>
+            <button onclick="testLoadAdmins()">โหลดข้อมูลแอดมิน</button>
+            <button onclick="clearDisplay()">ล้างหน้าจอ</button>
+        </div>
+
+        <div id="status" class="status loading">กำลังรอคำสั่ง...</div>
+
+        <div id="adminDisplay"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://kingchat.up.railway.app/api/admin';
+        
+        function updateStatus(message, type = 'loading') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            console.log(message);
+        }
+        
+        function clearDisplay() {
+            document.getElementById('adminDisplay').innerHTML = '';
+            updateStatus('ล้างหน้าจอแล้ว', 'success');
+        }
+        
+        async function testLoadAdmins() {
+            const adminDisplay = document.getElementById('adminDisplay');
+            
+            updateStatus('🔄 กำลังโหลดข้อมูลแอดมิน...', 'loading');
+            
+            try {
+                console.log('🔗 API URL:', API_URL);
+                const response = await fetch(API_URL);
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const admins = await response.json();
+                console.log('📊 Received data:', admins);
+                
+                if (!Array.isArray(admins)) {
+                    throw new Error('ข้อมูลที่ได้รับไม่ใช่ array');
+                }
+                
+                updateStatus(`✅ โหลดสำเร็จ! ได้ข้อมูล ${admins.length} รายการ`, 'success');
+                
+                // Display admins
+                adminDisplay.innerHTML = '<h3>👥 รายการแอดมิน:</h3>';
+                
+                if (admins.length === 0) {
+                    adminDisplay.innerHTML += '<p>ไม่มีข้อมูลแอดมิน</p>';
+                } else {
+                    admins.forEach((admin, index) => {
+                        const roleIcon = admin.role === 'super_admin' ? '👑' : '👨‍💼';
+                        const card = document.createElement('div');
+                        card.className = 'admin-card';
+                        card.innerHTML = `
+                            <strong>${roleIcon} ${admin.fullName || admin.username}</strong><br>
+                            <small>Username: ${admin.username} | Role: ${admin.role} | ID: ${admin.id}</small>
+                        `;
+                        adminDisplay.appendChild(card);
+                        
+                        console.log(`👤 Admin ${index + 1}:`, admin);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                updateStatus(`❌ เกิดข้อผิดพลาด: ${error.message}`, 'error');
+                
+                adminDisplay.innerHTML = `
+                    <h3>❌ เกิดข้อผิดพลาด</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>API URL:</strong> ${API_URL}</p>
+                    <p>กรุณาตรวจสอบ Console เพื่อดูรายละเอียดเพิ่มเติม</p>
+                `;
+            }
+        }
+        
+        // Auto test on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('🚀 หน้าเว็บโหลดเสร็จ - พร้อมทดสอบ', 'success');
+            console.log('🚀 Simple Admin Test loaded');
+        });
+    </script>
+</body>
+</html>

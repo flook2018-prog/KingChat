@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚙️ ตั้งค่า - KingChat</title>
-    <script src="js/menu.js"></script>
+    <script src="js/menu-fixed.js?v=20251014-4"></script>
     <style>
         /* Enhanced Styles */
         body {
@@ -719,7 +719,7 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize centralized menu
-            new KingChatMenu();
+            if (typeof KingChatMenu !== 'undefined') { kingChatMenu = if (typeof KingChatMenu !== 'undefined') { kingChatMenu = new KingChatMenu(); } }
             
             loadSettings();
             

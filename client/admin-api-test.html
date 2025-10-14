@@ -3,172 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin API Test - KingChat</title>
+    <title>🧪 Admin API Test - KingChat</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
-        .test-result { margin: 10px 0; padding: 15px; border-radius: 5px; }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; }
-        .loading { display: none; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .result.success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .result.error { background: #f8d7da; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔧 Admin API Test - KingChat</h1>
-        <p>ทดสอบการเชื่อมต่อ API กับฐานข้อมูลแอดมิน</p>
-        
-        <div class="loading" id="loading">🔄 กำลังทดสอบ...</div>
-        
-        <button onclick="testAPI()">🚀 ทดสอบ Admin API</button>
-        <button onclick="testDirectFetch()">📡 ทดสอบ Direct Fetch</button>
-        <button onclick="clearResults()">🗑️ ล้างผลลัพธ์</button>
-        
-        <div id="results"></div>
+        <h1>🧪 Admin API Test Suite</h1>
+        <p>ทดสอบ API endpoints สำหรับระบบ Admin ของ KingChat</p>
+
+        <div class="test-section">
+            <h3>📋 1. GET /api/admin - ดึงข้อมูลแอดมินทั้งหมด</h3>
+            <button class="btn" onclick="testGetAllAdmins()">🔍 ทดสอบ GET All Admins</button>
+            <div id="getAllResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>➕ 2. POST /api/admin - เพิ่มแอดมินใหม่</h3>
+            <button class="btn btn-success" onclick="testCreateAdmin()">➕ ทดสอบ Create Admin</button>
+            <div id="createResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>✏️ 3. PUT /api/admin/:id - แก้ไขแอดมิน</h3>
+            <input type="number" id="updateId" placeholder="Admin ID" value="1">
+            <button class="btn" onclick="testUpdateAdmin()">✏️ ทดสอบ Update Admin</button>
+            <div id="updateResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 4. GET /api/admin/:id - ดึงข้อมูลแอดมิน 1 คน</h3>
+            <input type="number" id="getOneId" placeholder="Admin ID" value="1">
+            <button class="btn" onclick="testGetOneAdmin()">🔍 ทดสอบ GET One Admin</button>
+            <div id="getOneResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 5. Database Connection Test</h3>
+            <button class="btn" onclick="testDatabaseConnection()">🔌 ทดสอบการเชื่อมต่อฐานข้อมูล</button>
+            <div id="dbResult" class="result"></div>
+        </div>
     </div>
 
     <script>
-        const API_BASE_URL = 'https://kingchat.up.railway.app/api';
-        
-        function addResult(message, type = 'info') {
-            const results = document.getElementById('results');
-            const div = document.createElement('div');
-            div.className = `test-result ${type}`;
-            div.innerHTML = message;
-            results.appendChild(div);
-        }
-        
-        function clearResults() {
-            document.getElementById('results').innerHTML = '';
-        }
-        
-        function showLoading(show = true) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-        }
-        
-        async function testAPI() {
-            clearResults();
-            showLoading(true);
-            
-            addResult('🚀 เริ่มการทดสอบ Admin API...', 'info');
-            addResult(`🔗 Base URL: ${API_BASE_URL}`, 'info');
+        const API_BASE = window.location.origin + '/api';
+
+        async function testGetAllAdmins() {
+            const resultDiv = document.getElementById('getAllResult');
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
             
             try {
-                // Test 1: Admin List
-                addResult('📡 Test 1: ทดสอบ GET /api/admin', 'info');
-                const response = await fetch(`${API_BASE_URL}/admin`);
-                
-                addResult(`📊 Response Status: ${response.status}`, response.ok ? 'success' : 'error');
-                addResult(`📊 Content-Type: ${response.headers.get('content-type')}`, 'info');
+                const response = await fetch(`${API_BASE}/admin`);
+                const data = await response.json();
                 
                 if (response.ok) {
-                    const data = await response.json();
-                    addResult(`✅ API ทำงานสำเร็จ! พบแอดมิน ${data.length} คน`, 'success');
-                    addResult(`<div class="code">📊 ข้อมูลตัวอย่าง:<br><pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre></div>`, 'success');
-                    
-                    // Test with the data
-                    testDisplayAdmins(data);
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! พบแอดมิน ${data.length} คน\n\n${JSON.stringify(data, null, 2)}`;
                 } else {
-                    const errorText = await response.text();
-                    addResult(`❌ API ล้มเหลว: ${errorText}`, 'error');
+                    throw new Error(data.error || `HTTP ${response.status}`);
                 }
-                
-                // Test 2: Test Endpoint
-                addResult('📡 Test 2: ทดสอบ GET /api/admin/test', 'info');
-                try {
-                    const testResponse = await fetch(`${API_BASE_URL}/admin/test`);
-                    if (testResponse.ok) {
-                        const testData = await testResponse.json();
-                        addResult(`✅ Test endpoint: ${testData.message}`, 'success');
-                    } else {
-                        addResult(`⚠️ Test endpoint ไม่ทำงาน: ${testResponse.status}`, 'error');
-                    }
-                } catch (testError) {
-                    addResult(`⚠️ Test endpoint error: ${testError.message}`, 'error');
-                }
-                
             } catch (error) {
-                addResult(`❌ ข้อผิดพลาด: ${error.message}`, 'error');
-                addResult(`🔧 Error Type: ${error.name}`, 'error');
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
             }
-            
-            showLoading(false);
         }
-        
-        async function testDirectFetch() {
-            clearResults();
-            showLoading(true);
+
+        async function testCreateAdmin() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
             
-            addResult('🧪 ทดสอบ Direct Fetch กับ CORS...', 'info');
+            const testAdmin = {
+                fullName: 'ทดสอบ แอดมิน',
+                username: 'test_admin_' + Date.now(),
+                password: 'test123456',
+                role: 'admin',
+                points: 1000
+            };
             
             try {
-                const response = await fetch('https://kingchat.up.railway.app/api/admin', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    mode: 'cors'
+                const response = await fetch(`${API_BASE}/admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testAdmin)
                 });
-                
-                addResult(`📡 CORS Response: ${response.status}`, response.ok ? 'success' : 'error');
-                addResult(`🔒 CORS Headers: ${response.headers.get('access-control-allow-origin')}`, 'info');
+                const data = await response.json();
                 
                 if (response.ok) {
-                    const text = await response.text();
-                    addResult(`📄 Response Length: ${text.length} characters`, 'info');
-                    
-                    try {
-                        const data = JSON.parse(text);
-                        addResult(`✅ JSON Valid! Admin count: ${data.length}`, 'success');
-                        addResult(`<div class="code">Raw JSON:<br><pre>${text.substring(0, 500)}...</pre></div>`, 'info');
-                    } catch (parseError) {
-                        addResult(`❌ JSON Parse Error: ${parseError.message}`, 'error');
-                        addResult(`<div class="code">Raw Response:<br><pre>${text.substring(0, 500)}</pre></div>`, 'error');
-                    }
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! สร้างแอดมินใหม่\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
                 }
-                
             } catch (error) {
-                addResult(`❌ Fetch Error: ${error.message}`, 'error');
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
             }
-            
-            showLoading(false);
         }
-        
-        function testDisplayAdmins(adminData) {
-            addResult('🎯 ทดสอบการแสดงผลข้อมูล...', 'info');
+
+        async function testUpdateAdmin() {
+            const resultDiv = document.getElementById('updateResult');
+            const adminId = document.getElementById('updateId').value;
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
             
-            if (!adminData || adminData.length === 0) {
-                addResult('⚠️ ไม่มีข้อมูลแอดมิน', 'error');
-                return;
+            const updateData = {
+                fullName: 'อัพเดท ทดสอบ',
+                points: 2500
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/${adminId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! อัพเดทแอดมิน ID ${adminId}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
             }
-            
-            // Create a sample table
-            let tableHTML = '<table border="1" style="width:100%; margin-top:10px;"><tr><th>ID</th><th>ชื่อ</th><th>Username</th><th>Role</th><th>Points</th></tr>';
-            
-            adminData.forEach(admin => {
-                tableHTML += `<tr>
-                    <td>${admin.id}</td>
-                    <td>${admin.fullName}</td>
-                    <td>${admin.username}</td>
-                    <td>${admin.role}</td>
-                    <td>${admin.points}</td>
-                </tr>`;
-            });
-            
-            tableHTML += '</table>';
-            
-            addResult(`✅ สร้างตารางแสดงผลได้สำเร็จ:<br>${tableHTML}`, 'success');
         }
-        
-        // Auto test on load
-        window.onload = function() {
-            addResult('📄 หน้าโหลดเสร็จ - พร้อมทดสอบ', 'info');
-        };
+
+        async function testGetOneAdmin() {
+            const resultDiv = document.getElementById('getOneResult');
+            const adminId = document.getElementById('getOneId').value;
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/${adminId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ สำเร็จ! ข้อมูลแอดมิน ID ${adminId}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        async function testDatabaseConnection() {
+            const resultDiv = document.getElementById('dbResult');
+            resultDiv.textContent = '🔄 กำลังทดสอบ...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin`);
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ การเชื่อมต่อฐานข้อมูลทำงานปกติ!\nStatus: ${response.status}\nResponse Time: ${new Date().toLocaleString()}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้: ${error.message}`;
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            setTimeout(testDatabaseConnection, 1000);
+        });
     </script>
 </body>
 </html>

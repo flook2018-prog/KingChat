@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 System Status Check</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .status-item { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            border-left: 5px solid #6c757d;
+        }
+        .status-success { border-left-color: #28a745; background: #d4edda; }
+        .status-error { border-left-color: #dc3545; background: #f8d7da; }
+        .status-warning { border-left-color: #ffc107; background: #fff3cd; }
+        .status-loading { border-left-color: #17a2b8; background: #d1ecf1; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .refresh-btn { background: #28a745; }
+        .data-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        h1 { color: #333; text-align: center; }
+        h2 { color: #495057; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 KingChat System Status</h1>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="refresh-btn" onclick="checkAllStatus()">🔄 ตรวจสอบระบบทั้งหมด</button>
+        </div>
+
+        <div id="status-results">
+            <div class="status-item status-loading">
+                <strong>🔄 กำลังตรวจสอบระบบ...</strong>
+            </div>
+        </div>
+
+        <h2>📊 ข้อมูลระบบ</h2>
+        <div id="system-data" class="data-box">กำลังโหลด...</div>
+
+        <h2>🚑 การแก้ไขด่วน</h2>
+        <div style="text-align: center;">
+            <button onclick="quickFix()">🔧 แก้ไขปัญหา Login</button>
+            <button onclick="testLoginDirect()">🔑 ทดสอบ Login โดยตรง</button>
+            <button onclick="showPasswords()">👀 ดูรหัสผ่าน</button>
+        </div>
+        
+        <div id="fix-results" class="data-box" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        async function checkEndpoint(name, url, method = 'GET', body = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                return {
+                    name: name,
+                    status: response.status,
+                    ok: response.ok,
+                    data: data,
+                    url: url
+                };
+            } catch (error) {
+                return {
+                    name: name,
+                    status: 'ERROR',
+                    ok: false,
+                    error: error.message,
+                    url: url
+                };
+            }
+        }
+
+        async function checkAllStatus() {
+            const resultsDiv = document.getElementById('status-results');
+            const dataDiv = document.getElementById('system-data');
+            
+            resultsDiv.innerHTML = '<div class="status-item status-loading"><strong>🔄 กำลังตรวจสอบ...</strong></div>';
+            
+            const checks = [
+                { name: '🏥 Health Check', url: '/health' },
+                { name: '🧪 API Test', url: `${API_BASE}/test` },
+                { name: '🗄️ Database Init', url: `${API_BASE}/admin/init` },
+                { name: '👥 Get Admins', url: `${API_BASE}/admin/admin-users` },
+                { name: '🔐 Login Test', url: `${API_BASE}/auth/login`, method: 'POST', body: { username: 'admin', password: 'admin123' } }
+            ];
+            
+            let statusHTML = '';
+            let systemInfo = '';
+            
+            for (const check of checks) {
+                const result = await checkEndpoint(check.name, check.url, check.method, check.body);
+                
+                const statusClass = result.ok ? 'status-success' : 'status-error';
+                const statusIcon = result.ok ? '✅' : '❌';
+                
+                statusHTML += `
+                    <div class="status-item ${statusClass}">
+                        <strong>${statusIcon} ${result.name}</strong><br>
+                        URL: ${result.url}<br>
+                        Status: ${result.status}<br>
+                        ${result.error ? `Error: ${result.error}` : `Response: ${JSON.stringify(result.data).substring(0, 100)}...`}
+                    </div>
+                `;
+                
+                systemInfo += `=== ${result.name} ===\n`;
+                systemInfo += `URL: ${result.url}\n`;
+                systemInfo += `Status: ${result.status}\n`;
+                systemInfo += `Result: ${JSON.stringify(result.data || result.error, null, 2)}\n\n`;
+            }
+            
+            resultsDiv.innerHTML = statusHTML;
+            dataDiv.textContent = systemInfo;
+        }
+
+        async function quickFix() {
+            const resultsDiv = document.getElementById('fix-results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = '🔄 กำลังแก้ไข...';
+            
+            try {
+                // Try to create a working admin
+                const response = await fetch(`${API_BASE}/admin/admin-users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'testuser',
+                        displayName: 'Test User',
+                        password: 'test123',
+                        role: 'admin'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.textContent = `✅ สร้างแอดมินใหม่สำเร็จ!\nUsername: testuser\nPassword: test123\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultsDiv.textContent = `❌ สร้างแอดมินไม่สำเร็จ:\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultsDiv.textContent = `❌ เกิดข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        async function testLoginDirect() {
+            const resultsDiv = document.getElementById('fix-results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = '🔄 กำลังทดสอบ login...';
+            
+            const testUsers = [
+                { username: 'admin', password: 'admin123' },
+                { username: 'aaa', password: 'aaa123' },
+                { username: 'testuser', password: 'test123' }
+            ];
+            
+            let results = 'ผลการทดสอบ Login:\n\n';
+            
+            for (const user of testUsers) {
+                try {
+                    const response = await fetch(`${API_BASE}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(user)
+                    });
+                    
+                    const data = await response.json();
+                    const status = response.ok ? '✅ สำเร็จ' : '❌ ล้มเหลว';
+                    
+                    results += `${status} ${user.username}/${user.password}\n`;
+                    results += `  Response: ${JSON.stringify(data).substring(0, 100)}...\n\n`;
+                    
+                } catch (error) {
+                    results += `❌ ${user.username}/${user.password} - Error: ${error.message}\n\n`;
+                }
+            }
+            
+            resultsDiv.textContent = results;
+        }
+
+        async function showPasswords() {
+            const resultsDiv = document.getElementById('fix-results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = '🔄 กำลังดูรหัสผ่าน...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/show-passwords`);
+                const data = await response.json();
+                
+                if (response.ok && data.users) {
+                    let passwordInfo = 'รายการรหัสผ่านในระบบ:\n\n';
+                    
+                    data.users.forEach(user => {
+                        passwordInfo += `Username: ${user.username}\n`;
+                        passwordInfo += `Display Name: ${user.displayName}\n`;
+                        passwordInfo += `Active: ${user.isActive}\n`;
+                        passwordInfo += `Password Hash: ${user.passwordHash.substring(0, 30)}...\n`;
+                        passwordInfo += '---\n';
+                    });
+                    
+                    resultsDiv.textContent = passwordInfo;
+                } else {
+                    resultsDiv.textContent = `❌ ไม่สามารถดูรหัสผ่านได้:\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultsDiv.textContent = `❌ เกิดข้อผิดพลาด: ${error.message}`;
+            }
+        }
+
+        // Auto check on load
+        window.onload = () => {
+            checkAllStatus();
+        };
+    </script>
+</body>
+</html>

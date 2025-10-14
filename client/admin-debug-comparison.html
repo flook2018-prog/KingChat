@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Admin Debug Comparison</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section { 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            max-height: 300px; 
+            overflow-y: auto;
+        }
+        .admin-item { 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #f8f9fa; 
+            border-radius: 5px; 
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Debug Comparison</h1>
+        <p>เปรียบเทียบการทำงานของ admin-status.html vs admin-working.html</p>
+
+        <div class="section info">
+            <h3>🔗 API ทดสอบ</h3>
+            <button onclick="testAPI()">ทดสอบ API /api/admin</button>
+            <button onclick="clearLogs()">ล้างล็อก</button>
+            <div id="apiResults"></div>
+        </div>
+
+        <div class="section">
+            <h3>📊 ข้อมูลแอดมิน</h3>
+            <div id="adminData"></div>
+        </div>
+
+        <div class="section">
+            <h3>📝 ล็อกการทำงาน</h3>
+            <pre id="debugLogs"></pre>
+        </div>
+
+        <div class="section">
+            <h3>🔗 ลิงก์ทดสอบ</h3>
+            <button onclick="openAdminWorking()">เปิด admin-working.html</button>
+            <button onclick="openAdminStatus()">เปิด admin-status.html</button>
+            <button onclick="openAPIInBrowser()">เปิด API ใน browser</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://kingchat.up.railway.app/api/admin';
+        
+        function log(message) {
+            const now = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debugLogs');
+            logElement.textContent += `[${now}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('debugLogs').textContent = '';
+            document.getElementById('apiResults').innerHTML = '';
+            document.getElementById('adminData').innerHTML = '';
+        }
+        
+        async function testAPI() {
+            log('🔄 เริ่มทดสอบ API...');
+            const resultsDiv = document.getElementById('apiResults');
+            const adminDiv = document.getElementById('adminData');
+            
+            try {
+                log(`📡 กำลังเรียก API: ${API_URL}`);
+                const startTime = Date.now();
+                
+                const response = await fetch(API_URL);
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                log(`📊 Status: ${response.status}`);
+                log(`⏱️ Response time: ${responseTime}ms`);
+                log(`📦 Content-Type: ${response.headers.get('Content-Type')}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ API สำเร็จ! ได้ข้อมูล ${data.length} รายการ`);
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ API ทำงานปกติ</h4>
+                            <p>Status: ${response.status}</p>
+                            <p>Response Time: ${responseTime}ms</p>
+                            <p>Data Count: ${data.length} รายการ</p>
+                        </div>
+                    `;
+                    
+                    // Display admin data
+                    adminDiv.innerHTML = '<h4>👥 ข้อมูลแอดมิน:</h4>';
+                    data.forEach((admin, index) => {
+                        const roleIcon = admin.role === 'super_admin' ? '👑' : '👨‍💼';
+                        adminDiv.innerHTML += `
+                            <div class="admin-item">
+                                <strong>${roleIcon} ${admin.fullName}</strong><br>
+                                <small>Username: ${admin.username} | Role: ${admin.role} | ID: ${admin.id}</small>
+                            </div>
+                        `;
+                        log(`👤 Admin ${index + 1}: ${admin.fullName} (${admin.username})`);
+                    });
+                    
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ API Error: ${response.status} - ${errorText}`);
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ API Error</h4>
+                            <p>Status: ${response.status}</p>
+                            <p>Error: ${errorText}</p>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`);
+                
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ เชื่อมต่อไม่ได้</h4>
+                        <p>Error: ${error.message}</p>
+                        <p>ตรวจสอบการเชื่อมต่ออินเทอร์เน็ตและ Railway server</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function openAdminWorking() {
+            window.open('https://kingchat.up.railway.app/admin-working.html', '_blank');
+        }
+        
+        function openAdminStatus() {
+            window.open('https://kingchat.up.railway.app/admin-status.html', '_blank');
+        }
+        
+        function openAPIInBrowser() {
+            window.open(API_URL, '_blank');
+        }
+        
+        // Auto test on load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Debug page loaded');
+            log('🔄 เริ่มทดสอบอัตโนมัติ...');
+            setTimeout(testAPI, 1000);
+        });
+    </script>
+</body>
+</html>

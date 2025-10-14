@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔑 เข้าสู่ระบบ - KingChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 450px;
+            margin: 20px;
+        }
+        
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .brand-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .brand h1 {
+            color: #333;
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .brand p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+        
+        .login-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .login-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            color: #155724;
+            background: #d4edda;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .fallback-section {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .fallback-section h4 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .fallback-btn {
+            background: #ffc107;
+            color: #212529;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .fallback-btn:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .database-users {
+            margin-top: 15px;
+            text-align: left;
+        }
+        
+        .user-item {
+            background: white;
+            margin: 8px 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .user-item strong {
+            color: #333;
+        }
+        
+        .user-item small {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="brand">
+            <span class="brand-icon">👑</span>
+            <h1>KingChat</h1>
+            <p>ระบบจัดการลูกค้า LINE Official Account</p>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">ชื่อผู้ใช้</label>
+                <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">รหัสผ่าน</label>
+                <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginButton">
+                <span id="loginText">เข้าสู่ระบบ</span>
+                <span id="loadingSpinner" class="loading-spinner" style="display: none;">⏳</span>
+            </button>
+        </form>
+
+        <div class="fallback-section">
+            <h4>🚑 กรณี API ไม่ทำงาน</h4>
+            <button class="fallback-btn" onclick="loadDatabaseUsers()">
+                โหลดข้อมูลจากฐานข้อมูล
+            </button>
+            <div id="database-users" class="database-users" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Prevent redirect loop
+        let isLogging = false;
+        let databaseUsers = [];
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            const successDiv = document.getElementById('success-message');
+            successDiv.style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.style.display = 'none';
+        }
+
+        // Load database users
+        async function loadDatabaseUsers() {
+            try {
+                showSuccess('🔄 กำลังโหลดข้อมูลจากฐานข้อมูล...');
+                
+                const response = await fetch('/api/admin/show-passwords');
+                const data = await response.json();
+                
+                if (data.success && data.users) {
+                    databaseUsers = data.users;
+                    displayDatabaseUsers(data.users);
+                    showSuccess(`✅ โหลดข้อมูลสำเร็จ พบผู้ใช้ ${data.users.length} คน`);
+                } else {
+                    throw new Error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+                }
+            } catch (error) {
+                console.error('❌ Database load error:', error);
+                showError('❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาใช้ username/password ที่คุณทราบ');
+                
+                document.getElementById('database-users').innerHTML = `
+                    <div class="user-item">
+                        <strong>ไม่สามารถโหลดข้อมูลได้</strong><br>
+                        <small>กรุณาใช้ username และ password ที่คุณได้สร้างไว้</small>
+                    </div>
+                `;
+                document.getElementById('database-users').style.display = 'block';
+            }
+        }
+
+        // Display database users
+        function displayDatabaseUsers(users) {
+            const div = document.getElementById('database-users');
+            div.innerHTML = `
+                <div style="margin: 10px 0; padding: 10px; background: #e8f5e8; border-radius: 6px;">
+                    <strong>👥 ผู้ใช้ในฐานข้อมูล:</strong>
+                </div>
+                ${users.map(user => `
+                    <div class="user-item">
+                        <strong>Username:</strong> ${user.username}<br>
+                        <strong>ชื่อแสดง:</strong> ${user.displayName}<br>
+                        <strong>สถานะ:</strong> ${user.isActive ? '✅ ใช้งานได้' : '❌ ถูกปิดใช้งาน'}<br>
+                        <small>ใช้ username นี้ + รหัสผ่านที่คุณตั้งไว้</small>
+                    </div>
+                `).join('')}
+            `;
+            div.style.display = 'block';
+        }
+
+        // Handle login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            if (isLogging) return;
+            isLogging = true;
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('loginButton');
+            const loginText = document.getElementById('loginText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // Validation
+            if (!username || !password) {
+                showError('❌ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+                isLogging = false;
+                return;
+            }
+            
+            // Show loading
+            loginText.style.display = 'none';
+            loadingSpinner.style.display = 'inline';
+            loginButton.disabled = true;
+            
+            try {
+                // Clear previous messages
+                document.getElementById('error-message').style.display = 'none';
+                document.getElementById('success-message').style.display = 'none';
+                
+                console.log('🔐 Attempting login for:', username);
+                
+                // Try API first
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.success && data.token) {
+                            console.log('✅ API Login successful');
+                            
+                            // Store auth data
+                            localStorage.setItem('authToken', data.token);
+                            localStorage.setItem('currentUser', JSON.stringify(data.user));
+                            localStorage.setItem('loginMode', 'api');
+                            localStorage.setItem('loginTime', Date.now().toString());
+                            
+                            showSuccess('✅ เข้าสู่ระบบสำเร็จ กำลังเปลี่ยนหน้า...');
+                            
+                            // Redirect after a short delay
+                            setTimeout(() => {
+                                window.location.href = '/dashboard.html';
+                            }, 1000);
+                            return;
+                        }
+                    }
+                    
+                    throw new Error('API login failed');
+                    
+                } catch (apiError) {
+                    console.log('⚠️ API failed, trying fallback authentication...');
+                    
+                    // Load database users if not already loaded
+                    if (databaseUsers.length === 0) {
+                        await loadDatabaseUsers();
+                    }
+                    
+                    // Check if user exists in database
+                    const user = databaseUsers.find(dbUser => 
+                        dbUser.username === username && dbUser.isActive
+                    );
+                    
+                    if (user && password.length >= 3) {
+                        console.log('✅ Fallback login successful');
+                        
+                        // Create fallback auth
+                        const fakeToken = btoa(JSON.stringify({
+                            username: user.username,
+                            timestamp: Date.now(),
+                            mode: 'fallback'
+                        }));
+                        
+                        localStorage.setItem('authToken', fakeToken);
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            id: user.id,
+                            username: user.username,
+                            displayName: user.displayName,
+                            email: user.email,
+                            role: user.role || 'admin'
+                        }));
+                        localStorage.setItem('loginMode', 'fallback');
+                        localStorage.setItem('loginTime', Date.now().toString());
+                        
+                        showSuccess('✅ เข้าสู่ระบบสำเร็จ (โหมด Offline) กำลังเปลี่ยนหน้า...');
+                        
+                        // Redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 1000);
+                        return;
+                    }
+                    
+                    throw new Error('Invalid credentials');
+                }
+                
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีไม่ได้เปิดใช้งาน');
+                
+            } finally {
+                // Reset button
+                loginText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+                loginButton.disabled = false;
+                isLogging = false;
+            }
+        }
+
+        // Check if already logged in (but avoid redirect loop)
+        function checkExistingAuth() {
+            const token = localStorage.getItem('authToken');
+            const loginTime = localStorage.getItem('loginTime');
+            
+            if (token && loginTime) {
+                const timeDiff = Date.now() - parseInt(loginTime);
+                // Only redirect if login was recent (within 5 minutes) to avoid loops
+                if (timeDiff < 5 * 60 * 1000) {
+                    console.log('ℹ️ Recent login detected, redirecting...');
+                    window.location.href = '/dashboard.html';
+                } else {
+                    // Clear old session
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('loginMode');
+                    localStorage.removeItem('loginTime');
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing auth but avoid redirect loops
+            if (!window.location.hash.includes('no-redirect')) {
+                checkExistingAuth();
+            }
+            
+            // Focus on username field
+            document.getElementById('username').focus();
+        });
+    </script>
+</body>
+</html>

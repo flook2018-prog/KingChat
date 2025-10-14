@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
-    <script src="js/menu-fixed.js?v=20251014-4"></script>
+    <script src="js/menu.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,16 +17,12 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
-            /* Add margin for menu and header */
-            margin-left: 260px;
-            margin-top: 80px;
         }
 
         /* Main Layout */
         .admin-container {
             display: flex;
-            height: calc(100vh - 80px); /* Subtract header height */
-            width: calc(100vw - 260px); /* Subtract menu width */
+            height: 100vh;
         }
 
         /* Left Sidebar - Admin List */
@@ -554,11 +547,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="email">Email</label>
-                        <input type="email" id="email" class="form-input" placeholder="example@kingchat.com">
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-label" for="password">Password *</label>
                         <input type="password" id="password" class="form-input" required>
                         <small style="color: #6c757d;">ใส่เฉพาะเมื่อต้องการเปลี่ยนรหัสผ่าน</small>
@@ -599,9 +587,7 @@
                     loadTheme();
                 }
                 if (typeof KingChatMenu !== 'undefined') {
-                if (typeof KingChatMenu !== 'undefined') {
                     window.KingChatMenuInstance = new KingChatMenu();
-                }
                 }
             } catch (e) {
                 console.warn('Theme/Menu initialization failed:', e);
@@ -793,7 +779,6 @@
             document.getElementById('adminId').value = admin.id;
             document.getElementById('fullName').value = admin.fullName || '';
             document.getElementById('username').value = admin.username;
-            document.getElementById('email').value = admin.email || '';
             document.getElementById('password').value = '';
             document.getElementById('password').required = false;
             document.getElementById('role').value = admin.role;
@@ -809,36 +794,13 @@
         // Form submission
         async function handleFormSubmit(e) {
             e.preventDefault();
-            clearAlert();
             
             const formData = {
-                fullName: document.getElementById('fullName').value.trim(),
-                username: document.getElementById('username').value.trim(),
-                email: document.getElementById('email').value.trim(),
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
                 password: document.getElementById('password').value,
                 role: document.getElementById('role').value
             };
-            
-            // Frontend validation
-            if (!formData.fullName) {
-                showError('กรุณากรอกชื่อเต็ม');
-                return;
-            }
-            
-            if (!formData.username) {
-                showError('กรุณากรอก Username');
-                return;
-            }
-            
-            if (!isEditMode && !formData.password) {
-                showError('กรุณากรอก Password');
-                return;
-            }
-            
-            if (formData.password && formData.password.length < 6) {
-                showError('Password ต้องมีอย่างน้อย 6 ตัวอักษร');
-                return;
-            }
             
             // Remove empty password for edit mode
             if (isEditMode && !formData.password) {
@@ -865,14 +827,8 @@
                 }
                 
                 if (!response.ok) {
-                    let errorMessage = 'เกิดข้อผิดพลาด';
-                    try {
-                        const error = await response.json();
-                        errorMessage = error.error || error.message || errorMessage;
-                    } catch (e) {
-                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                    }
-                    throw new Error(errorMessage);
+                    const error = await response.json();
+                    throw new Error(error.message || 'เกิดข้อผิดพลาด');
                 }
                 
                 showSuccess(isEditMode ? 'แก้ไขข้อมูลสำเร็จ!' : 'เพิ่มแอดมินสำเร็จ!');
