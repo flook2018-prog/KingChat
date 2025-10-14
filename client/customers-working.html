@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -6,24 +6,42 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>👥 รายชื่อลูกค้า - KingChat</title>
-    <script src="js/menu-fixed.js?v=20251014-4"></script>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css        // Initialize page
+    <title> รายชื่อลูกค้า - KingChat</title>
+    <script src="js/menu-fixed.js?v=20251014-3"></script>
+    <script>
+        // Fallback menu loading
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize centralized menu
-            if (typeof KingChatMenu !== 'undefined') {
-                kingChatMenu = new KingChatMenu();
+            if (typeof KingChatMenu === 'undefined') {
+                console.warn('Menu-fixed.js not loaded, trying alternative path...');
+                const script = document.createElement('script');
+                script.src = './js/menu-fixed.js?v=20251014-3';
+                script.onload = function() {
+                    console.log(' Menu-fixed.js loaded via fallback method');
+                };
+                script.onerror = function() {
+                    console.error(' Failed to load menu-fixed.js even with fallback');
+                };
+                document.head.appendChild(script);
             }
-            
-            loadCustomers();
-        });g.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/line-theme.css">
-    <link rel="stylesheet" href="css/brand-animation.css">
-    <link rel="stylesheet" href="css/responsive-ux.css">
+        });
+    </script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+            /* Always apply margins for layout consistency */
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+        }<style>
         /* Enhanced Styles - Same as Chat */
         body {
             margin: 0;
@@ -369,23 +387,23 @@
         <div class="main-content" style="opacity: 0; animation: fadeInUp 0.8s ease 0.4s forwards;">
             <div class="customers-content">
                 <div class="page-header" style="text-align: center; margin-bottom: 40px;">
-                    <h1>👥 รายชื่อลูกค้า</h1>
-                    <p>จัดการข้อมูลลูกค้าและติดต่อสื่อสาร</p>
+                    <h1>ðŸ‘¥ à¸£à¸²à¸¢à¸Šà¸·à¹ˆà¸­à¸¥à¸¹à¸à¸„à¹‰à¸²</h1>
+                    <p>à¸ˆà¸±à¸”à¸à¸²à¸£à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸¥à¸¹à¸à¸„à¹‰à¸²à¹à¸¥à¸°à¸•à¸´à¸”à¸•à¹ˆà¸­à¸ªà¸·à¹ˆà¸­à¸ªà¸²à¸£</p>
                 </div>
 
                 <div class="search-section">
-                    <input type="text" class="search-input" placeholder="🔍 ค้นหาลูกค้า..." id="searchInput">
+                    <input type="text" class="search-input" placeholder="ðŸ” à¸„à¹‰à¸™à¸«à¸²à¸¥à¸¹à¸à¸„à¹‰à¸²..." id="searchInput">
                 </div>
 
                 <table class="customers-table">
                     <thead>
                         <tr>
-                            <th>ลูกค้า</th>
+                            <th>à¸¥à¸¹à¸à¸„à¹‰à¸²</th>
                             <th>LINE ID</th>
-                            <th>เบอร์โทร</th>
-                            <th>สถานะ</th>
-                            <th>ข้อความล่าสุด</th>
-                            <th>การจัดการ</th>
+                            <th>à¹€à¸šà¸­à¸£à¹Œà¹‚à¸—à¸£</th>
+                            <th>à¸ªà¸–à¸²à¸™à¸°</th>
+                            <th>à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸¥à¹ˆà¸²à¸ªà¸¸à¸”</th>
+                            <th>à¸à¸²à¸£à¸ˆà¸±à¸”à¸à¸²à¸£</th>
                         </tr>
                     </thead>
                     <tbody id="customersTableBody">
@@ -432,12 +450,12 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
-                                <h3>ยังไม่มีลูกค้า</h3>
-                                <p>เมื่อมีลูกค้าทัก LINE OA จะแสดงที่นี่</p>
+                                <div style="font-size: 48px; margin-bottom: 16px;">ðŸ‘¥</div>
+                                <h3>à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸¥à¸¹à¸à¸„à¹‰à¸²</h3>
+                                <p>à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸¥à¸¹à¸à¸„à¹‰à¸²à¸—à¸±à¸ LINE OA à¸ˆà¸°à¹à¸ªà¸”à¸‡à¸—à¸µà¹ˆà¸™à¸µà¹ˆ</p>
                                 <p style="margin-top: 20px;">
                                     <a href="/line-connect.html" style="color: #667eea; text-decoration: none;">
-                                        🔗 เชื่อมต่อ LINE OA ก่อน
+                                        ðŸ”— à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­ LINE OA à¸à¹ˆà¸­à¸™
                                     </a>
                                 </p>
                             </td>
@@ -471,8 +489,8 @@
                                     ${customer.display_name ? customer.display_name.charAt(0).toUpperCase() : 'U'}
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600;">${customer.display_name || 'ไม่ระบุชื่อ'}</div>
-                                    <div style="font-size: 12px; color: #6c757d;">จาก: ${customer.line_account_name || 'LINE OA'}</div>
+                                    <div style="font-weight: 600;">${customer.display_name || 'à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸à¸Šà¸·à¹ˆà¸­'}</div>
+                                    <div style="font-size: 12px; color: #6c757d;">à¸ˆà¸²à¸: ${customer.line_account_name || 'LINE OA'}</div>
                                 </div>
                             </div>
                         </td>
@@ -480,14 +498,14 @@
                         <td>${customer.phone_number || '-'}</td>
                         <td>
                             <span class="${isOnline ? 'status-online' : 'status-offline'}">
-                                ${isOnline ? '🟢 ออนไลน์' : '⚫ ออฟไลน์'}
+                                ${isOnline ? 'ðŸŸ¢ à¸­à¸­à¸™à¹„à¸¥à¸™à¹Œ' : 'âš« à¸­à¸­à¸Ÿà¹„à¸¥à¸™à¹Œ'}
                             </span>
                         </td>
-                        <td>${customer.last_message || 'ยังไม่มีข้อความ'}</td>
+                        <td>${customer.last_message || 'à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡'}</td>
                         <td>
-                            <button class="action-btn btn-chat" onclick="openChat(${customer.id})">💬 แชท</button>
-                            <button class="action-btn btn-edit" onclick="editCustomer(${customer.id})">✏️ แก้ไข</button>
-                            <button class="action-btn btn-delete" onclick="deleteCustomer(${customer.id}, '${customer.display_name || 'ลูกค้า'}')">🗑️ ลบ</button>
+                            <button class="action-btn btn-chat" onclick="openChat(${customer.id})">ðŸ’¬ à¹à¸Šà¸—</button>
+                            <button class="action-btn btn-edit" onclick="editCustomer(${customer.id})">âœï¸ à¹à¸à¹‰à¹„à¸‚</button>
+                            <button class="action-btn btn-delete" onclick="deleteCustomer(${customer.id}, '${customer.display_name || 'à¸¥à¸¹à¸à¸„à¹‰à¸²'}')">ðŸ—‘ï¸ à¸¥à¸š</button>
                         </td>
                     `;
                     
@@ -502,10 +520,10 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 40px; color: #dc3545;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                                <h3>เกิดข้อผิดพลาด</h3>
-                                <p>ไม่สามารถโหลดข้อมูลลูกค้าได้</p>
-                                <button onclick="loadCustomers()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">🔄 ลองใหม่</button>
+                                <div style="font-size: 48px; margin-bottom: 16px;">âŒ</div>
+                                <h3>à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”</h3>
+                                <p>à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸¥à¸¹à¸à¸„à¹‰à¸²à¹„à¸”à¹‰</p>
+                                <button onclick="loadCustomers()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">ðŸ”„ à¸¥à¸­à¸‡à¹ƒà¸«à¸¡à¹ˆ</button>
                             </td>
                         </tr>
                     `;
@@ -521,12 +539,12 @@
         // Edit customer
         function editCustomer(customerId) {
             // TODO: Implement edit customer modal
-            alert(`แก้ไขลูกค้า ID: ${customerId} (ฟีเจอร์นี้กำลังพัฒนา)`);
+            alert(`à¹à¸à¹‰à¹„à¸‚à¸¥à¸¹à¸à¸„à¹‰à¸² ID: ${customerId} (à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¸™à¸µà¹‰à¸à¸³à¸¥à¸±à¸‡à¸žà¸±à¸’à¸™à¸²)`);
         }
 
         // Delete customer
         async function deleteCustomer(customerId, customerName) {
-            if (!confirm(`ต้องการลบลูกค้า "${customerName}" หรือไม่?`)) {
+            if (!confirm(`à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸¥à¸šà¸¥à¸¹à¸à¸„à¹‰à¸² "${customerName}" à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?`)) {
                 return;
             }
 
@@ -542,12 +560,12 @@
                     throw new Error('Failed to delete customer');
                 }
 
-                alert('ลบลูกค้าสำเร็จ');
+                alert('à¸¥à¸šà¸¥à¸¹à¸à¸„à¹‰à¸²à¸ªà¸³à¹€à¸£à¹‡à¸ˆ');
                 loadCustomers(); // Refresh the list
 
             } catch (error) {
                 console.error('Error deleting customer:', error);
-                alert('เกิดข้อผิดพลาดในการลบลูกค้า');
+                alert('à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¸¥à¸šà¸¥à¸¹à¸à¸„à¹‰à¸²');
             }
         }
 

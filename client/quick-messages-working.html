@@ -1,11 +1,47 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ ข้อความด่วน - KingChat</title>
-    <script src="js/menu-fixed.js?v=20251014-4"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title> ข้อความด่วน - KingChat</title>
+    <script src="js/menu-fixed.js?v=20251014-3"></script>
+    <script>
+        // Fallback menu loading
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof KingChatMenu === 'undefined') {
+                console.warn('Menu-fixed.js not loaded, trying alternative path...');
+                const script = document.createElement('script');
+                script.src = './js/menu-fixed.js?v=20251014-3';
+                script.onload = function() {
+                    console.log(' Menu-fixed.js loaded via fallback method');
+                };
+                script.onerror = function() {
+                    console.error(' Failed to load menu-fixed.js even with fallback');
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+            /* Always apply margins for layout consistency */
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+        }<style>
         * {
             margin: 0;
             padding: 0;
@@ -363,47 +399,47 @@
         <!-- Page Header -->
         <div class="page-header">
             <h1>
-                <span>⚡</span>
-                ข้อความด่วน
+                <span>âš¡</span>
+                à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™
             </h1>
-            <p>จัดการข้อความสำเร็จรูปและรูปภาพเพื่อตอบลูกค้าอย่างรวดเร็ว</p>
+            <p>à¸ˆà¸±à¸”à¸à¸²à¸£à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸ªà¸³à¹€à¸£à¹‡à¸ˆà¸£à¸¹à¸›à¹à¸¥à¸°à¸£à¸¹à¸›à¸ à¸²à¸žà¹€à¸žà¸·à¹ˆà¸­à¸•à¸­à¸šà¸¥à¸¹à¸à¸„à¹‰à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸£à¸§à¸”à¹€à¸£à¹‡à¸§</p>
         </div>
 
         <!-- Add Quick Message -->
         <div class="content-section">
             <h2 class="section-title">
-                ➕ เพิ่มข้อความด่วนใหม่
+                âž• à¹€à¸žà¸´à¹ˆà¸¡à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹ƒà¸«à¸¡à¹ˆ
             </h2>
             
             <form class="quick-message-form" id="quickMessageForm">
                 <div class="form-group">
-                    <label class="form-label">ชื่อข้อความ</label>
-                    <input type="text" class="form-input" id="messageName" placeholder="เช่น: ทักทายลูกค้า, ขอบคุณ, ขอโทษ" required>
+                    <label class="form-label">à¸Šà¸·à¹ˆà¸­à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡</label>
+                    <input type="text" class="form-input" id="messageName" placeholder="à¹€à¸Šà¹ˆà¸™: à¸—à¸±à¸à¸—à¸²à¸¢à¸¥à¸¹à¸à¸„à¹‰à¸², à¸‚à¸­à¸šà¸„à¸¸à¸“, à¸‚à¸­à¹‚à¸—à¸©" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">หมวดหมู่</label>
+                    <label class="form-label">à¸«à¸¡à¸§à¸”à¸«à¸¡à¸¹à¹ˆ</label>
                     <select class="form-input" id="messageCategory">
-                        <option value="greeting">ทักทาย</option>
-                        <option value="thanks">ขอบคุณ</option>
-                        <option value="apology">ขอโทษ</option>
-                        <option value="info">ข้อมูล</option>
-                        <option value="promotion">โปรโมชั่น</option>
-                        <option value="other">อื่น ๆ</option>
+                        <option value="greeting">à¸—à¸±à¸à¸—à¸²à¸¢</option>
+                        <option value="thanks">à¸‚à¸­à¸šà¸„à¸¸à¸“</option>
+                        <option value="apology">à¸‚à¸­à¹‚à¸—à¸©</option>
+                        <option value="info">à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</option>
+                        <option value="promotion">à¹‚à¸›à¸£à¹‚à¸¡à¸Šà¸±à¹ˆà¸™</option>
+                        <option value="other">à¸­à¸·à¹ˆà¸™ à¹†</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">ข้อความ</label>
-                    <textarea class="form-input form-textarea" id="messageText" placeholder="พิมพ์ข้อความที่ต้องการส่ง..."></textarea>
+                    <label class="form-label">à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡</label>
+                    <textarea class="form-input form-textarea" id="messageText" placeholder="à¸žà¸´à¸¡à¸žà¹Œà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸—à¸µà¹ˆà¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸ªà¹ˆà¸‡..."></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">รูปภาพ (ไม่บังคับ)</label>
+                    <label class="form-label">à¸£à¸¹à¸›à¸ à¸²à¸ž (à¹„à¸¡à¹ˆà¸šà¸±à¸‡à¸„à¸±à¸š)</label>
                     <div class="image-upload-area" id="imageUploadArea">
-                        <div class="upload-icon">📷</div>
-                        <div class="upload-text">คลิกหรือลากรูปภาพมาวางที่นี่</div>
-                        <div class="upload-hint">รองรับ JPG, PNG, GIF (สูงสุด 5MB ต่อรูป)</div>
+                        <div class="upload-icon">ðŸ“·</div>
+                        <div class="upload-text">à¸„à¸¥à¸´à¸à¸«à¸£à¸·à¸­à¸¥à¸²à¸à¸£à¸¹à¸›à¸ à¸²à¸žà¸¡à¸²à¸§à¸²à¸‡à¸—à¸µà¹ˆà¸™à¸µà¹ˆ</div>
+                        <div class="upload-hint">à¸£à¸­à¸‡à¸£à¸±à¸š JPG, PNG, GIF (à¸ªà¸¹à¸‡à¸ªà¸¸à¸” 5MB à¸•à¹ˆà¸­à¸£à¸¹à¸›)</div>
                     </div>
                     <input type="file" id="imageInput" class="hidden" multiple accept="image/*">
                     <div class="image-preview-container" id="imagePreviewContainer"></div>
@@ -411,10 +447,10 @@
 
                 <div style="display: flex; gap: 15px;">
                     <button type="submit" class="btn btn-primary">
-                        💾 บันทึกข้อความด่วน
+                        ðŸ’¾ à¸šà¸±à¸™à¸—à¸¶à¸à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="clearForm()">
-                        🔄 ล้างฟอร์ม
+                        ðŸ”„ à¸¥à¹‰à¸²à¸‡à¸Ÿà¸­à¸£à¹Œà¸¡
                     </button>
                 </div>
             </form>
@@ -423,7 +459,7 @@
         <!-- Quick Messages List -->
         <div class="content-section">
             <h2 class="section-title">
-                📝 ข้อความด่วนที่บันทึกไว้
+                ðŸ“ à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¸—à¸µà¹ˆà¸šà¸±à¸™à¸—à¸¶à¸à¹„à¸§à¹‰
             </h2>
             
             <div class="quick-messages-grid" id="quickMessagesList">
@@ -467,7 +503,7 @@
         function handleImageFiles(files) {
             files.forEach(file => {
                 if (file.size > 5 * 1024 * 1024) {
-                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกิน 5MB`);
+                    alert(`à¹„à¸Ÿà¸¥à¹Œ ${file.name} à¸¡à¸µà¸‚à¸™à¸²à¸”à¹ƒà¸«à¸à¹ˆà¹€à¸à¸´à¸™ 5MB`);
                     return;
                 }
 
@@ -490,7 +526,7 @@
             container.innerHTML = selectedImages.map(image => `
                 <div class="image-preview">
                     <img src="${image.data}" alt="${image.name}">
-                    <button type="button" class="image-remove" onclick="removeImage('${image.id}')">×</button>
+                    <button type="button" class="image-remove" onclick="removeImage('${image.id}')">Ã—</button>
                 </div>
             `).join('');
         }
@@ -509,7 +545,7 @@
             const text = document.getElementById('messageText').value;
 
             if (!name || !text) {
-                alert('กรุณากรอกชื่อข้อความและข้อความ');
+                alert('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸Šà¸·à¹ˆà¸­à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹à¸¥à¸°à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡');
                 return;
             }
 
@@ -527,7 +563,7 @@
             
             clearForm();
             loadQuickMessages();
-            alert('✅ บันทึกข้อความด่วนเรียบร้อยแล้ว!');
+            alert('âœ… à¸šà¸±à¸™à¸—à¸¶à¸à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§!');
         });
 
         function clearForm() {
@@ -543,21 +579,21 @@
             if (quickMessages.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #6b7280; grid-column: 1 / -1;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">⚡</div>
-                        <h3>ยังไม่มีข้อความด่วน</h3>
-                        <p>เริ่มต้นด้วยการเพิ่มข้อความด่วนแรกของคุณ</p>
+                        <div style="font-size: 48px; margin-bottom: 16px;">âš¡</div>
+                        <h3>à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™</h3>
+                        <p>à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¸”à¹‰à¸§à¸¢à¸à¸²à¸£à¹€à¸žà¸´à¹ˆà¸¡à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹à¸£à¸à¸‚à¸­à¸‡à¸„à¸¸à¸“</p>
                     </div>
                 `;
                 return;
             }
 
             const categoryNames = {
-                greeting: 'ทักทาย',
-                thanks: 'ขอบคุณ',
-                apology: 'ขอโทษ',
-                info: 'ข้อมูล',
-                promotion: 'โปรโมชั่น',
-                other: 'อื่น ๆ'
+                greeting: 'à¸—à¸±à¸à¸—à¸²à¸¢',
+                thanks: 'à¸‚à¸­à¸šà¸„à¸¸à¸“',
+                apology: 'à¸‚à¸­à¹‚à¸—à¸©',
+                info: 'à¸‚à¹‰à¸­à¸¡à¸¹à¸¥',
+                promotion: 'à¹‚à¸›à¸£à¹‚à¸¡à¸Šà¸±à¹ˆà¸™',
+                other: 'à¸­à¸·à¹ˆà¸™ à¹†'
             };
 
             container.innerHTML = quickMessages.map(message => `
@@ -568,11 +604,11 @@
                             <div class="card-title">${message.name}</div>
                         </div>
                         <div class="card-actions">
-                            <button class="action-btn btn-use" onclick="useQuickMessage('${message.id}')" title="ใช้ข้อความนี้">
-                                📤
+                            <button class="action-btn btn-use" onclick="useQuickMessage('${message.id}')" title="à¹ƒà¸Šà¹‰à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸™à¸µà¹‰">
+                                ðŸ“¤
                             </button>
-                            <button class="action-btn btn-delete" onclick="deleteQuickMessage('${message.id}')" title="ลบ">
-                                🗑️
+                            <button class="action-btn btn-delete" onclick="deleteQuickMessage('${message.id}')" title="à¸¥à¸š">
+                                ðŸ—‘ï¸
                             </button>
                         </div>
                     </div>
@@ -590,39 +626,39 @@
         function useQuickMessage(messageId) {
             const message = quickMessages.find(msg => msg.id == messageId);
             if (message) {
-                // ส่งข้อความไปยังหน้า chat
+                // à¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹„à¸›à¸¢à¸±à¸‡à¸«à¸™à¹‰à¸² chat
                 const chatData = {
                     text: message.text,
                     images: message.images ? message.images.map(img => img.data) : [],
                     timestamp: new Date().toISOString()
                 };
                 
-                // เก็บข้อมูลใน sessionStorage เพื่อส่งไปหน้า chat
+                // à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹ƒà¸™ sessionStorage à¹€à¸žà¸·à¹ˆà¸­à¸ªà¹ˆà¸‡à¹„à¸›à¸«à¸™à¹‰à¸² chat
                 sessionStorage.setItem('quickMessage', JSON.stringify(chatData));
                 
-                // ลองปิดหน้าต่างและกลับไปหน้า chat
+                // à¸¥à¸­à¸‡à¸›à¸´à¸”à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¹à¸¥à¸°à¸à¸¥à¸±à¸šà¹„à¸›à¸«à¸™à¹‰à¸² chat
                 try {
                     if (window.opener) {
-                        // หากเป็นหน้าต่างที่เปิดจาก chat
+                        // à¸«à¸²à¸à¹€à¸›à¹‡à¸™à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¸—à¸µà¹ˆà¹€à¸›à¸´à¸”à¸ˆà¸²à¸ chat
                         window.opener.focus();
                         window.close();
                     } else {
-                        // หากเป็นแท็บปกติ ให้ redirect ไปหน้า chat
+                        // à¸«à¸²à¸à¹€à¸›à¹‡à¸™à¹à¸—à¹‡à¸šà¸›à¸à¸•à¸´ à¹ƒà¸«à¹‰ redirect à¹„à¸›à¸«à¸™à¹‰à¸² chat
                         window.location.href = 'chat.html';
                     }
                 } catch (e) {
-                    // หากไม่สามารถปิดหน้าต่างได้ ให้ redirect
+                    // à¸«à¸²à¸à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸›à¸´à¸”à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¹„à¸”à¹‰ à¹ƒà¸«à¹‰ redirect
                     window.location.href = 'chat.html';
                 }
             }
         }
 
         function deleteQuickMessage(messageId) {
-            if (confirm('ต้องการลบข้อความด่วนนี้หรือไม่?')) {
+            if (confirm('à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸¥à¸šà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¸™à¸µà¹‰à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?')) {
                 quickMessages = quickMessages.filter(msg => msg.id != messageId);
                 localStorage.setItem('quickMessages', JSON.stringify(quickMessages));
                 loadQuickMessages();
-                alert('✅ ลบข้อความด่วนเรียบร้อยแล้ว');
+                alert('âœ… à¸¥à¸šà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§');
             }
         }
 
@@ -636,3 +672,4 @@
     </script>
 </body>
 </html>
+
