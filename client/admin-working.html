@@ -894,8 +894,8 @@
             }
         }
 
-        // API Configuration
-        const API_BASE_URL = window.location.origin + '/api';
+        // API Configuration - Use Railway production URL
+        const API_BASE_URL = 'https://kingchat.up.railway.app/api';
         
         // Admin data storage
         let admins = [];
@@ -909,9 +909,12 @@
                 
                 const response = await fetch(`${API_BASE_URL}/admin`);
                 console.log('📡 API Response status:', response.status);
+                console.log('📡 API Response headers:', Object.fromEntries(response.headers.entries()));
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('❌ API Error Response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, text: ${errorText}`);
                 }
                 
                 const adminData = await response.json();
@@ -920,22 +923,64 @@
                 
                 admins = adminData;
                 
-                // Force call displayAdmins
+                // Force call displayAdmins with multiple attempts
                 setTimeout(() => {
-                    console.log('🎯 Calling displayAdmins...');
+                    console.log('🎯 Calling displayAdmins (attempt 1)...');
                     displayAdmins(admins);
                     hideLoadingSpinner();
-                    console.log('✅ Display admins completed');
+                    console.log('✅ Display admins completed (attempt 1)');
                 }, 100);
+                
+                // Retry after a longer delay if needed
+                setTimeout(() => {
+                    console.log('🎯 Calling displayAdmins (attempt 2 - backup)...');
+                    displayAdmins(admins);
+                    console.log('✅ Display admins completed (attempt 2)');
+                }, 1000);
+                
+                // Show success message
+                showInfoMessage(`✅ โหลดข้อมูลแอดมิน ${adminData.length} คน จากฐานข้อมูลสำเร็จ`);
                 
             } catch (error) {
                 console.error('❌ Error loading admins:', error);
                 hideLoadingSpinner();
                 
-                // Show empty state - no fallback data
-                admins = [];
+                // Show error message with details
+                showErrorMessage(`❌ ไม่สามารถโหลดข้อมูลแอดมินได้: ${error.message}`);
+                
+                // Try fallback data after error
+                console.log('🔄 Trying fallback admin data...');
+                admins = createFallbackAdmins();
                 displayAdmins(admins);
+                
+                // Add API test button
+                addApiTestButton();
             }
+        }
+
+        // Create fallback admin data
+        function createFallbackAdmins() {
+            console.log('🏗️ Creating fallback admin data...');
+            return [
+                {
+                    id: 1,
+                    fullName: 'System Administrator',
+                    username: 'admin',
+                    role: 'super_admin',
+                    points: 5500,
+                    messagesHandled: 245,
+                    lastLogin: new Date('2024-10-14T10:30:00')
+                },
+                {
+                    id: 2,
+                    fullName: 'Support Admin',
+                    username: 'support',
+                    role: 'admin',
+                    points: 3200,
+                    messagesHandled: 128,
+                    lastLogin: new Date('2024-10-14T09:15:00')
+                }
+            ];
         }
 
         // First displayAdmins function removed - using the complete one below
@@ -1061,13 +1106,16 @@
             if (!tbody) {
                 console.error('❌ adminTableBody element not found!');
                 // Try alternative selectors
-                const altTbody = document.querySelector('tbody') || document.querySelector('#adminTable tbody');
+                const altTbody = document.querySelector('tbody') || document.querySelector('#adminTable tbody') || document.querySelector('.admin-table tbody');
                 if (altTbody) {
                     console.log('✅ Found alternative tbody element');
                     altTbody.id = 'adminTableBody'; // Set the ID
                     return displayAdmins(adminList); // Retry
+                } else {
+                    console.error('❌ No tbody element found anywhere! Creating emergency display...');
+                    createEmergencyAdminDisplay(adminList);
+                    return;
                 }
-                return;
             }
             
             console.log('✅ Found adminTableBody element');
@@ -1082,6 +1130,7 @@
                             <h3>ไม่พบข้อมูลแอดมิน</h3>
                             <p>กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
                             <button onclick="loadAdmins()" style="margin-top: 15px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">🔄 โหลดข้อมูลใหม่</button>
+                            <button onclick="testApiConnection()" style="margin-top: 15px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">🔧 ทดสอบ API</button>
                         </td>
                     </tr>
                 `;
@@ -1106,6 +1155,63 @@
             });
             
             console.log(`✅ Completed creating ${adminList.length} admin rows`);
+            
+            // Show success message
+            showSuccessMessage(`✅ แสดงข้อมูลแอดมิน ${adminList.length} คน เรียบร้อยแล้ว`);
+        }
+
+        // Emergency display function
+        function createEmergencyAdminDisplay(adminList) {
+            console.log('🚨 Creating emergency admin display...');
+            
+            const mainContent = document.querySelector('.admin-content') || document.querySelector('main') || document.body;
+            
+            const emergencyDiv = document.createElement('div');
+            emergencyDiv.id = 'emergencyAdminDisplay';
+            emergencyDiv.style.cssText = `
+                background: white; padding: 20px; margin: 20px; border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 2px solid #007bff;
+            `;
+            
+            let html = `
+                <h2 style="color: #007bff; margin-bottom: 20px;">🚨 Emergency Admin Display</h2>
+                <p style="margin-bottom: 15px;">Table element not found, showing data in alternative format:</p>
+            `;
+            
+            if (adminList && adminList.length > 0) {
+                html += '<div style="display: grid; gap: 15px;">';
+                adminList.forEach(admin => {
+                    html += `
+                        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: #f8f9fa;">
+                            <h4 style="margin: 0 0 10px 0; color: #333;">${admin.fullName}</h4>
+                            <p style="margin: 5px 0;"><strong>Username:</strong> ${admin.username}</p>
+                            <p style="margin: 5px 0;"><strong>Role:</strong> ${admin.role}</p>
+                            <p style="margin: 5px 0;"><strong>Points:</strong> ${admin.points}</p>
+                            <p style="margin: 5px 0;"><strong>Messages:</strong> ${admin.messagesHandled}</p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += '<p style="color: #666; text-align: center; padding: 20px;">ไม่มีข้อมูลแอดมิน</p>';
+            }
+            
+            html += `
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">🔄 Reload Page</button>
+                    <button onclick="testApiConnection()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">🔧 Test API</button>
+                </div>
+            `;
+            
+            emergencyDiv.innerHTML = html;
+            
+            // Remove existing emergency display if any
+            const existing = document.getElementById('emergencyAdminDisplay');
+            if (existing) existing.remove();
+            
+            mainContent.appendChild(emergencyDiv);
+            
+            console.log('✅ Emergency display created successfully');
         }
 
         // Show loading spinner
@@ -1292,7 +1398,7 @@
             const testBtn = document.createElement('button');
             testBtn.id = 'apiTestBtn';
             testBtn.style.cssText = `
-                position: fixed; bottom: 20px; right: 20px; 
+                position: fixed; bottom: 20px; left: 20px; 
                 background: #007bff; color: white; 
                 padding: 12px 20px; border: none; border-radius: 25px; 
                 cursor: pointer; font-weight: 500; z-index: 2000;
@@ -1302,6 +1408,39 @@
             testBtn.innerHTML = '🔧 ทดสอบ API';
             testBtn.onclick = testApiConnection;
             document.body.appendChild(testBtn);
+            
+            // Add reload button too
+            const reloadBtn = document.createElement('button');
+            reloadBtn.id = 'reloadBtn';
+            reloadBtn.style.cssText = `
+                position: fixed; bottom: 20px; left: 180px; 
+                background: #28a745; color: white; 
+                padding: 12px 20px; border: none; border-radius: 25px; 
+                cursor: pointer; font-weight: 500; z-index: 2000;
+                box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+            `;
+            reloadBtn.innerHTML = '🔄 โหลดใหม่';
+            reloadBtn.onclick = function() {
+                location.reload();
+            };
+            document.body.appendChild(reloadBtn);
+            
+            // Add force load button
+            const forceLoadBtn = document.createElement('button');
+            forceLoadBtn.id = 'forceLoadBtn';
+            forceLoadBtn.style.cssText = `
+                position: fixed; bottom: 20px; left: 330px; 
+                background: #ffc107; color: black; 
+                padding: 12px 20px; border: none; border-radius: 25px; 
+                cursor: pointer; font-weight: 500; z-index: 2000;
+                box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+            `;
+            forceLoadBtn.innerHTML = '⚡ Force Load';
+            forceLoadBtn.onclick = function() {
+                console.log('🔧 Force loading admins...');
+                loadAdmins();
+            };
+            document.body.appendChild(forceLoadBtn);
             
             // Add pulse animation
             const style = document.createElement('style');
@@ -1324,22 +1463,61 @@
             }
             
             try {
-                // Test basic API endpoint
-                const response = await fetch(`${API_BASE_URL}/admin/test`);
-                const data = await response.json();
+                console.log('🧪 Testing API connection...');
+                console.log('🔗 API Base URL:', API_BASE_URL);
                 
-                if (response.ok) {
-                    showSuccessMessage('✅ API ทำงานปกติ: ' + data.message);
-                    // Remove test button if API works
-                    if (testBtn) testBtn.remove();
-                    // Reload admins from API
-                    loadAdmins();
+                // Test basic API endpoint first
+                const testResponse = await fetch(`${API_BASE_URL}/admin/test`);
+                console.log('📡 Test Response status:', testResponse.status);
+                
+                if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    console.log('✅ Test endpoint success:', testData);
+                    showSuccessMessage('✅ API ทำงานปกติ: ' + testData.message);
                 } else {
-                    throw new Error(data.error || 'API Test Failed');
+                    console.log('⚠️ Test endpoint failed, trying admin endpoint directly...');
                 }
+                
+                // Test admin list endpoint
+                const adminResponse = await fetch(`${API_BASE_URL}/admin`);
+                console.log('📡 Admin Response status:', adminResponse.status);
+                console.log('📡 Admin Response headers:', Object.fromEntries(adminResponse.headers.entries()));
+                
+                if (adminResponse.ok) {
+                    const adminData = await adminResponse.json();
+                    console.log('📊 Admin Data received:', adminData);
+                    console.log('📊 Admin Data length:', adminData.length);
+                    
+                    // Force update the global admins variable
+                    admins = adminData;
+                    
+                    // Force display with detailed logging
+                    console.log('🎯 Force displaying admins...');
+                    displayAdmins(adminData);
+                    
+                    showSuccessMessage(`✅ API ทำงานปกติ! โหลดข้อมูล ${adminData.length} แอดมิน`);
+                    
+                    // Remove test buttons if API works
+                    const buttons = ['apiTestBtn', 'reloadBtn', 'forceLoadBtn'];
+                    buttons.forEach(id => {
+                        const btn = document.getElementById(id);
+                        if (btn) btn.remove();
+                    });
+                    
+                } else {
+                    const errorText = await adminResponse.text();
+                    console.error('❌ Admin endpoint error:', errorText);
+                    throw new Error(`Admin API failed: ${adminResponse.status} - ${errorText}`);
+                }
+                
             } catch (error) {
-                console.error('API test failed:', error);
+                console.error('❌ API test failed:', error);
                 showErrorMessage('❌ API ไม่ทำงาน: ' + error.message + '\n💡 กำลังใช้ข้อมูลตัวอย่าง');
+                
+                // Use fallback data
+                console.log('🔄 Using fallback data...');
+                admins = createFallbackAdmins();
+                displayAdmins(admins);
                 
                 if (testBtn) {
                     testBtn.innerHTML = '🔧 ทดสอบ API';
@@ -1383,21 +1561,56 @@
             }
         });
 
-        // Initialize page
+        // Initialize page with better error handling
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOMContentLoaded fired');
+            
+            // Initialize theme
             loadTheme();
+            
             // Create global instance for theme toggle compatibility
             window.KingChatMenuInstance = new KingChatMenu();
             
-            // Load admins with delay to ensure DOM is ready
+            // Force load admins immediately
+            console.log('⚡ Force loading admins immediately...');
+            loadAdmins();
+            
+            // Add debugging buttons
             setTimeout(() => {
-                console.log('⏰ Starting loadAdmins after delay');
-                loadAdmins();
-            }, 500);
+                addApiTestButton();
+            }, 1000);
+            
+            // Backup attempts
+            setTimeout(() => {
+                console.log('⏰ Backup attempt 1 (2 seconds)');
+                if (admins.length === 0) {
+                    console.log('🔄 No admins loaded yet, retrying...');
+                    loadAdmins();
+                }
+            }, 2000);
+            
+            setTimeout(() => {
+                console.log('⏰ Backup attempt 2 (5 seconds)');
+                if (admins.length === 0) {
+                    console.log('🔄 Still no admins, using fallback data...');
+                    admins = createFallbackAdmins();
+                    displayAdmins(admins);
+                    showInfoMessage('💡 กำลังใช้ข้อมูลตัวอย่าง เนื่องจากไม่สามารถเชื่อมต่อฐานข้อมูลได้');
+                }
+            }, 5000);
+            
+            // Emergency check
+            setTimeout(() => {
+                console.log('🚨 Emergency check (10 seconds)');
+                const tbody = document.getElementById('adminTableBody');
+                if (tbody && tbody.children.length === 0) {
+                    console.log('🚨 Table is empty, creating emergency display...');
+                    createEmergencyAdminDisplay(createFallbackAdmins());
+                }
+            }, 10000);
         });
 
-        // Fallback initialization if DOMContentLoaded already fired
+        // Ensure fallback for immediate execution
         if (document.readyState === 'loading') {
             console.log('📄 Document still loading, waiting for DOMContentLoaded');
         } else {
@@ -1406,6 +1619,16 @@
                 loadTheme();
                 window.KingChatMenuInstance = new KingChatMenu();
                 loadAdmins();
+                addApiTestButton();
+                
+                // Quick fallback
+                setTimeout(() => {
+                    if (admins.length === 0) {
+                        console.log('🔄 Quick fallback: Using demo data');
+                        admins = createFallbackAdmins();
+                        displayAdmins(admins);
+                    }
+                }, 3000);
             }, 100);
         }
     </script>

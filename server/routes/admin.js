@@ -77,23 +77,50 @@ router.get('/', async (req, res) => {
 // GET /api/admin/:id - Get admin by ID
 router.get('/:id', async (req, res) => {
   try {
-    const admin = await Admin.findByPk(req.params.id);
-    if (!admin) {
-      return res.status(404).json({ error: 'Admin not found' });
+    const dbAvailable = await isDatabaseAvailable();
+    
+    if (dbAvailable) {
+      const result = await pool.query(
+        'SELECT id, username, email, "displayName", role FROM admins WHERE id = $1',
+        [req.params.id]
+      );
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Admin not found' });
+      }
+      
+      const admin = result.rows[0];
+      const transformedAdmin = {
+        id: admin.id,
+        fullName: admin.displayName || admin.username,
+        username: admin.username,
+        role: admin.role,
+        level: admin.role === 'admin' ? 100 : 80,
+        points: 0,
+        messagesHandled: 0,
+        lastLogin: admin.updatedAt || admin.createdAt
+      };
+      
+      res.json(transformedAdmin);
+    } else {
+      const admin = demoAdmins.find(a => a.id == req.params.id);
+      if (!admin) {
+        return res.status(404).json({ error: 'Admin not found' });
+      }
+      
+      const transformedAdmin = {
+        id: admin.id,
+        fullName: admin.displayName || admin.username,
+        username: admin.username,
+        role: admin.role,
+        level: admin.role === 'admin' ? 100 : 80,
+        points: Math.floor(Math.random() * 5000),
+        messagesHandled: Math.floor(Math.random() * 500),
+        lastLogin: admin.createdAt
+      };
+      
+      res.json(transformedAdmin);
     }
-    
-    const transformedAdmin = {
-      id: admin.id,
-      fullName: admin.full_name,
-      username: admin.username,
-      role: admin.role,
-      level: admin.level,
-      points: admin.points,
-      messagesHandled: admin.messages_handled,
-      lastLogin: admin.created_at
-    };
-    
-    res.json(transformedAdmin);
   } catch (error) {
     console.error('Error fetching admin:', error);
     res.status(500).json({ error: 'Failed to fetch admin' });
