@@ -192,63 +192,57 @@ table, th, td {
   border-right: 1px solid var(--line-border-light);
   box-shadow: var(--line-shadow-sm);
   min-width: 220px; /* ให้ sidebar กว้างพอสำหรับข้อความ */
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0; /* เพิ่ม padding ด้านบนล่าง */
+  gap: 2px; /* ระยะห่างระหว่างเมนู */
 }
 
 .menu-item {
   color: var(--line-text-secondary);
   border-radius: 8px;
-  margin: 2px 8px;
+  margin: 0 8px; /* ลด margin ด้านบนล่าง */
   transition: all 0.2s ease;
   white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
   display: flex;
   align-items: center;
-  min-height: 48px; /* ความสูงขั้นต่ำ */
-  padding: 8px 12px; /* เพิ่ม padding */
+  min-height: 44px; /* ลดความสูงเล็กน้อย */
+  padding: 10px 12px; /* เพิ่ม padding */
+  text-decoration: none;
 }
 
 .menu-item:hover {
   background: var(--line-bg-secondary);
   color: var(--line-text-primary);
+  transform: translateX(2px); /* เอฟเฟกต์เลื่อนเล็กน้อย */
 }
 
 .menu-item.active {
   background: var(--line-green);
   color: white;
   font-weight: 600;
+  box-shadow: 0 2px 4px rgba(6, 182, 212, 0.2);
 }
 
-.menu-item .menu-text {
+.menu-item i {
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0; /* ไม่ให้ icon หดเล็ก */
+}
+
+.menu-item span {
   flex: 1;
   font-size: 14px;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; /* ป้องกันตกบรรทัด */
-  line-height: 1.2;
-}
-
-/* เฉพาะกับข้อความยาวๆ เช่น "จัดการผู้ใช้" */
-.menu-item .menu-text:lang(th) {
-  font-size: 13px; /* ลดขนาดตัวอักษรเล็กน้อยสำหรับภาษาไทย */
-  letter-spacing: -0.2px; /* ลดระยะห่างระหว่างตัวอักษร */
-}
-
-.menu-item .menu-icon {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  margin-right: 12px;
-  flex-shrink: 0; /* ไม่ให้ icon หดเล็ก */
-}
-
-/* เฉพาะสำหรับรายการที่มีข้อความยาว */
-.admin-only .menu-text {
-  font-size: 13px !important;
-  letter-spacing: -0.3px;
-  font-weight: 500;
+  line-height: 1.3;
 }
 
 /* Responsive สำหรับหน้าจอเล็ก */
