@@ -51,6 +51,27 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Security headers middleware
+app.use((req, res, next) => {
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data: blob: https:; " +
+    "font-src 'self' data:; " +
+    "connect-src 'self' wss: ws:; " +
+    "frame-src 'self';"
+  );
+  
+  // Other security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  next();
+});
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
