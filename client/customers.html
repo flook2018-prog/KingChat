@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👥 รายชื่อลูกค้า - KingChat</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+
     <link rel="stylesheet" href="css/loading.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/line-theme.css">
@@ -611,10 +611,7 @@
                             <i class="icon">💬</i>
                             <span class="menu-text">แชท</span>
                         </a>
-                        <a href="#" class="menu-item" onclick="loadPage('dashboard')" data-page="dashboard">
-                            <i class="icon">📊</i>
-                            <span class="menu-text">แดชบอร์ด</span>
-                        </a>
+
                         <a href="#" class="menu-item" onclick="loadPage('accounts')" data-page="accounts">
                             <i class="icon">📱</i>
                             <span class="menu-text">บัญชี LINE OA</span>
@@ -793,9 +790,7 @@
                 case 'chat':
                     window.location.href = 'chat.html';
                     break;
-                case 'dashboard':
-                    window.location.href = 'dashboard-fixed.html';
-                    break;
+
                 case 'accounts':
                     alert('📱 จะเปิดหน้าจัดการบัญชี LINE OA');
                     break;

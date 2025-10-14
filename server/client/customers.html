@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👥 รายชื่อลูกค้า - KingChat</title>
+    <script src="js/menu.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/loading.css">
@@ -20,6 +21,9 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             overflow-x: hidden;
+            /* Add margin for menu and header */
+            margin-left: 260px;
+            margin-top: 80px;
         }
 
         .navbar {
@@ -527,6 +531,16 @@
         // Customers Page Authentication and Loading
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📍 Customers page loading...');
+            
+            // Initialize menu system
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    new KingChatMenu();
+                    console.log('✅ Menu initialized');
+                }
+            } catch (e) {
+                console.warn('Menu initialization failed:', e);
+            }
             
             // Show loading animation
             const loadingOverlay = document.getElementById('loadingOverlay');

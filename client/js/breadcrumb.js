@@ -149,48 +149,42 @@ class BreadcrumbManager {
     this.routes.set('/', {
       title: 'หน้าหลัก',
       icon: '🏠',
-      path: '/dashboard.html'
+      path: '/chat.html'
     });
     
-    this.routes.set('/dashboard.html', {
-      title: 'หน้าหลัก',
-      icon: '🏠'
+    this.routes.set('/chat.html', {
+      title: 'แชท',
+      icon: '💬'
     });
 
     this.routes.set('/pages/lineoa.html', {
       title: 'จัดการ LINE OA',
       icon: '📱',
-      parent: '/dashboard.html'
+      parent: '/chat.html'
     });
 
     this.routes.set('/pages/customers.html', {
       title: 'รายชื่อลูกค้า',
       icon: '👥',
-      parent: '/dashboard.html'
-    });
-
-    this.routes.set('/pages/chat.html', {
-      title: 'แชท',
-      icon: '💭',
-      parent: '/dashboard.html'
+      parent: '/chat.html'
     });
 
     this.routes.set('/pages/admin.html', {
       title: 'จัดการผู้ใช้',
       icon: '⚙️',
-      parent: '/dashboard.html'
+      parent: '/chat.html'
     });
 
     this.routes.set('/pages/profile.html', {
       title: 'โปรไฟล์',
       icon: '👤',
-      parent: '/dashboard.html'
+      parent: '/chat.html'
     });
 
     this.routes.set('/pages/settings.html', {
       title: 'ตั้งค่า',
       icon: '🔧',
-      parent: '/dashboard.html'
+      parent: '/chat.html'
     });
 
     this.routes.set('/login.html', {
