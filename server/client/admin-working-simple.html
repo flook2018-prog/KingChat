@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .admin-card {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-super {
+            background: #ffd700;
+            color: #856404;
+        }
+
+        .role-admin {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 2px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍💼 จัดการแอดมิน</h1>
+            <p>ระบบจัดการข้อมูลแอดมิน KingChat</p>
+        </div>
+
+        <div class="content">
+            <div>
+                <button class="btn btn-primary" onclick="loadAdmins()">🔄 โหลดข้อมูลใหม่</button>
+                <button class="btn btn-success" onclick="testAPI()">🔧 ทดสอบ API</button>
+                <button class="btn btn-warning" onclick="openAdminStatus()">📊 Admin Status</button>
+            </div>
+
+            <div id="statusMessage"></div>
+
+            <table class="admin-table" id="adminTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ชื่อเต็ม</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                    <tr>
+                        <td colspan="5" class="loading">
+                            🔄 กำลังโหลดข้อมูลแอดมิน...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="adminCards"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://kingchat.up.railway.app/api/admin';
+        
+        function showMessage(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            const className = type === 'error' ? 'error' : 'success';
+            statusDiv.innerHTML = `<div class="${className}">${message}</div>`;
+            console.log(message);
+        }
+        
+        function clearMessage() {
+            document.getElementById('statusMessage').innerHTML = '';
+        }
+        
+        async function loadAdmins() {
+            showMessage('🔄 กำลังโหลดข้อมูลแอดมิน...', 'info');
+            
+            try {
+                console.log('🔗 API URL:', API_URL);
+                const response = await fetch(API_URL);
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const admins = await response.json();
+                console.log('📊 Received admins:', admins);
+                
+                if (!Array.isArray(admins)) {
+                    throw new Error('ข้อมูลที่ได้รับไม่ใช่ array');
+                }
+                
+                showMessage(`✅ โหลดสำเร็จ! ได้ข้อมูล ${admins.length} รายการ`, 'success');
+                displayAdmins(admins);
+                
+            } catch (error) {
+                console.error('❌ Error loading admins:', error);
+                showMessage(`❌ เกิดข้อผิดพลาด: ${error.message}`, 'error');
+                
+                // Show error in table
+                const tbody = document.getElementById('adminTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #dc3545;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                            <h3>เกิดข้อผิดพลาด</h3>
+                            <p>${error.message}</p>
+                            <button onclick="loadAdmins()" class="btn btn-primary" style="margin-top: 15px;">🔄 ลองใหม่</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        function displayAdmins(adminList) {
+            console.log('🎯 displayAdmins called with:', adminList?.length || 0, 'admins');
+            
+            const tbody = document.getElementById('adminTableBody');
+            const cardsDiv = document.getElementById('adminCards');
+            
+            if (!tbody) {
+                console.error('❌ adminTableBody not found!');
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            cardsDiv.innerHTML = '';
+            
+            if (!adminList || adminList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                            <h3>ไม่พบข้อมูลแอดมิน</h3>
+                            <button onclick="loadAdmins()" class="btn btn-primary" style="margin-top: 15px;">🔄 โหลดใหม่</button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Display in table
+            adminList.forEach((admin, index) => {
+                const roleIcon = admin.role === 'super_admin' ? '👑' : '👨‍💼';
+                const roleClass = admin.role === 'super_admin' ? 'role-super' : 'role-admin';
+                const roleText = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${admin.id}</td>
+                    <td>${roleIcon} ${admin.fullName || admin.username}</td>
+                    <td>${admin.username}</td>
+                    <td><span class="role-badge ${roleClass}">${roleText}</span></td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editAdmin(${admin.id})">✏️ แก้ไข</button>
+                        <button class="btn btn-danger" onclick="deleteAdmin(${admin.id})">🗑️ ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                
+                // Also display as cards
+                const card = document.createElement('div');
+                card.className = 'admin-card';
+                card.innerHTML = `
+                    <strong>${roleIcon} ${admin.fullName || admin.username}</strong><br>
+                    <small>Username: ${admin.username} | Role: ${admin.role} | ID: ${admin.id}</small>
+                `;
+                cardsDiv.appendChild(card);
+                
+                console.log(`✅ Added admin ${index + 1}: ${admin.username}`);
+            });
+            
+            clearMessage();
+        }
+        
+        async function testAPI() {
+            showMessage('🧪 ทดสอบการเชื่อมต่อ API...', 'info');
+            
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                showMessage(`✅ API ทำงานปกติ! ได้ข้อมูล ${data.length} รายการ`, 'success');
+                console.log('API Test Result:', data);
+            } catch (error) {
+                showMessage(`❌ API ไม่ทำงาน: ${error.message}`, 'error');
+                console.error('API Test Error:', error);
+            }
+        }
+        
+        function editAdmin(id) {
+            showMessage(`📝 แก้ไขแอดมิน ID: ${id} (ยังไม่ได้ implement)`, 'info');
+        }
+        
+        function deleteAdmin(id) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบแอดมินนี้?')) {
+                showMessage(`🗑️ ลบแอดมิน ID: ${id} (ยังไม่ได้ implement)`, 'info');
+            }
+        }
+        
+        function openAdminStatus() {
+            window.open('https://kingchat.up.railway.app/admin-status.html', '_blank');
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Admin Working Simple - Page loaded');
+            showMessage('🚀 หน้าเว็บโหลดเสร็จ - กำลังโหลดข้อมูลแอดมิน...', 'info');
+            
+            // Load admin data
+            setTimeout(() => {
+                loadAdmins();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
