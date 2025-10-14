@@ -9,7 +9,7 @@ const STATIC_FILES = [
   '/dashboard.html',
   '/login.html',
   '/css/style.css',
-  '/css/dashboard.css',
+
   '/css/login.css',
   '/css/loading.css',
   '/css/mobile.css',
@@ -22,7 +22,7 @@ const STATIC_FILES = [
   '/js/breadcrumb.js',
   '/js/mobile.js',
   '/js/notifications.js',
-  '/js/dashboard.js',
+
   '/js/login.js',
   '/pages/chat.html',
   '/pages/customers.html',
