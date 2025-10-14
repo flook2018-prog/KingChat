@@ -17,29 +17,34 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
-            /* Adjusted for better layout */
-            margin-left: 240px;
-            margin-top: 70px;
+            margin: 0;
+            padding: 0;
         }
 
         /* Main Layout */
         .chat-container {
             display: flex;
-            height: calc(100vh - 70px); /* Subtract header height */
-            width: calc(100vw - 240px); /* Subtract menu width */
-            max-width: 100%;
+            height: calc(100vh - 70px);
+            width: calc(100vw - 240px);
+            margin-left: 240px;
+            margin-top: 70px;
+            background: white;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
         }
 
         /* Left Sidebar - Customer List */
         .customer-sidebar {
-            width: 320px;
-            min-width: 300px;
-            max-width: 400px;
+            width: 340px;
+            min-width: 320px;
+            max-width: 380px;
             background: white;
             border-right: 1px solid #e9ecef;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
         }
 
         /* Chat Main Area */
@@ -53,15 +58,15 @@
 
         /* Right Sidebar - Customer Profile */
         .customer-profile-sidebar {
-            width: 300px;
-            min-width: 280px;
-            max-width: 350px;
+            width: 320px;
+            min-width: 300px;
+            max-width: 360px;
             background: #f8f9fa;
             border-left: 1px solid #e9ecef;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            box-shadow: -2px 0 8px rgba(0,0,0,0.05);
         }
 
         /* Chat Header */
@@ -671,30 +676,36 @@
         /* Responsive Design */
         @media (max-width: 1400px) {
             .customer-profile-sidebar {
-                width: 280px;
+                width: 300px;
+            }
+            .customer-sidebar {
+                width: 320px;
             }
         }
 
         @media (max-width: 1200px) {
+            .chat-container {
+                margin-left: 220px;
+                width: calc(100vw - 220px);
+            }
+            
             .customer-sidebar {
                 width: 300px;
             }
+            
             .customer-profile-sidebar {
-                width: 260px;
+                width: 280px;
             }
         }
 
         @media (max-width: 1024px) {
-            body {
-                margin-left: 220px;
-            }
-            
             .chat-container {
-                width: calc(100vw - 220px);
+                margin-left: 200px;
+                width: calc(100vw - 200px);
             }
 
             .customer-profile-sidebar {
-                display: none; /* Hide on smaller screens */
+                display: none;
             }
 
             .customer-sidebar {
@@ -703,16 +714,11 @@
         }
 
         @media (max-width: 768px) {
-            body {
+            .chat-container {
                 margin-left: 0;
                 margin-top: 60px;
-            }
-
-            .chat-container {
                 width: 100vw;
                 height: calc(100vh - 60px);
-                margin-left: 0;
-                margin-top: 0;
             }
 
             .customer-sidebar {
@@ -720,10 +726,10 @@
                 left: -100%;
                 top: 60px;
                 height: calc(100vh - 60px);
-                width: 320px;
+                width: 300px;
                 z-index: 1000;
                 transition: left 0.3s ease;
-                box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+                box-shadow: 4px 0 12px rgba(0,0,0,0.15);
             }
 
             .customer-sidebar.mobile-open {
