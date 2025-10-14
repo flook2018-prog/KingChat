@@ -17,25 +17,30 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
-            /* Temporarily remove margins to debug menu visibility */
-            /* margin-left: 260px; */
-            /* margin-top: 80px; */
+            /* Add margin for menu and header */
+            margin-left: 260px;
+            margin-top: 80px;
         }
 
         /* Main Layout */
         .chat-container {
             display: flex;
-            height: 100vh; /* Full height - body margin handles offset */
-            width: 100vw; /* Full width - body margin handles offset */
+            height: calc(100vh - 80px); /* Subtract header height */
+            width: calc(100vw - 260px); /* Subtract menu width */
+            max-width: 100%;
+            overflow: hidden;
         }
 
         /* Left Sidebar - Customer List */
         .customer-sidebar {
-            width: 380px;
+            width: 350px; /* Reduced from 380px */
+            min-width: 350px;
+            max-width: 350px;
             background: white;
             border-right: 1px solid #e9ecef;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         /* Chat Main Area */
@@ -49,12 +54,15 @@
 
         /* Right Sidebar - Customer Profile */
         .customer-profile-sidebar {
-            width: 320px;
+            width: 280px; /* Reduced from 320px */
+            min-width: 280px;
+            max-width: 280px;
             background: #f8f9fa;
             border-left: 1px solid #e9ecef;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         /* Chat Header */
@@ -620,19 +628,19 @@
         }
 
         /* Responsive Design */
+        @media (max-width: 1400px) {
+            .customer-profile-sidebar {
+                display: none; /* Hide profile sidebar on smaller screens */
+            }
+        }
+
         @media (max-width: 1200px) {
             .customer-sidebar {
                 width: 320px;
             }
-            .customer-profile-sidebar {
-                width: 280px;
-            }
         }
 
         @media (max-width: 1024px) {
-            .customer-profile-sidebar {
-                display: none;
-            }
             .customer-sidebar {
                 width: 300px;
             }
