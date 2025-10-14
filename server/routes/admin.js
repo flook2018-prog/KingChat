@@ -1,22 +1,10 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
 // Use direct database connection with fallback
 const { pool } = require('../models/database');
 console.log('✅ Admin routes loading with direct PostgreSQL connection');
-
-// In-memory storage for demo mode when DB is not available
-let demoAdmins = [
-  {
-    id: 1,
-    username: 'admin',
-    email: 'admin@kingchat.com',
-    displayName: 'System Administrator',
-    role: 'admin',
-    createdAt: new Date(),
-    password: '$2a$12$x3Fadf4Vfm/lPy0umF5sO.V5UEUu2LPe28KrL5W.FIAQE5d.kdD1y' // admin123
-  }
-];
 
 // Check if database is available
 async function isDatabaseAvailable() {
@@ -24,6 +12,7 @@ async function isDatabaseAvailable() {
     await pool.query('SELECT 1');
     return true;
   } catch (error) {
+    console.error('Database check failed:', error);
     return false;
   }
 }
@@ -36,7 +25,7 @@ router.get('/', async (req, res) => {
     if (dbAvailable) {
       console.log('📁 Using database for admin list');
       const result = await pool.query(
-        'SELECT id, username, email, "displayName", role FROM admins ORDER BY id'
+        'SELECT id, username, email, "displayName", role, "createdAt" FROM admins ORDER BY id'
       );
       
       // Transform data to match frontend expectations
@@ -44,45 +33,45 @@ router.get('/', async (req, res) => {
         id: admin.id,
         fullName: admin.displayName || admin.username,
         username: admin.username,
+        email: admin.email,
         role: admin.role,
-        level: admin.role === 'admin' ? 100 : 80,
-        points: 0, // Could be calculated or stored separately
-        messagesHandled: 0, // Could be calculated from messages table
-        lastLogin: admin.updatedAt || admin.createdAt
+        createdAt: admin.createdAt
       }));
       
+      console.log(`✅ Retrieved ${transformedAdmins.length} admins from database`);
       res.json(transformedAdmins);
     } else {
-      console.log('💾 Using demo data for admin list');
-      // Use demo data when database is not available
-      const transformedAdmins = demoAdmins.map(admin => ({
-        id: admin.id,
-        fullName: admin.displayName || admin.username,
-        username: admin.username,
-        role: admin.role,
-        level: admin.role === 'admin' ? 100 : 80,
-        points: Math.floor(Math.random() * 5000), // Random points for demo
-        messagesHandled: Math.floor(Math.random() * 500),
-        lastLogin: admin.createdAt
-      }));
-      
-      res.json(transformedAdmins);
+      console.log('⚠️ Database not available, using demo data');
+      res.json([
+        {
+          id: 1,
+          fullName: 'System Administrator',
+          username: 'admin',
+          email: 'admin@kingchat.com',
+          role: 'admin',
+          createdAt: new Date()
+        }
+      ]);
     }
   } catch (error) {
-    console.error('Error fetching admins:', error);
-    res.status(500).json({ error: 'Failed to fetch admins' });
+    console.error('❌ Error in GET /api/admin:', error);
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      message: error.message 
+    });
   }
 });
 
-// GET /api/admin/:id - Get admin by ID
+// GET /api/admin/:id - Get specific admin
 router.get('/:id', async (req, res) => {
   try {
+    const adminId = parseInt(req.params.id);
     const dbAvailable = await isDatabaseAvailable();
     
     if (dbAvailable) {
       const result = await pool.query(
-        'SELECT id, username, email, "displayName", role FROM admins WHERE id = $1',
-        [req.params.id]
+        'SELECT id, username, email, "displayName", role, "createdAt" FROM admins WHERE id = $1',
+        [adminId]
       );
       
       if (result.rows.length === 0) {
@@ -94,256 +83,193 @@ router.get('/:id', async (req, res) => {
         id: admin.id,
         fullName: admin.displayName || admin.username,
         username: admin.username,
+        email: admin.email,
         role: admin.role,
-        level: admin.role === 'admin' ? 100 : 80,
-        points: 0,
-        messagesHandled: 0,
-        lastLogin: admin.updatedAt || admin.createdAt
+        createdAt: admin.createdAt
       };
       
       res.json(transformedAdmin);
     } else {
-      const admin = demoAdmins.find(a => a.id == req.params.id);
-      if (!admin) {
-        return res.status(404).json({ error: 'Admin not found' });
-      }
-      
-      const transformedAdmin = {
-        id: admin.id,
-        fullName: admin.displayName || admin.username,
-        username: admin.username,
-        role: admin.role,
-        level: admin.role === 'admin' ? 100 : 80,
-        points: Math.floor(Math.random() * 5000),
-        messagesHandled: Math.floor(Math.random() * 500),
-        lastLogin: admin.createdAt
-      };
-      
-      res.json(transformedAdmin);
+      res.status(404).json({ error: 'Database not available' });
     }
   } catch (error) {
-    console.error('Error fetching admin:', error);
-    res.status(500).json({ error: 'Failed to fetch admin' });
+    console.error('❌ Error in GET /api/admin/:id:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 });
 
 // POST /api/admin - Create new admin
 router.post('/', async (req, res) => {
   try {
-    const { fullName, username, password, role, points } = req.body;
+    const { fullName, username, email, password, role } = req.body;
     
-    // Validate required fields
-    if (!fullName || !username || !password || !role) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: fullName, username, password, role' 
-      });
+    // Validation
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
     }
-
-    console.log('🔐 Creating new admin:', username);
-
+    
     const dbAvailable = await isDatabaseAvailable();
     
     if (dbAvailable) {
-      console.log('📁 Using database for admin creation');
-      
-      // Hash password using bcrypt
-      const bcrypt = require('bcrypt');
-      const hashedPassword = await bcrypt.hash(password, 12);
-      
-      // Insert new admin into database
-      const result = await pool.query(
-        `INSERT INTO admins (username, email, password, "displayName", role, "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-         RETURNING id, username, email, "displayName", role, "createdAt"`,
-        [
-          username.toLowerCase(),
-          `${username}@kingchat.com`,
-          hashedPassword,
-          fullName,
-          role
-        ]
+      // Check if username already exists
+      const existingUser = await pool.query(
+        'SELECT id FROM admins WHERE username = $1',
+        [username]
       );
-
-      const newAdmin = result.rows[0];
-      console.log('✅ Admin created successfully in database:', newAdmin.username);
       
+      if (existingUser.rows.length > 0) {
+        return res.status(400).json({ error: 'Username already exists' });
+      }
+      
+      // Hash password
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      // Insert new admin
+      const result = await pool.query(
+        'INSERT INTO admins (username, email, "displayName", password, role, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, username, email, "displayName", role, "createdAt"',
+        [username, email || null, fullName || username, hashedPassword, role || 'admin']
+      );
+      
+      const newAdmin = result.rows[0];
       const transformedAdmin = {
         id: newAdmin.id,
-        fullName: newAdmin.displayName,
+        fullName: newAdmin.displayName || newAdmin.username,
         username: newAdmin.username,
+        email: newAdmin.email,
         role: newAdmin.role,
-        level: role === 'super_admin' ? 100 : 80,
-        points: points || 0,
-        messagesHandled: 0,
-        lastLogin: newAdmin.createdAt
+        createdAt: newAdmin.createdAt
       };
       
+      console.log(`✅ Created new admin: ${username}`);
       res.status(201).json(transformedAdmin);
     } else {
-      console.log('💾 Using demo data for admin creation');
-      
-      // Hash password using bcrypt for demo data too
-      const bcrypt = require('bcrypt');
-      const hashedPassword = await bcrypt.hash(password, 12);
-      
-      // Create new admin in demo data
-      const newAdmin = {
-        id: demoAdmins.length + 1,
-        username: username.toLowerCase(),
-        email: `${username}@kingchat.com`,
-        displayName: fullName,
-        role: role,
-        createdAt: new Date(),
-        password: hashedPassword
-      };
-      
-      demoAdmins.push(newAdmin);
-      console.log('✅ Admin created successfully in demo data:', newAdmin.username);
-      
-      const transformedAdmin = {
-        id: newAdmin.id,
-        fullName: newAdmin.displayName,
-        username: newAdmin.username,
-        role: newAdmin.role,
-        level: role === 'super_admin' ? 100 : 80,
-        points: points || 0,
-        messagesHandled: 0,
-        lastLogin: newAdmin.createdAt
-      };
-      
-      res.status(201).json(transformedAdmin);
+      res.status(503).json({ error: 'Database not available' });
     }
   } catch (error) {
-    console.error('Error creating admin:', error);
-    if (error.code === '23505') { // Unique constraint violation
-      res.status(400).json({ error: 'Username already exists' });
-    } else {
-      res.status(500).json({ error: 'Failed to create admin: ' + error.message });
-    }
+    console.error('❌ Error in POST /api/admin:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 });
 
 // PUT /api/admin/:id - Update admin
 router.put('/:id', async (req, res) => {
   try {
-    const { fullName, username, password, role, points } = req.body;
+    const adminId = parseInt(req.params.id);
+    const { fullName, username, email, password, role } = req.body;
     
-    console.log('🔄 Updating admin ID:', req.params.id);
-
-    // Build update query dynamically
-    const updateFields = [];
-    const updateValues = [];
-    let paramIndex = 1;
-
-    if (fullName) {
-      updateFields.push(`"displayName" = $${paramIndex++}`);
-      updateValues.push(fullName);
+    // Validation
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
     }
-    if (username) {
-      updateFields.push(`username = $${paramIndex++}`);
-      updateValues.push(username.toLowerCase());
-    }
-    if (password) {
-      console.log('🔐 Hashing new password...');
-      const bcrypt = require('bcrypt');
-      const hashedPassword = await bcrypt.hash(password, 12);
-      updateFields.push(`password = $${paramIndex++}`);
-      updateValues.push(hashedPassword);
-      console.log('✅ Password hashed and ready for update');
-    }
-    if (role) {
-      updateFields.push(`role = $${paramIndex++}`);
-      updateValues.push(role);
-    }
-
-    // Add updated timestamp
-    updateFields.push(`"updatedAt" = NOW()`);
     
-    // Add ID for WHERE clause
-    updateValues.push(req.params.id);
+    const dbAvailable = await isDatabaseAvailable();
     
-    if (updateFields.length === 1) { // Only timestamp was added
-      return res.status(400).json({ error: 'No fields to update' });
-    }
-
-    const updateQuery = `
-      UPDATE admins 
-      SET ${updateFields.join(', ')} 
-      WHERE id = $${paramIndex}
-      RETURNING id, username, email, "displayName", role, "updatedAt"
-    `;
-
-    const result = await pool.query(updateQuery, updateValues);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Admin not found' });
-    }
-
-    const updatedAdmin = result.rows[0];
-    console.log('✅ Admin updated successfully:', updatedAdmin.username);
-    
-    const transformedAdmin = {
-      id: updatedAdmin.id,
-      fullName: updatedAdmin.displayName,
-      username: updatedAdmin.username,
-      role: updatedAdmin.role,
-      level: updatedAdmin.role === 'super_admin' ? 100 : 80,
-      points: points || 0,
-      messagesHandled: 0,
-      lastLogin: updatedAdmin.updatedAt
-    };
-    
-    res.json(transformedAdmin);
-  } catch (error) {
-    console.error('Error updating admin:', error);
-    if (error.code === '23505') { // Unique constraint violation
-      res.status(400).json({ error: 'Username already exists' });
+    if (dbAvailable) {
+      // Check if admin exists
+      const existingAdmin = await pool.query(
+        'SELECT id FROM admins WHERE id = $1',
+        [adminId]
+      );
+      
+      if (existingAdmin.rows.length === 0) {
+        return res.status(404).json({ error: 'Admin not found' });
+      }
+      
+      // Check if username is taken by another user
+      const usernameCheck = await pool.query(
+        'SELECT id FROM admins WHERE username = $1 AND id != $2',
+        [username, adminId]
+      );
+      
+      if (usernameCheck.rows.length > 0) {
+        return res.status(400).json({ error: 'Username already exists' });
+      }
+      
+      let updateQuery;
+      let updateParams;
+      
+      if (password) {
+        // Update with password
+        const saltRounds = 12;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        
+        updateQuery = `
+          UPDATE admins 
+          SET username = $1, email = $2, "displayName" = $3, password = $4, role = $5, "updatedAt" = NOW()
+          WHERE id = $6
+          RETURNING id, username, email, "displayName", role, "createdAt"
+        `;
+        updateParams = [username, email || null, fullName || username, hashedPassword, role || 'admin', adminId];
+      } else {
+        // Update without password
+        updateQuery = `
+          UPDATE admins 
+          SET username = $1, email = $2, "displayName" = $3, role = $4, "updatedAt" = NOW()
+          WHERE id = $5
+          RETURNING id, username, email, "displayName", role, "createdAt"
+        `;
+        updateParams = [username, email || null, fullName || username, role || 'admin', adminId];
+      }
+      
+      const result = await pool.query(updateQuery, updateParams);
+      const updatedAdmin = result.rows[0];
+      
+      const transformedAdmin = {
+        id: updatedAdmin.id,
+        fullName: updatedAdmin.displayName || updatedAdmin.username,
+        username: updatedAdmin.username,
+        email: updatedAdmin.email,
+        role: updatedAdmin.role,
+        createdAt: updatedAdmin.createdAt
+      };
+      
+      console.log(`✅ Updated admin: ${username}`);
+      res.json(transformedAdmin);
     } else {
-      res.status(500).json({ error: 'Failed to update admin: ' + error.message });
+      res.status(503).json({ error: 'Database not available' });
     }
+  } catch (error) {
+    console.error('❌ Error in PUT /api/admin/:id:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 });
 
 // DELETE /api/admin/:id - Delete admin
 router.delete('/:id', async (req, res) => {
   try {
-    const result = await pool.query(
-      'DELETE FROM admins WHERE id = $1 RETURNING id, username',
-      [req.params.id]
-    );
+    const adminId = parseInt(req.params.id);
+    const dbAvailable = await isDatabaseAvailable();
     
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Admin not found' });
+    if (dbAvailable) {
+      // Check if admin exists
+      const existingAdmin = await pool.query(
+        'SELECT id, username FROM admins WHERE id = $1',
+        [adminId]
+      );
+      
+      if (existingAdmin.rows.length === 0) {
+        return res.status(404).json({ error: 'Admin not found' });
+      }
+      
+      // Prevent deleting the last admin
+      const adminCount = await pool.query('SELECT COUNT(*) as count FROM admins');
+      if (parseInt(adminCount.rows[0].count) <= 1) {
+        return res.status(400).json({ error: 'Cannot delete the last admin' });
+      }
+      
+      // Delete admin
+      await pool.query('DELETE FROM admins WHERE id = $1', [adminId]);
+      
+      console.log(`✅ Deleted admin: ${existingAdmin.rows[0].username}`);
+      res.json({ message: 'Admin deleted successfully' });
+    } else {
+      res.status(503).json({ error: 'Database not available' });
     }
-
-    const deletedAdmin = result.rows[0];
-    console.log('✅ Admin deleted successfully:', deletedAdmin.username);
-    
-    res.json({ 
-      message: 'Admin deleted successfully', 
-      id: req.params.id,
-      username: deletedAdmin.username
-    });
   } catch (error) {
-    console.error('Error deleting admin:', error);
-    res.status(500).json({ error: 'Failed to delete admin: ' + error.message });
+    console.error('❌ Error in DELETE /api/admin/:id:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
-});
-
-// Test endpoint
-router.get('/test', (req, res) => {
-  res.json({ 
-    message: '✅ Admin API is working!', 
-    timestamp: new Date(),
-    database: 'PostgreSQL with raw SQL queries',
-    endpoints: [
-      'GET /api/admin - Get all admins',
-      'GET /api/admin/:id - Get admin by ID',
-      'POST /api/admin - Create admin (with password hashing)',
-      'PUT /api/admin/:id - Update admin (with password hashing)',
-      'DELETE /api/admin/:id - Delete admin'
-    ]
-  });
 });
 
 module.exports = router;
