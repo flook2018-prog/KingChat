@@ -25,8 +25,8 @@
         /* Main Layout */
         .chat-container {
             display: flex;
-            height: calc(100vh - 80px); /* Subtract header height */
-            width: calc(100vw - 260px); /* Subtract menu width */
+            height: 100vh; /* Full height - body margin handles offset */
+            width: 100vw; /* Full width - body margin handles offset */
         }
 
         /* Left Sidebar - Customer List */
@@ -45,7 +45,6 @@
             flex-direction: column;
             background: white;
             min-width: 0; /* Allow shrinking */
-            margin-left: 8px; /* Add small gap from customer sidebar */
         }
 
         /* Right Sidebar - Customer Profile */
@@ -221,7 +220,6 @@
             display: flex;
             flex-direction: column;
             background: white;
-            margin-left: 8px; /* Add small gap from customer sidebar */
         }
 
         /* Chat Header */
