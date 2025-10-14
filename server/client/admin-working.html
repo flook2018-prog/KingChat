@@ -851,13 +851,15 @@
         // Utility functions
         function showLoadingSpinner() {
             safeExecute(() => {
-                const table = document.querySelector('#adminTable');
-                if (table) {
-                    table.innerHTML = `
-                        <div style="text-align: center; padding: 40px;">
-                            <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                            <p style="margin-top: 16px; color: #666;">กำลังโหลดข้อมูล...</p>
-                        </div>
+                const tbody = document.getElementById('adminTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                <p style="margin-top: 16px; color: #666;">กำลังโหลดข้อมูลแอดมิน...</p>
+                            </td>
+                        </tr>
                     `;
                 }
             }, 'showLoadingSpinner');
@@ -1610,25 +1612,31 @@
             }
         });
 
-        // Initialize page - SIMPLIFIED VERSION
+        // Initialize page - ULTRA SIMPLE VERSION
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Admin Working Page loaded');
             
-            // Initialize theme and menu
-            loadTheme();
-            if (typeof KingChatMenu !== 'undefined') {
-                window.KingChatMenuInstance = new KingChatMenu();
-            } else {
-                console.warn('⚠️ KingChatMenu not available');
+            // Simple theme loading (safe)
+            try {
+                if (typeof loadTheme !== 'undefined') {
+                    loadTheme();
+                }
+            } catch (e) {
+                console.warn('Theme loading failed:', e);
             }
             
-            // Load admin data directly like admin-status.html
-            loadAdmins();
+            // Simple menu loading (safe)
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    window.KingChatMenuInstance = new KingChatMenu();
+                }
+            } catch (e) {
+                console.warn('Menu loading failed:', e);
+            }
             
-            // Add API test button
-            setTimeout(() => {
-                addApiTestButton();
-            }, 1000);
+            // Load admin data - PRIORITY
+            console.log('📊 Starting to load admin data...');
+            loadAdmins();
         });
 
     </script>
