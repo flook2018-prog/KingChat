@@ -26,8 +26,8 @@ console.log('🔧 Loading auth-simple.js routes...');
 let pool;
 try {
   pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@ballast.proxy.rlwy.net:38432/railway',
-    ssl: false
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@autorack.proxy.rlwy.net:33388/railway',
+    ssl: process.env.RAILWAY_ENVIRONMENT ? false : { rejectUnauthorized: false },
   });
   console.log('✅ PostgreSQL pool created for auth routes');
 } catch (error) {

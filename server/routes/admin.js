@@ -2,8 +2,17 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
-// Use direct database connection
-const { pool } = require('../models/database');
+// Use direct database connection with updated configuration
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@autorack.proxy.rlwy.net:33388/railway',
+  ssl: process.env.RAILWAY_ENVIRONMENT ? false : { rejectUnauthorized: false },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
+
 console.log('✅ Admin routes loading with direct PostgreSQL connection');
 
 // GET /api/admin - Get all admins
