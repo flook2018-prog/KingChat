@@ -11,4 +11,5 @@ cmds = ['echo "No build step required"']
 PORT = "8080"
 
 [start]
-cmd = 'cd server && PORT=8080 node server-clean.js'
+[start]
+cmd = "cd server && node server-production.js"
