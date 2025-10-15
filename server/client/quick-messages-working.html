@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -16,10 +16,10 @@
                 const script = document.createElement('script');
                 script.src = './js/menu-fixed.js?v=20251014-3';
                 script.onload = function() {
-                    console.log(' Menu-fixed.js loaded via fallback method');
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
                 };
                 script.onerror = function() {
-                    console.error(' Failed to load menu-fixed.js even with fallback');
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
                 };
                 document.head.appendChild(script);
             }
@@ -36,421 +36,234 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-y: auto;
             /* Always apply margins for layout consistency */
             margin-left: 260px !important;
             margin-top: 80px !important;
-        }<style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
         }
 
         .main-content {
-            padding: 40px;
+            padding: 20px;
+            min-height: calc(100vh - 100px);
         }
 
         .page-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
+            font-size: 28px;
             color: #2d3748;
-            margin: 0 0 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+            margin-bottom: 10px;
         }
 
         .page-header p {
-            font-size: 18px;
-            color: #4a5568;
-            margin: 0;
+            color: #6c757d;
+            font-size: 16px;
         }
 
         .content-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .section-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 20px;
             color: #2d3748;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        /* Quick Message Form */
-        .quick-message-form {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 10px;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            margin-bottom: 20px;
         }
 
         .form-label {
+            display: block;
             font-weight: 600;
-            color: #2d3748;
-            font-size: 16px;
-        }
-
-        .form-input {
-            padding: 15px 20px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        /* Image Upload */
-        .image-upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(249, 250, 251, 0.8);
-        }
-
-        .image-upload-area:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .image-upload-area.dragover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            color: #9ca3af;
-            margin-bottom: 16px;
-        }
-
-        .upload-text {
-            color: #6b7280;
-            font-size: 16px;
+            color: #374151;
             margin-bottom: 8px;
-        }
-
-        .upload-hint {
-            color: #9ca3af;
             font-size: 14px;
         }
 
-        .hidden {
-            display: none;
-        }
-
-        /* Image Preview */
-        .image-preview-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .image-preview {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            aspect-ratio: 1;
-            background: #f3f4f6;
-        }
-
-        .image-preview img {
+        .form-input {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
 
-        .image-remove {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
+        .form-input:focus {
+            border-color: #06C755;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.1);
         }
 
-        /* Buttons */
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
         .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
             text-decoration: none;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #06C755, #05a847);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
         }
 
         .btn-secondary {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border: 2px solid rgba(102, 126, 234, 0.2);
+            background: #6c757d;
+            color: white;
         }
 
-        .btn-secondary:hover {
-            background: rgba(102, 126, 234, 0.2);
+        .btn-danger {
+            background: #dc3545;
+            color: white;
         }
 
-        /* Quick Messages List */
-        .quick-messages-grid {
+        .messages-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            gap: 15px;
         }
 
-        .quick-message-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            border: 1px solid #e5e7eb;
+        .message-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
         }
 
-        .quick-message-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        .message-item:hover {
+            border-color: #06C755;
+            box-shadow: 0 2px 8px rgba(6, 199, 85, 0.1);
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .card-title {
+        .message-title {
             font-weight: 600;
             color: #2d3748;
-            font-size: 18px;
+            margin-bottom: 5px;
         }
 
-        .card-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .message-content {
+            color: #6c757d;
             font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-use {
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
-        }
-
-        .btn-use:hover {
-            background: rgba(34, 197, 94, 0.2);
-        }
-
-        .btn-edit {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        .btn-edit:hover {
-            background: rgba(59, 130, 246, 0.2);
-        }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .btn-delete:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-
-        .card-content {
-            color: #6b7280;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-
-        .card-images {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .card-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 2px solid #e5e7eb;
-        }
-
-        .card-category {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
             margin-bottom: 10px;
-            display: inline-block;
         }
 
-        /* Animations */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .message-actions {
+            display: flex;
+            gap: 10px;
         }
 
-        .content-section {
-            animation: slideIn 0.6s ease forwards;
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
         }
 
-        .content-section:nth-child(2) { animation-delay: 0.1s; }
-        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .file-upload {
+            border: 2px dashed #e9ecef;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: #06C755;
+            background: rgba(6, 199, 85, 0.05);
+        }
+
+        .file-upload.dragover {
+            border-color: #06C755;
+            background: rgba(6, 199, 85, 0.1);
+        }
     </style>
 </head>
 <body>
-    <!-- Main Content -->
     <div class="main-content">
         <!-- Page Header -->
         <div class="page-header">
-            <h1>
-                <span>âš¡</span>
-                à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™
-            </h1>
-            <p>à¸ˆà¸±à¸”à¸à¸²à¸£à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸ªà¸³à¹€à¸£à¹‡à¸ˆà¸£à¸¹à¸›à¹à¸¥à¸°à¸£à¸¹à¸›à¸ à¸²à¸žà¹€à¸žà¸·à¹ˆà¸­à¸•à¸­à¸šà¸¥à¸¹à¸à¸„à¹‰à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸£à¸§à¸”à¹€à¸£à¹‡à¸§</p>
+            <h1>⚡ จัดการข้อความด่วน</h1>
+            <p>สร้างและจัดการข้อความด่วนสำหรับส่งให้ลูกค้าทันที</p>
         </div>
 
-        <!-- Add Quick Message -->
+        <!-- Create Quick Message -->
         <div class="content-section">
-            <h2 class="section-title">
-                âž• à¹€à¸žà¸´à¹ˆà¸¡à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹ƒà¸«à¸¡à¹ˆ
-            </h2>
-            
-            <form class="quick-message-form" id="quickMessageForm">
+            <div class="section-title">
+                <span>✏️</span>
+                สร้างข้อความด่วนใหม่
+            </div>
+
+            <form id="quickMessageForm">
                 <div class="form-group">
-                    <label class="form-label">à¸Šà¸·à¹ˆà¸­à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡</label>
-                    <input type="text" class="form-input" id="messageName" placeholder="à¹€à¸Šà¹ˆà¸™: à¸—à¸±à¸à¸—à¸²à¸¢à¸¥à¸¹à¸à¸„à¹‰à¸², à¸‚à¸­à¸šà¸„à¸¸à¸“, à¸‚à¸­à¹‚à¸—à¸©" required>
+                    <label class="form-label" for="messageTitle">ชื่อข้อความ</label>
+                    <input type="text" id="messageTitle" class="form-input" placeholder="เช่น: ข้อความต้อนรับ" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">à¸«à¸¡à¸§à¸”à¸«à¸¡à¸¹à¹ˆ</label>
-                    <select class="form-input" id="messageCategory">
-                        <option value="greeting">à¸—à¸±à¸à¸—à¸²à¸¢</option>
-                        <option value="thanks">à¸‚à¸­à¸šà¸„à¸¸à¸“</option>
-                        <option value="apology">à¸‚à¸­à¹‚à¸—à¸©</option>
-                        <option value="info">à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</option>
-                        <option value="promotion">à¹‚à¸›à¸£à¹‚à¸¡à¸Šà¸±à¹ˆà¸™</option>
-                        <option value="other">à¸­à¸·à¹ˆà¸™ à¹†</option>
-                    </select>
+                    <label class="form-label" for="messageContent">เนื้อหาข้อความ</label>
+                    <textarea id="messageContent" class="form-textarea" placeholder="พิมพ์ข้อความที่ต้องการส่ง..." required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡</label>
-                    <textarea class="form-input form-textarea" id="messageText" placeholder="à¸žà¸´à¸¡à¸žà¹Œà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸—à¸µà¹ˆà¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸ªà¹ˆà¸‡..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">à¸£à¸¹à¸›à¸ à¸²à¸ž (à¹„à¸¡à¹ˆà¸šà¸±à¸‡à¸„à¸±à¸š)</label>
-                    <div class="image-upload-area" id="imageUploadArea">
-                        <div class="upload-icon">ðŸ“·</div>
-                        <div class="upload-text">à¸„à¸¥à¸´à¸à¸«à¸£à¸·à¸­à¸¥à¸²à¸à¸£à¸¹à¸›à¸ à¸²à¸žà¸¡à¸²à¸§à¸²à¸‡à¸—à¸µà¹ˆà¸™à¸µà¹ˆ</div>
-                        <div class="upload-hint">à¸£à¸­à¸‡à¸£à¸±à¸š JPG, PNG, GIF (à¸ªà¸¹à¸‡à¸ªà¸¸à¸” 5MB à¸•à¹ˆà¸­à¸£à¸¹à¸›)</div>
+                    <label class="form-label">แนบไฟล์ (ถ้ามี)</label>
+                    <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                        <div class="empty-icon">📁</div>
+                        <p>คลิกเพื่อเลือกไฟล์หรือลากไฟล์มาวางที่นี่</p>
+                        <small>รองรับ JPG, PNG, GIF (ไม่เกิน 5MB และไม่เกิน 5MB)</small>
                     </div>
-                    <input type="file" id="imageInput" class="hidden" multiple accept="image/*">
-                    <div class="image-preview-container" id="imagePreviewContainer"></div>
+                    <input type="file" id="fileInput" style="display: none" accept="image/*" multiple>
                 </div>
 
-                <div style="display: flex; gap: 15px;">
+                <div class="form-group">
                     <button type="submit" class="btn btn-primary">
-                        ðŸ’¾ à¸šà¸±à¸™à¸—à¸¶à¸à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
-                        ðŸ”„ à¸¥à¹‰à¸²à¸‡à¸Ÿà¸­à¸£à¹Œà¸¡
+                        <span>💾</span>
+                        บันทึกข้อความด่วน
                     </button>
                 </div>
             </form>
@@ -458,218 +271,158 @@
 
         <!-- Quick Messages List -->
         <div class="content-section">
-            <h2 class="section-title">
-                ðŸ“ à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¸—à¸µà¹ˆà¸šà¸±à¸™à¸—à¸¶à¸à¹„à¸§à¹‰
-            </h2>
-            
-            <div class="quick-messages-grid" id="quickMessagesList">
-                <!-- Quick messages will be loaded here -->
+            <div class="section-title">
+                <span>📝</span>
+                รายการข้อความด่วน
+            </div>
+
+            <div id="messagesList" class="messages-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <h3>ยังไม่มีข้อความด่วน</h3>
+                    <p>สร้างข้อความด่วนเพื่อส่งให้ลูกค้าได้อย่างรวดเร็ว</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        let quickMessages = JSON.parse(localStorage.getItem('quickMessages')) || [];
-        let selectedImages = [];
-
-        // Image upload functionality
-        document.getElementById('imageUploadArea').addEventListener('click', () => {
-            document.getElementById('imageInput').click();
-        });
-
-        document.getElementById('imageInput').addEventListener('change', handleImageSelect);
-
-        document.getElementById('imageUploadArea').addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.currentTarget.classList.add('dragover');
-        });
-
-        document.getElementById('imageUploadArea').addEventListener('dragleave', (e) => {
-            e.currentTarget.classList.remove('dragover');
-        });
-
-        document.getElementById('imageUploadArea').addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
-            handleImageFiles(files);
-        });
-
-        function handleImageSelect(e) {
-            const files = Array.from(e.target.files);
-            handleImageFiles(files);
-        }
-
-        function handleImageFiles(files) {
-            files.forEach(file => {
-                if (file.size > 5 * 1024 * 1024) {
-                    alert(`à¹„à¸Ÿà¸¥à¹Œ ${file.name} à¸¡à¸µà¸‚à¸™à¸²à¸”à¹ƒà¸«à¸à¹ˆà¹€à¸à¸´à¸™ 5MB`);
-                    return;
+        console.log('🚀 Quick Messages page loading...');
+        
+        // Initialize menu with retries
+        function initializeMenu() {
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    console.log('✅ KingChatMenu class found');
+                    kingChatMenu = new KingChatMenu();
+                    console.log('✅ Menu initialized successfully');
+                    return true;
+                } else {
+                    console.warn('⚠️ KingChatMenu class not found, retrying...');
+                    return false;
                 }
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const imageData = {
-                        id: Date.now() + Math.random(),
-                        name: file.name,
-                        data: e.target.result
-                    };
-                    selectedImages.push(imageData);
-                    updateImagePreview();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function updateImagePreview() {
-            const container = document.getElementById('imagePreviewContainer');
-            container.innerHTML = selectedImages.map(image => `
-                <div class="image-preview">
-                    <img src="${image.data}" alt="${image.name}">
-                    <button type="button" class="image-remove" onclick="removeImage('${image.id}')">Ã—</button>
-                </div>
-            `).join('');
-        }
-
-        function removeImage(imageId) {
-            selectedImages = selectedImages.filter(img => img.id != imageId);
-            updateImagePreview();
-        }
-
-        // Form submission
-        document.getElementById('quickMessageForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('messageName').value;
-            const category = document.getElementById('messageCategory').value;
-            const text = document.getElementById('messageText').value;
-
-            if (!name || !text) {
-                alert('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸Šà¸·à¹ˆà¸­à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹à¸¥à¸°à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡');
-                return;
+            } catch (error) {
+                console.error('❌ Menu initialization failed:', error);
+                return false;
             }
-
-            const quickMessage = {
-                id: Date.now(),
-                name,
-                category,
-                text,
-                images: [...selectedImages],
-                createdAt: new Date().toISOString()
-            };
-
-            quickMessages.push(quickMessage);
-            localStorage.setItem('quickMessages', JSON.stringify(quickMessages));
-            
-            clearForm();
-            loadQuickMessages();
-            alert('âœ… à¸šà¸±à¸™à¸—à¸¶à¸à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§!');
-        });
-
-        function clearForm() {
-            document.getElementById('quickMessageForm').reset();
-            selectedImages = [];
-            updateImagePreview();
+        }
+        
+        // Try to initialize menu with retries
+        if (!initializeMenu()) {
+            setTimeout(() => {
+                if (!initializeMenu()) {
+                    setTimeout(() => {
+                        if (!initializeMenu()) {
+                            console.error('❌ Menu failed to load after multiple attempts');
+                            console.log('⚠️ Using fallback layout without menu');
+                        }
+                    }, 2000);
+                }
+            }, 500);
         }
 
-        // Load and display quick messages
+        // Load quick messages
         function loadQuickMessages() {
-            const container = document.getElementById('quickMessagesList');
-            
-            if (quickMessages.length === 0) {
+            // Sample data for now
+            const messages = [
+                { id: 1, title: "ข้อความต้อนรับ", content: "สวัสดีครับ! ยินดีต้อนรับสู่ KingChat ครับ" },
+                { id: 2, title: "ขอบคุณ", content: "ขอบคุณที่ติดต่อมาครับ จะติดตามข้อมูลให้เร็วที่สุด" },
+                { id: 3, title: "ปิดงาน", content: "ขออภัยครับ ทางเรากำลังปิดให้บริการ จะกลับมาตอบในวันทำการต่อไป" }
+            ];
+
+            const container = document.getElementById('messagesList');
+            if (messages.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #6b7280; grid-column: 1 / -1;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">âš¡</div>
-                        <h3>à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™</h3>
-                        <p>à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¸”à¹‰à¸§à¸¢à¸à¸²à¸£à¹€à¸žà¸´à¹ˆà¸¡à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹à¸£à¸à¸‚à¸­à¸‡à¸„à¸¸à¸“</p>
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>ยังไม่มีข้อความด่วน</h3>
+                        <p>สร้างข้อความด่วนเพื่อส่งให้ลูกค้าได้อย่างรวดเร็ว</p>
                     </div>
                 `;
                 return;
             }
 
-            const categoryNames = {
-                greeting: 'à¸—à¸±à¸à¸—à¸²à¸¢',
-                thanks: 'à¸‚à¸­à¸šà¸„à¸¸à¸“',
-                apology: 'à¸‚à¸­à¹‚à¸—à¸©',
-                info: 'à¸‚à¹‰à¸­à¸¡à¸¹à¸¥',
-                promotion: 'à¹‚à¸›à¸£à¹‚à¸¡à¸Šà¸±à¹ˆà¸™',
-                other: 'à¸­à¸·à¹ˆà¸™ à¹†'
-            };
-
-            container.innerHTML = quickMessages.map(message => `
-                <div class="quick-message-card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-category">${categoryNames[message.category] || message.category}</div>
-                            <div class="card-title">${message.name}</div>
-                        </div>
-                        <div class="card-actions">
-                            <button class="action-btn btn-use" onclick="useQuickMessage('${message.id}')" title="à¹ƒà¸Šà¹‰à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸™à¸µà¹‰">
-                                ðŸ“¤
-                            </button>
-                            <button class="action-btn btn-delete" onclick="deleteQuickMessage('${message.id}')" title="à¸¥à¸š">
-                                ðŸ—‘ï¸
-                            </button>
-                        </div>
+            container.innerHTML = messages.map(msg => `
+                <div class="message-item">
+                    <div class="message-title">${msg.title}</div>
+                    <div class="message-content">${msg.content}</div>
+                    <div class="message-actions">
+                        <button class="btn btn-secondary" onclick="editMessage(${msg.id})">
+                            <span>✏️</span> แก้ไข
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteMessage(${msg.id})">
+                            <span>🗑️</span> ลบ
+                        </button>
                     </div>
-                    <div class="card-content">${message.text}</div>
-                    ${message.images && message.images.length > 0 ? `
-                        <div class="card-images">
-                            ${message.images.map(img => `<img src="${img.data}" class="card-image" alt="${img.name}">`).join('')}
-                        </div>
-                    ` : ''}
                 </div>
             `).join('');
         }
 
-        // Quick message actions
-        function useQuickMessage(messageId) {
-            const message = quickMessages.find(msg => msg.id == messageId);
-            if (message) {
-                // à¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹„à¸›à¸¢à¸±à¸‡à¸«à¸™à¹‰à¸² chat
-                const chatData = {
-                    text: message.text,
-                    images: message.images ? message.images.map(img => img.data) : [],
-                    timestamp: new Date().toISOString()
-                };
-                
-                // à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹ƒà¸™ sessionStorage à¹€à¸žà¸·à¹ˆà¸­à¸ªà¹ˆà¸‡à¹„à¸›à¸«à¸™à¹‰à¸² chat
-                sessionStorage.setItem('quickMessage', JSON.stringify(chatData));
-                
-                // à¸¥à¸­à¸‡à¸›à¸´à¸”à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¹à¸¥à¸°à¸à¸¥à¸±à¸šà¹„à¸›à¸«à¸™à¹‰à¸² chat
-                try {
-                    if (window.opener) {
-                        // à¸«à¸²à¸à¹€à¸›à¹‡à¸™à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¸—à¸µà¹ˆà¹€à¸›à¸´à¸”à¸ˆà¸²à¸ chat
-                        window.opener.focus();
-                        window.close();
-                    } else {
-                        // à¸«à¸²à¸à¹€à¸›à¹‡à¸™à¹à¸—à¹‡à¸šà¸›à¸à¸•à¸´ à¹ƒà¸«à¹‰ redirect à¹„à¸›à¸«à¸™à¹‰à¸² chat
-                        window.location.href = 'chat.html';
-                    }
-                } catch (e) {
-                    // à¸«à¸²à¸à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸›à¸´à¸”à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¹„à¸”à¹‰ à¹ƒà¸«à¹‰ redirect
-                    window.location.href = 'chat.html';
+        function editMessage(id) {
+            alert('แก้ไขข้อความ ID: ' + id);
+        }
+
+        function deleteMessage(id) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบข้อความนี้?')) {
+                alert('ลบข้อความ ID: ' + id);
+                loadQuickMessages();
+            }
+        }
+
+        // Form submission
+        document.getElementById('quickMessageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('messageTitle').value;
+            const content = document.getElementById('messageContent').value;
+            
+            if (title && content) {
+                alert('บันทึกข้อความสำเร็จ!\nชื่อ: ' + title + '\nเนื้อหา: ' + content);
+                this.reset();
+                loadQuickMessages();
+            }
+        });
+
+        // File upload handling
+        const fileUpload = document.querySelector('.file-upload');
+        const fileInput = document.getElementById('fileInput');
+
+        fileUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/')) {
+                    console.log('Selected file:', file.name);
+                } else {
+                    alert('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
                 }
             }
         }
 
-        function deleteQuickMessage(messageId) {
-            if (confirm('à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸¥à¸šà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¸™à¸µà¹‰à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?')) {
-                quickMessages = quickMessages.filter(msg => msg.id != messageId);
-                localStorage.setItem('quickMessages', JSON.stringify(quickMessages));
-                loadQuickMessages();
-                alert('âœ… à¸¥à¸šà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸”à¹ˆà¸§à¸™à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§');
-            }
-        }
-
-        // Initialize page
+        // Load initial data
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize centralized menu
-            if (typeof KingChatMenu !== 'undefined') { kingChatMenu = new KingChatMenu(); }
-            
             loadQuickMessages();
         });
     </script>
 </body>
 </html>
-

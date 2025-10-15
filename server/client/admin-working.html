@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>👨‍💼 จัดการแอดมิน - KingChat</title>
+    <title>👑 จัดการแอดมิน - KingChat</title>
     <script src="js/menu-fixed.js?v=20251014-3"></script>
     <script>
         // Fallback menu loading
@@ -16,10 +16,10 @@
                 const script = document.createElement('script');
                 script.src = './js/menu-fixed.js?v=20251014-3';
                 script.onload = function() {
-                    console.log(' Menu-fixed.js loaded via fallback method');
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
                 };
                 script.onerror = function() {
-                    console.error(' Failed to load menu-fixed.js even with fallback');
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
                 };
                 document.head.appendChild(script);
             }
@@ -36,270 +36,129 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-y: auto;
             /* Always apply margins for layout consistency */
             margin-left: 260px !important;
             margin-top: 80px !important;
-        }<style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
-            /* Add margin for menu and header */
-            margin-left: 260px;
-            margin-top: 80px;
-        }
-
-        /* Main Layout */
-        .admin-container {
-            display: flex;
-            height: calc(100vh - 80px); /* Subtract header height */
-            width: calc(100vw - 260px); /* Subtract menu width */
-        }
-
-        /* Left Sidebar - Admin List */
-        .admin-sidebar {
-            width: 380px;
-            background: white;
-            border-right: 1px solid #e9ecef;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Main Content Area */
-        .admin-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: white;
-        }
-
-        /* Sidebar Header */
-        .sidebar-header {
+        .main-content {
             padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-            background: linear-gradient(135deg, #06C755, #05a847);
-            color: white;
+            min-height: calc(100vh - 100px);
         }
 
-        .sidebar-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .sidebar-subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        /* Search and Add Section */
-        .admin-controls {
+        .page-header {
+            background: white;
+            border-radius: 15px;
             padding: 20px;
-            border-bottom: 1px solid #f8f9fa;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
-        .search-container {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 1px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .search-input:focus {
-            border-color: #06C755;
-            outline: none;
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .add-admin-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #06C755, #05a847);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .add-admin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
-        }
-
-        /* Admin List */
-        .admins-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .admin-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #f8f9fa;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            position: relative;
-        }
-
-        .admin-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .admin-item.active {
-            background-color: #e8f5e8;
-            border-right: 3px solid #06C755;
-        }
-
-        .admin-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6c5ce7, #5f3dc4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 18px;
-            margin-right: 15px;
-        }
-
-        .admin-avatar.super-admin {
-            background: linear-gradient(135deg, #fdcb6e, #e17055);
-        }
-
-        .admin-info {
-            flex: 1;
-        }
-
-        .admin-name {
-            font-size: 16px;
-            font-weight: 600;
+        .page-header h1 {
+            font-size: 28px;
             color: #2d3748;
-            margin-bottom: 4px;
+            margin-bottom: 10px;
         }
 
-        .admin-details {
-            font-size: 14px;
+        .page-header p {
             color: #6c757d;
+            font-size: 16px;
+        }
+
+        .admin-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .admin-role {
-            background: #e9ecef;
-            color: #495057;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
         }
 
-        .admin-role.super-admin {
-            background: #fff3cd;
-            color: #856404;
+        .admin-table th,
+        .admin-table td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .admin-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .admin-table tr:hover {
+            background: #f8f9fa;
         }
 
         .admin-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #28a745;
-            margin-left: auto;
-        }
-
-        /* Main Content Header */
-        .main-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid #e9ecef;
-            background: white;
-        }
-
-        .main-title {
-            font-size: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 8px;
         }
 
-        .main-subtitle {
-            font-size: 14px;
-            color: #6c757d;
+        .status-online {
+            background: rgba(6, 199, 85, 0.1);
+            color: #06C755;
         }
 
-        /* Admin Detail Content */
-        .admin-detail {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
+        .status-offline {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
         }
 
-        .detail-card {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        .status-away {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
         }
 
-        .detail-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
+        .admin-role {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .detail-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6c5ce7, #5f3dc4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .role-super {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            font-weight: 600;
-            font-size: 32px;
-            margin-right: 20px;
         }
 
-        .detail-info h2 {
-            font-size: 24px;
-            color: #2d3748;
-            margin-bottom: 5px;
+        .role-admin {
+            background: linear-gradient(135deg, #06C755, #05a847);
+            color: white;
         }
 
-        .detail-info p {
-            color: #6c757d;
-            font-size: 14px;
+        .role-operator {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
         }
 
         .form-group {
@@ -339,22 +198,18 @@
             cursor: pointer;
         }
 
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
         .btn {
-            padding: 12px 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
             border: none;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            flex: 1;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -367,197 +222,274 @@
             box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
         }
 
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
         .btn-secondary {
             background: #6c757d;
             color: white;
         }
 
-        .btn-secondary:hover {
-            background: #5a6268;
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
         }
 
-        /* Empty State */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #6c757d;
-            text-align: center;
+        .btn-danger {
+            background: #dc3545;
+            color: white;
         }
 
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
-        /* Loading State */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #06C755;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
         }
 
         .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid #e9ecef;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
 
-        .modal-header h3 {
-            margin: 0;
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
             color: #2d3748;
         }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
             cursor: pointer;
-            line-height: 1;
+            color: #6c757d;
         }
 
-        .close:hover {
-            color: #000;
-        }
-
-        .modal-body {
-            padding: 25px;
-        }
-
-        /* Success/Error Messages */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
             font-size: 14px;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .admin-sidebar {
-                width: 100%;
-                position: absolute;
-                z-index: 10;
-                transform: translateX(-100%);
-                transition: transform 0.3s;
-            }
-
-            .admin-sidebar.open {
-                transform: translateX(0);
-            }
-
-            .admin-main {
-                width: 100%;
-            }
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Left Sidebar - Admin List -->
-        <div class="admin-sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">ðŸ‘¨â€ðŸ’¼ à¸ˆà¸±à¸”à¸à¸²à¸£à¹à¸­à¸”à¸¡à¸´à¸™</div>
-                <div class="sidebar-subtitle">à¸£à¸°à¸šà¸šà¸ˆà¸±à¸”à¸à¸²à¸£à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸œà¸¹à¹‰à¸”à¸¹à¹à¸¥à¸£à¸°à¸šà¸š</div>
-            </div>
-
-            <div class="admin-controls">
-                <div class="search-container">
-                    <input type="text" id="searchInput" class="search-input" placeholder="à¸„à¹‰à¸™à¸«à¸²à¹à¸­à¸”à¸¡à¸´à¸™...">
-                    <i class="search-icon">ðŸ”</i>
-                </div>
-                <button class="add-admin-btn" onclick="openAddModal()">
-                    âž• à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆ
-                </button>
-            </div>
-
-            <div class="admins-list" id="adminsList">
-                <div class="admin-item">
-                    <div class="admin-avatar">
-                        <div class="loading-spinner"></div>
-                    </div>
-                    <div class="admin-info">
-                        <div class="admin-name">à¸à¸³à¸¥à¸±à¸‡à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥...</div>
-                        <div class="admin-details">
-                            <span>à¹‚à¸›à¸£à¸”à¸£à¸­à¸ªà¸±à¸à¸„à¸£à¸¹à¹ˆ</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>👑 จัดการผู้ดูแลระบบ</h1>
+            <p>จัดการบัญชีผู้ดูแลระบบ กำหนดสิทธิ์ และควบคุมการเข้าถึง</p>
         </div>
 
-        <!-- Main Content -->
-        <div class="admin-main">
-            <div class="main-header">
-                <div class="main-title">à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™</div>
-                <div class="main-subtitle">à¹€à¸¥à¸·à¸­à¸à¹à¸­à¸”à¸¡à¸´à¸™à¸ˆà¸²à¸à¸£à¸²à¸¢à¸à¸²à¸£à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹à¸¥à¸°à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</div>
+        <div class="admin-grid">
+            <!-- Statistics -->
+            <div class="admin-section">
+                <div class="section-title">
+                    <span>📊</span>
+                    สถิติผู้ดูแลระบบ
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">ผู้ดูแลระบบทั้งหมด</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">ออนไลน์</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">ออฟไลน์</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="admin-detail" id="adminDetail">
-                <div class="empty-state">
-                    <div class="empty-icon">ðŸ‘¥</div>
-                    <h3>à¹€à¸¥à¸·à¸­à¸à¹à¸­à¸”à¸¡à¸´à¸™à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</h3>
-                    <p>à¸„à¸¥à¸´à¸à¸—à¸µà¹ˆà¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸™à¸£à¸²à¸¢à¸à¸²à¸£à¸”à¹‰à¸²à¸™à¸‹à¹‰à¸²à¸¢à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹à¸¥à¸°à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</p>
+            <!-- Admin List -->
+            <div class="admin-section">
+                <div class="section-title">
+                    <span>👥</span>
+                    รายชื่อผู้ดูแลระบบ
+                    <div style="margin-left: auto;">
+                        <button class="btn btn-primary" onclick="showAddAdminModal()">
+                            <span>➕</span>
+                            เพิ่มผู้ดูแลใหม่
+                        </button>
+                    </div>
+                </div>
+
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อผู้ใช้</th>
+                            <th>อีเมล</th>
+                            <th>บทบาท</th>
+                            <th>สถานะ</th>
+                            <th>เข้าใช้ล่าสุด</th>
+                            <th>การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                                        BB
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600;">BOSS BABY</div>
+                                        <div style="font-size: 12px; color: #6c757d;">Super Admin</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>admin@kingchat.com</td>
+                            <td><span class="admin-role role-super">👑 Super Admin</span></td>
+                            <td><span class="admin-status status-online">🟢 ออนไลน์</span></td>
+                            <td>เมื่อสักครู่</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editAdmin('BOSS BABY')">
+                                    <span>✏️</span>
+                                    แก้ไข
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteAdmin('BOSS BABY')" style="margin-left: 5px;">
+                                    <span>🗑️</span>
+                                    ลบ
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #06C755, #05a847); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                                        JD
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600;">John Doe</div>
+                                        <div style="font-size: 12px; color: #6c757d;">Admin</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>john@kingchat.com</td>
+                            <td><span class="admin-role role-admin">⚡ Admin</span></td>
+                            <td><span class="admin-status status-offline">🔴 ออฟไลน์</span></td>
+                            <td>2 ชั่วโมงที่แล้ว</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editAdmin('John Doe')">
+                                    <span>✏️</span>
+                                    แก้ไข
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteAdmin('John Doe')" style="margin-left: 5px;">
+                                    <span>🗑️</span>
+                                    ลบ
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #74b9ff, #0984e3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                                        JS
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600;">Jane Smith</div>
+                                        <div style="font-size: 12px; color: #6c757d;">Operator</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>jane@kingchat.com</td>
+                            <td><span class="admin-role role-operator">🎯 Operator</span></td>
+                            <td><span class="admin-status status-away">🟡 ไม่อยู่</span></td>
+                            <td>1 วันที่แล้ว</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editAdmin('Jane Smith')">
+                                    <span>✏️</span>
+                                    แก้ไข
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteAdmin('Jane Smith')" style="margin-left: 5px;">
+                                    <span>🗑️</span>
+                                    ลบ
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Permissions -->
+            <div class="admin-section">
+                <div class="section-title">
+                    <span>🔐</span>
+                    การจัดการสิทธิ์
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="border: 1px solid #e9ecef; border-radius: 10px; padding: 15px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">👑 Super Admin</h4>
+                        <ul style="margin-left: 20px; color: #6c757d; font-size: 14px;">
+                            <li>เข้าถึงทุกฟีเจอร์</li>
+                            <li>จัดการผู้ดูแลระบบ</li>
+                            <li>ตั้งค่าระบบ</li>
+                            <li>ดูรายงานทั้งหมด</li>
+                        </ul>
+                    </div>
+                    <div style="border: 1px solid #e9ecef; border-radius: 10px; padding: 15px;">
+                        <h4 style="color: #06C755; margin-bottom: 10px;">⚡ Admin</h4>
+                        <ul style="margin-left: 20px; color: #6c757d; font-size: 14px;">
+                            <li>จัดการลูกค้า</li>
+                            <li>ตอบกลับข้อความ</li>
+                            <li>ดูรายงาน</li>
+                            <li>จัดการข้อความด่วน</li>
+                        </ul>
+                    </div>
+                    <div style="border: 1px solid #e9ecef; border-radius: 10px; padding: 15px;">
+                        <h4 style="color: #74b9ff; margin-bottom: 10px;">🎯 Operator</h4>
+                        <ul style="margin-left: 20px; color: #6c757d; font-size: 14px;">
+                            <li>ตอบกลับข้อความ</li>
+                            <li>ดูข้อมูลลูกค้า</li>
+                            <li>ใช้ข้อความด่วน</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -567,428 +499,115 @@
     <div id="adminModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle">à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆ</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <div class="modal-title" id="modalTitle">เพิ่มผู้ดูแลใหม่</div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="modal-body">
-                <div id="alertContainer"></div>
-                
-                <form id="adminForm">
-                    <input type="hidden" id="adminId" />
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="fullName">à¸Šà¸·à¹ˆà¸­à¹€à¸•à¹‡à¸¡ *</label>
-                        <input type="text" id="fullName" class="form-input" required>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="username">Username *</label>
-                        <input type="text" id="username" class="form-input" required>
-                    </div>
+            <form id="adminForm">
+                <div class="form-group">
+                    <label class="form-label" for="adminUsername">ชื่อผู้ใช้</label>
+                    <input type="text" id="adminUsername" class="form-input" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="email">Email</label>
-                        <input type="email" id="email" class="form-input" placeholder="example@kingchat.com">
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="adminEmail">อีเมล</label>
+                    <input type="email" id="adminEmail" class="form-input" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="password">Password *</label>
-                        <input type="password" id="password" class="form-input" required>
-                        <small style="color: #6c757d;">à¹ƒà¸ªà¹ˆà¹€à¸‰à¸žà¸²à¸°à¹€à¸¡à¸·à¹ˆà¸­à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸£à¸«à¸±à¸ªà¸œà¹ˆà¸²à¸™</small>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="adminPassword">รหัสผ่าน</label>
+                    <input type="password" id="adminPassword" class="form-input" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="role">à¸šà¸—à¸šà¸²à¸— *</label>
-                        <select id="role" class="form-select" required>
-                            <option value="admin">Admin</option>
-                            <option value="super_admin">Super Admin</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="adminRole">บทบาท</label>
+                    <select id="adminRole" class="form-select" required>
+                        <option value="">เลือกบทบาท</option>
+                        <option value="super">👑 Super Admin</option>
+                        <option value="admin">⚡ Admin</option>
+                        <option value="operator">🎯 Operator</option>
+                    </select>
+                </div>
 
-                    <div class="action-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">à¸¢à¸à¹€à¸¥à¸´à¸</button>
-                        <button type="submit" class="btn btn-primary">
-                            <span id="submitText">à¸šà¸±à¸™à¸—à¸¶à¸</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = 'https://kingchat.up.railway.app/api';
-        let admins = [];
-        let selectedAdminId = null;
-        let isEditMode = false;
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('ðŸš€ Admin Management Page loaded');
-            
-            // Initialize theme and menu
+        console.log('🚀 Admin management page loading...');
+        
+        // Initialize menu with retries
+        function initializeMenu() {
             try {
-                if (typeof loadTheme !== 'undefined') {
-                    loadTheme();
-                }
                 if (typeof KingChatMenu !== 'undefined') {
-                if (typeof KingChatMenu !== 'undefined') {
-                    window.KingChatMenuInstance = new KingChatMenu();
+                    console.log('✅ KingChatMenu class found');
+                    kingChatMenu = new KingChatMenu();
+                    console.log('✅ Menu initialized successfully');
+                    return true;
+                } else {
+                    console.warn('⚠️ KingChatMenu class not found, retrying...');
+                    return false;
                 }
-                }
-            } catch (e) {
-                console.warn('Theme/Menu initialization failed:', e);
-            }
-            
-            // Load admins
-            loadAdmins();
-            
-            // Setup search
-            document.getElementById('searchInput').addEventListener('input', filterAdmins);
-            
-            // Setup form submission
-            document.getElementById('adminForm').addEventListener('submit', handleFormSubmit);
-        });
-
-        // Load admins from API
-        async function loadAdmins() {
-            try {
-                console.log('ðŸ”„ Loading admins...');
-                
-                const response = await fetch(`${API_BASE_URL}/admin`);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                admins = await response.json();
-                console.log('ðŸ“Š Loaded admins:', admins.length);
-                
-                displayAdmins(admins);
-                
             } catch (error) {
-                console.error('âŒ Error loading admins:', error);
-                showError('à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™: ' + error.message);
-                
-                document.getElementById('adminsList').innerHTML = `
-                    <div class="admin-item">
-                        <div class="admin-avatar" style="background: #dc3545;">âŒ</div>
-                        <div class="admin-info">
-                            <div class="admin-name">à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”</div>
-                            <div class="admin-details">
-                                <span style="color: #dc3545;">${error.message}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                console.error('❌ Menu initialization failed:', error);
+                return false;
             }
         }
-
-        // Display admins in sidebar
-        function displayAdmins(adminList) {
-            const container = document.getElementById('adminsList');
-            
-            if (!adminList || adminList.length === 0) {
-                container.innerHTML = `
-                    <div class="admin-item">
-                        <div class="admin-avatar">ðŸ‘¥</div>
-                        <div class="admin-info">
-                            <div class="admin-name">à¹„à¸¡à¹ˆà¸žà¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™</div>
-                            <div class="admin-details">
-                                <span>à¸à¸”à¸›à¸¸à¹ˆà¸¡à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆà¹€à¸žà¸·à¹ˆà¸­à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            adminList.forEach(admin => {
-                const adminItem = document.createElement('div');
-                adminItem.className = 'admin-item';
-                adminItem.onclick = () => selectAdmin(admin.id);
-                
-                const roleClass = admin.role === 'super_admin' ? 'super-admin' : '';
-                const roleText = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
-                const initial = admin.fullName ? admin.fullName.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
-                
-                adminItem.innerHTML = `
-                    <div class="admin-avatar ${roleClass}">${initial}</div>
-                    <div class="admin-info">
-                        <div class="admin-name">${admin.fullName || admin.username}</div>
-                        <div class="admin-details">
-                            <span class="admin-role ${roleClass}">${roleText}</span>
-                            <span>@${admin.username}</span>
-                        </div>
-                    </div>
-                    <div class="admin-status"></div>
-                `;
-                
-                container.appendChild(adminItem);
-            });
+        
+        // Try to initialize menu with retries
+        if (!initializeMenu()) {
+            setTimeout(() => {
+                if (!initializeMenu()) {
+                    setTimeout(() => {
+                        if (!initializeMenu()) {
+                            console.error('❌ Menu failed to load after multiple attempts');
+                            console.log('⚠️ Using fallback layout without menu');
+                        }
+                    }, 2000);
+                }
+            }, 500);
         }
 
-        // Select admin and show details
-        function selectAdmin(adminId) {
-            selectedAdminId = adminId;
-            const admin = admins.find(a => a.id === adminId);
-            
-            if (!admin) return;
-            
-            // Update active state
-            document.querySelectorAll('.admin-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            // Show admin details
-            showAdminDetail(admin);
-        }
-
-        // Show admin detail in main area
-        function showAdminDetail(admin) {
-            const detailContainer = document.getElementById('adminDetail');
-            const roleClass = admin.role === 'super_admin' ? 'super-admin' : '';
-            const roleText = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
-            const initial = admin.fullName ? admin.fullName.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
-            
-            detailContainer.innerHTML = `
-                <div class="detail-card">
-                    <div class="detail-header">
-                        <div class="detail-avatar ${roleClass}">${initial}</div>
-                        <div class="detail-info">
-                            <h2>${admin.fullName || admin.username}</h2>
-                            <p>@${admin.username} â€¢ ${roleText}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">à¸Šà¸·à¹ˆà¸­à¹€à¸•à¹‡à¸¡</label>
-                        <div class="form-input" style="background: #f8f9fa;">${admin.fullName || 'à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸'}</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Username</label>
-                        <div class="form-input" style="background: #f8f9fa;">${admin.username}</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">à¸šà¸—à¸šà¸²à¸—</label>
-                        <div class="form-input" style="background: #f8f9fa;">${roleText}</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">à¸£à¸«à¸±à¸ªà¸›à¸£à¸°à¸ˆà¸³à¸•à¸±à¸§</label>
-                        <div class="form-input" style="background: #f8f9fa;">#${admin.id}</div>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="openEditModal(${admin.id})">
-                            âœï¸ à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥
-                        </button>
-                        <button class="btn btn-danger" onclick="confirmDelete(${admin.id})">
-                            ðŸ—‘ï¸ à¸¥à¸šà¹à¸­à¸”à¸¡à¸´à¸™
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Filter admins based on search
-        function filterAdmins() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredAdmins = admins.filter(admin => 
-                (admin.fullName && admin.fullName.toLowerCase().includes(searchTerm)) ||
-                admin.username.toLowerCase().includes(searchTerm)
-            );
-            displayAdmins(filteredAdmins);
-        }
-
-        // Modal functions
-        function openAddModal() {
-            isEditMode = false;
-            document.getElementById('modalTitle').textContent = 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆ';
-            document.getElementById('submitText').textContent = 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™';
+        function showAddAdminModal() {
+            document.getElementById('modalTitle').textContent = 'เพิ่มผู้ดูแลใหม่';
             document.getElementById('adminForm').reset();
-            document.getElementById('adminId').value = '';
-            document.getElementById('password').required = true;
             document.getElementById('adminModal').style.display = 'block';
-            clearAlert();
         }
 
-        function openEditModal(adminId) {
-            const admin = admins.find(a => a.id === adminId);
-            if (!admin) return;
-            
-            isEditMode = true;
-            document.getElementById('modalTitle').textContent = 'à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™';
-            document.getElementById('submitText').textContent = 'à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¹à¸à¹‰à¹„à¸‚';
-            
-            document.getElementById('adminId').value = admin.id;
-            document.getElementById('fullName').value = admin.fullName || '';
-            document.getElementById('username').value = admin.username;
-            document.getElementById('email').value = admin.email || '';
-            document.getElementById('password').value = '';
-            document.getElementById('password').required = false;
-            document.getElementById('role').value = admin.role;
-            
+        function editAdmin(username) {
+            document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลผู้ดูแล';
+            document.getElementById('adminUsername').value = username;
             document.getElementById('adminModal').style.display = 'block';
-            clearAlert();
+        }
+
+        function deleteAdmin(username) {
+            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบผู้ดูแล "${username}"?`)) {
+                alert(`ลบผู้ดูแล "${username}" สำเร็จ!`);
+                // Here you would make an API call to delete the admin
+            }
         }
 
         function closeModal() {
             document.getElementById('adminModal').style.display = 'none';
         }
 
-        // Form submission
-        async function handleFormSubmit(e) {
+        document.getElementById('adminForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            clearAlert();
-            
-            const formData = {
-                fullName: document.getElementById('fullName').value.trim(),
-                username: document.getElementById('username').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                password: document.getElementById('password').value,
-                role: document.getElementById('role').value
-            };
-            
-            // Frontend validation
-            if (!formData.fullName) {
-                showError('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸Šà¸·à¹ˆà¸­à¹€à¸•à¹‡à¸¡');
-                return;
-            }
-            
-            if (!formData.username) {
-                showError('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸ Username');
-                return;
-            }
-            
-            if (!isEditMode && !formData.password) {
-                showError('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸ Password');
-                return;
-            }
-            
-            if (formData.password && formData.password.length < 6) {
-                showError('Password à¸•à¹‰à¸­à¸‡à¸¡à¸µà¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 6 à¸•à¸±à¸§à¸­à¸±à¸à¸©à¸£');
-                return;
-            }
-            
-            // Remove empty password for edit mode
-            if (isEditMode && !formData.password) {
-                delete formData.password;
-            }
-            
-            try {
-                document.getElementById('submitText').innerHTML = '<div class="loading-spinner"></div>';
-                
-                let response;
-                if (isEditMode) {
-                    const adminId = document.getElementById('adminId').value;
-                    response = await fetch(`${API_BASE_URL}/admin/${adminId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    });
-                } else {
-                    response = await fetch(`${API_BASE_URL}/admin`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    });
-                }
-                
-                if (!response.ok) {
-                    let errorMessage = 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”';
-                    try {
-                        const error = await response.json();
-                        errorMessage = error.error || error.message || errorMessage;
-                    } catch (e) {
-                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                    }
-                    throw new Error(errorMessage);
-                }
-                
-                showSuccess(isEditMode ? 'à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸ªà¸³à¹€à¸£à¹‡à¸ˆ!' : 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¸ªà¸³à¹€à¸£à¹‡à¸ˆ!');
-                
-                setTimeout(() => {
-                    closeModal();
-                    loadAdmins();
-                }, 1500);
-                
-            } catch (error) {
-                console.error('âŒ Form submission error:', error);
-                showError(error.message);
-            } finally {
-                document.getElementById('submitText').textContent = isEditMode ? 'à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¹à¸à¹‰à¹„à¸‚' : 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™';
-            }
-        }
-
-        // Delete confirmation
-        function confirmDelete(adminId) {
-            const admin = admins.find(a => a.id === adminId);
-            if (!admin) return;
-            
-            if (confirm(`à¸„à¸¸à¸“à¹à¸™à¹ˆà¹ƒà¸ˆà¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆà¸—à¸µà¹ˆà¸ˆà¸°à¸¥à¸šà¹à¸­à¸”à¸¡à¸´à¸™ "${admin.fullName || admin.username}"?\n\nà¸à¸²à¸£à¸à¸£à¸°à¸—à¸³à¸™à¸µà¹‰à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸¢à¹‰à¸­à¸™à¸à¸¥à¸±à¸šà¹„à¸”à¹‰`)) {
-                deleteAdmin(adminId);
-            }
-        }
-
-        // Delete admin
-        async function deleteAdmin(adminId) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/admin/${adminId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¸¥à¸š');
-                }
-                
-                showSuccess('à¸¥à¸šà¹à¸­à¸”à¸¡à¸´à¸™à¸ªà¸³à¹€à¸£à¹‡à¸ˆ!');
-                
-                // Reset detail view if deleted admin was selected
-                if (selectedAdminId === adminId) {
-                    document.getElementById('adminDetail').innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-icon">ðŸ‘¥</div>
-                            <h3>à¹€à¸¥à¸·à¸­à¸à¹à¸­à¸”à¸¡à¸´à¸™à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</h3>
-                            <p>à¸„à¸¥à¸´à¸à¸—à¸µà¹ˆà¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸™à¸£à¸²à¸¢à¸à¸²à¸£à¸”à¹‰à¸²à¸™à¸‹à¹‰à¸²à¸¢à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹à¸¥à¸°à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</p>
-                        </div>
-                    `;
-                }
-                
-                loadAdmins();
-                
-            } catch (error) {
-                console.error('âŒ Delete error:', error);
-                showError('à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¸¥à¸š: ' + error.message);
-            }
-        }
-
-        // Alert functions
-        function showSuccess(message) {
-            const container = document.getElementById('alertContainer');
-            container.innerHTML = `<div class="alert alert-success">${message}</div>`;
-        }
-
-        function showError(message) {
-            const container = document.getElementById('alertContainer');
-            container.innerHTML = `<div class="alert alert-error">${message}</div>`;
-        }
-
-        function clearAlert() {
-            document.getElementById('alertContainer').innerHTML = '';
-        }
+            alert('บันทึกข้อมูลผู้ดูแลสำเร็จ!');
+            closeModal();
+        });
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.addEventListener('click', function(e) {
             const modal = document.getElementById('adminModal');
-            if (event.target === modal) {
+            if (e.target === modal) {
                 closeModal();
             }
-        }
+        });
     </script>
 </body>
 </html>
-

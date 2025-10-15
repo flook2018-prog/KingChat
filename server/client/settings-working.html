@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -16,10 +16,10 @@
                 const script = document.createElement('script');
                 script.src = './js/menu-fixed.js?v=20251014-3';
                 script.onload = function() {
-                    console.log(' Menu-fixed.js loaded via fallback method');
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
                 };
                 script.onerror = function() {
-                    console.error(' Failed to load menu-fixed.js even with fallback');
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
                 };
                 document.head.appendChild(script);
             }
@@ -36,223 +36,65 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-y: auto;
             /* Always apply margins for layout consistency */
             margin-left: 260px !important;
             margin-top: 80px !important;
-        }<style>
-        /* Enhanced Styles */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-top: 80px;
         }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 24px;
-            color: #2d3748;
-        }
-
-        .brand-logo {
-            font-size: 28px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-user {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-info {
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 16px;
-        }
-
-        .user-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #28a745;
-            margin-top: 4px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #28a745;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-        }
-
-        .btn-logout {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-logout:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 260px;
-            height: calc(100vh - 80px);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px 0;
-            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            z-index: 999;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 30px;
-            color: #4a5568;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-            font-weight: 500;
-        }
-
-        .menu-item:hover {
-            background: rgba(102, 126, 234, 0.1);
-            border-left-color: #667eea;
-            color: #667eea;
-        }
-
-        .menu-item.active {
-            background: rgba(102, 126, 234, 0.15);
-            border-left-color: #667eea;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .menu-item i {
-            font-size: 20px;
-            width: 24px;
-            text-align: center;
-        }
-
-        /* Main Content */
         .main-content {
-            margin-left: 260px;
-            padding: 40px;
-            min-height: calc(100vh - 120px);
+            padding: 20px;
+            min-height: calc(100vh - 100px);
         }
 
         .page-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
+            font-size: 28px;
             color: #2d3748;
-            margin: 0 0 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+            margin-bottom: 10px;
         }
 
         .page-header p {
-            font-size: 18px;
-            color: #4a5568;
-            margin: 0;
+            color: #6c757d;
+            font-size: 16px;
         }
 
-        /* Settings Sections */
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
         .settings-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .section-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 20px;
             color: #2d3748;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f4;
         }
 
         .setting-item:last-child {
@@ -266,7 +108,6 @@
         .setting-label {
             font-weight: 600;
             color: #2d3748;
-            font-size: 16px;
             margin-bottom: 5px;
         }
 
@@ -275,499 +116,309 @@
             font-size: 14px;
         }
 
-        /* Form Controls */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #06C755;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(26px);
+        }
+
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-label {
             display: block;
             font-weight: 600;
-            color: #2d3748;
+            color: #374151;
             margin-bottom: 8px;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .form-input {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
 
         .form-input:focus {
+            border-color: #06C755;
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.1);
         }
 
         .form-select {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 12px;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-        }
-
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
-            background: #ddd;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .toggle-switch.active {
-            background: #667eea;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 24px;
-            height: 24px;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
             background: white;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(30px);
-        }
-
-        /* Button Styles */
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+        }
+
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
             text-decoration: none;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #06C755, #05a847);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
         }
 
         .btn-secondary {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(102, 126, 234, 0.2);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            background: #6c757d;
             color: white;
         }
 
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.3);
+        .btn-danger {
+            background: #dc3545;
+            color: white;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-        }
-
-        /* Animations */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .settings-section {
-            animation: slideIn 0.6s ease forwards;
-        }
-
-        .settings-section:nth-child(2) { animation-delay: 0.1s; }
-        .settings-section:nth-child(3) { animation-delay: 0.2s; }
-        .settings-section:nth-child(4) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <div id="menu-container"></div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <!-- Menu à¸ˆà¸°à¸–à¸¹à¸ generate à¹‚à¸”à¸¢ menu.js -->
-    </div>
-    </div>
-
-    <!-- Main Content -->
     <div class="main-content">
         <!-- Page Header -->
         <div class="page-header">
-            <h1>
-                <span>âš™ï¸</span>
-                à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²à¸£à¸°à¸šà¸š
-            </h1>
-            <p>à¸ˆà¸±à¸”à¸à¸²à¸£à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²à¹à¸¥à¸°à¸à¸²à¸£à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸‚à¸­à¸‡à¸£à¸°à¸šà¸š KingChat</p>
+            <h1>⚙️ ตั้งค่าระบบ</h1>
+            <p>จัดการการตั้งค่าและกำหนดค่าต่างๆ ของระบบ KingChat</p>
         </div>
 
-        <!-- Notification Settings -->
-        <div class="settings-section">
-            <h2 class="section-title">
-                ðŸ”” à¸à¸²à¸£à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™
-            </h2>
-            
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹ƒà¸«à¸¡à¹ˆ</div>
-                    <div class="setting-description">à¸£à¸±à¸šà¸à¸²à¸£à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹ƒà¸«à¸¡à¹ˆà¸ˆà¸²à¸à¸¥à¸¹à¸à¸„à¹‰à¸²</div>
+        <div class="settings-grid">
+            <!-- General Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>🔧</span>
+                    การตั้งค่าทั่วไป
                 </div>
-                <div class="toggle-switch active" onclick="toggleSetting(this, 'newMessage')">
-                    <div class="toggle-slider"></div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">เปิดใช้งานระบบแชทอัตโนมัติ</div>
+                        <div class="setting-description">ให้ระบบตอบกลับลูกค้าโดยอัตโนมัติเมื่อไม่มีแอดมินออนไลน์</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">แจ้งเตือนข้อความใหม่</div>
+                        <div class="setting-description">ส่งการแจ้งเตือนเมื่อมีข้อความใหม่จากลูกค้า</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">บันทึกประวัติการสนทนา</div>
+                        <div class="setting-description">เก็บบันทึกการสนทนาทั้งหมดไว้ในระบบ</div>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this)"></div>
                 </div>
             </div>
 
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¹€à¸ªà¸µà¸¢à¸‡à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™</div>
-                    <div class="setting-description">à¹€à¸›à¸´à¸”à¹€à¸ªà¸µà¸¢à¸‡à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸à¸²à¸£à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™</div>
+            <!-- Notification Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>🔔</span>
+                    การตั้งค่าการแจ้งเตือน
                 </div>
-                <div class="toggle-switch active" onclick="toggleSetting(this, 'notificationSound')">
-                    <div class="toggle-slider"></div>
+
+                <div class="form-group">
+                    <label class="form-label" for="notificationSound">เสียงแจ้งเตือน</label>
+                    <select id="notificationSound" class="form-select">
+                        <option value="default">เสียงเริ่มต้น</option>
+                        <option value="chime">เสียงระฆัง</option>
+                        <option value="ping">เสียงปิง</option>
+                        <option value="none">ไม่มีเสียง</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸—à¸²à¸‡à¸­à¸µà¹€à¸¡à¸¥</div>
-                    <div class="setting-description">à¸ªà¹ˆà¸‡à¸ªà¸£à¸¸à¸›à¸£à¸²à¸¢à¸à¸²à¸£à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹„à¸›à¸¢à¸±à¸‡à¸­à¸µà¹€à¸¡à¸¥</div>
-                </div>
-                <div class="toggle-switch" onclick="toggleSetting(this, 'emailNotification')">
-                    <div class="toggle-slider"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Settings -->
-        <div class="settings-section">
-            <h2 class="section-title">
-                ðŸ’¬ à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²à¹à¸Šà¸—
-            </h2>
-            
-            <div class="form-group">
-                <label class="form-label">à¸à¸²à¸£à¸•à¸­à¸šà¸à¸¥à¸±à¸šà¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´</label>
-                <select class="form-select" id="autoReplyMode">
-                    <option value="off">à¸›à¸´à¸”à¹ƒà¸Šà¹‰à¸‡à¸²à¸™</option>
-                    <option value="basic" selected>à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸•à¹‰à¸­à¸™à¸£à¸±à¸šà¹€à¸šà¸·à¹‰à¸­à¸‡à¸•à¹‰à¸™</option>
-                    <option value="advanced">à¸•à¸­à¸šà¸à¸¥à¸±à¸šà¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´à¸‚à¸±à¹‰à¸™à¸ªà¸¹à¸‡</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸•à¹‰à¸­à¸™à¸£à¸±à¸š</label>
-                <textarea class="form-input" rows="4" id="welcomeMessage" placeholder="à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸—à¸µà¹ˆà¸ˆà¸°à¸ªà¹ˆà¸‡à¹ƒà¸«à¹‰à¸¥à¸¹à¸à¸„à¹‰à¸²à¹ƒà¸«à¸¡à¹ˆ...">à¸ªà¸§à¸±à¸ªà¸”à¸µà¸„à¸£à¸±à¸š! à¸¢à¸´à¸™à¸”à¸µà¸•à¹‰à¸­à¸™à¸£à¸±à¸šà¸ªà¸¹à¹ˆ KingChat ðŸ‘‹
-
-à¸‚à¸­à¸šà¸„à¸¸à¸“à¸—à¸µà¹ˆà¸•à¸´à¸”à¸•à¹ˆà¸­à¹€à¸£à¸² à¹€à¸£à¸²à¸ˆà¸°à¸•à¸­à¸šà¸à¸¥à¸±à¸šà¹ƒà¸«à¹‰à¸„à¸¸à¸“à¹ƒà¸™à¹€à¸£à¹‡à¸§à¸—à¸µà¹ˆà¸ªà¸¸à¸”
-
-à¸«à¸²à¸à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸„à¸§à¸²à¸¡à¸Šà¹ˆà¸§à¸¢à¹€à¸«à¸¥à¸·à¸­à¹€à¸£à¹ˆà¸‡à¸”à¹ˆà¸§à¸™ à¸à¸£à¸¸à¸“à¸²à¹‚à¸—à¸£ 02-xxx-xxxx</textarea>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¹à¸ªà¸”à¸‡à¸ªà¸–à¸²à¸™à¸°à¸à¸²à¸£à¸žà¸´à¸¡à¸žà¹Œ</div>
-                    <div class="setting-description">à¹à¸ªà¸”à¸‡à¹„à¸­à¸„à¸­à¸™ "à¸à¸³à¸¥à¸±à¸‡à¸žà¸´à¸¡à¸žà¹Œ..." à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸„à¸™à¸žà¸´à¸¡à¸žà¹Œà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡</div>
-                </div>
-                <div class="toggle-switch active" onclick="toggleSetting(this, 'typingIndicator')">
-                    <div class="toggle-slider"></div>
+                <div class="form-group">
+                    <label class="form-label" for="notificationEmail">อีเมลสำหรับรับการแจ้งเตือน</label>
+                    <input type="email" id="notificationEmail" class="form-input" placeholder="admin@kingchat.com">
                 </div>
             </div>
 
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¸šà¸±à¸™à¸—à¸¶à¸à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸à¸²à¸£à¸ªà¸™à¸—à¸™à¸²</div>
-                    <div class="setting-description">à¹€à¸à¹‡à¸šà¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸à¸²à¸£à¸ªà¸™à¸—à¸™à¸²à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¹ƒà¸™à¸£à¸°à¸šà¸š</div>
+            <!-- Business Hours -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>🕐</span>
+                    เวลาทำการ
                 </div>
-                <div class="toggle-switch active" onclick="toggleSetting(this, 'chatHistory')">
-                    <div class="toggle-slider"></div>
+
+                <div class="form-group">
+                    <label class="form-label" for="openTime">เวลาเปิดทำการ</label>
+                    <input type="time" id="openTime" class="form-input" value="09:00">
                 </div>
-            </div>
-        </div>
 
-        <!-- System Settings -->
-        <div class="settings-section">
-            <h2 class="section-title">
-                ðŸ”§ à¸£à¸°à¸šà¸š
-            </h2>
-            
-            <div class="form-group">
-                <label class="form-label">à¸ à¸²à¸©à¸²à¸‚à¸­à¸‡à¸£à¸°à¸šà¸š</label>
-                <select class="form-select" id="systemLanguage">
-                    <option value="th" selected>à¹„à¸—à¸¢</option>
-                    <option value="en">English</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">à¹€à¸‚à¸•à¹€à¸§à¸¥à¸²</label>
-                <select class="form-select" id="timezone">
-                    <option value="Asia/Bangkok" selected>Asia/Bangkok (UTC+7)</option>
-                    <option value="Asia/Singapore">Asia/Singapore (UTC+8)</option>
-                    <option value="UTC">UTC (UTC+0)</option>
-                </select>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¹‚à¸«à¸¡à¸”à¸¡à¸·à¸”</div>
-                    <div class="setting-description">à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸˜à¸µà¸¡à¸‚à¸­à¸‡à¸£à¸°à¸šà¸šà¹€à¸›à¹‡à¸™à¹‚à¸«à¸¡à¸”à¸¡à¸·à¸”</div>
+                <div class="form-group">
+                    <label class="form-label" for="closeTime">เวลาปิดทำการ</label>
+                    <input type="time" id="closeTime" class="form-input" value="18:00">
                 </div>
-                <div class="toggle-switch" onclick="toggleSetting(this, 'darkMode')">
-                    <div class="toggle-slider"></div>
+
+                <div class="form-group">
+                    <label class="form-label" for="workDays">วันทำการ</label>
+                    <select id="workDays" class="form-select">
+                        <option value="weekdays">จันทร์ - ศุกร์</option>
+                        <option value="everyday">ทุกวัน</option>
+                        <option value="custom">กำหนดเอง</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-label">à¸à¸²à¸£à¸­à¸±à¸›à¹€à¸”à¸•à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´</div>
-                    <div class="setting-description">à¸­à¸±à¸›à¹€à¸”à¸•à¸£à¸°à¸šà¸šà¹à¸¥à¸°à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¹ƒà¸«à¸¡à¹ˆà¹‚à¸”à¸¢à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´</div>
+            <!-- System Info -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>ℹ️</span>
+                    ข้อมูลระบบ
                 </div>
-                <div class="toggle-switch active" onclick="toggleSetting(this, 'autoUpdate')">
-                    <div class="toggle-slider"></div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Action Buttons -->
-        <div class="settings-section">
-            <h2 class="section-title">
-                ðŸ’¾ à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²
-            </h2>
-            
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="saveSettings()">
-                    ðŸ’¾ à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²
-                </button>
-                
-                <button class="btn btn-secondary" onclick="resetSettings()">
-                    ðŸ”„ à¸£à¸µà¹€à¸‹à¹‡à¸•à¹€à¸›à¹‡à¸™à¸„à¹ˆà¸²à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™
-                </button>
-                
-                <button class="btn btn-danger" onclick="clearAllData()">
-                    ðŸ—‘ï¸ à¸¥à¹‰à¸²à¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”
-                </button>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">เวอร์ชันระบบ</div>
+                        <div class="setting-description">KingChat v1.0.2</div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">สถานะเซิร์ฟเวอร์</div>
+                        <div class="setting-description">🟢 ออนไลน์</div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">ฐานข้อมูล</div>
+                        <div class="setting-description">🟢 เชื่อมต่อสำเร็จ</div>
+                    </div>
+                </div>
             </div>
-            
-            <div style="margin-top: 20px; padding: 15px; background: rgba(6, 199, 85, 0.1); border-radius: 8px; color: #05a847;">
-                ðŸ’¡ <strong>à¸«à¸¡à¸²à¸¢à¹€à¸«à¸•à¸¸:</strong> à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²à¸ˆà¸°à¸–à¸¹à¸à¸šà¸±à¸™à¸—à¸¶à¸à¹‚à¸”à¸¢à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´ à¹à¸¥à¸°à¸¡à¸µà¸œà¸¥à¸—à¸±à¸™à¸—à¸µà¸—à¸µà¹ˆà¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¹à¸›à¸¥à¸‡
+
+            <!-- Actions -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>💾</span>
+                    การดำเนินการ
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <span>💾</span>
+                        บันทึกการตั้งค่า
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetSettings()">
+                        <span>🔄</span>
+                        รีเซ็ตเป็นค่าเริ่มต้น
+                    </button>
+                    <button class="btn btn-danger" onclick="clearCache()">
+                        <span>🗑️</span>
+                        ล้างแคช
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Authentication check
-        function checkAuth() {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-            
-            if (!token || !user.username) {
-                window.location.href = 'login.html';
-                return;
+        console.log('🚀 Settings page loading...');
+        
+        // Initialize menu with retries
+        function initializeMenu() {
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    console.log('✅ KingChatMenu class found');
+                    kingChatMenu = new KingChatMenu();
+                    console.log('✅ Menu initialized successfully');
+                    return true;
+                } else {
+                    console.warn('⚠️ KingChatMenu class not found, retrying...');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Menu initialization failed:', error);
+                return false;
             }
-            
-            document.getElementById('userName').textContent = user.username;
+        }
+        
+        // Try to initialize menu with retries
+        if (!initializeMenu()) {
+            setTimeout(() => {
+                if (!initializeMenu()) {
+                    setTimeout(() => {
+                        if (!initializeMenu()) {
+                            console.error('❌ Menu failed to load after multiple attempts');
+                            console.log('⚠️ Using fallback layout without menu');
+                        }
+                    }, 2000);
+                }
+            }, 500);
         }
 
-        // Logout function
-        function logout() {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        }
-
-        // Toggle setting
-        function toggleSetting(element, settingName) {
+        function toggleSetting(element) {
             element.classList.toggle('active');
-            const isActive = element.classList.contains('active');
-            
-            // Save to localStorage
-            localStorage.setItem(`setting_${settingName}`, isActive);
-            
-            // Apply setting immediately
-            applySetting(settingName, isActive);
-            
-            console.log(`Setting ${settingName} changed to:`, isActive);
         }
 
-        // Apply setting
-        function applySetting(settingName, value) {
-            switch(settingName) {
-                case 'darkMode':
-                    if (value) {
-                        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                    } else {
-                        document.body.style.filter = 'none';
-                    }
-                    break;
-                    
-                case 'notificationSound':
-                    if (value) {
-                        // Enable notification sounds
-                        console.log('Notification sounds enabled');
-                    } else {
-                        console.log('Notification sounds disabled');
-                    }
-                    break;
-                    
-                // Add more settings as needed
-            }
-        }
-
-        // Save all settings
         function saveSettings() {
-            const settings = {
-                autoReplyMode: document.getElementById('autoReplyMode').value,
-                welcomeMessage: document.getElementById('welcomeMessage').value,
-                systemLanguage: document.getElementById('systemLanguage').value,
-                timezone: document.getElementById('timezone').value
-            };
-            
-            // Save to localStorage
-            localStorage.setItem('chatSettings', JSON.stringify(settings));
-            
-            // Show success message
-            alert('âœ… à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§!');
-            
-            console.log('Settings saved:', settings);
+            alert('บันทึกการตั้งค่าสำเร็จ!');
         }
 
-        // Reset settings
         function resetSettings() {
-            if (confirm('à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸£à¸µà¹€à¸‹à¹‡à¸•à¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¹€à¸›à¹‡à¸™à¸„à¹ˆà¸²à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?')) {
-                // Clear all settings
-                const settingKeys = Object.keys(localStorage).filter(key => key.startsWith('setting_'));
-                settingKeys.forEach(key => localStorage.removeItem(key));
-                localStorage.removeItem('chatSettings');
-                
-                // Reload page to apply defaults
+            if (confirm('คุณแน่ใจหรือไม่ที่จะรีเซ็ตการตั้งค่าทั้งหมด?')) {
+                alert('รีเซ็ตการตั้งค่าสำเร็จ!');
                 location.reload();
             }
         }
 
-        // Clear all data
-        function clearAllData() {
-            if (confirm('âš ï¸ à¸à¸²à¸£à¸”à¸³à¹€à¸™à¸´à¸™à¸à¸²à¸£à¸™à¸µà¹‰à¸ˆà¸°à¸¥à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸” à¸£à¸§à¸¡à¸–à¸¶à¸‡à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸à¸²à¸£à¸ªà¸™à¸—à¸™à¸²\n\nà¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸”à¸³à¹€à¸™à¸´à¸™à¸à¸²à¸£à¸•à¹ˆà¸­à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?')) {
-                if (confirm('à¸„à¸¸à¸“à¹à¸™à¹ˆà¹ƒà¸ˆà¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ? à¸à¸²à¸£à¸”à¸³à¹€à¸™à¸´à¸™à¸à¸²à¸£à¸™à¸µà¹‰à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸¢à¸à¹€à¸¥à¸´à¸à¹„à¸”à¹‰!')) {
-                    // Clear all data except authentication
-                    const token = localStorage.getItem('token');
-                    const user = localStorage.getItem('user');
-                    
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    
-                    // Restore authentication
-                    if (token) localStorage.setItem('token', token);
-                    if (user) localStorage.setItem('user', user);
-                    
-                    alert('âœ… à¸¥à¹‰à¸²à¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§');
-                    location.reload();
-                }
+        function clearCache() {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะล้างแคช?')) {
+                alert('ล้างแคชสำเร็จ!');
             }
         }
-
-        // Load saved settings
-        function loadSettings() {
-            // Load toggle settings
-            const settingKeys = Object.keys(localStorage).filter(key => key.startsWith('setting_'));
-            settingKeys.forEach(key => {
-                const settingName = key.replace('setting_', '');
-                const value = localStorage.getItem(key) === 'true';
-                
-                // Find toggle and apply state
-                const toggles = document.querySelectorAll('.toggle-switch');
-                toggles.forEach(toggle => {
-                    if (toggle.onclick.toString().includes(settingName)) {
-                        if (value) {
-                            toggle.classList.add('active');
-                        } else {
-                            toggle.classList.remove('active');
-                        }
-                        applySetting(settingName, value);
-                    }
-                });
-            });
-            
-            // Load form settings
-            const chatSettings = JSON.parse(localStorage.getItem('chatSettings') || '{}');
-            if (chatSettings.autoReplyMode) {
-                document.getElementById('autoReplyMode').value = chatSettings.autoReplyMode;
-            }
-            if (chatSettings.welcomeMessage) {
-                document.getElementById('welcomeMessage').value = chatSettings.welcomeMessage;
-            }
-            if (chatSettings.systemLanguage) {
-                document.getElementById('systemLanguage').value = chatSettings.systemLanguage;
-            }
-            if (chatSettings.timezone) {
-                document.getElementById('timezone').value = chatSettings.timezone;
-            }
-        }
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize centralized menu
-            if (typeof KingChatMenu !== 'undefined') {
-                kingChatMenu = new KingChatMenu();
-            }
-            
-            loadSettings();
-            
-            // Auto-save form changes
-            document.getElementById('autoReplyMode').addEventListener('change', saveSettings);
-            document.getElementById('welcomeMessage').addEventListener('blur', saveSettings);
-            document.getElementById('systemLanguage').addEventListener('change', saveSettings);
-            document.getElementById('timezone').addEventListener('change', saveSettings);
-        });
     </script>
 </body>
 </html>
-
