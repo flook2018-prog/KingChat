@@ -115,12 +115,167 @@ try {
   app.use('/api/auth', authRoutes);
   console.log('✅ Auth routes loaded and mounted at /api/auth');
   
-  // Admin routes
-  const adminRoutes = require('./routes/admin');
-  app.use('/api/admin', adminRoutes);
-  console.log('✅ Admin routes loaded and mounted at /api/admin');
+  // Mock Admin endpoints - bypassing PostgreSQL for now
+  console.log('🔧 Setting up mock admin endpoints...');
   
-  // Other API routes
+  const bcrypt = require('bcrypt');
+  let mockAdmins = [
+    {
+      id: 1,
+      username: 'admin',
+      role: 'super-admin',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_login: new Date().toISOString()
+    },
+    {
+      id: 2,
+      username: 'manager',
+      role: 'admin',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_login: null
+    }
+  ];
+  
+  // GET /api/admin - Get all admins
+  app.get('/api/admin', (req, res) => {
+    console.log('📁 Fetching admins from mock data');
+    res.json({ success: true, admins: mockAdmins });
+  });
+  
+  // GET /api/admin/:id - Get specific admin
+  app.get('/api/admin/:id', (req, res) => {
+    const adminId = parseInt(req.params.id);
+    const admin = mockAdmins.find(a => a.id === adminId);
+    
+    if (!admin) {
+      return res.status(404).json({ success: false, error: 'Admin not found' });
+    }
+    
+    res.json({ success: true, admin });
+  });
+  
+  // POST /api/admin - Create new admin
+  app.post('/api/admin', async (req, res) => {
+    try {
+      const { username, password, role = 'admin' } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username and password are required' 
+        });
+      }
+      
+      // Check if username exists
+      if (mockAdmins.find(a => a.username === username)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username already exists' 
+        });
+      }
+      
+      const newAdmin = {
+        id: Date.now(),
+        username,
+        role,
+        status: 'active',
+        created_at: new Date().toISOString(),
+        last_login: null
+      };
+      
+      mockAdmins.push(newAdmin);
+      
+      res.status(201).json({ 
+        success: true, 
+        admin: newAdmin,
+        message: 'Admin created successfully' 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to create admin',
+        details: error.message 
+      });
+    }
+  });
+  
+  // PUT /api/admin/:id - Update admin
+  app.put('/api/admin/:id', (req, res) => {
+    try {
+      const adminId = parseInt(req.params.id);
+      const { username, role, status } = req.body;
+      
+      const adminIndex = mockAdmins.findIndex(a => a.id === adminId);
+      
+      if (adminIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Admin not found' });
+      }
+      
+      // Check username uniqueness
+      if (username && mockAdmins.find(a => a.username === username && a.id !== adminId)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username already exists' 
+        });
+      }
+      
+      // Update admin
+      if (username) mockAdmins[adminIndex].username = username;
+      if (role) mockAdmins[adminIndex].role = role;
+      if (status) mockAdmins[adminIndex].status = status;
+      
+      res.json({ 
+        success: true, 
+        admin: mockAdmins[adminIndex],
+        message: 'Admin updated successfully' 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to update admin',
+        details: error.message 
+      });
+    }
+  });
+  
+  // DELETE /api/admin/:id - Delete admin
+  app.delete('/api/admin/:id', (req, res) => {
+    try {
+      const adminId = parseInt(req.params.id);
+      const adminIndex = mockAdmins.findIndex(a => a.id === adminId);
+      
+      if (adminIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Admin not found' });
+      }
+      
+      // Prevent deleting last admin
+      if (mockAdmins.length <= 1) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Cannot delete the last admin' 
+        });
+      }
+      
+      mockAdmins.splice(adminIndex, 1);
+      
+      res.json({ 
+        success: true, 
+        message: 'Admin deleted successfully' 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to delete admin',
+        details: error.message 
+      });
+    }
+  });
+  
+  console.log('✅ Mock admin endpoints loaded');
+  
+  // Other API routes (keeping existing)
   const lineOARoutes = require('./routes/lineoa');
   app.use('/api/lineoa', lineOARoutes);
   console.log('✅ LineOA routes loaded');
