@@ -281,7 +281,22 @@ if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
     }
   }));
   
+  // Serve from parent client directory
   app.use(express.static(path.join(__dirname, '../client'), {
+    maxAge: '1d',
+    etag: false,
+    setHeaders: (res, path) => {
+      if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
+  
+  // Serve from root directory for files like admin-working.html
+  app.use(express.static(path.join(__dirname, '../'), {
     maxAge: '1d',
     etag: false,
     setHeaders: (res, path) => {
@@ -497,6 +512,105 @@ app.use((err, req, res, next) => {
     error: 'Something went wrong!',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
+});
+
+// Admin Management API Endpoints
+const mockDB = require('./mockDatabase');
+
+app.get('/api/admins', async (req, res) => {
+  try {
+    console.log('📊 Fetching admins from mock database...');
+    const admins = await mockDB.getAdmins();
+    res.json({ success: true, admins });
+  } catch (error) {
+    console.error('Error fetching admins:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch admins' });
+  }
+});
+
+app.post('/api/admins', async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+    
+    if (!username || !password || !role) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+
+    console.log(`➕ Creating new admin: ${username} with role: ${role}`);
+
+    // Check if username already exists
+    if (await mockDB.usernameExists(username)) {
+      return res.status(400).json({ success: false, error: 'Username already exists' });
+    }
+
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 12);
+    
+    const admin = await mockDB.createAdmin(username, hashedPassword, role);
+    
+    res.json({ success: true, admin, message: 'Admin created successfully' });
+  } catch (error) {
+    console.error('Error creating admin:', error);
+    res.status(500).json({ success: false, error: 'Failed to create admin' });
+  }
+});
+
+app.put('/api/admins/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, password, role, status } = req.body;
+    
+    if (!username || !role) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+
+    console.log(`✏️ Updating admin ID: ${id} with username: ${username}`);
+
+    // Check if username exists for other users
+    if (await mockDB.usernameExists(username, parseInt(id))) {
+      return res.status(400).json({ success: false, error: 'Username already exists' });
+    }
+
+    let hashedPassword = null;
+    if (password) {
+      const bcrypt = require('bcryptjs');
+      hashedPassword = await bcrypt.hash(password, 12);
+    }
+
+    const admin = await mockDB.updateAdmin(id, username, hashedPassword, role, status);
+    
+    res.json({ success: true, admin, message: 'Admin updated successfully' });
+  } catch (error) {
+    console.error('Error updating admin:', error);
+    if (error.message === 'Admin not found') {
+      return res.status(404).json({ success: false, error: 'Admin not found' });
+    }
+    res.status(500).json({ success: false, error: 'Failed to update admin' });
+  }
+});
+
+app.delete('/api/admins/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🗑️ Deleting admin ID: ${id}`);
+
+    // Don't allow deleting the last admin
+    const adminCount = await mockDB.getActiveAdminCount();
+    if (adminCount <= 1) {
+      return res.status(400).json({ success: false, error: 'Cannot delete the last admin' });
+    }
+    
+    const result = await mockDB.deleteAdmin(id);
+    
+    res.json({ success: true, message: `Admin ${result.username} deleted successfully` });
+  } catch (error) {
+    console.error('Error deleting admin:', error);
+    if (error.message === 'Admin not found') {
+      return res.status(404).json({ success: false, error: 'Admin not found' });
+    }
+    res.status(500).json({ success: false, error: 'Failed to delete admin' });
+  }
 });
 
 // 404 handler

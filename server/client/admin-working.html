@@ -332,15 +332,15 @@
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value">3</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">ผู้ดูแลระบบทั้งหมด</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">1</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">ออนไลน์</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">2</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">ออฟไลน์</div>
                     </div>
                 </div>
@@ -370,82 +370,10 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Data will be loaded from API -->
                         <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                                        BB
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600;">BOSS BABY</div>
-                                        <div style="font-size: 12px; color: #6c757d;">Super Admin</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="admin-role role-super">👑 Super Admin</span></td>
-                            <td><span class="admin-status status-online">🟢 ออนไลน์</span></td>
-                            <td>เมื่อสักครู่</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editAdmin('BOSS BABY')">
-                                    <span>✏️</span>
-                                    แก้ไข
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteAdmin('BOSS BABY')" style="margin-left: 5px;">
-                                    <span>🗑️</span>
-                                    ลบ
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #06C755, #05a847); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                                        JD
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600;">John Doe</div>
-                                        <div style="font-size: 12px; color: #6c757d;">Admin</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="admin-role role-admin">⚡ Admin</span></td>
-                            <td><span class="admin-status status-offline">🔴 ออฟไลน์</span></td>
-                            <td>2 ชั่วโมงที่แล้ว</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editAdmin('John Doe')">
-                                    <span>✏️</span>
-                                    แก้ไข
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteAdmin('John Doe')" style="margin-left: 5px;">
-                                    <span>🗑️</span>
-                                    ลบ
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #74b9ff, #0984e3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                                        JS
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600;">Jane Smith</div>
-                                        <div style="font-size: 12px; color: #6c757d;">Operator</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="admin-role role-operator">🎯 Operator</span></td>
-                            <td><span class="admin-status status-away">🟡 ไม่อยู่</span></td>
-                            <td>1 วันที่แล้ว</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editAdmin('Jane Smith')">
-                                    <span>✏️</span>
-                                    แก้ไข
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteAdmin('Jane Smith')" style="margin-left: 5px;">
-                                    <span>🗑️</span>
-                                    ลบ
-                                </button>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                                � กำลังโหลดข้อมูล...
                             </td>
                         </tr>
                     </tbody>
@@ -531,6 +459,9 @@
     <script>
         console.log('🚀 Admin management page loading...');
         
+        let admins = [];
+        let editingAdminId = null;
+        
         // Initialize menu with retries
         function initializeMenu() {
             try {
@@ -563,33 +494,220 @@
             }, 500);
         }
 
+        // Load admins from API
+        async function loadAdmins() {
+            try {
+                console.log('🔄 Loading admins from API...');
+                const response = await fetch('/api/admins');
+                const data = await response.json();
+                
+                if (data.success) {
+                    admins = data.admins;
+                    renderAdmins();
+                    updateStats();
+                    console.log('✅ Admins loaded successfully:', admins.length);
+                } else {
+                    throw new Error(data.error || 'Failed to load admins');
+                }
+            } catch (error) {
+                console.error('❌ Error loading admins:', error);
+                showNotification('เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ดูแล', 'error');
+            }
+        }
+
+        // Render admins table
+        function renderAdmins() {
+            const tbody = document.querySelector('.admin-table tbody');
+            
+            if (admins.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">ไม่มีข้อมูลผู้ดูแลระบบ</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = admins.map(admin => {
+                const initials = admin.username.substring(0, 2).toUpperCase();
+                const statusClass = admin.status === 'active' ? 'online' : 'offline';
+                const statusText = admin.status === 'active' ? '🟢 ออนไลน์' : '🔴 ออฟไลน์';
+                const roleClass = admin.role === 'super' ? 'super' : admin.role === 'admin' ? 'admin' : 'operator';
+                const roleText = admin.role === 'super' ? '👑 Super Admin' : admin.role === 'admin' ? '⚡ Admin' : '🎯 Operator';
+                const lastLogin = admin.last_login ? new Date(admin.last_login).toLocaleString('th-TH') : 'ยังไม่เคยเข้าใช้';
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">${admin.username}</div>
+                                    <div style="font-size: 12px; color: #6c757d;">${roleText}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="admin-role role-${roleClass}">${roleText}</span></td>
+                        <td><span class="admin-status status-${statusClass}">${statusText}</span></td>
+                        <td>${lastLogin}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editAdmin(${admin.id}, '${admin.username}', '${admin.role}')">
+                                <span>✏️</span>
+                                แก้ไข
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAdmin(${admin.id}, '${admin.username}')" style="margin-left: 5px;">
+                                <span>🗑️</span>
+                                ลบ
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = admins.length;
+            const online = admins.filter(a => a.status === 'active').length;
+            const offline = total - online;
+
+            document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = total;
+            document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = online;
+            document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = offline;
+        }
+
+        // Show add admin modal
         function showAddAdminModal() {
+            editingAdminId = null;
             document.getElementById('modalTitle').textContent = 'เพิ่มผู้ดูแลใหม่';
             document.getElementById('adminForm').reset();
             document.getElementById('adminModal').style.display = 'block';
         }
 
-        function editAdmin(username) {
+        // Edit admin
+        function editAdmin(id, username, role) {
+            editingAdminId = id;
             document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลผู้ดูแล';
             document.getElementById('adminUsername').value = username;
+            document.getElementById('adminRole').value = role;
+            document.getElementById('adminPassword').value = ''; // Clear password field
             document.getElementById('adminModal').style.display = 'block';
         }
 
-        function deleteAdmin(username) {
-            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบผู้ดูแล "${username}"?`)) {
-                alert(`ลบผู้ดูแล "${username}" สำเร็จ!`);
-                // Here you would make an API call to delete the admin
+        // Delete admin
+        async function deleteAdmin(id, username) {
+            if (!confirm(`คุณแน่ใจหรือไม่ที่จะลบผู้ดูแล "${username}"?`)) {
+                return;
+            }
+
+            try {
+                console.log(`🗑️ Deleting admin: ${username} (ID: ${id})`);
+                const response = await fetch(`/api/admins/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('ลบผู้ดูแลสำเร็จ!', 'success');
+                    loadAdmins(); // Reload the list
+                } else {
+                    throw new Error(data.error || 'Failed to delete admin');
+                }
+            } catch (error) {
+                console.error('❌ Error deleting admin:', error);
+                showNotification('เกิดข้อผิดพลาดในการลบผู้ดูแล: ' + error.message, 'error');
             }
         }
 
+        // Close modal
         function closeModal() {
             document.getElementById('adminModal').style.display = 'none';
+            editingAdminId = null;
         }
 
-        document.getElementById('adminForm').addEventListener('submit', function(e) {
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                ${type === 'success' ? 'background: #06C755;' : 
+                  type === 'error' ? 'background: #dc3545;' : 
+                  'background: #007bff;'}
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Handle form submission
+        document.getElementById('adminForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('บันทึกข้อมูลผู้ดูแลสำเร็จ!');
-            closeModal();
+            
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const role = document.getElementById('adminRole').value;
+            
+            if (!username || !role) {
+                showNotification('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+
+            if (!editingAdminId && !password) {
+                showNotification('กรุณากรอกรหัสผ่านสำหรับผู้ดูแลใหม่', 'error');
+                return;
+            }
+
+            try {
+                const isEdit = editingAdminId !== null;
+                const url = isEdit ? `/api/admins/${editingAdminId}` : '/api/admins';
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                const body = { username, role };
+                if (password) {
+                    body.password = password;
+                }
+
+                console.log(`${isEdit ? '✏️ Updating' : '➕ Creating'} admin:`, { username, role });
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(data.message || (isEdit ? 'แก้ไขผู้ดูแลสำเร็จ!' : 'เพิ่มผู้ดูแลสำเร็จ!'), 'success');
+                    closeModal();
+                    loadAdmins(); // Reload the list
+                } else {
+                    throw new Error(data.error || 'Operation failed');
+                }
+            } catch (error) {
+                console.error('❌ Error saving admin:', error);
+                showNotification('เกิดข้อผิดพลาด: ' + error.message, 'error');
+            }
         });
 
         // Close modal when clicking outside
@@ -598,6 +716,25 @@
             if (e.target === modal) {
                 closeModal();
             }
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdmins();
         });
     </script>
 </body>
