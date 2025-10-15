@@ -274,15 +274,170 @@ app.delete('/api/admin/:id', (req, res) => {
 
 console.log('✅ Mock admin endpoints loaded');
 
-// Other API routes (skip PostgreSQL dependent ones)
-try {
-  const lineOARoutes = require('./routes/lineoa');
-  app.use('/api/lineoa', lineOARoutes);
-  console.log('✅ LineOA routes loaded');
-} catch (error) {
-  console.log('⚠️ LineOA routes failed to load:', error.message);
-}
+// Mock LINE OA endpoints
+console.log('🔧 Setting up mock LINE OA endpoints...');
 
+let mockLineOAAccounts = [
+  {
+    id: 1,
+    name: 'KingChat Demo',
+    channelId: '@kingchat_demo',
+    channelSecret: 'demo_secret',
+    accessToken: 'demo_access_token',
+    webhookUrl: 'https://kingchat.up.railway.app/api/webhook',
+    status: 'active',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 2,
+    name: 'Test LINE OA',
+    channelId: '@test_lineoa',
+    channelSecret: 'test_secret',
+    accessToken: 'test_access_token',
+    webhookUrl: 'https://kingchat.up.railway.app/api/webhook',
+    status: 'inactive',
+    created_at: new Date().toISOString()
+  }
+];
+
+// GET /api/lineoa/accounts - Get all LINE OA accounts
+app.get('/api/lineoa/accounts', (req, res) => {
+  console.log('📁 Fetching LINE OA accounts from mock data');
+  res.json({
+    success: true,
+    accounts: mockLineOAAccounts
+  });
+});
+
+// GET /api/lineoa/:id - Get specific LINE OA account
+app.get('/api/lineoa/:id', (req, res) => {
+  const accountId = parseInt(req.params.id);
+  const account = mockLineOAAccounts.find(a => a.id === accountId);
+  
+  if (!account) {
+    return res.status(404).json({ success: false, error: 'Account not found' });
+  }
+  
+  res.json({ success: true, account });
+});
+
+// POST /api/lineoa/accounts - Create new LINE OA account
+app.post('/api/lineoa/accounts', (req, res) => {
+  try {
+    const { name, channelId, channelSecret, accessToken, webhookUrl } = req.body;
+    
+    if (!name || !channelId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Name and Channel ID are required' 
+      });
+    }
+    
+    // Check if channelId already exists
+    if (mockLineOAAccounts.find(a => a.channelId === channelId)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Channel ID already exists' 
+      });
+    }
+    
+    const newAccount = {
+      id: Date.now(),
+      name,
+      channelId,
+      channelSecret: channelSecret || '',
+      accessToken: accessToken || '',
+      webhookUrl: webhookUrl || 'https://kingchat.up.railway.app/api/webhook',
+      status: 'active',
+      created_at: new Date().toISOString()
+    };
+    
+    mockLineOAAccounts.push(newAccount);
+    
+    res.status(201).json({ 
+      success: true, 
+      account: newAccount,
+      message: 'LINE OA account created successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create LINE OA account',
+      details: error.message 
+    });
+  }
+});
+
+// PUT /api/lineoa/accounts/:id - Update LINE OA account
+app.put('/api/lineoa/accounts/:id', (req, res) => {
+  try {
+    const accountId = parseInt(req.params.id);
+    const { name, channelId, channelSecret, accessToken, webhookUrl, status } = req.body;
+    
+    const accountIndex = mockLineOAAccounts.findIndex(a => a.id === accountId);
+    
+    if (accountIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Account not found' });
+    }
+    
+    // Check channelId uniqueness
+    if (channelId && mockLineOAAccounts.find(a => a.channelId === channelId && a.id !== accountId)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Channel ID already exists' 
+      });
+    }
+    
+    // Update account
+    if (name) mockLineOAAccounts[accountIndex].name = name;
+    if (channelId) mockLineOAAccounts[accountIndex].channelId = channelId;
+    if (channelSecret) mockLineOAAccounts[accountIndex].channelSecret = channelSecret;
+    if (accessToken) mockLineOAAccounts[accountIndex].accessToken = accessToken;
+    if (webhookUrl) mockLineOAAccounts[accountIndex].webhookUrl = webhookUrl;
+    if (status) mockLineOAAccounts[accountIndex].status = status;
+    
+    res.json({ 
+      success: true, 
+      account: mockLineOAAccounts[accountIndex],
+      message: 'LINE OA account updated successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to update LINE OA account',
+      details: error.message 
+    });
+  }
+});
+
+// DELETE /api/lineoa/accounts/:id - Delete LINE OA account
+app.delete('/api/lineoa/accounts/:id', (req, res) => {
+  try {
+    const accountId = parseInt(req.params.id);
+    const accountIndex = mockLineOAAccounts.findIndex(a => a.id === accountId);
+    
+    if (accountIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Account not found' });
+    }
+    
+    mockLineOAAccounts.splice(accountIndex, 1);
+    
+    res.json({ 
+      success: true, 
+      message: 'LINE OA account deleted successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete LINE OA account',
+      details: error.message 
+    });
+  }
+});
+
+console.log('✅ Mock LINE OA endpoints loaded');
+
+// Other API routes (skip PostgreSQL dependent ones)
 try {
   const customerRoutes = require('./routes/customers');
   app.use('/api/customers', customerRoutes);
