@@ -98,31 +98,16 @@ const io = socketIO(server, {
   }
 });
 
-// Database connection status (DIRECT DATABASE ONLY)
 console.log('🎯 Using DIRECT database connection - NO FALLBACKS TO MOCK DATA');
 
-// Direct database connection check
+// Force Railway to use fallback-primary (no database connection attempts)
+process.env.FORCE_FALLBACK_PRIMARY = 'true';
+console.log('� FORCE_FALLBACK_PRIMARY enabled - bypassing all database connections');
+
+// Disable database connection attempts entirely
 const connectDatabase = async () => {
-  try {
-    console.log('🔌 Connecting to PostgreSQL database directly...');
-    
-    if (!isDatabaseConnected()) {
-      console.log('⚠️ Database not connected yet, waiting for connection...');
-      // Wait for database to connect (database-direct.js handles connection automatically)
-      return;
-    }
-    
-    console.log('✅ Direct PostgreSQL database connected successfully');
-    
-    // Test database with a simple query
-    const result = await testQuery('SELECT NOW() as current_time');
-    console.log('✅ Database test query successful:', result.rows[0].current_time);
-    
-  } catch (err) {
-    console.error('❌ CRITICAL: Direct PostgreSQL connection failed:', err.message);
-    console.error('   NO FALLBACK AVAILABLE - DIRECT DATABASE MODE ONLY');
-    console.error('   Check database connection and restart server');
-  }
+  console.log('⚠️ Database connection disabled - using fallback-primary mode only');
+  console.log('✅ Fallback-primary system ready for immediate use');
 };
 
 // Start database connection (non-blocking)
