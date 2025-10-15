@@ -46,6 +46,50 @@ pool.query('SELECT NOW()', (err, result) => {
 
 console.log('✅ Auth routes: router created and pool configured');
 
+// Timeout wrapper for database queries
+const withTimeout = (promise, timeoutMs = 2000) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timeout')), timeoutMs)
+    )
+  ]);
+};
+
+// Mock users for fallback (same as admin routes)
+const mockUsers = [
+  {
+    id: 1,
+    username: 'admin',
+    password: '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFaO.MybG4UG8K.', // password: admin123
+    role: 'super-admin',
+    status: 'active',
+    isActive: true,
+    email: 'admin@kingchat.com'
+  },
+  {
+    id: 2,
+    username: 'manager',
+    password: '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFaO.MybG4UG8K.', // password: admin123
+    role: 'admin',
+    status: 'active',
+    isActive: true,
+    email: 'manager@kingchat.com'
+  },
+  {
+    id: 3,
+    username: 'operator',
+    password: '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFaO.MybG4UG8K.', // password: admin123
+    role: 'operator',
+    status: 'active',
+    isActive: true,
+    email: 'operator@kingchat.com'
+  }
+];
+
+// Keep track of dynamically added users
+let dynamicMockUsers = [];
+
 // Simple test route
 router.get('/test', (req, res) => {
   res.json({ 
