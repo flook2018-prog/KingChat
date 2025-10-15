@@ -721,7 +721,13 @@ app.use('*', (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5001;
+// Fix for Railway setting PORT to PostgreSQL port (5432)
+let PORT = process.env.PORT || 5001;
+if (PORT == 5432) {
+  console.log('⚠️  WARNING: Railway set PORT to PostgreSQL port (5432), changing to 8080');
+  PORT = 8080;
+}
+console.log(`🔧 Using PORT: ${PORT}`);
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
