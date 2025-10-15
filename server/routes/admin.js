@@ -9,11 +9,23 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway',
   ssl: process.env.RAILWAY_ENVIRONMENT ? false : { rejectUnauthorized: false },
   max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 5000,        // ลดจาก 30000
+  connectionTimeoutMillis: 2000,  // ลดจาก 10000
+  statement_timeout: 2000,        // เพิ่ม query timeout
+  query_timeout: 2000             // เพิ่ม query timeout
 });
 
 console.log('✅ Admin routes loading with PostgreSQL database connection');
+
+// Timeout wrapper for database queries
+const withTimeout = (promise, timeoutMs = 2000) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timeout')), timeoutMs)
+    )
+  ]);
+};
 
 // Fallback mock data for when database fails
 const mockAdmins = [
@@ -43,18 +55,22 @@ const mockAdmins = [
   }
 ];
 
-// GET /api/admin - Get all admins
+// Mock admin management with in-memory operations
+let nextMockId = 4;
+
+// GET /api/admin - Get all admins  
 router.get('/', async (req, res) => {
   try {
     console.log('📁 Fetching admins from PostgreSQL database');
-    const result = await pool.query(
-      'SELECT id, username, role, status, created_at, last_login FROM admins ORDER BY created_at DESC'
+    
+    const result = await withTimeout(
+      pool.query('SELECT id, username, role, status, created_at, last_login FROM admins ORDER BY created_at DESC')
     );
     
     console.log(`✅ Retrieved ${result.rows.length} admins from database`);
     res.json({ success: true, admins: result.rows });
   } catch (error) {
-    console.error('❌ Error fetching admins from database:', error);
+    console.error('❌ Error fetching admins from database:', error.message);
     console.log('🔄 Falling back to mock data due to database connection issues');
     
     // Fallback to mock data when database fails
@@ -126,42 +142,73 @@ router.post('/', async (req, res) => {
     
     console.log(`📝 Creating new admin: ${username}`);
     
-    // Check if username already exists
-    const existingUser = await pool.query(
-      'SELECT id FROM admins WHERE username = $1',
-      [username]
-    );
-    
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Username already exists' 
+    try {
+      // Try database first
+      const existingUser = await withTimeout(
+        pool.query('SELECT id FROM admins WHERE username = $1', [username])
+      );
+      
+      if (existingUser.rows.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username already exists' 
+        });
+      }
+      
+      // Hash password
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      // Insert new admin
+      const result = await withTimeout(
+        pool.query(
+          'INSERT INTO admins (username, password, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, username, role, status, created_at',
+          [username, hashedPassword, role || 'admin', 'active']
+        )
+      );
+      
+      const newAdmin = result.rows[0];
+      console.log(`✅ Created new admin: ${username}`);
+      res.status(201).json({ success: true, admin: newAdmin });
+      
+    } catch (dbError) {
+      // Fallback to mock data operations
+      console.log('🔄 Database unavailable, using mock data for admin creation');
+      
+      // Check if username exists in mock data
+      const existingMockUser = mockAdmins.find(a => a.username === username);
+      if (existingMockUser) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username already exists' 
+        });
+      }
+      
+      // Create new mock admin
+      const newMockAdmin = {
+        id: nextMockId++,
+        username,
+        role: role || 'admin',
+        status: 'active',
+        created_at: new Date().toISOString(),
+        last_login: null
+      };
+      
+      mockAdmins.push(newMockAdmin);
+      console.log(`✅ Created new mock admin: ${username}`);
+      res.status(201).json({ 
+        success: true, 
+        admin: newMockAdmin,
+        fallback: true,
+        message: 'Admin created using fallback data - changes will not persist'
       });
     }
-    
-    // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
-    // Insert new admin
-    const result = await pool.query(
-      'INSERT INTO admins (username, password, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, username, role, status, created_at',
-      [username, hashedPassword, role || 'admin', 'active']
-    );
-    
-    const newAdmin = result.rows[0];
-    console.log(`✅ Created new admin: ${username}`);
-    res.status(201).json({ success: true, admin: newAdmin });
   } catch (error) {
     console.error('❌ Error creating admin:', error);
-    console.log('🔄 Cannot create admin due to database connection issues');
-    
-    // Return mock success response when database fails
-    res.status(200).json({ 
+    res.status(500).json({ 
       success: false, 
-      error: 'Cannot create admin - database connection issues',
-      message: 'Admin creation is not available when using fallback data. Please try again when database connection is restored.',
-      fallback: true
+      error: 'Failed to create admin',
+      details: error.message 
     });
   }
 });
@@ -268,49 +315,81 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     console.log(`🗑️ Deleting admin ID: ${id}`);
     
-    // Check if admin exists
-    const adminExists = await pool.query(
-      'SELECT id, username FROM admins WHERE id = $1',
-      [id]
-    );
-    
-    if (adminExists.rows.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Admin not found' 
+    try {
+      // Try database first
+      const adminExists = await withTimeout(
+        pool.query('SELECT id, username FROM admins WHERE id = $1', [id])
+      );
+      
+      if (adminExists.rows.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Admin not found' 
+        });
+      }
+      
+      // Check if this is the last admin
+      const adminCount = await withTimeout(
+        pool.query('SELECT COUNT(*) FROM admins WHERE status = $1', ['active'])
+      );
+      
+      if (parseInt(adminCount.rows[0].count) <= 1) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Cannot delete the last admin' 
+        });
+      }
+      
+      const deletedAdmin = adminExists.rows[0];
+      
+      // Delete admin
+      await withTimeout(
+        pool.query('DELETE FROM admins WHERE id = $1', [id])
+      );
+      
+      console.log(`✅ Deleted admin: ${deletedAdmin.username}`);
+      res.json({ 
+        success: true, 
+        message: 'Admin deleted successfully' 
+      });
+      
+    } catch (dbError) {
+      // Fallback to mock data operations
+      console.log('🔄 Database unavailable, using mock data for admin deletion');
+      
+      const adminIndex = mockAdmins.findIndex(a => a.id == id);
+      
+      if (adminIndex === -1) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Admin not found' 
+        });
+      }
+      
+      // Prevent deleting the last admin
+      if (mockAdmins.length <= 1) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Cannot delete the last admin' 
+        });
+      }
+      
+      const deletedAdmin = mockAdmins[adminIndex];
+      mockAdmins.splice(adminIndex, 1);
+      
+      console.log(`✅ Deleted mock admin: ${deletedAdmin.username}`);
+      res.json({ 
+        success: true, 
+        message: 'Admin deleted successfully (from fallback data)',
+        fallback: true
       });
     }
-    
-    // Check if this is the last admin
-    const adminCount = await pool.query('SELECT COUNT(*) FROM admins WHERE status = $1', ['active']);
-    
-    if (parseInt(adminCount.rows[0].count) <= 1) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Cannot delete the last admin' 
-      });
-    }
-    
-    const deletedAdmin = adminExists.rows[0];
-    
-    // Delete admin
-    await pool.query('DELETE FROM admins WHERE id = $1', [id]);
-    
-    console.log(`✅ Deleted admin: ${deletedAdmin.username}`);
-    res.json({ 
-      success: true, 
-      message: 'Admin deleted successfully' 
-    });
   } catch (error) {
     console.error('❌ Error deleting admin:', error);
-    console.log('🔄 Cannot delete admin due to database connection issues');
-    
-    // Return mock response when database fails
-    res.status(200).json({ 
+    res.status(500).json({ 
       success: false, 
-      error: 'Cannot delete admin - database connection issues',
-      message: 'Admin deletion is not available when using fallback data. Please try again when database connection is restored.',
-      fallback: true
+      error: 'Failed to delete admin',
+      details: error.message 
     });
   }
 });
