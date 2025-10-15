@@ -498,7 +498,7 @@
         async function loadAdmins() {
             try {
                 console.log('🔄 Loading admins from API...');
-                const response = await fetch('/api/admins');
+                const response = await fetch('/api/admin');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -600,7 +600,7 @@
 
             try {
                 console.log(`🗑️ Deleting admin: ${username} (ID: ${id})`);
-                const response = await fetch(`/api/admins/${id}`, {
+                const response = await fetch(`/api/admin/${id}`, {
                     method: 'DELETE'
                 });
                 
@@ -677,7 +677,7 @@
 
             try {
                 const isEdit = editingAdminId !== null;
-                const url = isEdit ? `/api/admins/${editingAdminId}` : '/api/admins';
+                const url = isEdit ? `/api/admin/${editingAdminId}` : '/api/admin';
                 const method = isEdit ? 'PUT' : 'POST';
                 
                 const body = { username, role };
