@@ -18,11 +18,18 @@ console.log('🔧 Environment check:');
 console.log('   NODE_ENV:', process.env.NODE_ENV || 'development');
 console.log('   PORT:', PORT);
 console.log('   DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+console.log('   Using DB URL:', databaseUrl);
 
 // PostgreSQL connection setup
+// Railway PostgreSQL connection
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway';
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  connectionString: databaseUrl,
+  ssl: false, // Railway internal connections don't need SSL
+  connectTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  max: 20
 });
 
 let isDatabaseConnected = false;
