@@ -7,6 +7,6 @@
     "numReplicas": 1,
     "sleepApplication": false,
     "restartPolicyType": "ON_FAILURE",
-    "startCommand": "node server-admin.js"
+    "startCommand": "node server-test.js"
   }
 }
