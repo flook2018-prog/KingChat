@@ -8,8 +8,8 @@
     "npm": ">=8.0.0"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node server-admin.js",
+    "dev": "nodemon server-admin.js",
     "test": "node test-admin-api.js",
     "build": "echo \"No build step required\"",
     "postinstall": "echo \"Backend dependencies installed\""
