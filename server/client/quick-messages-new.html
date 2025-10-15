@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>⚡ ข้อความด่วน - KingChat</title>
+    <script src="js/menu-fixed.js?v=20251015-2"></script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251015-2">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            overflow-y: auto;
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+        }
+
+        .main-content {
+            padding: 20px;
+            min-height: calc(100vh - 100px);
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .messages-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-message-btn {
+            background: linear-gradient(135deg, #06C755, #05a847);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .messages-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .message-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .message-card:hover {
+            border-color: #06C755;
+            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.1);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .message-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .message-content {
+            color: #374151;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .message-footer {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .usage-count {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="page-header">
+            <h1>⚡ ข้อความด่วน</h1>
+            <p>จัดการข้อความด่วนสำหรับตอบกลับลูกค้าอย่างรวดเร็ว</p>
+        </div>
+
+        <div class="messages-section">
+            <div class="section-title">
+                <span>💬</span>
+                รายการข้อความด่วน
+                <button class="add-message-btn" onclick="showAddModal()" style="margin-left: auto;">
+                    <span>➕</span>
+                    เพิ่มข้อความใหม่
+                </button>
+            </div>
+
+            <div class="messages-grid" id="messagesGrid">
+                <!-- Sample messages -->
+                <div class="message-card">
+                    <div class="message-header">
+                        <div class="message-title">การทักทาย</div>
+                        <div class="message-actions">
+                            <button class="btn btn-edit" onclick="editMessage(1)">✏️ แก้ไข</button>
+                            <button class="btn btn-delete" onclick="deleteMessage(1)">🗑️ ลบ</button>
+                        </div>
+                    </div>
+                    <div class="message-content">
+                        สวัสดีครับ/ค่ะ ยินดีต้อนรับสู่ KingChat 😊<br>
+                        มีอะไรให้ช่วยเหลือไหมครับ/ค่ะ
+                    </div>
+                    <div class="message-footer">
+                        <span class="usage-count">ใช้แล้ว 25 ครั้ง</span>
+                        <span style="margin-left: auto;">สร้างเมื่อ: 10/10/2025</span>
+                    </div>
+                </div>
+
+                <div class="message-card">
+                    <div class="message-header">
+                        <div class="message-title">ขอโทษที่รอ</div>
+                        <div class="message-actions">
+                            <button class="btn btn-edit" onclick="editMessage(2)">✏️ แก้ไข</button>
+                            <button class="btn btn-delete" onclick="deleteMessage(2)">🗑️ ลบ</button>
+                        </div>
+                    </div>
+                    <div class="message-content">
+                        ขออภัยที่ทำให้รอนานครับ/ค่ะ 🙏<br>
+                        ตอนนี้พร้อมให้บริการแล้วครับ/ค่ะ
+                    </div>
+                    <div class="message-footer">
+                        <span class="usage-count">ใช้แล้ว 12 ครั้ง</span>
+                        <span style="margin-left: auto;">สร้างเมื่อ: 08/10/2025</span>
+                    </div>
+                </div>
+
+                <div class="message-card">
+                    <div class="message-header">
+                        <div class="message-title">ข้อมูลการติดต่อ</div>
+                        <div class="message-actions">
+                            <button class="btn btn-edit" onclick="editMessage(3)">✏️ แก้ไข</button>
+                            <button class="btn btn-delete" onclick="deleteMessage(3)">🗑️ ลบ</button>
+                        </div>
+                    </div>
+                    <div class="message-content">
+                        📞 เบอร์ติดต่อ: 02-123-4567<br>
+                        📧 อีเมล: info@kingchat.com<br>
+                        🕐 เวลาทำการ: จันทร์-ศุกร์ 9:00-18:00
+                    </div>
+                    <div class="message-footer">
+                        <span class="usage-count">ใช้แล้ว 8 ครั้ง</span>
+                        <span style="margin-left: auto;">สร้างเมื่อ: 05/10/2025</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">เพิ่มข้อความด่วนใหม่</h3>
+            <form id="messageForm">
+                <div class="form-group">
+                    <label class="form-label">หัวข้อข้อความ</label>
+                    <input type="text" class="form-input" id="messageTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">เนื้อหาข้อความ</label>
+                    <textarea class="form-textarea" id="messageContent" required></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px;">ยกเลิก</button>
+                    <button type="submit" style="background: #06C755; color: white; border: none; padding: 10px 20px; border-radius: 8px;">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Quick messages page loading...');
+        
+        // Initialize menu
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof KingChatMenu !== 'undefined') {
+                new KingChatMenu();
+            }
+        });
+
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'เพิ่มข้อความด่วนใหม่';
+            document.getElementById('messageForm').reset();
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        function editMessage(id) {
+            document.getElementById('modalTitle').textContent = 'แก้ไขข้อความด่วน';
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        function deleteMessage(id) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบข้อความนี้?')) {
+                alert('ลบข้อความสำเร็จ!');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('บันทึกข้อความสำเร็จ!');
+            closeModal();
+        });
+    </script>
+</body>
+</html>

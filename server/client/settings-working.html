@@ -7,25 +7,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>⚙️ ตั้งค่า - KingChat</title>
-    <script src="js/menu-fixed.js?v=20251014-3"></script>
-    <script>
-        // Fallback menu loading
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof KingChatMenu === 'undefined') {
-                console.warn('Menu-fixed.js not loaded, trying alternative path...');
-                const script = document.createElement('script');
-                script.src = './js/menu-fixed.js?v=20251014-3';
-                script.onload = function() {
-                    console.log('✅ Menu-fixed.js loaded via fallback method');
-                };
-                script.onerror = function() {
-                    console.error('❌ Failed to load menu-fixed.js even with fallback');
-                };
-                document.head.appendChild(script);
-            }
-        });
-    </script>
-    <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
+    <script src="js/menu-fixed.js?v=20251015-2"></script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251015-2">
     <style>
         * {
             margin: 0;
@@ -38,7 +21,6 @@
             background: #f8f9fa;
             min-height: 100vh;
             overflow-y: auto;
-            /* Always apply margins for layout consistency */
             margin-left: 260px !important;
             margin-top: 80px !important;
         }
@@ -47,6 +29,355 @@
             padding: 20px;
             min-height: calc(100vh - 100px);
         }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .setting-description {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #06C755;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(26px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #06C755;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06C755, #05a847);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="page-header">
+            <h1>⚙️ ตั้งค่าระบบ</h1>
+            <p>จัดการการตั้งค่าและกำหนดค่าต่างๆ ของระบบ KingChat</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- General Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>🔧</span>
+                    การตั้งค่าทั่วไป
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">เปิดใช้งานระบบแชทอัตโนมัติ</div>
+                        <div class="setting-description">ให้ระบบตอบกลับลูกค้าโดยอัตโนมัติเมื่อไม่มีแอดมินออนไลน์</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">แจ้งเตือนข้อความใหม่</div>
+                        <div class="setting-description">ส่งการแจ้งเตือนเมื่อมีข้อความใหม่จากลูกค้า</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">บันทึกประวัติการสนทนา</div>
+                        <div class="setting-description">เก็บบันทึกการสนทนาทั้งหมดไว้ในระบบ</div>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this)"></div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>🔔</span>
+                    การตั้งค่าการแจ้งเตือน
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="notificationSound">เสียงแจ้งเตือน</label>
+                    <select id="notificationSound" class="form-select">
+                        <option value="default">เสียงเริ่มต้น</option>
+                        <option value="chime">เสียงระฆัง</option>
+                        <option value="ping">เสียงปิง</option>
+                        <option value="none">ไม่มีเสียง</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="notificationEmail">อีเมลสำหรับรับการแจ้งเตือน</label>
+                    <input type="email" id="notificationEmail" class="form-input" placeholder="admin@kingchat.com">
+                </div>
+            </div>
+
+            <!-- Business Hours -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>🕐</span>
+                    เวลาทำการ
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="openTime">เวลาเปิดทำการ</label>
+                    <input type="time" id="openTime" class="form-input" value="09:00">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="closeTime">เวลาปิดทำการ</label>
+                    <input type="time" id="closeTime" class="form-input" value="18:00">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="workDays">วันทำการ</label>
+                    <select id="workDays" class="form-select">
+                        <option value="weekdays">จันทร์ - ศุกร์</option>
+                        <option value="everyday">ทุกวัน</option>
+                        <option value="custom">กำหนดเอง</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>ℹ️</span>
+                    ข้อมูลระบบ
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">เวอร์ชันระบบ</div>
+                        <div class="setting-description">KingChat v1.0.2</div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">สถานะเซิร์ฟเวอร์</div>
+                        <div class="setting-description">🟢 ออนไลน์</div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">ฐานข้อมูล</div>
+                        <div class="setting-description">🟢 เชื่อมต่อสำเร็จ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <span>💾</span>
+                    การดำเนินการ
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <span>💾</span>
+                        บันทึกการตั้งค่า
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetSettings()">
+                        <span>🔄</span>
+                        รีเซ็ตเป็นค่าเริ่มต้น
+                    </button>
+                    <button class="btn btn-danger" onclick="clearCache()">
+                        <span>🗑️</span>
+                        ล้างแคช
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Settings page loading...');
+        
+        // Initialize menu
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof KingChatMenu !== 'undefined') {
+                new KingChatMenu();
+            }
+        });
+
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+        }
+
+        function saveSettings() {
+            alert('บันทึกการตั้งค่าสำเร็จ!');
+        }
+
+        function resetSettings() {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะรีเซ็ตการตั้งค่าทั้งหมด?')) {
+                alert('รีเซ็ตการตั้งค่าสำเร็จ!');
+                location.reload();
+            }
+        }
+
+        function clearCache() {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะล้างแคช?')) {
+                alert('ล้างแคชสำเร็จ!');
+            }
+        }
+    </script>
+</body>
+</html>
 
         .page-header {
             background: white;

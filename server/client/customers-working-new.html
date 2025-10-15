@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>👥 รายชื่อลูกค้า - KingChat</title>
+    <script src="js/menu-fixed.js?v=20251015-1"></script>
+    <script>
+        // Fallback menu loading
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof KingChatMenu === 'undefined') {
+                console.warn('Menu-fixed.js not loaded, trying alternative path...');
+                const script = document.createElement('script');
+                script.src = './js/menu-fixed.js?v=20251015-1';
+                script.onload = function() {
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
+                };
+                script.onerror = function() {
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251015-1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            overflow-y: auto;
+            /* Always apply margins for layout consistency */
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+        }
+
+        .main-content {
+            padding: 20px;
+            min-height: calc(100vh - 100px);
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #06C755;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.1);
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            padding: 8px 16px;
+            border: 1px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-button:hover,
+        .filter-button.active {
+            background: #06C755;
+            color: white;
+            border-color: #06C755;
+        }
+
+        .customers-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .customers-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customers-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .customers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .customer-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #e9ecef;
+        }
+
+        .customer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #06C755;
+        }
+
+        .customer-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .customer-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .customer-info {
+            flex: 1;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .customer-phone {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .customer-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-online {
+            background: #06C755;
+        }
+
+        .status-offline {
+            background: #dc3545;
+        }
+
+        .status-away {
+            background: #ffc107;
+        }
+
+        .message-indicator {
+            background: #06C755;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .customer-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06C755, #05a847);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>👥 รายชื่อลูกค้า</h1>
+            <p>จัดการและติดตามลูกค้าของคุณ พร้อมดูสถานะการออนไลน์และข้อความใหม่</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="🔍 ค้นหาลูกค้าด้วยชื่อ หรือเบอร์โทร..." id="searchInput">
+            </div>
+            <div class="search-filters">
+                <button class="filter-button active" data-filter="all">📋 ทั้งหมด</button>
+                <button class="filter-button" data-filter="online">🟢 ออนไลน์</button>
+                <button class="filter-button" data-filter="new-message">💬 ข้อความใหม่</button>
+                <button class="filter-button" data-filter="today">📅 วันนี้</button>
+            </div>
+        </div>
+
+        <!-- Customers Section -->
+        <div class="customers-section">
+            <div class="customers-header">
+                <div class="section-title">
+                    <span>👥</span>
+                    รายชื่อลูกค้า
+                </div>
+                <div class="customers-stats">
+                    <div class="stat-item">
+                        <span>📊</span>
+                        <span>ทั้งหมด: <strong id="totalCustomers">0</strong></span>
+                    </div>
+                    <div class="stat-item">
+                        <span>🟢</span>
+                        <span>ออนไลน์: <strong id="onlineCustomers">0</strong></span>
+                    </div>
+                    <div class="stat-item">
+                        <span>💬</span>
+                        <span>ข้อความใหม่: <strong id="newMessages">0</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state">
+                <div>🔄 กำลังโหลดข้อมูลลูกค้า...</div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">👥</div>
+                <h3>ยังไม่มีลูกค้า</h3>
+                <p>เมื่อมีลูกค้าเข้ามาแชทจะแสดงที่นี่</p>
+                <button onclick="loadCustomers()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 15px;">🔄 ลองใหม่</button>
+            </div>
+
+            <!-- Customers Grid -->
+            <div id="customersGrid" class="customers-grid" style="display: none;">
+                <!-- Customer cards will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Customers page loading...');
+        
+        // Initialize menu with retries
+        function initializeMenu() {
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    console.log('✅ KingChatMenu class found');
+                    kingChatMenu = new KingChatMenu();
+                    console.log('✅ Menu initialized successfully');
+                    return true;
+                } else {
+                    console.warn('⚠️ KingChatMenu class not found, retrying...');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Menu initialization failed:', error);
+                return false;
+            }
+        }
+        
+        // Try to initialize menu with retries
+        if (!initializeMenu()) {
+            setTimeout(() => {
+                if (!initializeMenu()) {
+                    setTimeout(() => {
+                        if (!initializeMenu()) {
+                            console.error('❌ Menu failed to load after multiple attempts');
+                            console.log('⚠️ Using fallback layout without menu');
+                        }
+                    }, 2000);
+                }
+            }, 500);
+        }
+
+        // Mock customer data
+        const mockCustomers = [
+            {
+                id: '1',
+                name: 'สมชาย ใจดี',
+                phone: '081-234-5678',
+                avatar: 'SC',
+                status: 'online',
+                lastSeen: 'เมื่อสักครู่',
+                hasNewMessage: true,
+                messageCount: 3
+            },
+            {
+                id: '2', 
+                name: 'สมหญิง รักงาม',
+                phone: '082-345-6789',
+                avatar: 'SH',
+                status: 'offline',
+                lastSeen: '2 ชั่วโมงที่แล้ว',
+                hasNewMessage: false,
+                messageCount: 0
+            },
+            {
+                id: '3',
+                name: 'ประยุทธ์ มีความสุข',
+                phone: '083-456-7890', 
+                avatar: 'PM',
+                status: 'away',
+                lastSeen: '30 นาทีที่แล้ว',
+                hasNewMessage: true,
+                messageCount: 1
+            },
+            {
+                id: '4',
+                name: 'ณิชา ใสใส',
+                phone: '084-567-8901',
+                avatar: 'NC',
+                status: 'online',
+                lastSeen: 'เมื่อสักครู่',
+                hasNewMessage: false,
+                messageCount: 0
+            }
+        ];
+
+        let customers = mockCustomers;
+        let filteredCustomers = mockCustomers;
+
+        function loadCustomers() {
+            console.log('🔄 Loading customers...');
+            
+            // Show loading state
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('customersGrid').style.display = 'none';
+
+            // Simulate API call
+            setTimeout(() => {
+                if (customers.length === 0) {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                } else {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('customersGrid').style.display = 'grid';
+                    renderCustomers(customers);
+                    updateStats();
+                }
+            }, 1000);
+        }
+
+        function renderCustomers(customerList) {
+            const grid = document.getElementById('customersGrid');
+            
+            if (customerList.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">ไม่พบลูกค้าที่ตรงกับการค้นหา</div>';
+                return;
+            }
+
+            grid.innerHTML = customerList.map(customer => `
+                <div class="customer-card" onclick="openChat('${customer.id}')">
+                    <div class="customer-header">
+                        <div class="customer-avatar">${customer.avatar}</div>
+                        <div class="customer-info">
+                            <div class="customer-name">${customer.name}</div>
+                            <div class="customer-phone">${customer.phone}</div>
+                        </div>
+                        ${customer.hasNewMessage ? `<div class="message-indicator">${customer.messageCount}</div>` : ''}
+                    </div>
+                    
+                    <div class="customer-status">
+                        <div class="status-dot status-${customer.status}"></div>
+                        <span style="font-size: 13px; color: #6c757d;">
+                            ${customer.status === 'online' ? '🟢 ออนไลน์' : 
+                              customer.status === 'away' ? '🟡 ไม่อยู่' : '🔴 ออฟไลน์'}
+                        </span>
+                        <span style="margin-left: auto; font-size: 12px; color: #999;">
+                            ${customer.lastSeen}
+                        </span>
+                    </div>
+
+                    <div class="customer-actions">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); openChat('${customer.id}')">
+                            <span>💬</span>
+                            แชท
+                        </button>
+                        <button class="btn btn-outline" onclick="event.stopPropagation(); viewProfile('${customer.id}')">
+                            <span>👤</span>
+                            ดูโปรไฟล์
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const total = customers.length;
+            const online = customers.filter(c => c.status === 'online').length;
+            const newMessages = customers.filter(c => c.hasNewMessage).length;
+
+            document.getElementById('totalCustomers').textContent = total;
+            document.getElementById('onlineCustomers').textContent = online;
+            document.getElementById('newMessages').textContent = newMessages;
+        }
+
+        function openChat(customerId) {
+            console.log('Opening chat for customer:', customerId);
+            // Redirect to chat page
+            window.location.href = `chat.html?customer=${customerId}`;
+        }
+
+        function viewProfile(customerId) {
+            console.log('Viewing profile for customer:', customerId);
+            // You can implement profile view here
+            alert('ฟีเจอร์ดูโปรไฟล์กำลังพัฒนา');
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredCustomers = customers.filter(customer => 
+                customer.name.toLowerCase().includes(searchTerm) ||
+                customer.phone.includes(searchTerm)
+            );
+            renderCustomers(filteredCustomers);
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                const filter = this.getAttribute('data-filter');
+                
+                switch(filter) {
+                    case 'all':
+                        filteredCustomers = customers;
+                        break;
+                    case 'online':
+                        filteredCustomers = customers.filter(c => c.status === 'online');
+                        break;
+                    case 'new-message':
+                        filteredCustomers = customers.filter(c => c.hasNewMessage);
+                        break;
+                    case 'today':
+                        // Mock filter for today's conversations
+                        filteredCustomers = customers.filter(c => 
+                            c.lastSeen.includes('เมื่อสักครู่') || 
+                            c.lastSeen.includes('นาทีที่แล้ว') ||
+                            c.lastSeen.includes('ชั่วโมงที่แล้ว')
+                        );
+                        break;
+                }
+                
+                renderCustomers(filteredCustomers);
+            });
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCustomers();
+        });
+    </script>
+</body>
+</html>
