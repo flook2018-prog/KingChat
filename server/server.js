@@ -13,6 +13,9 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 // Import database models
 const { pool, testConnection } = require('./models/database');
 
+// Initialize admin table on startup
+const { createAdminTable } = require('./init-admin-table');
+
 // Debug environment variables
 console.log('🔧 Environment check:');
 console.log('   NODE_ENV:', process.env.NODE_ENV);

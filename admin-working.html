@@ -455,9 +455,9 @@
         async function loadAdmins() {
             try {
                 showLoading(true);
-                console.log('📡 Fetching admins from:', `${API_BASE}/admin`);
+                console.log('📡 Fetching admins from:', `${API_BASE}/admins`);
                 
-                const response = await fetch(`${API_BASE}/admin`, {
+                const response = await fetch(`${API_BASE}/admins`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -605,7 +605,7 @@
                 
                 if (editingAdminId) {
                     // Update existing admin
-                    response = await fetch(`${API_BASE}/admin/${editingAdminId}`, {
+                    response = await fetch(`${API_BASE}/admins/${editingAdminId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -614,7 +614,7 @@
                     });
                 } else {
                     // Create new admin
-                    response = await fetch(`${API_BASE}/admin`, {
+                    response = await fetch(`${API_BASE}/admins`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -648,7 +648,7 @@
             try {
                 console.log('🗑️ Deleting admin ID:', id);
                 
-                const response = await fetch(`${API_BASE}/admin/${id}`, {
+                const response = await fetch(`${API_BASE}/admins/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
