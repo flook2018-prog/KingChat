@@ -22,11 +22,11 @@ const router = express.Router();
 
 console.log('🔧 Loading auth-simple.js routes...');
 
-// PostgreSQL connection using public URL for Railway compatibility
+// PostgreSQL connection using new Railway database
 let pool;
 try {
   pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@autorack.proxy.rlwy.net:33388/railway',
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway',
     ssl: process.env.RAILWAY_ENVIRONMENT ? false : { rejectUnauthorized: false },
   });
   console.log('✅ PostgreSQL pool created for auth routes');

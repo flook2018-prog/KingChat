@@ -20,7 +20,7 @@ if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = 'railway-jwt-secret-2024';
 }
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway';
+  process.env.DATABASE_URL = 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway';
 }
 
 console.log('🚀 Starting KingChat Server...');

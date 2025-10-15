@@ -22,7 +22,7 @@ console.log('   Using DB URL:', databaseUrl);
 
 // PostgreSQL connection setup
 // Railway PostgreSQL connection
-const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway';
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway';
 
 const pool = new Pool({
   connectionString: databaseUrl,

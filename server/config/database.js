@@ -4,7 +4,7 @@ const { Sequelize } = require('sequelize');
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Use the Railway PostgreSQL connection string you provided
-const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@postgres.railway.internal:5432/railway';
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway';
 
 console.log('🔗 Connecting to PostgreSQL database...');
 console.log('🔗 Database URL:', databaseUrl.replace(/:[^:]*@/, ':***@'));

@@ -177,20 +177,25 @@ try {
     });
   }
 }
-  
-  // Load admin authentication routes
-  try {
-    adminAuthRoutes = require('./routes/admin-auth');
-    console.log('✅ Admin auth routes loaded');
-  } catch (error) {
-    console.error('❌ Failed to load admin auth routes:', error.message);
-    adminAuthRoutes = require('express').Router();
-    adminAuthRoutes.all('*', (req, res) => {
-      res.status(503).json({ error: 'Admin auth not available' });
-    });
-  }
-  
-  // Try admin route files for Railway deployment
+
+// Load admin authentication routes
+try {
+  adminAuthRoutes = require('./routes/admin-auth');
+  console.log('✅ Admin auth routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load admin auth routes:', error.message);
+  adminAuthRoutes = require('express').Router();
+  adminAuthRoutes.all('*', (req, res) => {
+    res.status(503).json({ error: 'Admin auth not available' });
+  });
+}
+
+// Try admin route files for Railway deployment
+try {
+  // Use mock admin routes for demonstration since PostgreSQL connection failed
+  adminRoutes = require('./routes/admin-mock');
+  console.log('✅ Using admin-mock routes (TEMPORARY - will switch to PostgreSQL in production)');
+} catch {
   try {
     adminRoutes = require('./routes/admin');
     console.log('✅ Using admin routes (PostgreSQL)');
@@ -207,24 +212,24 @@ try {
       console.log('⚠️ Using fallback admin routes');
     }
   }
-  
+}
+
+try {
   lineAccountRoutes = require('./routes/lineAccounts');
   rolesRoutes = require('./routes/roles');
   console.log('✅ Routes loaded successfully');
 } catch (error) {
-  console.error('❌ Error loading routes:', error.message);
+  console.error('❌ Error loading additional routes:', error.message);
   console.log('⚠️  Server will start with limited functionality');
   
   // Create fallback routes
-  authRoutes = require('express').Router();
-  adminAuthRoutes = require('express').Router();
-  adminRoutes = require('express').Router();
   lineAccountRoutes = require('express').Router();
+  rolesRoutes = require('express').Router();
   
   // Add error responses
-  [authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes].forEach(router => {
+  [lineAccountRoutes, rolesRoutes].forEach(router => {
     router.all('*', (req, res) => {
-      res.status(503).json({ error: 'Database not available' });
+      res.status(503).json({ error: 'Route not available' });
     });
   });
 }

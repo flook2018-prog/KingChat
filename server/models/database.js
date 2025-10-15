@@ -2,8 +2,8 @@ const { Pool } = require('pg');
 
 // Database connection configuration
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:uEDCzaMjeCGBXCItjOqqMNEYECEFgBsn@autorack.proxy.rlwy.net:33388/railway',
-  ssl: process.env.RAILWAY_ENVIRONMENT ? false : { rejectUnauthorized: false },
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres.railway.internal:5432/railway',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
