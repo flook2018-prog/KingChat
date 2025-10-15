@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-const { getPool, isDatabaseConnected, executeQuery } = require('../models/database-production');
+const { executeQuery, isDatabaseConnected } = require('../models/database-production-fallback');
 
 console.log('🔐 Auth Production Routes: Loading with PostgreSQL database connection');
 

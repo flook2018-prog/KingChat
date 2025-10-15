@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
-const { getPool, isDatabaseConnected, executeQuery } = require('../models/database-production');
+const { executeQuery, isDatabaseConnected } = require('../models/database-production-fallback');
 
 console.log('📁 Admin Production Routes: Loading with PostgreSQL database connection');
 

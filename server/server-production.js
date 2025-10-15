@@ -12,8 +12,8 @@ console.log('🎯 PRODUCTION MODE: Using PostgreSQL Database Connection');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-// Import database models (PRODUCTION POSTGRESQL)
-const { getPool, isDatabaseConnected, executeQuery, initializeDatabase } = require('./models/database-production');
+// Import database models (PRODUCTION POSTGRESQL WITH FALLBACK)
+const { getPool, isDatabaseConnected, executeQuery, initializeDatabase, getStatus } = require('./models/database-production-fallback');
 
 // Debug environment variables
 console.log('🔧 Environment check:');
@@ -26,6 +26,9 @@ console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT ? 'SET' :
 // Initialize Express app
 const app = express();
 const server = http.createServer(app);
+
+// Trust proxy for Railway deployment
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
@@ -188,6 +191,18 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Database status endpoint
+app.get('/api/status', (req, res) => {
+  const dbStatus = getStatus();
+  res.json({
+    status: 'running',
+    mode: 'production',
+    database: isDatabaseConnected() ? 'postgresql' : 'fallback',
+    timestamp: new Date().toISOString(),
+    ...dbStatus
+  });
+});
+
 // API Routes
 console.log('🔗 Mounting API routes...');
 app.use('/api/auth', authRoutes);
@@ -211,7 +226,28 @@ app.use(express.static(path.join(__dirname, '../client')));
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/index.html'));
+  // Check if login.html exists, otherwise serve a simple response
+  const loginPath = path.join(__dirname, '../client/login.html');
+  const fs = require('fs');
+  
+  if (fs.existsSync(loginPath)) {
+    res.sendFile(loginPath);
+  } else {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>KingChat - Loading...</title>
+        <meta charset="utf-8">
+      </head>
+      <body>
+        <h1>KingChat Production Server</h1>
+        <p>Server is running successfully!</p>
+        <p><a href="/login.html">Go to Login</a></p>
+      </body>
+      </html>
+    `);
+  }
 });
 
 // Error handling middleware
