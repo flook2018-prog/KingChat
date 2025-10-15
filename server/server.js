@@ -133,13 +133,13 @@ let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
 console.log('🎯 Loading DIRECT database routes (NO MOCK DATA)...');
 
-// Load auth routes with direct database connection
+// Load auth routes with hybrid system (database + fallback)
 try {
-  authRoutes = require('./routes/auth-direct');
-  console.log('✅ Auth routes loaded from auth-direct.js (DIRECT DATABASE ONLY)');
+  authRoutes = require('./routes/auth-hybrid');
+  console.log('✅ Auth routes loaded from auth-hybrid.js (DATABASE + FALLBACK)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load auth-direct routes:', error.message);
-  process.exit(1); // Exit if direct routes fail - NO FALLBACKS
+  console.error('❌ CRITICAL: Failed to load auth-hybrid routes:', error.message);
+  process.exit(1); // Exit if hybrid routes fail
 }
 
 // Load admin authentication routes
@@ -154,13 +154,13 @@ try {
   });
 }
 
-// Load admin routes with direct database connection
+// Load admin routes with hybrid system (database + fallback)
 try {
-  adminRoutes = require('./routes/admin-direct');
-  console.log('✅ Admin routes loaded from admin-direct.js (DIRECT DATABASE ONLY)');
+  adminRoutes = require('./routes/admin-hybrid');
+  console.log('✅ Admin routes loaded from admin-hybrid.js (DATABASE + FALLBACK)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load admin-direct routes:', error.message);
-  process.exit(1); // Exit if direct routes fail - NO FALLBACKS
+  console.error('❌ CRITICAL: Failed to load admin-hybrid routes:', error.message);
+  process.exit(1); // Exit if hybrid routes fail
 }
 
 try {
