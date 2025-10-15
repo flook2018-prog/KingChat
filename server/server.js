@@ -10,8 +10,8 @@ const path = require('path');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-// Import database models
-const { pool, testConnection } = require('./models/database');
+// Import database models (DIRECT DATABASE ONLY)
+const { getPool, isDatabaseConnected, testQuery } = require('./models/database-direct');
 
 // Initialize admin table on startup
 const { createAdminTable } = require('./init-admin-table');
@@ -98,93 +98,48 @@ const io = socketIO(server, {
   }
 });
 
-// Database connection status
-let isDatabaseConnected = false;
+// Database connection status (DIRECT DATABASE ONLY)
+console.log('🎯 Using DIRECT database connection - NO FALLBACKS TO MOCK DATA');
 
-// Database connection
+// Direct database connection check
 const connectDatabase = async () => {
   try {
-    await testConnection();
-    console.log('✅ PostgreSQL database connected successfully');
+    console.log('🔌 Connecting to PostgreSQL database directly...');
     
-    // Test Admin model
-    try {
-      const Admin = require('./models/postgresql/Admin');
-      console.log('✅ Admin model loaded successfully');
-    } catch (error) {
-      console.log('⚠️ Admin model load failed:', error.message);
+    if (!isDatabaseConnected()) {
+      console.log('⚠️ Database not connected yet, waiting for connection...');
+      // Wait for database to connect (database-direct.js handles connection automatically)
+      return;
     }
     
-    // Check if admin table exists, create if needed
-    try {
-      await pool.query('SELECT 1 FROM admins LIMIT 1');
-      console.log('✅ Admin table verified');
-    } catch (error) {
-      console.log('⚠️ Admin table check failed, may need to create table');
-    }
+    console.log('✅ Direct PostgreSQL database connected successfully');
     
-    console.log('✅ Database connection verified');
-    isDatabaseConnected = true;
-    
-    // Create admin users on Railway
-    if (process.env.RAILWAY_ENVIRONMENT) {
-      console.log('🏗️ Railway environment detected, setting up admin users...');
-      try {
-        const { createAdminsOnRailway } = require('./createAdminsRailway');
-        await createAdminsOnRailway();
-        console.log('✅ Admin users setup completed on Railway');
-      } catch (error) {
-        console.error('❌ Admin users setup failed:', error.message);
-      }
-    }
+    // Test database with a simple query
+    const result = await testQuery('SELECT NOW() as current_time');
+    console.log('✅ Database test query successful:', result.rows[0].current_time);
     
   } catch (err) {
-    console.error('❌ PostgreSQL connection failed:', err.message);
-    console.error('   Will retry connection in background...');
-    console.error('   Server will continue to run but database features may not work');
-    isDatabaseConnected = false;
-    
-    // Retry connection after 10 seconds
-    setTimeout(() => {
-      console.log('🔄 Retrying database connection...');
-      connectDatabase();
-    }, 10000);
+    console.error('❌ CRITICAL: Direct PostgreSQL connection failed:', err.message);
+    console.error('   NO FALLBACK AVAILABLE - DIRECT DATABASE MODE ONLY');
+    console.error('   Check database connection and restart server');
   }
 };
 
 // Start database connection (non-blocking)
 connectDatabase();
 
-// Import routes with error handling
+// Import routes with direct database connection (NO FALLBACKS)
 let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
+console.log('🎯 Loading DIRECT database routes (NO MOCK DATA)...');
+
+// Load auth routes with direct database connection
 try {
-  authRoutes = require('./routes/auth-working');
-  console.log('✅ Auth routes loaded from auth-working.js');
+  authRoutes = require('./routes/auth-direct');
+  console.log('✅ Auth routes loaded from auth-direct.js (DIRECT DATABASE ONLY)');
 } catch (error) {
-  try {
-    authRoutes = require('./routes/auth-fallback');
-    console.log('✅ Auth routes loaded from auth-fallback.js');
-  } catch (error2) {
-    try {
-      authRoutes = require('./routes/auth-simple');
-      console.log('✅ Auth routes loaded from auth-simple.js');
-    } catch (error3) {
-      console.error('❌ Failed to load auth routes:', error3.message);
-      
-      // Try fallback to old auth.js
-      try {
-        authRoutes = require('./routes/auth');
-        console.log('⚠️ Using fallback auth.js');
-      } catch (fallbackError) {
-        console.error('❌ All auth routes failed:', fallbackError.message);
-        authRoutes = require('express').Router();
-        authRoutes.all('*', (req, res) => {
-          res.status(503).json({ error: 'Auth routes not available', details: error.message });
-        });
-      }
-    }
-  }
+  console.error('❌ CRITICAL: Failed to load auth-direct routes:', error.message);
+  process.exit(1); // Exit if direct routes fail - NO FALLBACKS
 }
 
 // Load admin authentication routes
@@ -199,34 +154,13 @@ try {
   });
 }
 
-// Try admin route files for Railway deployment
+// Load admin routes with direct database connection
 try {
-  // Use working admin routes with real database connection
-  adminRoutes = require('./routes/admin-working');
-  console.log('✅ Using admin-working routes (PostgreSQL database)');
-} catch {
-  try {
-    // Use mock admin routes for demonstration since PostgreSQL connection failed
-    adminRoutes = require('./routes/admin-mock');
-    console.log('✅ Using admin-mock routes (TEMPORARY - will switch to PostgreSQL in production)');
-  } catch {
-    try {
-      adminRoutes = require('./routes/admin');
-      console.log('✅ Using admin routes (PostgreSQL)');
-    } catch {
-      try {
-        adminRoutes = require('./routes/admin-backup');
-        console.log('✅ Using admin-backup routes');
-      } catch {
-        // Create fallback admin routes
-        adminRoutes = require('express').Router();
-        adminRoutes.all('*', (req, res) => {
-          res.status(503).json({ error: 'Admin routes not available' });
-        });
-        console.log('⚠️ Using fallback admin routes');
-      }
-    }
-  }
+  adminRoutes = require('./routes/admin-direct');
+  console.log('✅ Admin routes loaded from admin-direct.js (DIRECT DATABASE ONLY)');
+} catch (error) {
+  console.error('❌ CRITICAL: Failed to load admin-direct routes:', error.message);
+  process.exit(1); // Exit if direct routes fail - NO FALLBACKS
 }
 
 try {
