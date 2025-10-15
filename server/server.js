@@ -517,17 +517,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Admin Management API Endpoints
-const mockDB = require('./mockDatabase');
-
+// Admin Management API Endpoints - PostgreSQL Version
 app.get('/api/admins', async (req, res) => {
   try {
-    console.log('📊 Fetching admins from mock database...');
-    const admins = await mockDB.getAdmins();
-    res.json({ success: true, admins });
+    console.log('📊 Fetching admins from PostgreSQL database...');
+    
+    const result = await pool.query(
+      'SELECT id, username, role, status, created_at, last_login FROM admins ORDER BY created_at DESC'
+    );
+    
+    console.log(`✅ Retrieved ${result.rows.length} admins from PostgreSQL`);
+    res.json({ success: true, admins: result.rows });
   } catch (error) {
-    console.error('Error fetching admins:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch admins' });
+    console.error('❌ Error fetching admins from PostgreSQL:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch admins from database',
+      details: error.message 
+    });
   }
 });
 
@@ -535,84 +542,176 @@ app.post('/api/admins', async (req, res) => {
   try {
     const { username, password, role } = req.body;
     
-    if (!username || !password || !role) {
-      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username and password are required' 
+      });
     }
 
-    console.log(`➕ Creating new admin: ${username} with role: ${role}`);
+    console.log(`➕ Creating new admin: ${username} with role: ${role || 'admin'}`);
 
     // Check if username already exists
-    if (await mockDB.usernameExists(username)) {
-      return res.status(400).json({ success: false, error: 'Username already exists' });
+    const existingUser = await pool.query(
+      'SELECT id FROM admins WHERE username = $1',
+      [username]
+    );
+    
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username already exists' 
+      });
     }
 
-    const bcrypt = require('bcryptjs');
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Hash password
+    const bcrypt = require('bcrypt');
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     
-    const admin = await mockDB.createAdmin(username, hashedPassword, role);
+    // Insert new admin
+    const result = await pool.query(
+      'INSERT INTO admins (username, password, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, username, role, status, created_at',
+      [username, hashedPassword, role || 'admin', 'active']
+    );
     
-    res.json({ success: true, admin, message: 'Admin created successfully' });
+    const newAdmin = result.rows[0];
+    console.log(`✅ Created new admin: ${username}`);
+    res.status(201).json({ success: true, admin: newAdmin, message: 'Admin created successfully' });
   } catch (error) {
-    console.error('Error creating admin:', error);
-    res.status(500).json({ success: false, error: 'Failed to create admin' });
+    console.error('❌ Error creating admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create admin',
+      details: error.message 
+    });
   }
 });
 
 app.put('/api/admins/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const { username, password, role, status } = req.body;
+    const adminId = parseInt(req.params.id);
+    const { username, password, role } = req.body;
     
-    if (!username || !role) {
-      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    if (!username) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username is required' 
+      });
     }
 
-    console.log(`✏️ Updating admin ID: ${id} with username: ${username}`);
+    console.log(`✏️ Updating admin ID ${adminId}: ${username}`);
 
-    // Check if username exists for other users
-    if (await mockDB.usernameExists(username, parseInt(id))) {
-      return res.status(400).json({ success: false, error: 'Username already exists' });
+    // Check if admin exists
+    const existingAdmin = await pool.query(
+      'SELECT id FROM admins WHERE id = $1',
+      [adminId]
+    );
+    
+    if (existingAdmin.rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Admin not found' 
+      });
     }
 
-    let hashedPassword = null;
+    // Check if username is taken by another user
+    const usernameCheck = await pool.query(
+      'SELECT id FROM admins WHERE username = $1 AND id != $2',
+      [username, adminId]
+    );
+    
+    if (usernameCheck.rows.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username already exists' 
+      });
+    }
+
+    let updateQuery;
+    let updateParams;
+    
     if (password) {
-      const bcrypt = require('bcryptjs');
-      hashedPassword = await bcrypt.hash(password, 12);
+      // Update with password
+      const bcrypt = require('bcrypt');
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      updateQuery = `
+        UPDATE admins 
+        SET username = $1, password = $2, role = $3, updated_at = NOW()
+        WHERE id = $4
+        RETURNING id, username, role, status, created_at, last_login
+      `;
+      updateParams = [username, hashedPassword, role || 'admin', adminId];
+    } else {
+      // Update without password
+      updateQuery = `
+        UPDATE admins 
+        SET username = $1, role = $2, updated_at = NOW()
+        WHERE id = $3
+        RETURNING id, username, role, status, created_at, last_login
+      `;
+      updateParams = [username, role || 'admin', adminId];
     }
 
-    const admin = await mockDB.updateAdmin(id, username, hashedPassword, role, status);
-    
-    res.json({ success: true, admin, message: 'Admin updated successfully' });
+    const result = await pool.query(updateQuery, updateParams);
+    const updatedAdmin = result.rows[0];
+
+    console.log(`✅ Updated admin: ${username}`);
+    res.json({ success: true, admin: updatedAdmin, message: 'Admin updated successfully' });
   } catch (error) {
-    console.error('Error updating admin:', error);
-    if (error.message === 'Admin not found') {
-      return res.status(404).json({ success: false, error: 'Admin not found' });
-    }
-    res.status(500).json({ success: false, error: 'Failed to update admin' });
+    console.error('❌ Error updating admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to update admin',
+      details: error.message 
+    });
   }
 });
 
 app.delete('/api/admins/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    console.log(`🗑️ Deleting admin ID: ${id}`);
+    const adminId = parseInt(req.params.id);
+    console.log(`🗑️ Deleting admin ID ${adminId}`);
 
-    // Don't allow deleting the last admin
-    const adminCount = await mockDB.getActiveAdminCount();
-    if (adminCount <= 1) {
-      return res.status(400).json({ success: false, error: 'Cannot delete the last admin' });
+    // Check if admin exists
+    const existingAdmin = await pool.query(
+      'SELECT id, username FROM admins WHERE id = $1',
+      [adminId]
+    );
+    
+    if (existingAdmin.rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Admin not found' 
+      });
     }
-    
-    const result = await mockDB.deleteAdmin(id);
-    
-    res.json({ success: true, message: `Admin ${result.username} deleted successfully` });
+
+    // Prevent deleting the last admin
+    const adminCount = await pool.query('SELECT COUNT(*) as count FROM admins');
+    if (parseInt(adminCount.rows[0].count) <= 1) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Cannot delete the last admin' 
+      });
+    }
+
+    // Delete admin
+    await pool.query('DELETE FROM admins WHERE id = $1', [adminId]);
+
+    console.log(`✅ Deleted admin: ${existingAdmin.rows[0].username}`);
+    res.json({ 
+      success: true, 
+      message: `Admin ${existingAdmin.rows[0].username} deleted successfully` 
+    });
   } catch (error) {
-    console.error('Error deleting admin:', error);
-    if (error.message === 'Admin not found') {
-      return res.status(404).json({ success: false, error: 'Admin not found' });
-    }
-    res.status(500).json({ success: false, error: 'Failed to delete admin' });
+    console.error('❌ Error deleting admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete admin',
+      details: error.message 
+    });
   }
 });
 
