@@ -133,13 +133,13 @@ let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
 console.log('🎯 Loading DIRECT database routes (NO MOCK DATA)...');
 
-// Load auth routes with hybrid system (database + fallback)
+// Load auth routes with fallback-primary system (no database timeouts)
 try {
-  authRoutes = require('./routes/auth-hybrid');
-  console.log('✅ Auth routes loaded from auth-hybrid.js (DATABASE + FALLBACK)');
+  authRoutes = require('./routes/auth-fallback-primary');
+  console.log('✅ Auth routes loaded from auth-fallback-primary.js (FALLBACK-FIRST)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load auth-hybrid routes:', error.message);
-  process.exit(1); // Exit if hybrid routes fail
+  console.error('❌ CRITICAL: Failed to load auth-fallback-primary routes:', error.message);
+  process.exit(1); // Exit if fallback-primary routes fail
 }
 
 // Load admin authentication routes

@@ -57,7 +57,14 @@ let dynamicAdmins = [...FALLBACK_ADMINS];
 // Function to sync admin with auth system
 async function syncWithAuth(adminData) {
   try {
-    const response = await fetch('http://localhost:5001/api/auth/sync-admin', {
+    // Use Railway URL if available, otherwise localhost
+    const baseUrl = process.env.RAILWAY_ENVIRONMENT ? 
+      'https://kingchat.up.railway.app' : 
+      'http://localhost:5001';
+    
+    console.log(`🔄 Syncing admin with auth system: ${adminData.username}`);
+    
+    const response = await fetch(`${baseUrl}/api/auth/sync-admin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -66,12 +73,16 @@ async function syncWithAuth(adminData) {
     });
     
     if (response.ok) {
+      const result = await response.json();
       console.log(`✅ Admin synced with auth system: ${adminData.username}`);
+      return result;
     } else {
-      console.log(`⚠️ Auth sync failed for: ${adminData.username}`);
+      console.log(`⚠️ Auth sync failed for: ${adminData.username} (${response.status})`);
+      return null;
     }
   } catch (error) {
     console.log(`⚠️ Auth sync error: ${error.message}`);
+    return null;
   }
 }
 
