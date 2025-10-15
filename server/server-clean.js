@@ -102,209 +102,212 @@ app.get('/admin-working.html', (req, res) => {
 // Load API routes synchronously
 console.log('🎯 Loading API routes synchronously...');
 
-try {
-  // Health routes first
-  const healthRoutes = require('./routes/health');
-  app.use('/api/health', healthRoutes);
-  console.log('✅ Health routes loaded');
+// Health routes first
+const healthRoutes = require('./routes/health');
+app.use('/api/health', healthRoutes);
+console.log('✅ Health routes loaded');
+
+// Auth routes 
+console.log('✅ Using bcrypt package');
+console.log('🔧 Loading auth-simple.js routes...');
+const authRoutes = require('./routes/auth-simple');
+app.use('/api/auth', authRoutes);
+console.log('✅ Auth routes loaded and mounted at /api/auth');
+
+// Mock Admin endpoints - bypassing PostgreSQL for now
+console.log('🔧 Setting up mock admin endpoints...');
+
+const bcrypt = require('bcrypt');
+let mockAdmins = [
+  {
+    id: 1,
+    username: 'admin',
+    role: 'super-admin',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    last_login: new Date().toISOString()
+  },
+  {
+    id: 2,
+    username: 'manager',
+    role: 'admin',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    last_login: null
+  }
+];
+
+// GET /api/admin - Get all admins
+app.get('/api/admin', (req, res) => {
+  console.log('📁 Fetching admins from mock data');
+  res.json({ success: true, admins: mockAdmins });
+});
+
+// GET /api/admin/:id - Get specific admin
+app.get('/api/admin/:id', (req, res) => {
+  const adminId = parseInt(req.params.id);
+  const admin = mockAdmins.find(a => a.id === adminId);
   
-  // Auth routes 
-  console.log('✅ Using bcrypt package');
-  console.log('🔧 Loading auth-simple.js routes...');
-  const authRoutes = require('./routes/auth-simple');
-  app.use('/api/auth', authRoutes);
-  console.log('✅ Auth routes loaded and mounted at /api/auth');
+  if (!admin) {
+    return res.status(404).json({ success: false, error: 'Admin not found' });
+  }
   
-  // Mock Admin endpoints - bypassing PostgreSQL for now
-  console.log('🔧 Setting up mock admin endpoints...');
-  
-  const bcrypt = require('bcrypt');
-  let mockAdmins = [
-    {
-      id: 1,
-      username: 'admin',
-      role: 'super-admin',
-      status: 'active',
-      created_at: new Date().toISOString(),
-      last_login: new Date().toISOString()
-    },
-    {
-      id: 2,
-      username: 'manager',
-      role: 'admin',
+  res.json({ success: true, admin });
+});
+
+// POST /api/admin - Create new admin
+app.post('/api/admin', async (req, res) => {
+  try {
+    const { username, password, role = 'admin' } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username and password are required' 
+      });
+    }
+    
+    // Check if username exists
+    if (mockAdmins.find(a => a.username === username)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username already exists' 
+      });
+    }
+    
+    const newAdmin = {
+      id: Date.now(),
+      username,
+      role,
       status: 'active',
       created_at: new Date().toISOString(),
       last_login: null
-    }
-  ];
-  
-  // GET /api/admin - Get all admins
-  app.get('/api/admin', (req, res) => {
-    console.log('📁 Fetching admins from mock data');
-    res.json({ success: true, admins: mockAdmins });
-  });
-  
-  // GET /api/admin/:id - Get specific admin
-  app.get('/api/admin/:id', (req, res) => {
-    const adminId = parseInt(req.params.id);
-    const admin = mockAdmins.find(a => a.id === adminId);
+    };
     
-    if (!admin) {
+    mockAdmins.push(newAdmin);
+    
+    res.status(201).json({ 
+      success: true, 
+      admin: newAdmin,
+      message: 'Admin created successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create admin',
+      details: error.message 
+    });
+  }
+});
+
+// PUT /api/admin/:id - Update admin
+app.put('/api/admin/:id', (req, res) => {
+  try {
+    const adminId = parseInt(req.params.id);
+    const { username, role, status } = req.body;
+    
+    const adminIndex = mockAdmins.findIndex(a => a.id === adminId);
+    
+    if (adminIndex === -1) {
       return res.status(404).json({ success: false, error: 'Admin not found' });
     }
     
-    res.json({ success: true, admin });
-  });
-  
-  // POST /api/admin - Create new admin
-  app.post('/api/admin', async (req, res) => {
-    try {
-      const { username, password, role = 'admin' } = req.body;
-      
-      if (!username || !password) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Username and password are required' 
-        });
-      }
-      
-      // Check if username exists
-      if (mockAdmins.find(a => a.username === username)) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Username already exists' 
-        });
-      }
-      
-      const newAdmin = {
-        id: Date.now(),
-        username,
-        role,
-        status: 'active',
-        created_at: new Date().toISOString(),
-        last_login: null
-      };
-      
-      mockAdmins.push(newAdmin);
-      
-      res.status(201).json({ 
-        success: true, 
-        admin: newAdmin,
-        message: 'Admin created successfully' 
-      });
-    } catch (error) {
-      res.status(500).json({ 
+    // Check username uniqueness
+    if (username && mockAdmins.find(a => a.username === username && a.id !== adminId)) {
+      return res.status(400).json({ 
         success: false, 
-        error: 'Failed to create admin',
-        details: error.message 
+        error: 'Username already exists' 
       });
     }
-  });
-  
-  // PUT /api/admin/:id - Update admin
-  app.put('/api/admin/:id', (req, res) => {
-    try {
-      const adminId = parseInt(req.params.id);
-      const { username, role, status } = req.body;
-      
-      const adminIndex = mockAdmins.findIndex(a => a.id === adminId);
-      
-      if (adminIndex === -1) {
-        return res.status(404).json({ success: false, error: 'Admin not found' });
-      }
-      
-      // Check username uniqueness
-      if (username && mockAdmins.find(a => a.username === username && a.id !== adminId)) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Username already exists' 
-        });
-      }
-      
-      // Update admin
-      if (username) mockAdmins[adminIndex].username = username;
-      if (role) mockAdmins[adminIndex].role = role;
-      if (status) mockAdmins[adminIndex].status = status;
-      
-      res.json({ 
-        success: true, 
-        admin: mockAdmins[adminIndex],
-        message: 'Admin updated successfully' 
-      });
-    } catch (error) {
-      res.status(500).json({ 
+    
+    // Update admin
+    if (username) mockAdmins[adminIndex].username = username;
+    if (role) mockAdmins[adminIndex].role = role;
+    if (status) mockAdmins[adminIndex].status = status;
+    
+    res.json({ 
+      success: true, 
+      admin: mockAdmins[adminIndex],
+      message: 'Admin updated successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to update admin',
+      details: error.message 
+    });
+  }
+});
+
+// DELETE /api/admin/:id - Delete admin
+app.delete('/api/admin/:id', (req, res) => {
+  try {
+    const adminId = parseInt(req.params.id);
+    const adminIndex = mockAdmins.findIndex(a => a.id === adminId);
+    
+    if (adminIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Admin not found' });
+    }
+    
+    // Prevent deleting last admin
+    if (mockAdmins.length <= 1) {
+      return res.status(400).json({ 
         success: false, 
-        error: 'Failed to update admin',
-        details: error.message 
+        error: 'Cannot delete the last admin' 
       });
     }
-  });
-  
-  // DELETE /api/admin/:id - Delete admin
-  app.delete('/api/admin/:id', (req, res) => {
-    try {
-      const adminId = parseInt(req.params.id);
-      const adminIndex = mockAdmins.findIndex(a => a.id === adminId);
-      
-      if (adminIndex === -1) {
-        return res.status(404).json({ success: false, error: 'Admin not found' });
-      }
-      
-      // Prevent deleting last admin
-      if (mockAdmins.length <= 1) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Cannot delete the last admin' 
-        });
-      }
-      
-      mockAdmins.splice(adminIndex, 1);
-      
-      res.json({ 
-        success: true, 
-        message: 'Admin deleted successfully' 
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        error: 'Failed to delete admin',
-        details: error.message 
-      });
-    }
-  });
-  
-  console.log('✅ Mock admin endpoints loaded');
-  
-  // Other API routes (keeping existing)
+    
+    mockAdmins.splice(adminIndex, 1);
+    
+    res.json({ 
+      success: true, 
+      message: 'Admin deleted successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete admin',
+      details: error.message 
+    });
+  }
+});
+
+console.log('✅ Mock admin endpoints loaded');
+
+// Other API routes (skip PostgreSQL dependent ones)
+try {
   const lineOARoutes = require('./routes/lineoa');
   app.use('/api/lineoa', lineOARoutes);
   console.log('✅ LineOA routes loaded');
-  
+} catch (error) {
+  console.log('⚠️ LineOA routes failed to load:', error.message);
+}
+
+try {
   const customerRoutes = require('./routes/customers');
   app.use('/api/customers', customerRoutes);
   console.log('✅ Customer routes loaded');
-  
+} catch (error) {
+  console.log('⚠️ Customer routes failed to load:', error.message);
+}
+
+try {
   const messageRoutes = require('./routes/messages');
   app.use('/api/messages', messageRoutes);
   console.log('✅ Message routes loaded');
-  
+} catch (error) {
+  console.log('⚠️ Message routes failed to load:', error.message);
+}
+
+try {
   const settingsRoutes = require('./routes/settings');
   app.use('/api/settings', settingsRoutes);
   console.log('✅ Settings routes loaded');
-  
-  console.log('✅ API routes loaded successfully');
-  
 } catch (error) {
-  console.error('❌ Error loading API routes:', error);
-  
-  // Fallback routes
-  app.use('/api/*', (req, res) => {
-    res.status(503).json({ 
-      error: 'API temporarily unavailable', 
-      details: error.message 
-    });
-  });
+  console.log('⚠️ Settings routes failed to load:', error.message);
 }
+
+console.log('✅ API routes loaded successfully');
 
 // Static file serving
 console.log('🌐 Setting up static file serving...');
