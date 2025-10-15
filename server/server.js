@@ -159,25 +159,30 @@ connectDatabase();
 let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
 try {
-  authRoutes = require('./routes/auth-fallback');
-  console.log('✅ Auth routes loaded from auth-fallback.js');
+  authRoutes = require('./routes/auth-working');
+  console.log('✅ Auth routes loaded from auth-working.js');
 } catch (error) {
   try {
-    authRoutes = require('./routes/auth-simple');
-    console.log('✅ Auth routes loaded from auth-simple.js');
+    authRoutes = require('./routes/auth-fallback');
+    console.log('✅ Auth routes loaded from auth-fallback.js');
   } catch (error2) {
-    console.error('❌ Failed to load auth routes:', error2.message);
-    
-    // Try fallback to old auth.js
     try {
-      authRoutes = require('./routes/auth');
-      console.log('⚠️ Using fallback auth.js');
-    } catch (fallbackError) {
-      console.error('❌ All auth routes failed:', fallbackError.message);
-      authRoutes = require('express').Router();
-      authRoutes.all('*', (req, res) => {
-        res.status(503).json({ error: 'Auth routes not available', details: error.message });
-      });
+      authRoutes = require('./routes/auth-simple');
+      console.log('✅ Auth routes loaded from auth-simple.js');
+    } catch (error3) {
+      console.error('❌ Failed to load auth routes:', error3.message);
+      
+      // Try fallback to old auth.js
+      try {
+        authRoutes = require('./routes/auth');
+        console.log('⚠️ Using fallback auth.js');
+      } catch (fallbackError) {
+        console.error('❌ All auth routes failed:', fallbackError.message);
+        authRoutes = require('express').Router();
+        authRoutes.all('*', (req, res) => {
+          res.status(503).json({ error: 'Auth routes not available', details: error.message });
+        });
+      }
     }
   }
 }
@@ -196,24 +201,30 @@ try {
 
 // Try admin route files for Railway deployment
 try {
-  // Use mock admin routes for demonstration since PostgreSQL connection failed
-  adminRoutes = require('./routes/admin-mock');
-  console.log('✅ Using admin-mock routes (TEMPORARY - will switch to PostgreSQL in production)');
+  // Use working admin routes with real database connection
+  adminRoutes = require('./routes/admin-working');
+  console.log('✅ Using admin-working routes (PostgreSQL database)');
 } catch {
   try {
-    adminRoutes = require('./routes/admin');
-    console.log('✅ Using admin routes (PostgreSQL)');
+    // Use mock admin routes for demonstration since PostgreSQL connection failed
+    adminRoutes = require('./routes/admin-mock');
+    console.log('✅ Using admin-mock routes (TEMPORARY - will switch to PostgreSQL in production)');
   } catch {
     try {
-      adminRoutes = require('./routes/admin-backup');
-      console.log('✅ Using admin-backup routes');
+      adminRoutes = require('./routes/admin');
+      console.log('✅ Using admin routes (PostgreSQL)');
     } catch {
-      // Create fallback admin routes
-      adminRoutes = require('express').Router();
-      adminRoutes.all('*', (req, res) => {
-        res.status(503).json({ error: 'Admin routes not available' });
-      });
-      console.log('⚠️ Using fallback admin routes');
+      try {
+        adminRoutes = require('./routes/admin-backup');
+        console.log('✅ Using admin-backup routes');
+      } catch {
+        // Create fallback admin routes
+        adminRoutes = require('express').Router();
+        adminRoutes.all('*', (req, res) => {
+          res.status(503).json({ error: 'Admin routes not available' });
+        });
+        console.log('⚠️ Using fallback admin routes');
+      }
     }
   }
 }
