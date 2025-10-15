@@ -1,7 +1,20 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const helmet = require('helmet')console.log('🎯 PRODUCTION MODE: Using PostgreSQL Database Connection');
+
+// Production database connection
+const connectDatabase = async () => {
+  console.log('🔌 Connecting to Railway PostgreSQL database...');
+  console.log('📍 Database: postgresql://postgres:***@postgres-kbtt.railway.internal:5432/railway');
+  
+  try {
+    await initializeDatabase();
+    console.log('✅ Production PostgreSQL database ready for use');
+  } catch (error) {
+    console.error('❌ CRITICAL: Production database connection failed:', error.message);
+    console.error('   Please check Railway PostgreSQL database status');
+  }
+};teLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -10,8 +23,8 @@ const path = require('path');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-// Import database models (DIRECT DATABASE ONLY)
-const { getPool, isDatabaseConnected, testQuery } = require('./models/database-direct');
+// Import database models (PRODUCTION POSTGRESQL)
+const { getPool, isDatabaseConnected, executeQuery, initializeDatabase } = require('./models/database-production');
 
 // Initialize admin table on startup
 const { createAdminTable } = require('./init-admin-table');
