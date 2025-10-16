@@ -650,11 +650,20 @@
                 
                 console.log('🔍 Token exists:', !!token);
                 console.log('🔍 Admin user exists:', !!adminUser);
+                console.log('🔍 Token value:', token ? token.substring(0, 20) + '...' : 'null');
                 
                 if (!token || !adminUser) {
-                    console.log('❌ No token or user data found - redirecting to login');
-                    alert('ไม่พบข้อมูลการเข้าสู่ระบบ กรุณา login ใหม่');
-                    window.location.href = '/login.html?tab=admin';
+                    console.log('❌ No token or user data found - showing user-friendly message');
+                    
+                    // Show a simple error page instead of complex template
+                    document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; font-family: Arial, sans-serif;">' +
+                        '<div style="text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 500px;">' +
+                        '<h2 style="color: #dc3545; margin-bottom: 20px;">🔐 ไม่พบข้อมูลการเข้าสู่ระบบ</h2>' +
+                        '<p style="margin-bottom: 30px; color: #666;">กรุณาเข้าสู่ระบบแอดมินก่อนเข้าใช้งานหน้านี้</p>' +
+                        '<div style="display: flex; gap: 15px; justify-content: center;">' +
+                        '<button onclick="window.location.href=\'/admin-login-test.html\'" style="background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">🧪 ทดสอบ Login</button>' +
+                        '<button onclick="window.location.href=\'/login.html?tab=admin\'" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">🔐 เข้าสู่ระบบ</button>' +
+                        '</div></div></div>';
                     return false;
                 }
 

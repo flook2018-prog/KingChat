@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            font-size: 12px;
+        }
+        .actions {
+            margin-top: 20px;
+        }
+        .actions button {
+            width: auto;
+            margin: 5px;
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Admin Login Test</h1>
+        
+        <div id="status"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" value="admin" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" value="admin123" required>
+            </div>
+            
+            <button type="submit">🚀 Login Admin</button>
+        </form>
+        
+        <div class="actions">
+            <button onclick="checkStorage()">📱 Check Storage</button>
+            <button onclick="clearStorage()">🗑️ Clear Storage</button>
+            <button onclick="testAPI()">🧪 Test API</button>
+            <button onclick="goToAdmin()">👨‍💼 Go to Admin Page</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function checkStorage() {
+            log('📱 Checking storage...');
+            
+            const adminToken = localStorage.getItem('adminToken');
+            const adminUser = localStorage.getItem('adminUser');
+            const authToken = localStorage.getItem('authToken');
+            
+            log(`adminToken: ${adminToken ? 'EXISTS' : 'NOT FOUND'}`);
+            log(`adminUser: ${adminUser ? 'EXISTS' : 'NOT FOUND'}`);
+            log(`authToken: ${authToken ? 'EXISTS' : 'NOT FOUND'}`);
+            
+            if (adminToken) {
+                log(`Token: ${adminToken}`);
+            }
+            if (adminUser) {
+                try {
+                    const user = JSON.parse(adminUser);
+                    log(`User: ${JSON.stringify(user, null, 2)}`);
+                } catch (e) {
+                    log(`User data error: ${e.message}`);
+                }
+            }
+            
+            showStatus(
+                adminToken ? '✅ Admin token found' : '❌ No admin token', 
+                adminToken ? 'success' : 'error'
+            );
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            log('🗑️ All storage cleared');
+            showStatus('🗑️ Storage cleared', 'info');
+        }
+
+        async function testAPI() {
+            log('🧪 Testing admin auth API...');
+            
+            try {
+                // Test login endpoint
+                const response = await fetch('/api/admin-auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                log(`Login API response: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Login successful: ${JSON.stringify(data, null, 2)}`);
+                    showStatus('✅ API test successful', 'success');
+                } else {
+                    const error = await response.text();
+                    log(`❌ Login failed: ${error}`);
+                    showStatus(`❌ API test failed (${response.status})`, 'error');
+                }
+            } catch (error) {
+                log(`💥 API test error: ${error.message}`);
+                showStatus(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function goToAdmin() {
+            log('🚀 Going to admin page...');
+            window.location.href = '/admin-working.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            log(`🔐 Attempting login: ${username}`);
+            showStatus('⏳ Logging in...', 'info');
+            
+            try {
+                const response = await fetch('/api/admin-auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                log(`📡 Response status: ${response.status}`);
+                log(`📡 Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+                
+                const data = await response.json();
+                log(`📦 Response data: ${JSON.stringify(data, null, 2)}`);
+                
+                if (data.success && data.data && data.data.token) {
+                    log('💾 Storing admin data...');
+                    
+                    // Store data
+                    localStorage.setItem('adminToken', data.data.token);
+                    localStorage.setItem('adminUser', JSON.stringify(data.data.admin));
+                    
+                    // Verify storage immediately
+                    const storedToken = localStorage.getItem('adminToken');
+                    const storedUser = localStorage.getItem('adminUser');
+                    
+                    log(`✅ Token stored: ${!!storedToken}`);
+                    log(`✅ User stored: ${!!storedUser}`);
+                    
+                    if (storedToken && storedUser) {
+                        showStatus('✅ Login successful! Data stored.', 'success');
+                        log('🎉 Login successful - redirecting in 2 seconds...');
+                        setTimeout(() => {
+                            window.location.href = '/admin-working.html';
+                        }, 2000);
+                    } else {
+                        log('❌ Storage verification failed');
+                        showStatus('❌ Failed to store login data', 'error');
+                    }
+                } else {
+                    log(`❌ Login failed: ${data.error || 'Unknown error'}`);
+                    showStatus(`❌ Login failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`💥 Login error: ${error.message}`);
+                showStatus(`❌ Login error: ${error.message}`, 'error');
+            }
+        });
+
+        // Auto-check storage on load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Admin login test loaded');
+            checkStorage();
+        });
+    </script>
+</body>
+</html>
