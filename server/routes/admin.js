@@ -11,8 +11,7 @@ const DATABASE_URL = process.env.DATABASE_URL ||
                     process.env.POSTGRES_URL || 
                     process.env.DATABASE_PRIVATE_URL ||
                     process.env.POSTGRES_PRIVATE_URL ||
-                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:27936/railway' || // Railway public URL
-                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway'; // Railway internal URL
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:27936/railway'; // Railway public URL as fallback
 
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 console.log('🔧 Environment variables check:');
@@ -21,25 +20,38 @@ console.log('   POSTGRES_URL:', process.env.POSTGRES_URL ? 'Available' : 'Missin
 console.log('   DATABASE_PRIVATE_URL:', process.env.DATABASE_PRIVATE_URL ? 'Available' : 'Missing');
 console.log('   NODE_ENV:', process.env.NODE_ENV);
 
-const pool = new Pool({
-  connectionString: DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000
-});
+let pool;
+try {
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
+  });
 
-// Handle pool errors
-pool.on('error', (err) => {
-  console.error('❌ PostgreSQL pool error:', err);
-});
+  // Handle pool errors
+  pool.on('error', (err) => {
+    console.error('❌ PostgreSQL pool error:', err);
+  });
 
-// Test connection on startup
-pool.on('connect', () => {
-  console.log('✅ PostgreSQL client connected');
-});
+  // Test connection on startup
+  pool.on('connect', () => {
+    console.log('✅ PostgreSQL client connected');
+  });
 
-console.log('✅ Admin routes v2 loading with PostgreSQL database connection only');
+  console.log('✅ Admin routes v2 loading with PostgreSQL database connection only');
+} catch (error) {
+  console.error('❌ CRITICAL: Failed to create PostgreSQL pool:', error);
+  console.log('⚠️  Admin routes will load with limited functionality');
+  
+  // Create a dummy pool for fallback
+  pool = {
+    query: async () => {
+      throw new Error('Database connection not available');
+    }
+  };
+}
 
 // Middleware to log all admin requests
 router.use((req, res, next) => {
