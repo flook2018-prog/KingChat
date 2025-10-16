@@ -759,17 +759,22 @@
 
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Page loaded, checking authentication...');
             checkAuth();
         });
 
         async function checkAuth() {
             const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+            console.log('🔑 Token found:', !!token);
+            
             if (!token) {
+                console.log('❌ No token found, redirecting to login...');
                 window.location.href = 'login.html?type=admin';
                 return;
             }
 
             try {
+                console.log('🔐 Verifying token...');
                 const response = await fetch('/api/admin-auth/verify', {
                     method: 'POST',
                     headers: {
@@ -778,20 +783,27 @@
                     }
                 });
 
+                console.log('📡 Auth response status:', response.status);
+
                 if (!response.ok) {
+                    console.log('❌ Token verification failed');
                     throw new Error('Token verification failed');
                 }
 
                 const data = await response.json();
+                console.log('✅ Auth response:', data);
+                
                 if (data.valid) {
+                    console.log('✅ Authentication successful, loading admins...');
                     loadAdmins();
                 } else {
+                    console.log('❌ Token invalid, clearing storage...');
                     localStorage.removeItem('adminToken');
                     sessionStorage.removeItem('adminToken');
                     window.location.href = 'login.html?type=admin';
                 }
             } catch (error) {
-                console.error('Auth check failed:', error);
+                console.error('❌ Auth check failed:', error);
                 localStorage.removeItem('adminToken');
                 sessionStorage.removeItem('adminToken');
                 window.location.href = 'login.html?type=admin';
@@ -803,24 +815,42 @@
             const adminGrid = document.getElementById('adminGrid');
             const emptyState = document.getElementById('emptyState');
             
+            console.log('📊 Loading admins...');
             loading.classList.add('show');
             adminGrid.style.display = 'none';
             emptyState.style.display = 'none';
 
             try {
                 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                console.log('📡 Fetching admins from API...');
+                
                 const response = await fetch('/api/admin/admins', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
+                console.log('📡 Load admins response status:', response.status);
+
                 if (!response.ok) {
                     throw new Error('Failed to load admins');
                 }
 
-                const data = await response.json();
-                admins = data.admins || [];
+                const result = await response.json();
+                console.log('📊 API Response:', result);
+                
+                // ตรวจสอบว่า API ส่งข้อมูลมาในรูปแบบไหน
+                if (result.success && result.users) {
+                    admins = result.users;
+                } else if (result.success && result.admins) {
+                    admins = result.admins;
+                } else if (Array.isArray(result)) {
+                    admins = result;
+                } else {
+                    admins = [];
+                }
+                
+                console.log('📊 Loaded admins:', admins.length);
                 
                 updateStats();
                 renderAdminGrid();
@@ -833,7 +863,7 @@
                     adminGrid.style.display = 'grid';
                 }
             } catch (error) {
-                console.error('Load admins error:', error);
+                console.error('❌ Load admins error:', error);
                 showError('ไม่สามารถโหลดข้อมูลแอดมินได้');
                 loading.classList.remove('show');
                 emptyState.style.display = 'block';
@@ -848,12 +878,16 @@
             document.getElementById('totalAdmins').textContent = total;
             document.getElementById('activeAdmins').textContent = active;
             document.getElementById('superAdmins').textContent = superAdmins;
+            
+            console.log('📊 Stats updated - Total:', total, 'Active:', active, 'Super:', superAdmins);
         }
 
         function renderAdminGrid() {
             const adminGrid = document.getElementById('adminGrid');
             adminGrid.innerHTML = '';
 
+            console.log('🎨 Rendering', admins.length, 'admin cards...');
+            
             admins.forEach(admin => {
                 const adminCard = createAdminCard(admin);
                 adminGrid.appendChild(adminCard);
@@ -920,6 +954,8 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const adminCards = document.querySelectorAll('.admin-card');
             
+            console.log('🔍 Searching for:', searchTerm);
+            
             adminCards.forEach(card => {
                 const text = card.textContent.toLowerCase();
                 card.style.display = text.includes(searchTerm) ? 'block' : 'none';
@@ -927,6 +963,7 @@
         }
 
         function openAddModal() {
+            console.log('➕ Opening add admin modal...');
             editingAdminId = null;
             document.getElementById('modalTitle').innerHTML = '<span>👑</span> เพิ่มแอดมินใหม่';
             document.getElementById('adminForm').reset();
@@ -938,8 +975,12 @@
 
         function editAdmin(id) {
             const admin = admins.find(a => a.id === id);
-            if (!admin) return;
+            if (!admin) {
+                console.error('❌ Admin not found:', id);
+                return;
+            }
 
+            console.log('✏️ Editing admin:', admin);
             editingAdminId = id;
             document.getElementById('modalTitle').innerHTML = '<span>✏️</span> แก้ไขแอดมิน';
             document.getElementById('adminId').value = admin.id;
@@ -947,13 +988,14 @@
             document.getElementById('password').value = '';
             document.getElementById('password').placeholder = 'ใส่รหัสผ่านใหม่หากต้องการเปลี่ยน';
             document.getElementById('password').required = false;
-            document.getElementById('fullName').value = admin.full_name;
+            document.getElementById('fullName').value = admin.full_name || '';
             document.getElementById('role').value = admin.role;
             document.getElementById('status').value = admin.status;
             document.getElementById('adminModal').classList.add('show');
         }
 
         function closeModal() {
+            console.log('❌ Closing modal...');
             document.getElementById('adminModal').classList.remove('show');
             document.getElementById('password').required = true;
             document.getElementById('password').placeholder = 'กรอกรหัสผ่าน';
@@ -962,6 +1004,8 @@
         async function saveAdmin() {
             const form = document.getElementById('adminForm');
             const formData = new FormData(form);
+            
+            console.log('💾 Saving admin...');
             
             if (!form.checkValidity()) {
                 showError('กรุณากรอกข้อมูลให้ครบถ้วน');
@@ -979,10 +1023,14 @@
                 adminData.password = formData.get('password');
             }
 
+            console.log('📊 Admin data:', adminData);
+
             try {
                 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
                 const url = editingAdminId ? `/api/admin/admins/${editingAdminId}` : '/api/admin/admins';
                 const method = editingAdminId ? 'PUT' : 'POST';
+
+                console.log('📡 Sending request:', method, url);
 
                 const response = await fetch(url, {
                     method: method,
@@ -993,16 +1041,21 @@
                     body: JSON.stringify(adminData)
                 });
 
+                console.log('📡 Save response status:', response.status);
+
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.message || 'เกิดข้อผิดพลาด');
                 }
 
+                const result = await response.json();
+                console.log('✅ Save successful:', result);
+
                 showSuccess(editingAdminId ? 'แก้ไขแอดมินสำเร็จ' : 'เพิ่มแอดมินสำเร็จ');
                 closeModal();
                 loadAdmins();
             } catch (error) {
-                console.error('Save admin error:', error);
+                console.error('❌ Save admin error:', error);
                 showError(error.message || 'ไม่สามารถบันทึกข้อมูลได้');
             }
         }
@@ -1011,6 +1064,8 @@
             if (!confirm('คุณแน่ใจหรือไม่ที่จะลบแอดมินนี้?\n\nการกระทำนี้ไม่สามารถยกเลิกได้')) {
                 return;
             }
+
+            console.log('🗑️ Deleting admin:', id);
 
             try {
                 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
@@ -1021,20 +1076,24 @@
                     }
                 });
 
+                console.log('📡 Delete response status:', response.status);
+
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.message || 'เกิดข้อผิดพลาด');
                 }
 
+                console.log('✅ Delete successful');
                 showSuccess('ลบแอดมินสำเร็จ');
                 loadAdmins();
             } catch (error) {
-                console.error('Delete admin error:', error);
+                console.error('❌ Delete admin error:', error);
                 showError(error.message || 'ไม่สามารถลบแอดมินได้');
             }
         }
 
         function showSuccess(message) {
+            console.log('✅ Success:', message);
             const alert = document.getElementById('alertSuccess');
             document.getElementById('successMessage').textContent = message;
             alert.classList.add('show');
@@ -1042,6 +1101,7 @@
         }
 
         function showError(message) {
+            console.error('❌ Error:', message);
             const alert = document.getElementById('alertError');
             document.getElementById('errorMessage').textContent = message;
             alert.classList.add('show');
