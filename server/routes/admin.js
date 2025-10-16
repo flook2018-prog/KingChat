@@ -64,7 +64,32 @@ router.get('/', async (req, res) => {
     console.log('📁 Fetching admins from PostgreSQL database');
     
     const result = await withTimeout(
-      pool.query('SELECT id, username, role, status, created_at, last_login FROM admins ORDER BY created_at DESC')
+      pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC')
+    );
+    
+    console.log(`✅ Retrieved ${result.rows.length} admins from database`);
+    res.json({ success: true, admins: result.rows });
+  } catch (error) {
+    console.error('❌ Error fetching admins from database:', error.message);
+    console.log('🔄 Falling back to mock data due to database connection issues');
+    
+    // Fallback to mock data when database fails
+    res.json({ 
+      success: true, 
+      admins: mockAdmins,
+      fallback: true,
+      message: 'Using fallback data due to database connection issues'
+    });
+  }
+});
+
+// GET /api/admin/admins - Alternative endpoint for frontend compatibility
+router.get('/admins', async (req, res) => {
+  try {
+    console.log('📁 Fetching admins from PostgreSQL database via /admins endpoint');
+    
+    const result = await withTimeout(
+      pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC')
     );
     
     console.log(`✅ Retrieved ${result.rows.length} admins from database`);
@@ -130,20 +155,20 @@ router.get('/:id', async (req, res) => {
 // POST /api/admin - Create new admin
 router.post('/', async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const { username, password, full_name, role, status } = req.body;
     
     // Validation
     if (!username || !password) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Username and password are required' 
+        message: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน' 
       });
     }
     
     console.log(`📝 Creating new admin: ${username}`);
     
     try {
-      // Try database first
+      // Check if username already exists
       const existingUser = await withTimeout(
         pool.query('SELECT id FROM admins WHERE username = $1', [username])
       );
@@ -151,7 +176,7 @@ router.post('/', async (req, res) => {
       if (existingUser.rows.length > 0) {
         return res.status(400).json({ 
           success: false, 
-          error: 'Username already exists' 
+          message: 'ชื่อผู้ใช้นี้มีอยู่แล้ว' 
         });
       }
       
@@ -162,8 +187,8 @@ router.post('/', async (req, res) => {
       // Insert new admin
       const result = await withTimeout(
         pool.query(
-          'INSERT INTO admins (username, password, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, username, role, status, created_at',
-          [username, hashedPassword, role || 'admin', 'active']
+          'INSERT INTO admins (username, password, full_name, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, username, full_name, role, status, created_at',
+          [username, hashedPassword, full_name || '', role || 'admin', status || 'active']
         )
       );
       
@@ -172,6 +197,7 @@ router.post('/', async (req, res) => {
       res.status(201).json({ success: true, admin: newAdmin });
       
     } catch (dbError) {
+      console.error('❌ Database error creating admin:', dbError);
       // Fallback to mock data operations
       console.log('🔄 Database unavailable, using mock data for admin creation');
       
@@ -180,7 +206,7 @@ router.post('/', async (req, res) => {
       if (existingMockUser) {
         return res.status(400).json({ 
           success: false, 
-          error: 'Username already exists' 
+          message: 'ชื่อผู้ใช้นี้มีอยู่แล้ว' 
         });
       }
       
@@ -188,8 +214,9 @@ router.post('/', async (req, res) => {
       const newMockAdmin = {
         id: nextMockId++,
         username,
+        full_name: full_name || '',
         role: role || 'admin',
-        status: 'active',
+        status: status || 'active',
         created_at: new Date().toISOString(),
         last_login: null
       };
@@ -207,10 +234,17 @@ router.post('/', async (req, res) => {
     console.error('❌ Error creating admin:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to create admin',
+      message: 'เกิดข้อผิดพลาดในการสร้างแอดมิน',
       details: error.message 
     });
   }
+});
+
+// POST /api/admin/admins - Alternative endpoint for frontend compatibility
+router.post('/admins', async (req, res) => {
+  // Redirect to main POST handler
+  req.url = '/';
+  router.handle(req, res);
 });
 
 // PUT /api/admin/:id - Update admin
@@ -389,6 +423,209 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: 'Failed to delete admin',
+      details: error.message 
+    });
+  }
+});
+
+// Additional endpoints for /admins/:id path compatibility
+
+// PUT /api/admin/admins/:id - Update admin (alternative endpoint)
+router.put('/admins/:id', async (req, res) => {
+  const { id } = req.params;
+  const { username, password, full_name, role, status } = req.body;
+  
+  console.log(`📝 Updating admin ID: ${id}`);
+  console.log('Update data:', { username, full_name, role, status, hasPassword: !!password });
+  
+  try {
+    if (!username || !role) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'กรุณากรอกข้อมูลให้ครบถ้วน' 
+      });
+    }
+    
+    // Try database first
+    const adminExists = await withTimeout(
+      pool.query('SELECT id, username FROM admins WHERE id = $1', [id])
+    );
+    
+    if (adminExists.rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'ไม่พบผู้ดูแลระบบที่ต้องการอัปเดต' 
+      });
+    }
+    
+    // Check for duplicate username (excluding current admin)
+    const duplicateCheck = await withTimeout(
+      pool.query('SELECT id FROM admins WHERE username = $1 AND id != $2', [username, id])
+    );
+    
+    if (duplicateCheck.rows.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'ชื่อผู้ใช้นี้มีอยู่แล้ว' 
+      });
+    }
+    
+    let updateQuery;
+    let updateValues;
+    
+    if (password) {
+      // Hash new password if provided
+      const hashedPassword = await bcrypt.hash(password, 12);
+      updateQuery = 'UPDATE admins SET username = $1, password = $2, full_name = $3, role = $4, status = $5, updated_at = NOW() WHERE id = $6 RETURNING id, username, full_name, role, status, created_at, updated_at';
+      updateValues = [username, hashedPassword, full_name || username, role, status || 'active', id];
+    } else {
+      // Update without changing password
+      updateQuery = 'UPDATE admins SET username = $1, full_name = $2, role = $3, status = $4, updated_at = NOW() WHERE id = $5 RETURNING id, username, full_name, role, status, created_at, updated_at';
+      updateValues = [username, full_name || username, role, status || 'active', id];
+    }
+    
+    const result = await withTimeout(pool.query(updateQuery, updateValues));
+    const updatedAdmin = result.rows[0];
+    
+    console.log(`✅ Updated admin: ${updatedAdmin.username}`);
+    res.json({ 
+      success: true, 
+      message: 'อัปเดตข้อมูลผู้ดูแลระบบเรียบร้อยแล้ว', 
+      admin: updatedAdmin 
+    });
+    
+  } catch (dbError) {
+    // Fallback to mock data operations
+    console.log('🔄 Database unavailable, using mock data for admin update');
+    
+    const adminIndex = mockAdmins.findIndex(a => a.id == id);
+    
+    if (adminIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'ไม่พบผู้ดูแลระบบที่ต้องการอัปเดต' 
+      });
+    }
+    
+    // Check for duplicate username
+    const duplicateAdmin = mockAdmins.find(a => a.username === username && a.id != id);
+    if (duplicateAdmin) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'ชื่อผู้ใช้นี้มีอยู่แล้ว' 
+      });
+    }
+    
+    // Update mock admin
+    const updatedAdmin = {
+      ...mockAdmins[adminIndex],
+      username,
+      full_name: full_name || username,
+      role,
+      status: status || 'active',
+      updated_at: new Date().toISOString()
+    };
+    
+    if (password) {
+      updatedAdmin.password = await bcrypt.hash(password, 12);
+    }
+    
+    mockAdmins[adminIndex] = updatedAdmin;
+    
+    // Remove password from response
+    const { password: _, ...adminResponse } = updatedAdmin;
+    
+    console.log(`✅ Updated mock admin: ${updatedAdmin.username}`);
+    res.json({ 
+      success: true, 
+      message: 'อัปเดตข้อมูลผู้ดูแลระบบเรียบร้อยแล้ว (จากข้อมูลสำรอง)', 
+      admin: adminResponse,
+      fallback: true 
+    });
+  }
+});
+
+// DELETE /api/admin/admins/:id - Delete admin (alternative endpoint)
+router.delete('/admins/:id', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    console.log(`🗑️ Deleting admin ID: ${id}`);
+    
+    try {
+      // Try database first
+      const adminExists = await withTimeout(
+        pool.query('SELECT id, username FROM admins WHERE id = $1', [id])
+      );
+      
+      if (adminExists.rows.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'ไม่พบผู้ดูแลระบบที่ต้องการลบ' 
+        });
+      }
+      
+      // Check if this is the last admin
+      const adminCount = await withTimeout(
+        pool.query('SELECT COUNT(*) FROM admins WHERE status = $1', ['active'])
+      );
+      
+      if (parseInt(adminCount.rows[0].count) <= 1) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'ไม่สามารถลบผู้ดูแลระบบคนสุดท้ายได้' 
+        });
+      }
+      
+      const deletedAdmin = adminExists.rows[0];
+      
+      // Delete admin
+      await withTimeout(
+        pool.query('DELETE FROM admins WHERE id = $1', [id])
+      );
+      
+      console.log(`✅ Deleted admin: ${deletedAdmin.username}`);
+      res.json({ 
+        success: true, 
+        message: 'ลบผู้ดูแลระบบเรียบร้อยแล้ว' 
+      });
+      
+    } catch (dbError) {
+      // Fallback to mock data operations
+      console.log('🔄 Database unavailable, using mock data for admin deletion');
+      
+      const adminIndex = mockAdmins.findIndex(a => a.id == id);
+      
+      if (adminIndex === -1) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'ไม่พบผู้ดูแลระบบที่ต้องการลบ' 
+        });
+      }
+      
+      // Prevent deleting the last admin
+      if (mockAdmins.length <= 1) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'ไม่สามารถลบผู้ดูแลระบบคนสุดท้ายได้' 
+        });
+      }
+      
+      const deletedAdmin = mockAdmins[adminIndex];
+      mockAdmins.splice(adminIndex, 1);
+      
+      console.log(`✅ Deleted mock admin: ${deletedAdmin.username}`);
+      res.json({ 
+        success: true, 
+        message: 'ลบผู้ดูแลระบบเรียบร้อยแล้ว (จากข้อมูลสำรอง)',
+        fallback: true
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error deleting admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'เกิดข้อผิดพลาดในการลบผู้ดูแลระบบ',
       details: error.message 
     });
   }
