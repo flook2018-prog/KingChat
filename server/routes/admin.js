@@ -17,6 +17,15 @@ const pool = new Pool({
 
 console.log('✅ Admin routes loading with PostgreSQL database connection');
 
+// Middleware to log all admin requests
+router.use((req, res, next) => {
+  console.log(`🌐 Admin API ${req.method} ${req.path} - Headers:`, {
+    auth: req.headers.authorization ? 'Present' : 'Missing',
+    contentType: req.headers['content-type']
+  });
+  next();
+});
+
 // Timeout wrapper for database queries
 const withTimeout = (promise, timeoutMs = 2000) => {
   return Promise.race([

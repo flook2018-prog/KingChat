@@ -823,17 +823,24 @@
             try {
                 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
                 console.log('📡 Fetching admins from API...');
+                console.log('🔑 Token exists:', !!token);
+                console.log('🔗 Calling URL: /api/admin/admins');
                 
                 const response = await fetch('/api/admin/admins', {
+                    method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 });
 
                 console.log('📡 Load admins response status:', response.status);
+                console.log('📡 Response headers:', response.headers);
 
                 if (!response.ok) {
-                    throw new Error('Failed to load admins');
+                    const errorText = await response.text();
+                    console.error('❌ API Error Response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const result = await response.json();
