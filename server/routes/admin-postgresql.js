@@ -18,49 +18,6 @@ const pool = new Pool({
 
 console.log('✅ Admin routes loading with PostgreSQL database connection only');
 
-// Initialize database schema
-async function initializeDatabase() {
-  try {
-    // Create admins table if not exists
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS admins (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        full_name VARCHAR(255),
-        role VARCHAR(50) DEFAULT 'admin',
-        status VARCHAR(20) DEFAULT 'active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        last_login TIMESTAMP
-      )
-    `);
-    
-    // Create indexes
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_admins_username ON admins(username)');
-    await pool.query('CREATE INDEX IF NOT EXISTS idx_admins_status ON admins(status)');
-    
-    // Check if admin exists, if not create default admin
-    const adminExists = await pool.query('SELECT id FROM admins WHERE username = $1', ['admin']);
-    
-    if (adminExists.rows.length === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 12);
-      await pool.query(
-        'INSERT INTO admins (username, password, full_name, role, status) VALUES ($1, $2, $3, $4, $5)',
-        ['admin', hashedPassword, 'ผู้ดูแลระบบหลัก', 'super-admin', 'active']
-      );
-      console.log('✅ Created default admin account (admin/admin123)');
-    }
-    
-    console.log('✅ Database schema initialized successfully');
-  } catch (error) {
-    console.error('❌ Error initializing database:', error.message);
-  }
-}
-
-// Initialize database on startup
-initializeDatabase();
-
 // Middleware to log all admin requests
 router.use((req, res, next) => {
   console.log(`🌐 Admin API ${req.method} ${req.path} - Headers:`, {
