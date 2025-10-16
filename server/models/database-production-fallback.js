@@ -163,8 +163,26 @@ async function executeQuery(query, params = []) {
   // Fallback mode
   console.log('⚠️ Using fallback mode for query:', query.substring(0, 50) + '...');
   
-  // Simple fallback for common queries
-  if (query.includes('SELECT') && query.includes('admins')) {
+  // Handle different query types
+  if (query.includes('SELECT')) {
+    if (query.includes('COUNT(*)')) {
+      // Count query
+      return { rows: [{ count: fallbackData.admins.length.toString() }] };
+    }
+    
+    if (query.includes('WHERE')) {
+      // SELECT with WHERE clause
+      if (query.includes('username = $1') && params[0]) {
+        const admin = fallbackData.admins.find(a => a.username === params[0]);
+        return { rows: admin ? [admin] : [] };
+      }
+      if (query.includes('id = $1') && params[0]) {
+        const admin = fallbackData.admins.find(a => a.id === parseInt(params[0]));
+        return { rows: admin ? [admin] : [] };
+      }
+    }
+    
+    // Default SELECT all admins
     return { rows: fallbackData.admins };
   }
   
@@ -181,7 +199,32 @@ async function executeQuery(query, params = []) {
       updated_at: new Date().toISOString()
     };
     fallbackData.admins.push(newAdmin);
+    console.log(`✅ Fallback: Added admin ${params[0]} with ID ${newId}`);
     return { rows: [newAdmin] };
+  }
+  
+  if (query.includes('UPDATE admins')) {
+    // Handle UPDATE queries
+    if (query.includes('WHERE id = $')) {
+      const adminId = params[params.length - 1]; // Last parameter is usually the ID
+      const adminIndex = fallbackData.admins.findIndex(a => a.id === parseInt(adminId));
+      if (adminIndex !== -1) {
+        // Update admin (simplified)
+        fallbackData.admins[adminIndex].updated_at = new Date().toISOString();
+        return { rows: [fallbackData.admins[adminIndex]] };
+      }
+    }
+  }
+  
+  if (query.includes('DELETE FROM admins')) {
+    // Handle DELETE queries
+    if (query.includes('WHERE id = $1') && params[0]) {
+      const adminIndex = fallbackData.admins.findIndex(a => a.id === parseInt(params[0]));
+      if (adminIndex !== -1) {
+        const deletedAdmin = fallbackData.admins.splice(adminIndex, 1)[0];
+        return { rows: [deletedAdmin] };
+      }
+    }
   }
   
   return { rows: [] };
