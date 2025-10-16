@@ -12,9 +12,6 @@ console.log('🎯 PRODUCTION MODE: Using PostgreSQL Database Connection');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-// Import database models (PRODUCTION POSTGRESQL WITH FALLBACK)
-const { getPool, isDatabaseConnected, executeQuery, initializeDatabase, getStatus } = require('./models/database-production-fallback');
-
 // Debug environment variables
 console.log('🔧 Environment check:');
 console.log('   NODE_ENV:', process.env.NODE_ENV);
@@ -92,16 +89,9 @@ const io = socketIO(server, {
 
 // Production database connection
 const connectDatabase = async () => {
-  console.log('🔌 Connecting to Railway PostgreSQL database...');
+  console.log('🔌 Railway PostgreSQL database will be handled by individual routes');
   console.log('📍 Database: postgresql://postgres:***@postgres-kbtt.railway.internal:5432/railway');
-  
-  try {
-    await initializeDatabase();
-    console.log('✅ Production PostgreSQL database ready for use');
-  } catch (error) {
-    console.error('❌ CRITICAL: Production database connection failed:', error.message);
-    console.error('   Please check Railway PostgreSQL database status');
-  }
+  console.log('✅ Database initialization will be done by admin routes');
 };
 
 // Start database connection (non-blocking)

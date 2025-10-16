@@ -21,6 +21,12 @@ console.log('✅ Admin routes loading with PostgreSQL database connection only')
 // Initialize database schema
 async function initializeDatabase() {
   try {
+    console.log('🔧 Initializing database schema...');
+    
+    // Test connection first
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection test successful');
+    
     // Create admins table if not exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS admins (
@@ -50,11 +56,16 @@ async function initializeDatabase() {
         ['admin', hashedPassword, 'ผู้ดูแลระบบหลัก', 'super-admin', 'active']
       );
       console.log('✅ Created default admin account (admin/admin123)');
+    } else {
+      console.log('✅ Default admin account already exists');
     }
     
     console.log('✅ Database schema initialized successfully');
+    return true;
   } catch (error) {
-    console.error('❌ Error initializing database:', error.message);
+    console.error('❌ Error initializing database:', error);
+    console.error('❌ Database URL:', 'postgresql://postgres:***@postgres-kbtt.railway.internal:5432/railway');
+    return false;
   }
 }
 
@@ -128,17 +139,28 @@ router.get('/', async (req, res) => {
 router.get('/admins', async (req, res) => {
   try {
     console.log('📁 Fetching admins from PostgreSQL database via /admins endpoint');
+    console.log('🔗 Using connection string: postgresql://postgres:***@postgres-kbtt.railway.internal:5432/railway');
+    
+    // Test database connection first
+    console.log('🧪 Testing database connection...');
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection test successful');
     
     const result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
     
     console.log(`✅ Retrieved ${result.rows.length} admins from database`);
     res.json({ success: true, admins: result.rows });
   } catch (error) {
-    console.error('❌ Error fetching admins from database:', error.message);
+    console.error('❌ Error fetching admins from database:', error);
+    console.error('❌ Error code:', error.code);
+    console.error('❌ Error message:', error.message);
+    console.error('❌ Error stack:', error.stack);
+    
     res.status(500).json({ 
       success: false, 
       error: 'Database connection error',
-      details: error.message
+      details: error.message,
+      code: error.code
     });
   }
 });
