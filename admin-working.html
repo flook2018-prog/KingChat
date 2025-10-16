@@ -45,6 +45,8 @@
             /* Fix potential overlapping issues */
             padding-top: 0 !important;
             box-sizing: border-box;
+            /* Force proper positioning */
+            position: relative;
         }
 
         /* Ensure content doesn't overlap with menu */
@@ -77,6 +79,18 @@
             width: calc(100vw - 260px);
             position: relative;
             z-index: 1;
+            /* Additional fallback positioning */
+            left: 0;
+            top: 0;
+        }
+
+        /* Force content below menu - fallback */
+        @media screen and (min-width: 1px) {
+            body.menu-loaded {
+                padding-left: 0 !important;
+                margin-left: 260px !important;
+                margin-top: 80px !important;
+            }
         }
 
         .admin-container {
@@ -488,7 +502,14 @@
         // Load admins on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Admin Management System Starting...');
-            loadAdmins();
+            
+            // Ensure proper body class for layout
+            document.body.classList.add('menu-loaded');
+            
+            // Wait a moment for menu to load then load admins
+            setTimeout(() => {
+                loadAdmins();
+            }, 500);
             
             // Initialize form submission
             document.getElementById('adminForm').addEventListener('submit', handleFormSubmit);
@@ -515,12 +536,22 @@
                 const data = await response.json();
                 console.log('✅ Received data:', data);
                 
-                if (data.success && data.admins) {
-                    admins = data.admins;
+                // ตรวจสอบโครงสร้างข้อมูลที่ได้รับ
+                if (data.success) {
+                    // หากมี data.admins ใช้ตัวนั้น ถ้าไม่มีให้ใช้ data.data หรือ data เลย
+                    if (data.admins && Array.isArray(data.admins)) {
+                        admins = data.admins;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        admins = data.data;
+                    } else if (Array.isArray(data)) {
+                        admins = data;
+                    } else {
+                        throw new Error('ข้อมูลที่ได้รับไม่ใช่ array');
+                    }
                     renderAdmins();
                     showSuccess('โหลดข้อมูลสำเร็จ');
                 } else {
-                    throw new Error(data.error || 'ไม่สามารถโหลดข้อมูลได้');
+                    throw new Error(data.error || data.message || 'ไม่สามารถโหลดข้อมูลได้');
                 }
                 
             } catch (error) {
@@ -533,6 +564,19 @@
 
         function renderAdmins() {
             const tbody = document.getElementById('admin-table-body');
+            
+            // ตรวจสอบว่า admins เป็น array หรือไม่
+            if (!Array.isArray(admins)) {
+                console.error('❌ admins is not an array:', typeof admins, admins);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #dc3545;">
+                            เกิดข้อผิดพลาด: ข้อมูลไม่ถูกต้อง
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
             
             if (admins.length === 0) {
                 tbody.innerHTML = `
