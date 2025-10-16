@@ -187,6 +187,15 @@ async function executeQuery(query, params = []) {
     }
     
     // Default SELECT all admins
+    if (query.includes('SELECT id, username, email, role, status')) {
+      // Remove password from results
+      const safeAdmins = fallbackData.admins.map(admin => {
+        const { password, ...safeAdmin } = admin;
+        return safeAdmin;
+      });
+      return { rows: safeAdmins };
+    }
+    
     return { rows: fallbackData.admins };
   }
   

@@ -905,7 +905,7 @@
                         body: JSON.stringify(formData)
                     });
                 } else {
-                    response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    response = await fetch(`${API_BASE_URL}/admin`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
