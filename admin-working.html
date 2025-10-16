@@ -41,6 +41,42 @@
             /* Always apply margins for layout consistency */
             margin-left: 260px !important;
             margin-top: 80px !important;
+            transition: margin 0.3s ease;
+            /* Fix potential overlapping issues */
+            padding-top: 0 !important;
+            box-sizing: border-box;
+        }
+
+        /* Ensure content doesn't overlap with menu */
+        html, body {
+            position: relative;
+        }
+
+        /* Fix for menu overlap issues */
+        #kingchat-menu,
+        .top-nav,
+        .sidebar {
+            z-index: 1000 !important;
+        }
+
+        /* Additional fix for body positioning */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 80px;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        /* Ensure proper spacing from top and left */
+        .page-wrapper {
+            min-height: calc(100vh - 80px);
+            width: calc(100vw - 260px);
+            position: relative;
+            z-index: 1;
         }
 
         .admin-container {
@@ -51,6 +87,11 @@
             padding: 30px;
             height: calc(100vh - 140px);
             overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            /* Additional safety margins */
+            margin-top: 20px !important;
+            margin-left: 20px !important;
         }
 
         .header {
@@ -358,7 +399,8 @@
 <body>
     <div id="kingchat-menu"></div>
 
-    <div class="admin-container">
+    <div class="page-wrapper">
+        <div class="admin-container">
         <div class="header">
             <h1 class="title">
                 👨‍💼 จัดการแอดมิน
@@ -717,5 +759,6 @@
         console.log('🌐 API Base URL:', API_BASE);
         console.log('📍 Current URL:', window.location.href);
     </script>
+    </div> <!-- End page-wrapper -->
 </body>
 </html>
