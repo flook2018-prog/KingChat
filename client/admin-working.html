@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👑 จัดการแอดมิน - KingChat</title>
     <script src="js/menu-fixed.js?v=20251014-3"></script>
+    <script>
+        // Fallback menu loading
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof KingChatMenu === 'undefined') {
+                console.warn('Menu-fixed.js not loaded, trying alternative path...');
+                const script = document.createElement('script');
+                script.src = './js/menu-fixed.js?v=20251014-3';
+                script.onload = function() {
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
+                };
+                script.onerror = function() {
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
     <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -21,154 +38,6 @@
             color: #2c3e50;
             margin-left: 260px !important;
             margin-top: 80px !important;
-        }
-
-        /* Top Navigation */
-        .top-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
-            background: white;
-            border-bottom: 1px solid #e1e8ed;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .nav-container {
-            height: 100%;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-left: 260px;
-        }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .nav-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-        }
-
-        .nav-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a202c;
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: transparent;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: #f7fafc;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #e53e3e;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 260px;
-            height: 100vh;
-            background: #2d3748;
-            z-index: 999;
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #4a5568;
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .sidebar-logo i {
-            color: #667eea;
-            font-size: 24px;
-        }
-
-        .sidebar-nav {
-            padding: 20px 0;
-        }
-
-        .nav-menu {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-item {
-            margin: 0;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: #cbd5e0;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover {
-            background: #4a5568;
-            color: white;
-        }
-
-        .nav-item.active .nav-link {
-            background: #667eea;
-            color: white;
-        }
-
-        .nav-link i {
-            width: 20px;
-            text-align: center;
         }
 
         .container {
@@ -774,78 +643,6 @@
     </style>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="top-nav">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <img src="/images/logo.png" alt="KingChat" class="nav-logo">
-                <span class="nav-title">KingChat</span>
-            </div>
-            <div class="nav-actions">
-                <button class="nav-btn" id="notificationBtn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-                <button class="nav-btn" id="profileBtn">
-                    <i class="fas fa-user-circle"></i>
-                </button>
-                <button class="nav-btn" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Sidebar Menu -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <i class="fas fa-crown"></i>
-                <span>KingChat</span>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="/dashboard.html" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/customers.html" class="nav-link">
-                        <i class="fas fa-users"></i>
-                        <span>ลูกค้า</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/chat.html" class="nav-link">
-                        <i class="fas fa-comments"></i>
-                        <span>แชท</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/accounts.html" class="nav-link">
-                        <i class="fab fa-line"></i>
-                        <span>LINE OA</span>
-                    </a>
-                </li>
-                <li class="nav-item active">
-                    <a href="/admin-working.html" class="nav-link">
-                        <i class="fas fa-user-shield"></i>
-                        <span>จัดการแอดมิน</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/settings.html" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span>การตั้งค่า</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </aside>
-
     <div class="container">
         <!-- Page Header -->
         <div class="page-header">
@@ -981,8 +778,40 @@
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Page loaded, checking authentication...');
+            
+            // Initialize menu first
+            initializeMenu();
+            
+            // Then check authentication
             checkAuth();
         });
+
+        // Initialize menu with retries
+        function initializeMenu() {
+            try {
+                if (typeof KingChatMenu !== 'undefined') {
+                    console.log('✅ KingChatMenu class found');
+                    const kingChatMenu = new KingChatMenu();
+                    console.log('✅ Menu initialized successfully');
+                    return true;
+                } else {
+                    console.warn('⚠️ KingChatMenu class not found, retrying...');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Menu initialization failed:', error);
+                return false;
+            }
+        }
+
+        // Try to initialize menu with retries
+        if (!initializeMenu()) {
+            setTimeout(() => {
+                if (!initializeMenu()) {
+                    console.warn('⚠️ Menu failed to initialize after retries');
+                }
+            }, 500);
+        }
 
         async function checkAuth() {
             const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');

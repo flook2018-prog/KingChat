@@ -135,10 +135,10 @@ try {
 
 // Load admin routes with production database connection
 try {
-  adminRoutes = require('./routes/admin-production');
-  console.log('✅ Admin routes loaded from admin-production.js (POSTGRESQL DATABASE)');
+  adminRoutes = require('./routes/admin');
+  console.log('✅ Admin routes loaded from admin.js (POSTGRESQL DATABASE WITH FALLBACK)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load admin-production routes:', error.message);
+  console.error('❌ CRITICAL: Failed to load admin routes:', error.message);
   process.exit(1); // Exit if production routes fail
 }
 
