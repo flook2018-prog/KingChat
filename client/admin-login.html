@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Admin Login - KingChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #06c755;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #06c755;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.1);
+        }
+
+        .form-control.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #06c755, #05a847);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(6, 199, 85, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-loading {
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #06c755;
+            font-size: 14px;
+            display: none;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .admin-levels {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .admin-levels h4 {
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .admin-levels ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .admin-levels li {
+            margin-bottom: 4px;
+        }
+
+        .admin-levels .super-admin {
+            color: #856404;
+        }
+
+        .admin-levels .admin {
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>👑 KingChat</h1>
+            <p>Admin Management System</p>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-control" 
+                    placeholder="ใส่ username"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    placeholder="ใส่รหัสผ่าน"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <label for="rememberMe">จดจำการเข้าสู่ระบบ</label>
+            </div>
+
+            <button type="submit" class="btn" id="loginBtn">
+                <span id="loginText">เข้าสู่ระบบ</span>
+            </button>
+        </form>
+
+        <div class="admin-levels">
+            <h4>📋 ระดับแอดมิน</h4>
+            <ul>
+                <li class="super-admin">• <strong>Super Admin:</strong> จัดการแอดมินทั้งหมด</li>
+                <li class="admin">• <strong>Admin:</strong> จัดการระบบทั่วไป</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 KingChat Admin System. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://kingchat.up.railway.app/api';
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!username || !password) {
+                showError('กรุณาใส่ username และ password');
+                return;
+            }
+
+            await login(username, password, rememberMe);
+        });
+
+        async function login(username, password, rememberMe) {
+            const loginBtn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            
+            try {
+                // Show loading state
+                loginBtn.disabled = true;
+                loginBtn.classList.add('btn-loading');
+                loginText.innerHTML = '<div class="loading-spinner"></div>';
+                hideMessages();
+
+                console.log('🔐 Attempting login...');
+
+                const response = await fetch(`${API_BASE_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                console.log('Login response:', data);
+
+                if (data.success) {
+                    // Store token and user data
+                    const storage = rememberMe ? localStorage : sessionStorage;
+                    storage.setItem('adminToken', data.data.token);
+                    storage.setItem('adminUser', JSON.stringify(data.data.admin));
+
+                    showSuccess('เข้าสู่ระบบสำเร็จ! กำลังพาไปหน้าจัดการ...');
+
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = 'admin-working.html';
+                    }, 1500);
+
+                } else {
+                    showError(data.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('btn-loading');
+                loginText.textContent = 'เข้าสู่ระบบ';
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            
+            // Hide success message
+            document.getElementById('success-message').style.display = 'none';
+            
+            // Add error styling to inputs
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.classList.add('error');
+            });
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+                document.querySelectorAll('.form-control').forEach(input => {
+                    input.classList.remove('error');
+                });
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('success-message');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            
+            // Hide error message
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+            if (token) {
+                // Verify token is still valid
+                fetch(`${API_BASE_URL}/admin/verify`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'admin-working.html';
+                    }
+                })
+                .catch(() => {
+                    // Token invalid, clear storage
+                    localStorage.removeItem('adminToken');
+                    sessionStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    sessionStorage.removeItem('adminUser');
+                });
+            }
+        });
+
+        // Handle Enter key in password field
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

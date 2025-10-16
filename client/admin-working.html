@@ -604,10 +604,46 @@
         let admins = [];
         let selectedAdminId = null;
         let isEditMode = false;
+        let currentAdmin = null;
+
+        // Check authentication on page load
+        function checkAuth() {
+            const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+            const adminUser = localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser');
+            
+            if (!token || !adminUser) {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+
+            try {
+                currentAdmin = JSON.parse(adminUser);
+                console.log('Current admin:', currentAdmin);
+                return true;
+            } catch (error) {
+                console.error('Error parsing admin user data:', error);
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+        }
+
+        // Get auth headers for API requests
+        function getAuthHeaders() {
+            const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Admin Management Page loaded');
+            
+            // Check authentication first
+            if (!checkAuth()) {
+                return;
+            }
             
             // Add class to body for proper layout
             document.body.classList.add('menu-loaded');
@@ -639,33 +675,33 @@
             try {
                 console.log('🔄 Loading admins...');
                 
-                const response = await fetch(`${API_BASE_URL}/admins`);
+                const response = await fetch(`${API_BASE_URL}/admin/admins`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.status === 401) {
+                    // Token expired or invalid
+                    localStorage.removeItem('adminToken');
+                    sessionStorage.removeItem('adminToken');
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+                
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
-                console.log('📊 Loaded data:', data);
+                console.log('✅ Received data:', data);
                 
-                // Handle different response structures
-                if (data.success) {
-                    if (data.admins && Array.isArray(data.admins)) {
-                        admins = data.admins;
-                    } else if (data.data && Array.isArray(data.data)) {
-                        admins = data.data;
-                    } else if (Array.isArray(data)) {
-                        admins = data;
-                    } else {
-                        throw new Error('ข้อมูลที่ได้รับไม่ใช่ array');
-                    }
-                } else if (Array.isArray(data)) {
-                    admins = data;
+                if (data.success && Array.isArray(data.data)) {
+                    admins = data.data;
+                    displayAdmins(admins);
+                    console.log(`📊 Loaded ${admins.length} admins`);
                 } else {
-                    throw new Error(data.error || data.message || 'ไม่สามารถโหลดข้อมูลได้');
+                    throw new Error(data.error || 'Invalid response format');
                 }
-                console.log('📊 Loaded admins:', admins.length);
-                
-                displayAdmins(admins);
                 
             } catch (error) {
                 console.error('❌ Error loading admins:', error);
@@ -712,12 +748,12 @@
                 
                 const roleClass = admin.role === 'super_admin' ? 'super-admin' : '';
                 const roleText = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
-                const initial = admin.fullName ? admin.fullName.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
+                const initial = admin.full_name ? admin.full_name.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
                 
                 adminItem.innerHTML = `
                     <div class="admin-avatar ${roleClass}">${initial}</div>
                     <div class="admin-info">
-                        <div class="admin-name">${admin.fullName || admin.username}</div>
+                        <div class="admin-name">${admin.full_name || admin.username}</div>
                         <div class="admin-details">
                             <span class="admin-role ${roleClass}">${roleText}</span>
                             <span>@${admin.username}</span>
@@ -750,21 +786,21 @@
             const detailContainer = document.getElementById('adminDetail');
             const roleClass = admin.role === 'super_admin' ? 'super-admin' : '';
             const roleText = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
-            const initial = admin.fullName ? admin.fullName.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
+            const initial = admin.full_name ? admin.full_name.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
             
             detailContainer.innerHTML = `
                 <div class="detail-card">
                     <div class="detail-header">
                         <div class="detail-avatar ${roleClass}">${initial}</div>
                         <div class="detail-info">
-                            <h2>${admin.fullName || admin.username}</h2>
+                            <h2>${admin.full_name || admin.username}</h2>
                             <p>@${admin.username} • ${roleText}</p>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">ชื่อเต็ม</label>
-                        <div class="form-input" style="background: #f8f9fa;">${admin.fullName || 'ไม่ระบุ'}</div>
+                        <div class="form-input" style="background: #f8f9fa;">${admin.full_name || 'ไม่ระบุ'}</div>
                     </div>
                     
                     <div class="form-group">
@@ -798,7 +834,7 @@
         function filterAdmins() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredAdmins = admins.filter(admin => 
-                (admin.fullName && admin.fullName.toLowerCase().includes(searchTerm)) ||
+                (admin.full_name && admin.full_name.toLowerCase().includes(searchTerm)) ||
                 admin.username.toLowerCase().includes(searchTerm)
             );
             displayAdmins(filteredAdmins);
@@ -825,7 +861,7 @@
             document.getElementById('submitText').textContent = 'บันทึกการแก้ไข';
             
             document.getElementById('adminId').value = admin.id;
-            document.getElementById('fullName').value = admin.fullName || '';
+            document.getElementById('fullName').value = admin.full_name || '';
             document.getElementById('username').value = admin.username;
             document.getElementById('password').value = '';
             document.getElementById('password').required = false;
@@ -844,7 +880,7 @@
             e.preventDefault();
             
             const formData = {
-                fullName: document.getElementById('fullName').value,
+                full_name: document.getElementById('fullName').value,
                 username: document.getElementById('username').value,
                 password: document.getElementById('password').value,
                 role: document.getElementById('role').value
@@ -861,15 +897,15 @@
                 let response;
                 if (isEditMode) {
                     const adminId = document.getElementById('adminId').value;
-                    response = await fetch(`${API_BASE_URL}/admins/${adminId}`, {
+                    response = await fetch(`${API_BASE_URL}/admin/admins/${adminId}`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: getAuthHeaders(),
                         body: JSON.stringify(formData)
                     });
                 } else {
-                    response = await fetch(`${API_BASE_URL}/admins`, {
+                    response = await fetch(`${API_BASE_URL}/admin/admins`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: getAuthHeaders(),
                         body: JSON.stringify(formData)
                     });
                 }
@@ -899,7 +935,7 @@
             const admin = admins.find(a => a.id === adminId);
             if (!admin) return;
             
-            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบแอดมิน "${admin.fullName || admin.username}"?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้`)) {
+            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบแอดมิน "${admin.full_name || admin.username}"?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้`)) {
                 deleteAdmin(adminId);
             }
         }
@@ -907,8 +943,9 @@
         // Delete admin
         async function deleteAdmin(adminId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/admins/${adminId}`, {
-                    method: 'DELETE'
+                const response = await fetch(`${API_BASE_URL}/admin/admins/${adminId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
                 });
                 
                 if (!response.ok) {

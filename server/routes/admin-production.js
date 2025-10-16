@@ -379,4 +379,10 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Include the new admin routes
+const adminRoutes = require('./admin-routes');
+
+// Mount admin management routes
+router.use('/', adminRoutes);
+
 module.exports = router;
