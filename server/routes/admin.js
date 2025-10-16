@@ -77,6 +77,7 @@ const mockAdmins = [
   {
     id: 1,
     username: 'admin',
+    full_name: 'ผู้ดูแลระบบหลัก',
     role: 'super-admin',
     status: 'active',
     created_at: new Date().toISOString(),
@@ -85,6 +86,7 @@ const mockAdmins = [
   {
     id: 2,
     username: 'manager',
+    full_name: 'ผู้จัดการระบบ',
     role: 'admin', 
     status: 'active',
     created_at: new Date().toISOString(),
@@ -93,6 +95,7 @@ const mockAdmins = [
   {
     id: 3,
     username: 'operator',
+    full_name: 'พนักงานควบคุม',
     role: 'operator',
     status: 'active',
     created_at: new Date().toISOString(),
@@ -143,7 +146,7 @@ router.get('/admins', async (req, res) => {
     console.error('❌ Error fetching admins from database:', error.message);
     console.log('🔄 Falling back to mock data due to database connection issues');
     
-    // Fallback to mock data when database fails
+    // Always return success with fallback data instead of error
     res.json({ 
       success: true, 
       admins: mockAdmins,
