@@ -634,7 +634,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://kingchat.up.railway.app/api';
+        // Use relative API paths instead of hard-coded URLs
         let admins = [];
         let selectedAdminId = null;
         let isEditMode = false;
@@ -642,22 +642,41 @@
 
         // Check authentication on page load
         async function checkAuth() {
-            const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
-            const adminUser = localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser');
-            
-            if (!token || !adminUser) {
-                console.log('❌ No token or user data found');
-                window.location.href = 'login.html?tab=admin';
-                return false;
-            }
-
             try {
-                // Parse user data first
-                currentAdmin = JSON.parse(adminUser);
-                console.log('🔍 Current admin from storage:', currentAdmin);
+                console.log('🚀 Starting authentication check...');
+                
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                const adminUser = localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser');
+                
+                console.log('🔍 Token exists:', !!token);
+                console.log('🔍 Admin user exists:', !!adminUser);
+                
+                if (!token || !adminUser) {
+                    console.log('❌ No token or user data found - redirecting to login');
+                    alert('ไม่พบข้อมูลการเข้าสู่ระบบ กรุณา login ใหม่');
+                    window.location.href = '/login.html?tab=admin';
+                    return false;
+                }
+
+                try {
+                    // Parse user data first
+                    currentAdmin = JSON.parse(adminUser);
+                    console.log('✅ Current admin from storage:', currentAdmin);
+                } catch (parseError) {
+                    console.error('❌ Error parsing admin user data:', parseError);
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    sessionStorage.removeItem('adminToken');
+                    sessionStorage.removeItem('adminUser');
+                    alert('ข้อมูลผู้ใช้เสียหาย กรุณา login ใหม่');
+                    window.location.href = '/login.html?tab=admin';
+                    return false;
+                }
                 
                 // Verify token with server
                 console.log('🔐 Verifying token with server...');
+                console.log('🔗 Making request to: /api/admin-auth/verify');
+                
                 const response = await fetch('/api/admin-auth/verify', {
                     method: 'POST',
                     headers: {
@@ -666,29 +685,51 @@
                     body: JSON.stringify({ token: token })
                 });
                 
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+                
                 if (response.ok) {
                     const result = await response.json();
                     console.log('✅ Token verified successfully:', result);
                     return true;
                 } else {
-                    console.log('❌ Token verification failed:', response.status);
+                    const errorText = await response.text();
+                    console.log('❌ Token verification failed:', response.status, errorText);
+                    
                     // Clear invalid tokens
                     localStorage.removeItem('adminToken');
                     localStorage.removeItem('adminUser');
                     sessionStorage.removeItem('adminToken');
                     sessionStorage.removeItem('adminUser');
-                    window.location.href = 'login.html?tab=admin';
+                    
+                    alert(`Token ไม่ถูกต้องหรือหมดอายุ (${response.status}) กรุณา login ใหม่`);
+                    window.location.href = '/login.html?tab=admin';
                     return false;
                 }
             } catch (error) {
-                console.error('❌ Error checking authentication:', error);
-                // Clear invalid data
-                localStorage.removeItem('adminToken');
-                localStorage.removeItem('adminUser');
-                sessionStorage.removeItem('adminToken');
-                sessionStorage.removeItem('adminUser');
-                window.location.href = 'login.html?tab=admin';
-                return false;
+                console.error('💥 Network or other error during authentication:', error);
+                
+                // Don't clear tokens on network errors, just show error
+                alert(`เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์: ${error.message}\nกรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต`);
+                
+                // Allow access if we have local tokens (offline mode)
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                const adminUser = localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser');
+                
+                if (token && adminUser) {
+                    console.log('🔄 Using offline mode with cached tokens');
+                    try {
+                        currentAdmin = JSON.parse(adminUser);
+                        return true;
+                    } catch (e) {
+                        console.error('❌ Cached data corrupted');
+                        window.location.href = '/login.html?tab=admin';
+                        return false;
+                    }
+                } else {
+                    window.location.href = '/login.html?tab=admin';
+                    return false;
+                }
             }
         }
 
@@ -729,7 +770,7 @@
             try {
                 console.log('🔄 Loading admins...');
                 
-                const response = await fetch(`${API_BASE_URL}/admin/admins`, {
+                const response = await fetch('/api/admin', {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
@@ -951,13 +992,13 @@
                 let response;
                 if (isEditMode) {
                     const adminId = document.getElementById('adminId').value;
-                    response = await fetch(`${API_BASE_URL}/admin/admins/${adminId}`, {
+                    response = await fetch(`/api/admin/${adminId}`, {
                         method: 'PUT',
                         headers: getAuthHeaders(),
                         body: JSON.stringify(formData)
                     });
                 } else {
-                    response = await fetch(`${API_BASE_URL}/admin/admins`, {
+                    response = await fetch('/api/admin', {
                         method: 'POST',
                         headers: getAuthHeaders(),
                         body: JSON.stringify(formData)
@@ -997,7 +1038,7 @@
         // Delete admin
         async function deleteAdmin(adminId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/admin/admins/${adminId}`, {
+                const response = await fetch(`/api/admin/${adminId}`, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
