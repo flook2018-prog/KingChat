@@ -6,35 +6,109 @@ const { executeQuery, isDatabaseConnected } = require('../models/database-produc
 
 console.log('📁 Admin Production Routes: Loading with PostgreSQL database connection');
 
-// GET /api/admin - Get all admins from PostgreSQL
-router.get('/', async (req, res) => {
+// GET /api/admin/users - Alias for getting all admins
+router.get('/users', async (req, res) => {
   try {
-    if (!isDatabaseConnected()) {
-      return res.status(503).json({
-        success: false,
-        error: 'Database not connected',
-        message: 'PostgreSQL database is not available'
-      });
-    }
-
-    console.log('📁 Fetching all admins from PostgreSQL database');
+    console.log('👥 Fetching all users/admins from database');
     const result = await executeQuery(
       'SELECT id, username, email, role, status, created_at, updated_at, last_login FROM admins ORDER BY created_at DESC'
     );
     
-    console.log(`✅ Retrieved ${result.rows.length} admins from PostgreSQL database`);
+    console.log(`✅ Retrieved ${result.rows.length} users from database`);
+    res.json({ 
+      success: true, 
+      users: result.rows,
+      database: isDatabaseConnected() ? 'postgresql' : 'fallback',
+      count: result.rows.length,
+      message: isDatabaseConnected() ? 'Data loaded from PostgreSQL database' : 'Data loaded from fallback storage'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching users:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch users',
+      details: error.message 
+    });
+  }
+});
+
+// POST /api/admin/users - Create new user/admin
+router.post('/users', async (req, res) => {
+  try {
+    const { username, password, role, email } = req.body;
+    
+    // Validation
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username and password are required' 
+      });
+    }
+    
+    console.log(`👤 Creating new user: ${username}`);
+    
+    // Check if username already exists
+    const existingUser = await executeQuery(
+      'SELECT id FROM admins WHERE username = $1',
+      [username]
+    );
+    
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username already exists' 
+      });
+    }
+    
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+    // Insert new user
+    const result = await executeQuery(
+      'INSERT INTO admins (username, password, email, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, username, email, role, status, created_at',
+      [username, hashedPassword, email || `${username}@kingchat.com`, role || 'admin', 'active']
+    );
+    
+    const newUser = result.rows[0];
+    console.log(`✅ Created new user: ${username} (ID: ${newUser.id})`);
+    res.status(201).json({ 
+      success: true, 
+      user: newUser,
+      database: isDatabaseConnected() ? 'postgresql' : 'fallback',
+      message: 'User created successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error creating user:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create user',
+      details: error.message 
+    });
+  }
+});
+
+// GET /api/admin - Get all admins (PostgreSQL with fallback)
+router.get('/', async (req, res) => {
+  try {
+    console.log('📁 Fetching all admins from database (PostgreSQL or fallback)');
+    const result = await executeQuery(
+      'SELECT id, username, email, role, status, created_at, updated_at, last_login FROM admins ORDER BY created_at DESC'
+    );
+    
+    console.log(`✅ Retrieved ${result.rows.length} admins from database`);
     res.json({ 
       success: true, 
       admins: result.rows,
-      database: true,
+      database: isDatabaseConnected() ? 'postgresql' : 'fallback',
       count: result.rows.length,
-      message: 'Data loaded from PostgreSQL database'
+      message: isDatabaseConnected() ? 'Data loaded from PostgreSQL database' : 'Data loaded from fallback storage'
     });
   } catch (error) {
     console.error('❌ Error fetching admins:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch admins from database',
+      error: 'Failed to fetch admins',
       details: error.message 
     });
   }
@@ -81,16 +155,9 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/admin - Create new admin in PostgreSQL
+// POST /api/admin - Create new admin (PostgreSQL with fallback)
 router.post('/', async (req, res) => {
   try {
-    if (!isDatabaseConnected()) {
-      return res.status(503).json({
-        success: false,
-        error: 'Database not connected - cannot create admin'
-      });
-    }
-
     const { username, password, role, email } = req.body;
     
     // Validation
@@ -101,7 +168,7 @@ router.post('/', async (req, res) => {
       });
     }
     
-    console.log(`📝 Creating new admin in PostgreSQL: ${username}`);
+    console.log(`📝 Creating new admin: ${username}`);
     
     // Check if username already exists
     const existingUser = await executeQuery(
@@ -127,18 +194,18 @@ router.post('/', async (req, res) => {
     );
     
     const newAdmin = result.rows[0];
-    console.log(`✅ Created new admin in PostgreSQL: ${username} (ID: ${newAdmin.id})`);
+    console.log(`✅ Created new admin: ${username} (ID: ${newAdmin.id})`);
     res.status(201).json({ 
       success: true, 
       admin: newAdmin,
-      database: true,
-      message: 'Admin created successfully in PostgreSQL database'
+      database: isDatabaseConnected() ? 'postgresql' : 'fallback',
+      message: 'Admin created successfully'
     });
   } catch (error) {
     console.error('❌ Error creating admin:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to create admin in database',
+      error: 'Failed to create admin',
       details: error.message 
     });
   }
