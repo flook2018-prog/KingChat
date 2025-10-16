@@ -92,16 +92,28 @@ router.post('/login', async (req, res) => {
 // Verify token endpoint
 router.post('/verify', async (req, res) => {
   try {
-    const { token } = req.body;
+    // Accept token from both body and Authorization header
+    let token = req.body.token;
+    
+    // If no token in body, check Authorization header
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       return res.status(401).json({ 
-        success: false, 
+        success: false,
+        valid: false,
         message: 'ไม่พบ token' 
       });
     }
 
+    console.log('🔐 Verifying admin token...');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-key');
+    console.log('✅ Token decoded:', decoded);
     
     // Check if admin still exists and is active
     const result = await pool.query(
@@ -110,16 +122,20 @@ router.post('/verify', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      console.log('❌ Admin not found or inactive:', decoded.id);
       return res.status(401).json({ 
-        success: false, 
+        success: false,
+        valid: false,
         message: 'ไม่พบผู้ใช้หรือบัญชีถูกระงับ' 
       });
     }
 
     const admin = result.rows[0];
+    console.log('✅ Admin verification successful:', admin.username);
 
     res.json({
       success: true,
+      valid: true,
       admin: {
         id: admin.id,
         username: admin.username,
@@ -130,7 +146,8 @@ router.post('/verify', async (req, res) => {
   } catch (error) {
     console.error('❌ Token verification error:', error);
     res.status(401).json({ 
-      success: false, 
+      success: false,
+      valid: false,
       message: 'Token ไม่ถูกต้อง' 
     });
   }
