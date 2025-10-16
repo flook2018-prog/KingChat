@@ -162,15 +162,21 @@ try {
   });
 }
 
-// Health check endpoint
+// Main route - redirect to login
 app.get('/', (req, res) => {
-  res.json({
-    status: 'online',
-    message: 'KingChat Server - Production Mode',
-    timestamp: new Date().toISOString(),
-    database: isDatabaseConnected() ? 'connected' : 'disconnected',
-    environment: process.env.NODE_ENV || 'development'
-  });
+  // Check if this is an API request
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    res.json({
+      status: 'online',
+      message: 'KingChat Server - Production Mode',
+      timestamp: new Date().toISOString(),
+      database: isDatabaseConnected() ? 'connected' : 'disconnected',
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } else {
+    // Serve login page for browser requests
+    res.sendFile(path.join(__dirname, '../client/login.html'));
+  }
 });
 
 app.get('/health', (req, res) => {
@@ -178,6 +184,17 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     database: isDatabaseConnected(),
     timestamp: new Date().toISOString()
+  });
+});
+
+// API status endpoint for debugging
+app.get('/api/server-status', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'KingChat Server - Production Mode',
+    timestamp: new Date().toISOString(),
+    database: isDatabaseConnected() ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -248,13 +265,31 @@ app.get('*', (req, res) => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>KingChat - Loading...</title>
+        <title>KingChat - Production</title>
         <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+          .status { background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0; }
+          .link { background: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+        </style>
       </head>
       <body>
-        <h1>KingChat Production Server</h1>
-        <p>Server is running successfully!</p>
-        <p><a href="/login.html">Go to Login</a></p>
+        <h1>🚀 KingChat Production Server</h1>
+        <div class="status">
+          <p>✅ Server is running successfully!</p>
+          <p>📊 Status: Online</p>
+          <p>🗃️ Database: ${isDatabaseConnected() ? 'Connected' : 'Fallback Mode'}</p>
+        </div>
+        <h3>📱 Available Pages:</h3>
+        <a href="/login.html" class="link">Login</a>
+        <a href="/admin-working.html" class="link">Admin</a>
+        <a href="/chat.html" class="link">Chat</a>
+        <a href="/customers.html" class="link">Customers</a>
+        <a href="/settings.html" class="link">Settings</a>
+        <br><br>
+        <h3>🔧 API Endpoints:</h3>
+        <a href="/api/status" class="link">API Status</a>
+        <a href="/api/admin/users" class="link">Admin Users</a>
       </body>
       </html>
     `);
