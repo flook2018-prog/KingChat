@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍💼 จัดการแอดมิน - ทดสอบ v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .status {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .token-display {
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        #loading {
+            display: block;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        #content {
+            display: none;
+        }
+
+        .admin-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍💼 จัดการแอดมิน - ทดสอบ v2</h1>
+            <div>
+                <button onclick="testAPI()">🔍 ทดสอบ API</button>
+                <button onclick="clearAuth()" class="logout-btn">🚪 ออกจากระบบ</button>
+            </div>
+        </div>
+
+        <div id="loading">
+            <div class="status info">⏳ กำลังตรวจสอบการเข้าสู่ระบบ...</div>
+        </div>
+
+        <div id="content">
+            <div class="admin-info">
+                <h3>👤 ข้อมูลแอดมิน:</h3>
+                <div id="adminInfo"></div>
+            </div>
+
+            <div class="debug-section">
+                <h3>🔧 สถานะระบบ</h3>
+                <div id="systemStatus"></div>
+            </div>
+
+            <div class="debug-section">
+                <h3>📊 ข้อมูล Authentication</h3>
+                <div id="authData"></div>
+            </div>
+
+            <div class="actions">
+                <button onclick="loadAdmins()">📋 โหลดรายการแอดมิน</button>
+                <button onclick="testDatabase()">🗄️ ทดสอบฐานข้อมูล</button>
+                <button onclick="refreshPage()">🔄 รีเฟรชหน้า</button>
+                <button onclick="goToFullAdmin()">🚀 ไปหน้าจัดการเต็ม</button>
+            </div>
+
+            <div class="debug-section">
+                <h3>📝 Log</h3>
+                <div id="logOutput" class="token-display" style="height: 300px; background: #000; color: #0f0;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAdmin = null;
+
+        function log(message) {
+            const logDiv = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('systemStatus');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function checkAuth() {
+            try {
+                log('🔍 เริ่มตรวจสอบการเข้าสู่ระบบ...');
+                
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                const adminUser = localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser');
+                
+                log(`Token found: ${token ? 'YES' : 'NO'}`);
+                log(`Admin user data found: ${adminUser ? 'YES' : 'NO'}`);
+                
+                if (!token || !adminUser) {
+                    showStatus('❌ ไม่พบข้อมูลการเข้าสู่ระบบ', 'error');
+                    log('❌ ไม่พบ token หรือข้อมูลผู้ใช้');
+                    setTimeout(() => {
+                        window.location.href = '/login.html?tab=admin';
+                    }, 3000);
+                    return false;
+                }
+
+                try {
+                    currentAdmin = JSON.parse(adminUser);
+                    log(`✅ ข้อมูลแอดมิน: ${currentAdmin.username} (${currentAdmin.role})`);
+                    
+                    document.getElementById('adminInfo').innerHTML = `
+                        <p><strong>ชื่อผู้ใช้:</strong> ${currentAdmin.username}</p>
+                        <p><strong>บทบาท:</strong> ${currentAdmin.role}</p>
+                        <p><strong>ID:</strong> ${currentAdmin.id}</p>
+                    `;
+                } catch (e) {
+                    log(`❌ ข้อผิดพลาดในการแปลงข้อมูลผู้ใช้: ${e.message}`);
+                    showStatus('❌ ข้อมูลผู้ใช้เสียหาย', 'error');
+                    return false;
+                }
+
+                // ทดสอบ API
+                log('🔐 ทดสอบการตรวจสอบ token กับ server...');
+                
+                const response = await fetch('/api/admin-auth/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                log(`📡 Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Token ถูกต้อง: ${JSON.stringify(result)}`);
+                    showStatus('✅ เข้าสู่ระบบสำเร็จ', 'success');
+                    
+                    document.getElementById('authData').innerHTML = `
+                        <div class="token-display">
+                            <strong>Token Status:</strong> Valid<br>
+                            <strong>Token Length:</strong> ${token.length} characters<br>
+                            <strong>Server Response:</strong><br>
+                            ${JSON.stringify(result, null, 2)}
+                        </div>
+                    `;
+                    
+                    return true;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Token ไม่ถูกต้อง: ${response.status} - ${errorText}`);
+                    showStatus(`❌ Token ไม่ถูกต้อง (${response.status})`, 'error');
+                    clearAuth();
+                    return false;
+                }
+            } catch (error) {
+                log(`💥 ข้อผิดพลาด: ${error.message}`);
+                showStatus(`❌ เกิดข้อผิดพลาด: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testAPI() {
+            try {
+                log('🧪 ทดสอบ API การจัดการแอดมิน...');
+                
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                if (!token) {
+                    showStatus('❌ ไม่พบ token สำหรับทดสอบ API', 'error');
+                    return;
+                }
+
+                const response = await fetch('/api/admin', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                log(`📡 Admin API Response: ${response.status}`);
+
+                if (response.ok) {
+                    const admins = await response.json();
+                    log(`✅ โหลดรายการแอดมินสำเร็จ: ${admins.length} คน`);
+                    showStatus(`✅ API ทำงานปกติ - พบแอดมิน ${admins.length} คน`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ API Error: ${response.status} - ${errorText}`);
+                    showStatus(`❌ API Error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`💥 API Test Error: ${error.message}`);
+                showStatus(`❌ การทดสอบ API ล้มเหลว: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadAdmins() {
+            try {
+                log('📋 โหลดรายการแอดมิน...');
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                
+                const response = await fetch('/api/admin', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const admins = await response.json();
+                    log(`✅ พบแอดมิน ${admins.length} คน`);
+                    
+                    let adminsList = '<h4>📋 รายการแอดมิน:</h4>';
+                    admins.forEach(admin => {
+                        adminsList += `<p>• ${admin.username} (${admin.role}) - ${admin.status}</p>`;
+                    });
+                    
+                    document.getElementById('authData').innerHTML = adminsList;
+                    showStatus(`✅ โหลดรายการแอดมินสำเร็จ (${admins.length} คน)`, 'success');
+                } else {
+                    log(`❌ ไม่สามารถโหลดรายการแอดมินได้: ${response.status}`);
+                    showStatus(`❌ ไม่สามารถโหลดรายการแอดมินได้`, 'error');
+                }
+            } catch (error) {
+                log(`💥 Error loading admins: ${error.message}`);
+                showStatus(`❌ เกิดข้อผิดพลาดในการโหลด: ${error.message}`, 'error');
+            }
+        }
+
+        function clearAuth() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            sessionStorage.removeItem('adminToken');
+            sessionStorage.removeItem('adminUser');
+            log('🗑️ ลบข้อมูลการเข้าสู่ระบบแล้ว');
+            window.location.href = '/login.html?tab=admin';
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        function goToFullAdmin() {
+            window.location.href = '/admin-working.html';
+        }
+
+        function testDatabase() {
+            log('🗄️ ทดสอบการเชื่อมต่อฐานข้อมูล...');
+            testAPI();
+        }
+
+        // เริ่มต้น
+        document.addEventListener('DOMContentLoaded', async function() {
+            log('🚀 หน้าทดสอบโหลดเสร็จ');
+            
+            const isAuth = await checkAuth();
+            
+            if (isAuth) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                log('✅ แสดงเนื้อหาหลัก');
+            } else {
+                log('❌ การตรวจสอบการเข้าสู่ระบบล้มเหลว');
+            }
+        });
+    </script>
+</body>
+</html>
