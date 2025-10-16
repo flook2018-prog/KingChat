@@ -1,11 +1,18 @@
 // Setup admin table for KingChat
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
+const dotenv = require('dotenv');
+const path = require('path');
 
-// Create database connection
+// Load environment variables
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+// Create database connection with Railway-specific configuration
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 async function setupAdminTable() {

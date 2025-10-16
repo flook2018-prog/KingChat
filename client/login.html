@@ -588,6 +588,31 @@
             animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
         }
 
+        /* Login Type Selection Styles */
+        .login-type-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+
+        .login-type-btn.active {
+            background: white;
+            color: #06C755;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-type-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.5);
+            color: #374151;
+        }
+
         .success-checkmark__circle {
             stroke-dasharray: 166;
             stroke-dashoffset: 166;
@@ -655,6 +680,18 @@
         
         <!-- Success Message -->
         <div id="successMessage" class="success-message"></div>
+
+        <!-- Login Type Selection -->
+        <div class="login-type-selection" style="margin-bottom: 30px;">
+            <div style="display: flex; background: #f0f0f0; border-radius: 12px; padding: 4px; margin-bottom: 20px;">
+                <button type="button" id="userLoginTab" class="login-type-btn active" onclick="switchLoginType('user')">
+                    👤 User Login
+                </button>
+                <button type="button" id="adminLoginTab" class="login-type-btn" onclick="switchLoginType('admin')">
+                    👑 Admin Login
+                </button>
+            </div>
+        </div>
 
         <!-- Login Form -->
         <form id="loginForm" onsubmit="handleLogin(event)">
@@ -813,18 +850,122 @@
             `;
         }
 
+        // Global variables
+        let currentLoginType = 'user'; // 'user' or 'admin'
+
+        // Switch login type
+        function switchLoginType(type) {
+            currentLoginType = type;
+            
+            // Update UI
+            document.getElementById('userLoginTab').classList.toggle('active', type === 'user');
+            document.getElementById('adminLoginTab').classList.toggle('active', type === 'admin');
+            
+            // Update placeholders and labels
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const loginBtn = document.getElementById('loginText');
+            
+            if (type === 'admin') {
+                usernameInput.placeholder = 'Admin Username';
+                passwordInput.placeholder = 'Admin Password';
+                loginBtn.textContent = 'เข้าสู่ระบบแอดมิน';
+                
+                // Clear any previous messages
+                hideMessages();
+            } else {
+                usernameInput.placeholder = 'กรอกชื่อผู้ใช้';
+                passwordInput.placeholder = 'กรอกรหัสผ่าน';
+                loginBtn.textContent = 'เข้าสู่ระบบ';
+                
+                // Clear any previous messages
+                hideMessages();
+            }
+        }
+
+        // Hide messages function
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
         async function handleLogin(event) {
             event.preventDefault();
             
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+                return;
+            }
+
+            if (currentLoginType === 'admin') {
+                await handleAdminLogin(username, password);
+            } else {
+                await handleUserLogin(username, password);
+            }
+        }
+
+        // Admin login function
+        async function handleAdminLogin(username, password) {
+            const loginButton = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            try {
+                loginText.style.display = 'none';
+                loadingSpinner.style.display = 'inline-block';
+                loginButton.disabled = true;
+                hideMessages();
+                
+                console.log('🔐 Attempting admin login...');
+                
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                console.log('Admin login response:', data);
+                
+                if (data.success && data.data.token) {
+                    // Store admin auth data
+                    localStorage.setItem('adminToken', data.data.token);
+                    localStorage.setItem('adminUser', JSON.stringify(data.data.admin));
+                    
+                    showSuccess(`🎉 ยินดีต้อนรับ Admin ${data.data.admin.full_name || data.data.admin.username}!`);
+                    
+                    // Redirect to admin management
+                    setTimeout(() => {
+                        window.location.href = '/admin-working.html';
+                    }, 1500);
+                    
+                } else {
+                    throw new Error(data.error || 'เข้าสู่ระบบแอดมินไม่สำเร็จ');
+                }
+                
+            } catch (error) {
+                console.error('Admin login error:', error);
+                showError('❌ ชื่อผู้ใช้หรือรหัสผ่านแอดมินไม่ถูกต้อง');
+            } finally {
+                loginText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+                loginButton.disabled = false;
+            }
+        }
+
+        // Original user login function
+        async function handleUserLogin(username, password) {
             const loginButton = document.getElementById('loginBtn');
             const loginText = document.getElementById('loginText');
             const loadingSpinner = document.getElementById('loadingSpinner');
             
             // Hide messages
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
+            hideMessages();
             
             // Show loading
             loginText.style.display = 'none';
