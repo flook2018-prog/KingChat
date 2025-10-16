@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login Test</title>
+    <title>Admin Login Test (Debug Only)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -78,7 +78,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔐 Admin Login Test</h1>
+        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+            <strong>⚠️ หน้านี้สำหรับ Debug เท่านั้น!</strong><br>
+            กรุณาใช้ <a href="/login.html?tab=admin" style="color: #007bff;">หน้า Login หลัก</a> สำหรับการใช้งานปกติ
+        </div>
+        
+        <h1>🔐 Admin Login Test (Debug Only)</h1>
         
         <div id="status"></div>
         
@@ -218,12 +223,12 @@
                 const data = await response.json();
                 log(`📦 Response data: ${JSON.stringify(data, null, 2)}`);
                 
-                if (data.success && data.data && data.data.token) {
+                if (data.success && data.token) {
                     log('💾 Storing admin data...');
                     
-                    // Store data
-                    localStorage.setItem('adminToken', data.data.token);
-                    localStorage.setItem('adminUser', JSON.stringify(data.data.admin));
+                    // Store data (API sends data.token and data.admin directly)
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminUser', JSON.stringify(data.admin));
                     
                     // Verify storage immediately
                     const storedToken = localStorage.getItem('adminToken');

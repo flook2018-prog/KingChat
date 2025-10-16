@@ -809,14 +809,14 @@
                 const data = await response.json();
                 console.log('Admin login response:', data);
                 
-                if (data.success && data.data.token) {
+                if (data.success && data.token) {
                     console.log('💾 Storing admin token and user data...');
-                    console.log('Token:', data.data.token);
-                    console.log('Admin data:', data.data.admin);
+                    console.log('Token:', data.token);
+                    console.log('Admin data:', data.admin);
                     
-                    // Store admin auth data
-                    localStorage.setItem('adminToken', data.data.token);
-                    localStorage.setItem('adminUser', JSON.stringify(data.data.admin));
+                    // Store admin auth data (API sends data.token and data.admin directly)
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminUser', JSON.stringify(data.admin));
                     
                     // Verify storage
                     const storedToken = localStorage.getItem('adminToken');
@@ -824,7 +824,7 @@
                     console.log('✅ Verification - Token stored:', !!storedToken);
                     console.log('✅ Verification - User stored:', !!storedUser);
                     
-                    showSuccess(`🎉 ยินดีต้อนรับ Admin ${data.data.admin.full_name || data.data.admin.username}!`);
+                    showSuccess(`🎉 ยินดีต้อนรับ Admin ${data.admin.full_name || data.admin.username}!`);
                     
                     // Redirect to admin management
                     setTimeout(() => {
