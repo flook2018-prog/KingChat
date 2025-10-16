@@ -17,12 +17,40 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
+            /* Add margins to avoid menu overlap */
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+            transition: margin 0.3s ease;
+            position: relative;
         }
 
         /* Main Layout */
         .admin-container {
             display: flex;
-            height: 100vh;
+            height: calc(100vh - 80px);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ensure menu doesn't overlap */
+        #kingchat-menu,
+        .top-nav,
+        .sidebar {
+            z-index: 1000 !important;
+        }
+
+        /* Additional CSS for menu-loaded state */
+        body.menu-loaded {
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 768px) {
+            body.menu-loaded {
+                margin-left: 0 !important;
+                margin-top: 60px !important;
+            }
         }
 
         /* Left Sidebar - Admin List */
@@ -581,6 +609,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Admin Management Page loaded');
             
+            // Add class to body for proper layout
+            document.body.classList.add('menu-loaded');
+            
             // Initialize theme and menu
             try {
                 if (typeof loadTheme !== 'undefined') {
@@ -608,12 +639,30 @@
             try {
                 console.log('🔄 Loading admins...');
                 
-                const response = await fetch(`${API_BASE_URL}/admin`);
+                const response = await fetch(`${API_BASE_URL}/admins`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
-                admins = await response.json();
+                const data = await response.json();
+                console.log('📊 Loaded data:', data);
+                
+                // Handle different response structures
+                if (data.success) {
+                    if (data.admins && Array.isArray(data.admins)) {
+                        admins = data.admins;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        admins = data.data;
+                    } else if (Array.isArray(data)) {
+                        admins = data;
+                    } else {
+                        throw new Error('ข้อมูลที่ได้รับไม่ใช่ array');
+                    }
+                } else if (Array.isArray(data)) {
+                    admins = data;
+                } else {
+                    throw new Error(data.error || data.message || 'ไม่สามารถโหลดข้อมูลได้');
+                }
                 console.log('📊 Loaded admins:', admins.length);
                 
                 displayAdmins(admins);
@@ -640,15 +689,14 @@
         function displayAdmins(adminList) {
             const container = document.getElementById('adminsList');
             
-            if (!adminList || adminList.length === 0) {
+            // ตรวจสอบว่า adminList เป็น array หรือไม่
+            if (!Array.isArray(adminList) || adminList.length === 0) {
                 container.innerHTML = `
                     <div class="admin-item">
                         <div class="admin-avatar">👥</div>
                         <div class="admin-info">
                             <div class="admin-name">ไม่พบข้อมูลแอดมิน</div>
-                            <div class="admin-details">
-                                <span>กดปุ่มเพิ่มแอดมินใหม่เพื่อเริ่มต้น</span>
-                            </div>
+                            <div class="admin-details">กรุณาเพิ่มแอดมินใหม่</div>
                         </div>
                     </div>
                 `;
@@ -813,13 +861,13 @@
                 let response;
                 if (isEditMode) {
                     const adminId = document.getElementById('adminId').value;
-                    response = await fetch(`${API_BASE_URL}/admin/${adminId}`, {
+                    response = await fetch(`${API_BASE_URL}/admins/${adminId}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
                 } else {
-                    response = await fetch(`${API_BASE_URL}/admin`, {
+                    response = await fetch(`${API_BASE_URL}/admins`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
@@ -859,7 +907,7 @@
         // Delete admin
         async function deleteAdmin(adminId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/admin/${adminId}`, {
+                const response = await fetch(`${API_BASE_URL}/admins/${adminId}`, {
                     method: 'DELETE'
                 });
                 
