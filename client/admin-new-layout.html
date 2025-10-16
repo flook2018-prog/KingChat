@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 จัดการแอดมิน - KingChat</title>
+    <script src="js/menu-fixed.js?v=20251014-3"></script>
+    <script>
+        // Fallback menu loading
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof KingChatMenu === 'undefined') {
+                console.warn('Menu-fixed.js not loaded, trying alternative path...');
+                const script = document.createElement('script');
+                script.src = './js/menu-fixed.js?v=20251014-3';
+                script.onload = function() {
+                    console.log('✅ Menu-fixed.js loaded via fallback method');
+                };
+                script.onerror = function() {
+                    console.error('❌ Failed to load menu-fixed.js even with fallback');
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+    <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+            /* Always apply margins for layout consistency */
+            margin-left: 260px !important;
+            margin-top: 80px !important;
+        }
+
+        /* Main Container */
+        .admin-container {
+            display: flex;
+            height: calc(100vh - 80px);
+            width: calc(100vw - 260px);
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar - Admin List */
+        .admin-sidebar {
+            width: 350px;
+            min-width: 350px;
+            max-width: 350px;
+            background: white;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        /* Main Content Area */
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            min-width: 0;
+        }
+
+        /* Admin Header */
+        .admin-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .admin-header .brand-logo {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .admin-header .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .admin-header .page-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Search Section */
+        .admin-search {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background: white;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .btn-add-admin {
+            background: linear-gradient(135deg, #06C755, #05a847);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-add-admin:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
+        }
+
+        /* Admin List */
+        .admin-list {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .admin-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-item:hover {
+            background: #f8f9fa;
+        }
+
+        .admin-item.active {
+            background: #e8f4fd;
+            border-left: 3px solid #667eea;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .admin-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .admin-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #2c3e50;
+        }
+
+        .admin-username {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .admin-role {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .role-super-admin {
+            background: #fff5f5;
+            color: #e53e3e;
+            border: 1px solid #fed7d7;
+        }
+
+        .role-admin {
+            background: #f0f4ff;
+            color: #667eea;
+            border: 1px solid #c3dafe;
+        }
+
+        .admin-meta {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .admin-status {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        .status-active {
+            background: #f0fff4;
+            color: #38a169;
+        }
+
+        .status-inactive {
+            background: #fffaf0;
+            color: #ed8936;
+        }
+
+        /* Main Content Header */
+        .admin-main-header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .selected-admin-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .selected-admin-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .selected-admin-details h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .selected-admin-details p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit {
+            background: #f0f4ff;
+            color: #667eea;
+            border: 1px solid #c3dafe;
+        }
+
+        .btn-edit:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #fff5f5;
+            color: #e53e3e;
+            border: 1px solid #fed7d7;
+        }
+
+        .btn-delete:hover {
+            background: #e53e3e;
+            color: white;
+        }
+
+        /* Main Content Body */
+        .admin-main-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .admin-details-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+        }
+
+        .card-header h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        /* No Selection State */
+        .no-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .no-selection-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-selection h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .no-selection p {
+            font-size: 14px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #e9ecef;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            color: #38a169;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-error {
+            background: #fff5f5;
+            color: #e53e3e;
+            border: 1px solid #fed7d7;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin-left: 0 !important;
+            }
+
+            .admin-container {
+                width: 100vw;
+                flex-direction: column;
+            }
+
+            .admin-sidebar {
+                width: 100%;
+                height: 300px;
+                max-width: none;
+                min-width: auto;
+            }
+
+            .admin-main {
+                height: calc(100vh - 380px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Left Sidebar - Admin List -->
+        <div class="admin-sidebar">
+            <div class="admin-header">
+                <div class="brand-logo">👑</div>
+                <div class="page-title">จัดการแอดมิน</div>
+                <div class="page-subtitle">จัดการบัญชีผู้ดูแลระบบและสิทธิ์การเข้าถึง</div>
+            </div>
+
+            <div class="admin-search">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="ค้นหาแอดมิน..." id="searchInput" onkeyup="searchAdmins()">
+                    <button class="btn-add-admin" onclick="openAddModal()">
+                        <span>➕</span>
+                        เพิ่มแอดมิน
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-list" id="adminList">
+                <!-- Loading State -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>กำลังโหลดข้อมูล...</p>
+                </div>
+                <!-- Admin items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="admin-main">
+            <div class="admin-main-header" id="adminMainHeader" style="display: none;">
+                <div class="selected-admin-info">
+                    <div class="selected-admin-avatar" id="selectedAdminAvatar">A</div>
+                    <div class="selected-admin-details">
+                        <h3 id="selectedAdminName">เลือกแอดมิน</h3>
+                        <p id="selectedAdminRole">เลือกแอดมินจากรายการด้านซ้าย</p>
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button class="action-btn btn-edit" onclick="editSelectedAdmin()">
+                        <span>✏️</span>
+                        แก้ไข
+                    </button>
+                    <button class="action-btn btn-delete" onclick="deleteSelectedAdmin()">
+                        <span>🗑️</span>
+                        ลบ
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-main-body">
+                <!-- No Selection State -->
+                <div class="no-selection" id="noSelection">
+                    <div class="no-selection-icon">👑</div>
+                    <h3>เลือกแอดมินเพื่อดูรายละเอียด</h3>
+                    <p>คลิกที่แอดมินในรายการด้านซ้ายเพื่อดูข้อมูลและจัดการ</p>
+                </div>
+
+                <!-- Admin Details -->
+                <div id="adminDetails" style="display: none;">
+                    <!-- Alert Messages -->
+                    <div id="alertSuccess" class="alert alert-success">
+                        <span id="successMessage"></span>
+                    </div>
+                    <div id="alertError" class="alert alert-error">
+                        <span id="errorMessage"></span>
+                    </div>
+
+                    <div class="admin-details-card">
+                        <div class="card-header">
+                            <h4>ข้อมูลแอดมิน</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="detail-row">
+                                <span class="detail-label">ID:</span>
+                                <span class="detail-value" id="detailId">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">ชื่อผู้ใช้:</span>
+                                <span class="detail-value" id="detailUsername">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">ชื่อ-นามสกุล:</span>
+                                <span class="detail-value" id="detailFullName">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">บทบาท:</span>
+                                <span class="detail-value" id="detailRole">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">สถานะ:</span>
+                                <span class="detail-value" id="detailStatus">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">เพิ่มแอดมินใหม่</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="adminForm">
+                    <input type="hidden" id="adminId">
+                    
+                    <div class="form-group">
+                        <label for="username">ชื่อผู้ใช้ *</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">รหัสผ่าน *</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName">ชื่อ-นามสกุล *</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">บทบาท *</label>
+                        <select id="role" name="role" required>
+                            <option value="">เลือกบทบาท</option>
+                            <option value="admin">Admin</option>
+                            <option value="super_admin">Super Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">สถานะ *</label>
+                        <select id="status" name="status" required>
+                            <option value="">เลือกสถานะ</option>
+                            <option value="active">ใช้งาน</option>
+                            <option value="inactive">ไม่ใช้งาน</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                <button class="btn-primary" onclick="saveAdmin()">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let admins = [];
+        let editingAdminId = null;
+        let selectedAdminId = null;
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+
+        async function checkAuth() {
+            const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'login.html?type=admin';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin-auth/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Token verification failed');
+                }
+
+                const data = await response.json();
+                if (data.valid) {
+                    loadAdmins();
+                } else {
+                    localStorage.removeItem('adminToken');
+                    sessionStorage.removeItem('adminToken');
+                    window.location.href = 'login.html?type=admin';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                localStorage.removeItem('adminToken');
+                sessionStorage.removeItem('adminToken');
+                window.location.href = 'login.html?type=admin';
+            }
+        }
+
+        async function loadAdmins() {
+            const loading = document.getElementById('loading');
+            const adminList = document.getElementById('adminList');
+            
+            loading.classList.add('show');
+
+            try {
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                const response = await fetch('/api/admin/admins', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load admins');
+                }
+
+                const data = await response.json();
+                admins = data.admins || [];
+                renderAdminList();
+                
+                loading.classList.remove('show');
+            } catch (error) {
+                console.error('Load admins error:', error);
+                showError('ไม่สามารถโหลดข้อมูลแอดมินได้');
+                loading.classList.remove('show');
+            }
+        }
+
+        function renderAdminList() {
+            const adminList = document.getElementById('adminList');
+            const loading = document.getElementById('loading');
+            
+            // Clear existing content except loading
+            Array.from(adminList.children).forEach(child => {
+                if (child.id !== 'loading') {
+                    child.remove();
+                }
+            });
+
+            admins.forEach(admin => {
+                const adminItem = document.createElement('div');
+                adminItem.className = 'admin-item';
+                adminItem.onclick = () => selectAdmin(admin.id);
+                
+                const initial = admin.full_name ? admin.full_name.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
+                
+                adminItem.innerHTML = `
+                    <div class="admin-avatar">${initial}</div>
+                    <div class="admin-info">
+                        <div class="admin-name">${admin.full_name || admin.username}</div>
+                        <div class="admin-username">@${admin.username}</div>
+                        <div class="admin-role role-${admin.role.replace('_', '-')}">${getRoleText(admin.role)}</div>
+                    </div>
+                    <div class="admin-meta">
+                        <div class="admin-status status-${admin.status}">${getStatusText(admin.status)}</div>
+                    </div>
+                `;
+                
+                adminList.appendChild(adminItem);
+            });
+        }
+
+        function selectAdmin(adminId) {
+            selectedAdminId = adminId;
+            const admin = admins.find(a => a.id === adminId);
+            
+            if (!admin) return;
+
+            // Update active state
+            document.querySelectorAll('.admin-item').forEach((item, index) => {
+                item.classList.toggle('active', admins[index].id === adminId);
+            });
+
+            // Show admin details
+            const initial = admin.full_name ? admin.full_name.charAt(0).toUpperCase() : admin.username.charAt(0).toUpperCase();
+            
+            document.getElementById('selectedAdminAvatar').textContent = initial;
+            document.getElementById('selectedAdminName').textContent = admin.full_name || admin.username;
+            document.getElementById('selectedAdminRole').textContent = `@${admin.username} • ${getRoleText(admin.role)}`;
+            
+            document.getElementById('detailId').textContent = admin.id;
+            document.getElementById('detailUsername').textContent = admin.username;
+            document.getElementById('detailFullName').textContent = admin.full_name || '-';
+            document.getElementById('detailRole').textContent = getRoleText(admin.role);
+            document.getElementById('detailStatus').textContent = getStatusText(admin.status);
+
+            // Show header and details
+            document.getElementById('adminMainHeader').style.display = 'flex';
+            document.getElementById('noSelection').style.display = 'none';
+            document.getElementById('adminDetails').style.display = 'block';
+        }
+
+        function getRoleText(role) {
+            switch(role) {
+                case 'super_admin': return 'Super Admin';
+                case 'admin': return 'Admin';
+                default: return role;
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'active': return 'ใช้งาน';
+                case 'inactive': return 'ไม่ใช้งาน';
+                default: return status;
+            }
+        }
+
+        function searchAdmins() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const adminItems = document.querySelectorAll('.admin-item');
+            
+            adminItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+
+        function openAddModal() {
+            editingAdminId = null;
+            document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';
+            document.getElementById('adminForm').reset();
+            document.getElementById('adminId').value = '';
+            document.getElementById('password').required = true;
+            document.getElementById('adminModal').classList.add('show');
+        }
+
+        function editSelectedAdmin() {
+            if (!selectedAdminId) return;
+            editAdmin(selectedAdminId);
+        }
+
+        function editAdmin(id) {
+            const admin = admins.find(a => a.id === id);
+            if (!admin) return;
+
+            editingAdminId = id;
+            document.getElementById('modalTitle').textContent = 'แก้ไขแอดมิน';
+            document.getElementById('adminId').value = admin.id;
+            document.getElementById('username').value = admin.username;
+            document.getElementById('password').value = '';
+            document.getElementById('password').placeholder = 'ใส่รหัสผ่านใหม่หากต้องการเปลี่ยน';
+            document.getElementById('password').required = false;
+            document.getElementById('fullName').value = admin.full_name;
+            document.getElementById('role').value = admin.role;
+            document.getElementById('status').value = admin.status;
+            document.getElementById('adminModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('adminModal').classList.remove('show');
+            document.getElementById('password').required = true;
+            document.getElementById('password').placeholder = '';
+        }
+
+        async function saveAdmin() {
+            const form = document.getElementById('adminForm');
+            const formData = new FormData(form);
+            
+            if (!form.checkValidity()) {
+                showError('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            const adminData = {
+                username: formData.get('username'),
+                full_name: formData.get('fullName'),
+                role: formData.get('role'),
+                status: formData.get('status')
+            };
+
+            if (formData.get('password')) {
+                adminData.password = formData.get('password');
+            }
+
+            try {
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                const url = editingAdminId ? `/api/admin/admins/${editingAdminId}` : '/api/admin/admins';
+                const method = editingAdminId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'เกิดข้อผิดพลาด');
+                }
+
+                showSuccess(editingAdminId ? 'แก้ไขแอดมินสำเร็จ' : 'เพิ่มแอดมินสำเร็จ');
+                closeModal();
+                loadAdmins();
+                
+                // If editing current selected admin, refresh details
+                if (editingAdminId === selectedAdminId) {
+                    setTimeout(() => selectAdmin(selectedAdminId), 500);
+                }
+            } catch (error) {
+                console.error('Save admin error:', error);
+                showError(error.message || 'ไม่สามารถบันทึกข้อมูลได้');
+            }
+        }
+
+        function deleteSelectedAdmin() {
+            if (!selectedAdminId) return;
+            deleteAdmin(selectedAdminId);
+        }
+
+        async function deleteAdmin(id) {
+            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบแอดมินนี้?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                const response = await fetch(`/api/admin/admins/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'เกิดข้อผิดพลาด');
+                }
+
+                showSuccess('ลบแอดมินสำเร็จ');
+                
+                // Reset selection if deleted admin was selected
+                if (selectedAdminId === id) {
+                    selectedAdminId = null;
+                    document.getElementById('adminMainHeader').style.display = 'none';
+                    document.getElementById('noSelection').style.display = 'flex';
+                    document.getElementById('adminDetails').style.display = 'none';
+                }
+                
+                loadAdmins();
+            } catch (error) {
+                console.error('Delete admin error:', error);
+                showError(error.message || 'ไม่สามารถลบแอดมินได้');
+            }
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('alertSuccess');
+            document.getElementById('successMessage').textContent = message;
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 5000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('alertError');
+            document.getElementById('errorMessage').textContent = message;
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 5000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('adminModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
