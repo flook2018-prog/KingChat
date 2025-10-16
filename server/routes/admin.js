@@ -53,7 +53,40 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-// Apply authentication to all admin routes
+// Apply authentication to all admin routes EXCEPT test endpoint
+router.get('/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Admin v2 routes working!',
+    timestamp: new Date().toISOString(),
+    version: '2.0'
+  });
+});
+
+router.get('/db-test', async (req, res) => {
+  try {
+    console.log('🧪 Testing database connection directly...');
+    await pool.query('SELECT 1 as test');
+    
+    const adminCount = await pool.query('SELECT COUNT(*) as count FROM admins');
+    
+    res.json({ 
+      success: true, 
+      message: 'Database connection working!',
+      adminCount: adminCount.rows[0].count,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Database test failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Database test failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 router.use(authenticateToken);
 
 // Initialize database on startup
