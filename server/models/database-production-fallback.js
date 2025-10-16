@@ -9,12 +9,13 @@ const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjD
 console.log('🔗 Database URL configured');
 console.log('📍 Target: Railway PostgreSQL');
 
-// Connection pool configuration
+// Connection pool configuration for Railway PostgreSQL
 const pool = new Pool({
   connectionString: DATABASE_URL,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000, // Increased timeout
+  connectionTimeoutMillis: 30000, // 30 seconds for Railway startup
+  queryTimeout: 60000, // 60 seconds for queries  
   ssl: false // Railway internal connection doesn't need SSL
 });
 
@@ -52,10 +53,10 @@ async function initializeDatabase() {
     connectionAttempts++;
     console.log(`🚀 Attempting database connection... (attempt ${connectionAttempts})`);
     
-    // Test connection with shorter timeout
+    // Test connection with longer timeout since PostgreSQL is ready
     const testResult = await Promise.race([
       pool.query('SELECT NOW() as current_time, current_database() as db_name'),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 15000))
     ]);
     
     console.log(`✅ Connected to database: ${testResult.rows[0].db_name}`);
@@ -76,12 +77,12 @@ async function initializeDatabase() {
     console.error(`❌ Database connection failed (attempt ${connectionAttempts}):`, error.message);
     isConnected = false;
     
-    // Retry after delay
-    if (connectionAttempts < 3) { // Reduced attempts
-      console.log(`🔄 Retrying in 5 seconds...`);
+    // Retry after delay - more attempts since PostgreSQL is ready
+    if (connectionAttempts < 6) {
+      console.log(`🔄 Retrying in 10 seconds...`);
       setTimeout(() => {
         initializeDatabase();
-      }, 5000);
+      }, 10000);
     } else {
       console.error('💥 Maximum connection attempts reached. Using fallback mode.');
       await initializeFallbackData();

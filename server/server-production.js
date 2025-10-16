@@ -30,20 +30,25 @@ const server = http.createServer(app);
 // Trust proxy for Railway deployment
 app.set('trust proxy', 1);
 
-// Security middleware
+// Security middleware - More permissive CSP for Railway
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "ws:", "wss:", "https:", "http:"],
-      fontSrc: ["'self'", "data:", "https:"],
-      mediaSrc: ["'self'", "data:", "blob:"],
-      frameSrc: ["'self'"]
-    }
-  }
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "https:", "blob:", "*"],
+      connectSrc: ["'self'", "ws:", "wss:", "https:", "http:", "*"],
+      fontSrc: ["'self'", "data:", "https:", "*"],
+      mediaSrc: ["'self'", "data:", "blob:", "*"],
+      frameSrc: ["'self'", "*"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"]
+    },
+    reportOnly: false
+  },
+  crossOriginEmbedderPolicy: false
 }));
 
 // Rate limiting (more lenient for development)
