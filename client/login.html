@@ -916,6 +916,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             initTheme();
             
+            // Check for URL parameters to auto-switch tabs
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            
+            if (tabParam === 'admin') {
+                switchLoginType('admin');
+            }
+            
             console.log('📍 Login page loaded');
             
             // SIMPLE CHECK - NO AUTO REDIRECT
@@ -932,7 +940,7 @@
                         <div style="margin-top: 15px;">
                             <button onclick="window.location.href='/chat.html'" 
                                     style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                                � ไปยังแดชบอร์ด
+                                🚀 ไปยังแดชบอร์ด
                             </button>
                             <button onclick="clearAuth()" 
                                     style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">

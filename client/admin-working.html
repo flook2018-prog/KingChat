@@ -612,7 +612,7 @@
             const adminUser = localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser');
             
             if (!token || !adminUser) {
-                window.location.href = 'admin-login.html';
+                window.location.href = 'login.html?tab=admin';
                 return false;
             }
 
@@ -622,7 +622,7 @@
                 return true;
             } catch (error) {
                 console.error('Error parsing admin user data:', error);
-                window.location.href = 'admin-login.html';
+                window.location.href = 'login.html?tab=admin';
                 return false;
             }
         }
@@ -684,7 +684,7 @@
                     // Token expired or invalid
                     localStorage.removeItem('adminToken');
                     sessionStorage.removeItem('adminToken');
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'login.html?tab=admin';
                     return;
                 }
                 
