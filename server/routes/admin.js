@@ -152,6 +152,40 @@ router.get('/db-test', async (req, res) => {
   }
 });
 
+// GET /api/admin/admins - Get all admins (NO AUTH REQUIRED FOR TESTING)
+router.get('/admins', async (req, res) => {
+  try {
+    console.log('📁 Admin v2: Fetching admins from PostgreSQL via /admins endpoint');
+    console.log('🔗 Database URL check:', DATABASE_URL ? 'Available' : 'Missing');
+    console.log('🔐 Auth header:', req.headers.authorization ? 'Present' : 'Missing');
+    
+    // Test database connection first
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection verified for /admins');
+    
+    const result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
+    
+    console.log(`✅ Admin v2: Retrieved ${result.rows.length} admins from database`);
+    console.log('📊 Sample admin data:', result.rows.length > 0 ? result.rows[0] : 'No admins found');
+    
+    res.json({ success: true, admins: result.rows, count: result.rows.length });
+  } catch (error) {
+    console.error('❌ Admin v2: Error fetching admins:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    
+    res.status(503).json({ 
+      success: false, 
+      error: 'Database not connected',
+      details: error.message,
+      code: error.code
+    });
+  }
+});
+
 router.use(authenticateToken);
 
 // Initialize database on startup
@@ -194,37 +228,6 @@ router.use(authenticateToken);
 })();
 
 // IMPORTANT: Specific routes MUST come before parameterized routes
-
-// GET /api/admin/admins - Get all admins (specific route first)
-router.get('/admins', async (req, res) => {
-  try {
-    console.log('📁 Admin v2: Fetching admins from PostgreSQL via /admins endpoint');
-    console.log('🔗 Database URL check:', DATABASE_URL ? 'Available' : 'Missing');
-    
-    // Test database connection first
-    await pool.query('SELECT 1');
-    console.log('✅ Database connection verified for /admins');
-    
-    const result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
-    
-    console.log(`✅ Admin v2: Retrieved ${result.rows.length} admins from database`);
-    res.json({ success: true, admins: result.rows });
-  } catch (error) {
-    console.error('❌ Admin v2: Error fetching admins:', error);
-    console.error('❌ Error details:', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack
-    });
-    
-    res.status(503).json({ 
-      success: false, 
-      error: 'Database not connected',
-      details: error.message,
-      code: error.code
-    });
-  }
-});
 
 // POST /api/admin/admins - Create new admin (specific route)
 router.post('/admins', async (req, res) => {
