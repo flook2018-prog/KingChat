@@ -12,6 +12,7 @@ const DATABASE_URL = process.env.DATABASE_PUBLIC_URL ||
                     process.env.POSTGRES_URL || 
                     process.env.DATABASE_PRIVATE_URL ||
                     process.env.POSTGRES_PRIVATE_URL ||
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway' || // Railway public URL from Variables tab
                     'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:27936/railway'; // Railway public URL as fallback
 
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
@@ -27,10 +28,13 @@ let pool;
 try {
   pool = new Pool({
     connectionString: DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: DATABASE_URL.includes('railway.internal') ? false : { rejectUnauthorized: false }, // No SSL for internal, SSL for external
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000
+    connectionTimeoutMillis: 10000,
+    // Additional connection options for Railway
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 0
   });
 
   // Handle pool errors
@@ -38,10 +42,23 @@ try {
     console.error('❌ PostgreSQL pool error:', err);
   });
 
-  // Test connection on startup
+  // Test connection on startup with retry logic
   pool.on('connect', () => {
-    console.log('✅ PostgreSQL client connected');
+    console.log('✅ PostgreSQL client connected successfully');
   });
+
+  // Test initial connection
+  (async () => {
+    try {
+      console.log('🔍 Testing initial database connection...');
+      const client = await pool.connect();
+      const result = await client.query('SELECT NOW() as current_time');
+      console.log('✅ Initial database test successful:', result.rows[0].current_time);
+      client.release();
+    } catch (error) {
+      console.error('❌ Initial database connection failed:', error.message);
+    }
+  })();
 
   console.log('✅ Admin routes v2 loading with PostgreSQL database connection only');
 } catch (error) {
@@ -157,6 +174,42 @@ router.get('/db-test', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+// Alternative database test with different connection methods
+router.get('/db-test-alt', async (req, res) => {
+  const testUrls = [
+    process.env.DATABASE_PUBLIC_URL,
+    process.env.DATABASE_URL, 
+    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway',
+    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway'
+  ].filter(Boolean);
+
+  const results = [];
+
+  for (const url of testUrls) {
+    try {
+      const testPool = new Pool({
+        connectionString: url,
+        ssl: url.includes('railway.internal') ? false : { rejectUnauthorized: false },
+        max: 1,
+        connectionTimeoutMillis: 5000
+      });
+
+      const result = await testPool.query('SELECT 1 as test');
+      results.push({ url: url.replace(/\/\/.*@/, '//***:***@'), status: 'SUCCESS', result: result.rows[0] });
+      await testPool.end();
+      break; // Stop on first success
+    } catch (error) {
+      results.push({ url: url.replace(/\/\/.*@/, '//***:***@'), status: 'FAILED', error: error.message });
+    }
+  }
+
+  res.json({
+    success: results.some(r => r.status === 'SUCCESS'),
+    results,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // GET /api/admin/admins - Get all admins (NO AUTH REQUIRED FOR TESTING)
