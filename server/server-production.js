@@ -30,24 +30,9 @@ const server = http.createServer(app);
 // Trust proxy for Railway deployment
 app.set('trust proxy', 1);
 
-// Security middleware - More permissive CSP for Railway
+// Security middleware - Disable CSP for development
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:", "blob:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "data:", "blob:"],
-      imgSrc: ["'self'", "data:", "https:", "blob:", "*"],
-      connectSrc: ["'self'", "ws:", "wss:", "https:", "http:", "*"],
-      fontSrc: ["'self'", "data:", "https:", "*"],
-      mediaSrc: ["'self'", "data:", "blob:", "*"],
-      frameSrc: ["'self'", "*"],
-      objectSrc: ["'none'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'"]
-    },
-    reportOnly: false
-  },
+  contentSecurityPolicy: false, // Disable CSP entirely
   crossOriginEmbedderPolicy: false
 }));
 
@@ -228,6 +213,27 @@ console.log('✅ Roles routes mounted at /api/roles');
 // Serve static files from client directory
 console.log('🌐 Serving static files from client directory');
 app.use(express.static(path.join(__dirname, '../client')));
+
+// Specific routes for main pages
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/login.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/admin-working.html'));
+});
+
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/chat.html'));
+});
+
+app.get('/customers', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/customers.html'));
+});
+
+app.get('/settings', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/settings.html'));
+});
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {
