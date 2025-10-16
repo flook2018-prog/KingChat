@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
-    <script src="js/menu.js"></script>
+    <!-- Remove menu.js dependency -->
     <style>
         * {
             margin: 0;
@@ -15,43 +15,66 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
-            /* Add margins to avoid menu overlap */
-            margin-left: 260px !important;
-            margin-top: 80px !important;
-            transition: margin 0.3s ease;
-            position: relative;
+            min-height: 100vh;
+            /* Remove menu dependencies */
+            padding: 20px;
+        }
+
+        /* Simple header instead of menu */
+        .simple-header {
+            background: #fff;
+            padding: 15px 20px;
+            margin: -20px -20px 20px -20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .simple-header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .simple-nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
         }
 
         /* Main Layout */
         .admin-container {
             display: flex;
-            height: calc(100vh - 80px);
+            min-height: calc(100vh - 120px);
             position: relative;
             z-index: 1;
         }
 
-        /* Ensure menu doesn't overlap */
-        #kingchat-menu,
-        .top-nav,
-        .sidebar {
-            z-index: 1000 !important;
-        }
-
-        /* Additional CSS for menu-loaded state */
-        body.menu-loaded {
-            margin-left: 260px !important;
-            margin-top: 80px !important;
-        }
-
-        /* Responsive adjustments */
-        @media screen and (max-width: 768px) {
-            body.menu-loaded {
-                margin-left: 0 !important;
-                margin-top: 60px !important;
-            }
-        }
+        /* Remove menu dependencies - clean CSS */
 
         /* Left Sidebar - Admin List */
         .admin-sidebar {
@@ -501,6 +524,17 @@
     </style>
 </head>
 <body>
+    <!-- Simple Header -->
+    <div class="simple-header">
+        <h1>👨‍💼 จัดการแอดมิน - KingChat</h1>
+        <div class="simple-nav">
+            <a href="/chat.html" class="nav-btn">💬 แชท</a>
+            <a href="/customers.html" class="nav-btn">👥 ลูกค้า</a>
+            <a href="/accounts.html" class="nav-btn">📱 บัญชี LINE</a>
+            <button onclick="logout()" class="nav-btn logout-btn">🚪 ออกจากระบบ</button>
+        </div>
+    </div>
+
     <div class="admin-container">
         <!-- Left Sidebar - Admin List -->
         <div class="admin-sidebar">
@@ -677,22 +711,10 @@
                 return;
             }
             
-            // Add class to body for proper layout
-            document.body.classList.add('menu-loaded');
+            // Remove menu dependencies - direct initialization
+            console.log('✅ Admin page loaded successfully');
             
-            // Initialize theme and menu
-            try {
-                if (typeof loadTheme !== 'undefined') {
-                    loadTheme();
-                }
-                if (typeof KingChatMenu !== 'undefined') {
-                    window.KingChatMenuInstance = new KingChatMenu();
-                }
-            } catch (e) {
-                console.warn('Theme/Menu initialization failed:', e);
-            }
-            
-            // Load admins
+            // Load admins directly
             loadAdmins();
             
             // Setup search
@@ -1027,6 +1049,14 @@
             if (event.target === modal) {
                 closeModal();
             }
+        }
+        // Logout function
+        function logout() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            sessionStorage.removeItem('adminToken');
+            sessionStorage.removeItem('adminUser');
+            window.location.href = '/login.html';
         }
     </script>
 </body>
