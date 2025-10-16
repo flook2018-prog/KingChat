@@ -24,6 +24,26 @@ console.log('   DATABASE_PRIVATE_URL:', process.env.DATABASE_PRIVATE_URL ? 'Avai
 console.log('   NODE_ENV:', process.env.NODE_ENV);
 console.log('🎯 Final DATABASE_URL used:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
 
+// Helper function to test database connection with retry
+async function testDatabaseConnection(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const client = await pool.connect();
+      await client.query('SELECT 1');
+      client.release();
+      console.log(`✅ Database connection successful on attempt ${i + 1}`);
+      return true;
+    } catch (error) {
+      console.log(`❌ Database connection attempt ${i + 1} failed:`, error.message);
+      if (i < retries - 1) {
+        console.log('⏳ Waiting 2 seconds before retry...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  }
+  return false;
+}
+
 let pool;
 try {
   pool = new Pool({
@@ -219,8 +239,12 @@ router.get('/admins', async (req, res) => {
     console.log('🔗 Database URL check:', DATABASE_URL ? 'Available' : 'Missing');
     console.log('🔐 Auth header:', req.headers.authorization ? 'Present' : 'Missing');
     
-    // Test database connection first
-    await pool.query('SELECT 1');
+    // Test database connection with retry
+    const connectionOk = await testDatabaseConnection(3);
+    if (!connectionOk) {
+      throw new Error('Database connection failed after 3 retries');
+    }
+    
     console.log('✅ Database connection verified for /admins');
     
     const result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
@@ -228,7 +252,7 @@ router.get('/admins', async (req, res) => {
     console.log(`✅ Admin v2: Retrieved ${result.rows.length} admins from database`);
     console.log('📊 Sample admin data:', result.rows.length > 0 ? result.rows[0] : 'No admins found');
     
-    res.json({ success: true, admins: result.rows, count: result.rows.length });
+    res.json({ success: true, admins: result.rows, count: result.rows.length, source: 'postgresql' });
   } catch (error) {
     console.error('❌ Admin v2: Error fetching admins:', error);
     console.error('❌ Error details:', {
@@ -241,7 +265,8 @@ router.get('/admins', async (req, res) => {
       success: false, 
       error: 'Database not connected',
       details: error.message,
-      code: error.code
+      code: error.code,
+      database_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@')
     });
   }
 });
