@@ -10,17 +10,9 @@ console.log('🔐 Auth Production Routes: Loading with PostgreSQL database conne
 const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secure-secret-key-for-kingchat-2024';
 const JWT_EXPIRES_IN = '24h';
 
-// POST /api/auth/login - Login with PostgreSQL authentication
+// POST /api/auth/login - Login with database authentication (PostgreSQL with fallback)
 router.post('/login', async (req, res) => {
   try {
-    if (!isDatabaseConnected()) {
-      return res.status(503).json({
-        success: false,
-        error: 'Database not connected - cannot authenticate',
-        message: 'PostgreSQL database is not available'
-      });
-    }
-
     const { username, password } = req.body;
     
     if (!username || !password) {
@@ -30,20 +22,20 @@ router.post('/login', async (req, res) => {
       });
     }
     
-    console.log(`🔍 Authenticating user from PostgreSQL: ${username}`);
+    console.log(`🔍 Authenticating user: ${username}`);
     
-    // Find user in database
+    // Find user in database (fallback supported)
     const result = await executeQuery(
       'SELECT id, username, password, email, role, status, last_login FROM admins WHERE username = $1',
       [username]
     );
     
     if (result.rows.length === 0) {
-      console.log(`❌ User not found in PostgreSQL: ${username}`);
+      console.log(`❌ User not found: ${username}`);
       return res.status(401).json({
         success: false,
         error: 'Invalid username or password',
-        database: true
+        database: isDatabaseConnected() ? 'postgresql' : 'fallback'
       });
     }
     
