@@ -6,10 +6,20 @@ const router = express.Router();
 // Use direct database connection with Railway PostgreSQL
 const { Pool } = require('pg');
 
-// Use environment variable for database connection (Railway will provide this)
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway';
+// Try multiple environment variable names that Railway might use
+const DATABASE_URL = process.env.DATABASE_URL || 
+                    process.env.POSTGRES_URL || 
+                    process.env.DATABASE_PRIVATE_URL ||
+                    process.env.POSTGRES_PRIVATE_URL ||
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:27936/railway' || // Railway public URL
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway'; // Railway internal URL
 
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
+console.log('🔧 Environment variables check:');
+console.log('   DATABASE_URL:', process.env.DATABASE_URL ? 'Available' : 'Missing');
+console.log('   POSTGRES_URL:', process.env.POSTGRES_URL ? 'Available' : 'Missing');  
+console.log('   DATABASE_PRIVATE_URL:', process.env.DATABASE_PRIVATE_URL ? 'Available' : 'Missing');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -83,6 +93,16 @@ router.get('/db-test', async (req, res) => {
     console.log('🧪 Testing database connection directly...');
     console.log('🔗 Using connection string:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
     
+    // Show all environment variables for debugging
+    const envVars = {
+      DATABASE_URL: process.env.DATABASE_URL ? 'Available' : 'Missing',
+      POSTGRES_URL: process.env.POSTGRES_URL ? 'Available' : 'Missing',
+      DATABASE_PRIVATE_URL: process.env.DATABASE_PRIVATE_URL ? 'Available' : 'Missing',
+      POSTGRES_PRIVATE_URL: process.env.POSTGRES_PRIVATE_URL ? 'Available' : 'Missing',
+      NODE_ENV: process.env.NODE_ENV,
+      RAILWAY_ENVIRONMENT: process.env.RAILWAY_ENVIRONMENT ? 'Available' : 'Missing'
+    };
+    
     // Test basic connection
     const testResult = await pool.query('SELECT 1 as test, current_database() as db_name, current_user as username');
     console.log('✅ Basic connection test passed');
@@ -98,6 +118,7 @@ router.get('/db-test', async (req, res) => {
       user: testResult.rows[0].username,
       adminCount: adminCount.rows[0].count,
       connectionUrl: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
+      environmentVariables: envVars,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -108,6 +129,12 @@ router.get('/db-test', async (req, res) => {
       details: error.message,
       code: error.code,
       connectionUrl: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
+      environmentVariables: {
+        DATABASE_URL: process.env.DATABASE_URL ? 'Available' : 'Missing',
+        POSTGRES_URL: process.env.POSTGRES_URL ? 'Available' : 'Missing',
+        DATABASE_PRIVATE_URL: process.env.DATABASE_PRIVATE_URL ? 'Available' : 'Missing',
+        NODE_ENV: process.env.NODE_ENV
+      },
       timestamp: new Date().toISOString()
     });
   }
