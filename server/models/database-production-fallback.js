@@ -258,6 +258,10 @@ function getStatus() {
 console.log('🚀 Initializing PostgreSQL connection...');
 initializeDatabase();
 
+// Initialize fallback data immediately as backup
+console.log('🔄 Initializing fallback data as backup...');
+initializeFallbackData();
+
 module.exports = {
   getPool,
   isDatabaseConnected,

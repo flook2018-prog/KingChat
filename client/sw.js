@@ -1,23 +1,38 @@
-// Service Worker for KingChat PWA
-const CACHE_NAME = 'kingchat-v1.0.0';
-const STATIC_CACHE = 'kingchat-static-v1.0.0';
-const DYNAMIC_CACHE = 'kingchat-dynamic-v1.0.0';
+// Service Worker for KingChat PWA - DISABLED for debugging// Service Worker for KingChat PWA - DISABLED for debugging
 
-// Files to cache immediately
-const STATIC_FILES = [
-  '/',
-  '/dashboard.html',
-  '/login.html',
-  '/css/style.css',
+console.log('Service Worker: Disabled for debugging');console.log('Service Worker: Disabled for debugging');
 
-  '/css/login.css',
-  '/css/loading.css',
-  '/css/mobile.css',
-  '/js/auth.js',
-  '/js/api.js',
-  '/js/theme.js',
-  '/js/loading.js',
-  '/js/keyboard-shortcuts.js',
+
+
+// Empty service worker to prevent errors// Empty service worker to prevent errors
+
+self.addEventListener('install', (event) => {self.addEventListener('install', (event) => {
+
+  console.log('SW: Install event - skipping cache');  console.log('SW: Install event - skipping cache');
+
+  self.skipWaiting();  self.skipWaiting();
+
+});});
+
+
+
+self.addEventListener('activate', (event) => {self.addEventListener('activate', (event) => {
+
+  console.log('SW: Activate event - skipping cache cleanup');  console.log('SW: Activate event - skipping cache cleanup');
+
+  event.waitUntil(self.clients.claim());  event.waitUntil(self.clients.claim());
+
+});});
+
+
+
+self.addEventListener('fetch', (event) => {self.addEventListener('fetch', (event) => {
+
+  // Pass through all requests without caching  // Pass through all requests without caching
+
+  return;  return;
+
+});});
   '/js/auto-save.js',
   '/js/breadcrumb.js',
   '/js/mobile.js',
