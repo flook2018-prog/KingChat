@@ -6,12 +6,27 @@ const router = express.Router();
 // Use direct database connection with Railway PostgreSQL
 const { Pool } = require('pg');
 
+// Use environment variable for database connection (Railway will provide this)
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway';
+
+console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
+
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway',
-  ssl: false,
+  connectionString: DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000
+});
+
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('❌ PostgreSQL pool error:', err);
+});
+
+// Test connection on startup
+pool.on('connect', () => {
+  console.log('✅ PostgreSQL client connected');
 });
 
 console.log('✅ Admin routes v2 loading with PostgreSQL database connection only');
@@ -66,14 +81,23 @@ router.get('/test', (req, res) => {
 router.get('/db-test', async (req, res) => {
   try {
     console.log('🧪 Testing database connection directly...');
-    await pool.query('SELECT 1 as test');
+    console.log('🔗 Using connection string:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
     
+    // Test basic connection
+    const testResult = await pool.query('SELECT 1 as test, current_database() as db_name, current_user as username');
+    console.log('✅ Basic connection test passed');
+    
+    // Test admins table
     const adminCount = await pool.query('SELECT COUNT(*) as count FROM admins');
+    console.log('✅ Admins table query successful');
     
     res.json({ 
       success: true, 
       message: 'Database connection working!',
+      database: testResult.rows[0].db_name,
+      user: testResult.rows[0].username,
       adminCount: adminCount.rows[0].count,
+      connectionUrl: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -82,6 +106,8 @@ router.get('/db-test', async (req, res) => {
       success: false, 
       error: 'Database test failed',
       details: error.message,
+      code: error.code,
+      connectionUrl: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
       timestamp: new Date().toISOString()
     });
   }
@@ -134,6 +160,11 @@ router.use(authenticateToken);
 router.get('/admins', async (req, res) => {
   try {
     console.log('📁 Admin v2: Fetching admins from PostgreSQL via /admins endpoint');
+    console.log('🔗 Database URL check:', DATABASE_URL ? 'Available' : 'Missing');
+    
+    // Test database connection first
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection verified for /admins');
     
     const result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
     
@@ -141,10 +172,17 @@ router.get('/admins', async (req, res) => {
     res.json({ success: true, admins: result.rows });
   } catch (error) {
     console.error('❌ Admin v2: Error fetching admins:', error);
-    res.status(500).json({ 
+    console.error('❌ Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    
+    res.status(503).json({ 
       success: false, 
-      error: 'Database connection error',
-      details: error.message
+      error: 'Database not connected',
+      details: error.message,
+      code: error.code
     });
   }
 });
