@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 // Use direct database connection with new Railway database
@@ -25,6 +26,41 @@ router.use((req, res, next) => {
   });
   next();
 });
+
+// Authentication middleware for admin routes
+const authenticateToken = (req, res, next) => {
+  // Get token from Authorization header
+  let token = null;
+  const authHeader = req.headers.authorization;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  }
+  
+  if (!token) {
+    return res.status(401).json({ 
+      success: false, 
+      error: 'Access token required' 
+    });
+  }
+  
+  try {
+    console.log('🔐 Verifying admin token...');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-key');
+    console.log('✅ Token verified for user:', decoded.username);
+    req.admin = decoded;
+    next();
+  } catch (error) {
+    console.error('❌ Token verification failed:', error.message);
+    return res.status(401).json({ 
+      success: false, 
+      error: 'Invalid token' 
+    });
+  }
+};
+
+// Apply authentication to all admin routes
+router.use(authenticateToken);
 
 // Timeout wrapper for database queries
 const withTimeout = (promise, timeoutMs = 2000) => {
