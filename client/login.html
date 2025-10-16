@@ -926,30 +926,43 @@
             
             console.log('📍 Login page loaded');
             
-            // SIMPLE CHECK - NO AUTO REDIRECT
-            // Just show current status without redirecting
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            if (token) {
-                console.log('ℹ️ Token found in storage, but staying on login page');
-                showSuccess('🔑 คุณมี token อยู่แล้ว - สามารถไปหน้าแชทได้');
-                
-                // Add manual redirect button
-                setTimeout(() => {
-                    const successDiv = document.getElementById('successMessage');
-                    successDiv.innerHTML += `
-                        <div style="margin-top: 15px;">
-                            <button onclick="window.location.href='/chat.html'" 
-                                    style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                                🚀 ไปยังแดชบอร์ด
-                            </button>
-                            <button onclick="clearAuth()" 
-                                    style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
-                                🗑️ ล้างข้อมูลและ Login ใหม่
-                            </button>
-                        </div>
-                    `;
-                    successDiv.style.display = 'block';
-                }, 100);
+            // Check existing tokens based on current tab
+            if (tabParam === 'admin') {
+                // Check admin token
+                const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                if (adminToken) {
+                    console.log('ℹ️ Admin token found, redirecting to admin panel');
+                    showSuccess('🔑 คุณ login เป็น admin อยู่แล้ว - กำลังไปหน้าจัดการ...');
+                    setTimeout(() => {
+                        window.location.href = '/admin-working.html';
+                    }, 1500);
+                    return;
+                }
+            } else {
+                // Check user token
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+                if (token) {
+                    console.log('ℹ️ User token found in storage, but staying on login page');
+                    showSuccess('🔑 คุณมี token อยู่แล้ว - สามารถไปหน้าแชทได้');
+                    
+                    // Add manual redirect button
+                    setTimeout(() => {
+                        const successDiv = document.getElementById('successMessage');
+                        successDiv.innerHTML += `
+                            <div style="margin-top: 15px;">
+                                <button onclick="window.location.href='/chat.html'" 
+                                        style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                                    🚀 ไปยังแดชบอร์ด
+                                </button>
+                                <button onclick="clearAuth()" 
+                                        style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                                    🗑️ ล้างข้อมูลและ Login ใหม่
+                                </button>
+                            </div>
+                        `;
+                        successDiv.style.display = 'block';
+                    }, 100);
+                }
             }
             
             // Add interactive effects
