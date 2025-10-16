@@ -53,14 +53,15 @@ async function initializeDatabase() {
     connectionAttempts++;
     console.log(`🚀 Attempting database connection... (attempt ${connectionAttempts})`);
     
-    // Test connection with longer timeout since PostgreSQL is ready
+    // Test connection with extended timeout since PostgreSQL is ready
     const testResult = await Promise.race([
-      pool.query('SELECT NOW() as current_time, current_database() as db_name'),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 15000))
+      pool.query('SELECT NOW() as current_time, current_database() as db_name, version() as db_version'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout after 25 seconds')), 25000))
     ]);
     
-    console.log(`✅ Connected to database: ${testResult.rows[0].db_name}`);
+    console.log(`✅ Connected to PostgreSQL database: ${testResult.rows[0].db_name}`);
     console.log(`⏰ Server time: ${testResult.rows[0].current_time}`);
+    console.log(`🗄️ PostgreSQL version: ${testResult.rows[0].db_version.split(' ')[0]} ${testResult.rows[0].db_version.split(' ')[1]}`);
     
     isConnected = true;
     
@@ -77,14 +78,16 @@ async function initializeDatabase() {
     console.error(`❌ Database connection failed (attempt ${connectionAttempts}):`, error.message);
     isConnected = false;
     
-    // Retry after delay - more attempts since PostgreSQL is ready
-    if (connectionAttempts < 6) {
-      console.log(`🔄 Retrying in 10 seconds...`);
+    // Retry with extended delays since PostgreSQL is ready but may need time
+    if (connectionAttempts < 8) { // More attempts
+      const retryDelay = Math.min(5000 + (connectionAttempts * 3000), 20000); // 5s, 8s, 11s, 14s, 17s, 20s, 20s
+      console.log(`🔄 PostgreSQL is ready, retrying connection in ${retryDelay/1000} seconds... (attempt ${connectionAttempts + 1}/8)`);
       setTimeout(() => {
         initializeDatabase();
-      }, 10000);
+      }, retryDelay);
     } else {
-      console.error('💥 Maximum connection attempts reached. Using fallback mode.');
+      console.error('💥 Maximum connection attempts reached. PostgreSQL is ready but connection failed.');
+      console.error('🔄 Switching to fallback mode while PostgreSQL stabilizes...');
       await initializeFallbackData();
     }
     
