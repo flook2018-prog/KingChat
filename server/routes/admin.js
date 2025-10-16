@@ -7,7 +7,8 @@ const router = express.Router();
 const { Pool } = require('pg');
 
 // Try multiple environment variable names that Railway might use
-const DATABASE_URL = process.env.DATABASE_URL || 
+const DATABASE_URL = process.env.DATABASE_PUBLIC_URL || 
+                    process.env.DATABASE_URL || 
                     process.env.POSTGRES_URL || 
                     process.env.DATABASE_PRIVATE_URL ||
                     process.env.POSTGRES_PRIVATE_URL ||
@@ -16,9 +17,11 @@ const DATABASE_URL = process.env.DATABASE_URL ||
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 console.log('🔧 Environment variables check:');
 console.log('   DATABASE_URL:', process.env.DATABASE_URL ? 'Available' : 'Missing');
+console.log('   DATABASE_PUBLIC_URL:', process.env.DATABASE_PUBLIC_URL ? 'Available' : 'Missing');
 console.log('   POSTGRES_URL:', process.env.POSTGRES_URL ? 'Available' : 'Missing');  
 console.log('   DATABASE_PRIVATE_URL:', process.env.DATABASE_PRIVATE_URL ? 'Available' : 'Missing');
 console.log('   NODE_ENV:', process.env.NODE_ENV);
+console.log('🎯 Final DATABASE_URL used:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
 
 let pool;
 try {
@@ -108,11 +111,15 @@ router.get('/db-test', async (req, res) => {
     // Show all environment variables for debugging
     const envVars = {
       DATABASE_URL: process.env.DATABASE_URL ? 'Available' : 'Missing',
+      DATABASE_PUBLIC_URL: process.env.DATABASE_PUBLIC_URL ? 'Available' : 'Missing',
       POSTGRES_URL: process.env.POSTGRES_URL ? 'Available' : 'Missing',
       DATABASE_PRIVATE_URL: process.env.DATABASE_PRIVATE_URL ? 'Available' : 'Missing',
       POSTGRES_PRIVATE_URL: process.env.POSTGRES_PRIVATE_URL ? 'Available' : 'Missing',
       NODE_ENV: process.env.NODE_ENV,
-      RAILWAY_ENVIRONMENT: process.env.RAILWAY_ENVIRONMENT ? 'Available' : 'Missing'
+      RAILWAY_ENVIRONMENT: process.env.RAILWAY_ENVIRONMENT ? 'Available' : 'Missing',
+      // Show actual URLs (masked) for debugging
+      DATABASE_URL_VALUE: process.env.DATABASE_URL ? process.env.DATABASE_URL.replace(/\/\/.*@/, '//***:***@') : 'Not set',
+      DATABASE_PUBLIC_URL_VALUE: process.env.DATABASE_PUBLIC_URL ? process.env.DATABASE_PUBLIC_URL.replace(/\/\/.*@/, '//***:***@') : 'Not set'
     };
     
     // Test basic connection
