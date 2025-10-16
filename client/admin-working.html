@@ -1,46 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>👨‍💼 จัดการแอดมิน - KingChat</title>
-    <script src="js/menu-fixed.js?v=20251014-3"></script>
-    <script>
-        // Fallback menu loading
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof KingChatMenu =                const result = await response.json();
-                console.log('📊 API Response:', result);
-                
-                // ตรวจสอบว่า API ส่งข้อมูลมาในรูปแบบไหน
-                if (result.success && result.users) {
-                    admins = result.users;
-                } else if (result.success && result.admins) {
-                    admins = result.admins;
-                } else if (Array.isArray(result)) {
-                    admins = result;
-                } else {
-                    admins = [];
-                }
-                
-                console.log('📊 Loaded admins:', admins.length); 'undefined') {
-                console.warn('Menu-fixed.js not loaded, trying alternative path...');
-                const script = document.createElement('script');
-                script.src = './js/menu-fixed.js?v=20251014-3';
-                script.onload = function() {
-                    console.log(' Menu-fixed.js loaded via fallback method');
-                };
-                script.onerror = function() {
-                    console.error(' Failed to load menu-fixed.js even with fallback');
-                };
-                document.head.appendChild(script);
-            }
-        });
-    </script>
-    <link rel="stylesheet" href="css/line-theme.css?v=20251014-3">
+    <script src="js/menu.js"></script>
     <style>
         * {
             margin: 0;
@@ -53,31 +17,12 @@
             background: #f8f9fa;
             height: 100vh;
             overflow: hidden;
-            /* Always apply margins for layout consistency */
-            margin-left: 260px !important;
-            margin-top: 80px !important;
-        }<style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
-            /* Add margin for menu and header */
-            margin-left: 260px;
-            margin-top: 80px;
         }
 
         /* Main Layout */
         .admin-container {
             display: flex;
-            height: calc(100vh - 80px); /* Subtract header height */
-            width: calc(100vw - 260px); /* Subtract menu width */
+            height: 100vh;
         }
 
         /* Left Sidebar - Admin List */
@@ -532,17 +477,17 @@
         <!-- Left Sidebar - Admin List -->
         <div class="admin-sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-title">ðŸ‘¨â€ðŸ’¼ à¸ˆà¸±à¸”à¸à¸²à¸£à¹à¸­à¸”à¸¡à¸´à¸™</div>
-                <div class="sidebar-subtitle">à¸£à¸°à¸šà¸šà¸ˆà¸±à¸”à¸à¸²à¸£à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸œà¸¹à¹‰à¸”à¸¹à¹à¸¥à¸£à¸°à¸šà¸š</div>
+                <div class="sidebar-title">👨‍💼 จัดการแอดมิน</div>
+                <div class="sidebar-subtitle">ระบบจัดการข้อมูลผู้ดูแลระบบ</div>
             </div>
 
             <div class="admin-controls">
                 <div class="search-container">
-                    <input type="text" id="searchInput" class="search-input" placeholder="à¸„à¹‰à¸™à¸«à¸²à¹à¸­à¸”à¸¡à¸´à¸™...">
-                    <i class="search-icon">ðŸ”</i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาแอดมิน...">
+                    <i class="search-icon">🔍</i>
                 </div>
                 <button class="add-admin-btn" onclick="openAddModal()">
-                    âž• à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆ
+                    ➕ เพิ่มแอดมินใหม่
                 </button>
             </div>
 
@@ -552,9 +497,9 @@
                         <div class="loading-spinner"></div>
                     </div>
                     <div class="admin-info">
-                        <div class="admin-name">à¸à¸³à¸¥à¸±à¸‡à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥...</div>
+                        <div class="admin-name">กำลังโหลดข้อมูล...</div>
                         <div class="admin-details">
-                            <span>à¹‚à¸›à¸£à¸”à¸£à¸­à¸ªà¸±à¸à¸„à¸£à¸¹à¹ˆ</span>
+                            <span>โปรดรอสักครู่</span>
                         </div>
                     </div>
                 </div>
@@ -564,15 +509,15 @@
         <!-- Main Content -->
         <div class="admin-main">
             <div class="main-header">
-                <div class="main-title">à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™</div>
-                <div class="main-subtitle">à¹€à¸¥à¸·à¸­à¸à¹à¸­à¸”à¸¡à¸´à¸™à¸ˆà¸²à¸à¸£à¸²à¸¢à¸à¸²à¸£à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹à¸¥à¸°à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</div>
+                <div class="main-title">ข้อมูลแอดมิน</div>
+                <div class="main-subtitle">เลือกแอดมินจากรายการเพื่อดูและแก้ไขข้อมูล</div>
             </div>
 
             <div class="admin-detail" id="adminDetail">
                 <div class="empty-state">
-                    <div class="empty-icon">ðŸ‘¥</div>
-                    <h3>à¹€à¸¥à¸·à¸­à¸à¹à¸­à¸”à¸¡à¸´à¸™à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</h3>
-                    <p>à¸„à¸¥à¸´à¸à¸—à¸µà¹ˆà¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸™à¸£à¸²à¸¢à¸à¸²à¸£à¸”à¹‰à¸²à¸™à¸‹à¹‰à¸²à¸¢à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹à¸¥à¸°à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</p>
+                    <div class="empty-icon">👥</div>
+                    <h3>เลือกแอดมินเพื่อดูข้อมูล</h3>
+                    <p>คลิกที่แอดมินในรายการด้านซ้ายเพื่อดูและแก้ไขข้อมูล</p>
                 </div>
             </div>
         </div>
@@ -582,7 +527,7 @@
     <div id="adminModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle">à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆ</h3>
+                <h3 id="modalTitle">เพิ่มแอดมินใหม่</h3>
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
             <div class="modal-body">
@@ -592,7 +537,7 @@
                     <input type="hidden" id="adminId" />
                     
                     <div class="form-group">
-                        <label class="form-label" for="fullName">à¸Šà¸·à¹ˆà¸­à¹€à¸•à¹‡à¸¡ *</label>
+                        <label class="form-label" for="fullName">ชื่อเต็ม *</label>
                         <input type="text" id="fullName" class="form-input" required>
                     </div>
 
@@ -602,18 +547,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="email">Email</label>
-                        <input type="email" id="email" class="form-input" placeholder="example@kingchat.com">
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-label" for="password">Password *</label>
                         <input type="password" id="password" class="form-input" required>
-                        <small style="color: #6c757d;">à¹ƒà¸ªà¹ˆà¹€à¸‰à¸žà¸²à¸°à¹€à¸¡à¸·à¹ˆà¸­à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸£à¸«à¸±à¸ªà¸œà¹ˆà¸²à¸™</small>
+                        <small style="color: #6c757d;">ใส่เฉพาะเมื่อต้องการเปลี่ยนรหัสผ่าน</small>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="role">à¸šà¸—à¸šà¸²à¸— *</label>
+                        <label class="form-label" for="role">บทบาท *</label>
                         <select id="role" class="form-select" required>
                             <option value="admin">Admin</option>
                             <option value="super_admin">Super Admin</option>
@@ -621,9 +561,9 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">à¸¢à¸à¹€à¸¥à¸´à¸</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
                         <button type="submit" class="btn btn-primary">
-                            <span id="submitText">à¸šà¸±à¸™à¸—à¸¶à¸</span>
+                            <span id="submitText">บันทึก</span>
                         </button>
                     </div>
                 </form>
@@ -639,7 +579,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('ðŸš€ Admin Management Page loaded');
+            console.log('🚀 Admin Management Page loaded');
             
             // Initialize theme and menu
             try {
@@ -647,9 +587,7 @@
                     loadTheme();
                 }
                 if (typeof KingChatMenu !== 'undefined') {
-                if (typeof KingChatMenu !== 'undefined') {
                     window.KingChatMenuInstance = new KingChatMenu();
-                }
                 }
             } catch (e) {
                 console.warn('Theme/Menu initialization failed:', e);
@@ -668,27 +606,27 @@
         // Load admins from API
         async function loadAdmins() {
             try {
-                console.log('ðŸ”„ Loading admins...');
+                console.log('🔄 Loading admins...');
                 
-                const response = await fetch(`${API_BASE_URL}/admin/users`);
+                const response = await fetch(`${API_BASE_URL}/admin`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 admins = await response.json();
-                console.log('ðŸ“Š Loaded admins:', admins.length);
+                console.log('📊 Loaded admins:', admins.length);
                 
                 displayAdmins(admins);
                 
             } catch (error) {
-                console.error('âŒ Error loading admins:', error);
-                showError('à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™: ' + error.message);
+                console.error('❌ Error loading admins:', error);
+                showError('เกิดข้อผิดพลาดในการโหลดข้อมูลแอดมิน: ' + error.message);
                 
                 document.getElementById('adminsList').innerHTML = `
                     <div class="admin-item">
-                        <div class="admin-avatar" style="background: #dc3545;">âŒ</div>
+                        <div class="admin-avatar" style="background: #dc3545;">❌</div>
                         <div class="admin-info">
-                            <div class="admin-name">à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”</div>
+                            <div class="admin-name">เกิดข้อผิดพลาด</div>
                             <div class="admin-details">
                                 <span style="color: #dc3545;">${error.message}</span>
                             </div>
@@ -705,11 +643,11 @@
             if (!adminList || adminList.length === 0) {
                 container.innerHTML = `
                     <div class="admin-item">
-                        <div class="admin-avatar">ðŸ‘¥</div>
+                        <div class="admin-avatar">👥</div>
                         <div class="admin-info">
-                            <div class="admin-name">à¹„à¸¡à¹ˆà¸žà¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™</div>
+                            <div class="admin-name">ไม่พบข้อมูลแอดมิน</div>
                             <div class="admin-details">
-                                <span>à¸à¸”à¸›à¸¸à¹ˆà¸¡à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆà¹€à¸žà¸·à¹ˆà¸­à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™</span>
+                                <span>กดปุ่มเพิ่มแอดมินใหม่เพื่อเริ่มต้น</span>
                             </div>
                         </div>
                     </div>
@@ -772,13 +710,13 @@
                         <div class="detail-avatar ${roleClass}">${initial}</div>
                         <div class="detail-info">
                             <h2>${admin.fullName || admin.username}</h2>
-                            <p>@${admin.username} â€¢ ${roleText}</p>
+                            <p>@${admin.username} • ${roleText}</p>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">à¸Šà¸·à¹ˆà¸­à¹€à¸•à¹‡à¸¡</label>
-                        <div class="form-input" style="background: #f8f9fa;">${admin.fullName || 'à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸'}</div>
+                        <label class="form-label">ชื่อเต็ม</label>
+                        <div class="form-input" style="background: #f8f9fa;">${admin.fullName || 'ไม่ระบุ'}</div>
                     </div>
                     
                     <div class="form-group">
@@ -787,21 +725,21 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">à¸šà¸—à¸šà¸²à¸—</label>
+                        <label class="form-label">บทบาท</label>
                         <div class="form-input" style="background: #f8f9fa;">${roleText}</div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">à¸£à¸«à¸±à¸ªà¸›à¸£à¸°à¸ˆà¸³à¸•à¸±à¸§</label>
+                        <label class="form-label">รหัสประจำตัว</label>
                         <div class="form-input" style="background: #f8f9fa;">#${admin.id}</div>
                     </div>
                     
                     <div class="action-buttons">
                         <button class="btn btn-primary" onclick="openEditModal(${admin.id})">
-                            âœï¸ à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥
+                            ✏️ แก้ไขข้อมูล
                         </button>
                         <button class="btn btn-danger" onclick="confirmDelete(${admin.id})">
-                            ðŸ—‘ï¸ à¸¥à¸šà¹à¸­à¸”à¸¡à¸´à¸™
+                            🗑️ ลบแอดมิน
                         </button>
                     </div>
                 </div>
@@ -821,8 +759,8 @@
         // Modal functions
         function openAddModal() {
             isEditMode = false;
-            document.getElementById('modalTitle').textContent = 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¸¡à¹ˆ';
-            document.getElementById('submitText').textContent = 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™';
+            document.getElementById('modalTitle').textContent = 'เพิ่มแอดมินใหม่';
+            document.getElementById('submitText').textContent = 'เพิ่มแอดมิน';
             document.getElementById('adminForm').reset();
             document.getElementById('adminId').value = '';
             document.getElementById('password').required = true;
@@ -835,13 +773,12 @@
             if (!admin) return;
             
             isEditMode = true;
-            document.getElementById('modalTitle').textContent = 'à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹à¸­à¸”à¸¡à¸´à¸™';
-            document.getElementById('submitText').textContent = 'à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¹à¸à¹‰à¹„à¸‚';
+            document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลแอดมิน';
+            document.getElementById('submitText').textContent = 'บันทึกการแก้ไข';
             
             document.getElementById('adminId').value = admin.id;
             document.getElementById('fullName').value = admin.fullName || '';
             document.getElementById('username').value = admin.username;
-            document.getElementById('email').value = admin.email || '';
             document.getElementById('password').value = '';
             document.getElementById('password').required = false;
             document.getElementById('role').value = admin.role;
@@ -857,36 +794,13 @@
         // Form submission
         async function handleFormSubmit(e) {
             e.preventDefault();
-            clearAlert();
             
             const formData = {
-                fullName: document.getElementById('fullName').value.trim(),
-                username: document.getElementById('username').value.trim(),
-                email: document.getElementById('email').value.trim(),
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
                 password: document.getElementById('password').value,
                 role: document.getElementById('role').value
             };
-            
-            // Frontend validation
-            if (!formData.fullName) {
-                showError('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸Šà¸·à¹ˆà¸­à¹€à¸•à¹‡à¸¡');
-                return;
-            }
-            
-            if (!formData.username) {
-                showError('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸ Username');
-                return;
-            }
-            
-            if (!isEditMode && !formData.password) {
-                showError('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸ Password');
-                return;
-            }
-            
-            if (formData.password && formData.password.length < 6) {
-                showError('Password à¸•à¹‰à¸­à¸‡à¸¡à¸µà¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 6 à¸•à¸±à¸§à¸­à¸±à¸à¸©à¸£');
-                return;
-            }
             
             // Remove empty password for edit mode
             if (isEditMode && !formData.password) {
@@ -905,7 +819,7 @@
                         body: JSON.stringify(formData)
                     });
                 } else {
-                    response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    response = await fetch(`${API_BASE_URL}/admin`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
@@ -913,17 +827,11 @@
                 }
                 
                 if (!response.ok) {
-                    let errorMessage = 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”';
-                    try {
-                        const error = await response.json();
-                        errorMessage = error.error || error.message || errorMessage;
-                    } catch (e) {
-                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                    }
-                    throw new Error(errorMessage);
+                    const error = await response.json();
+                    throw new Error(error.message || 'เกิดข้อผิดพลาด');
                 }
                 
-                showSuccess(isEditMode ? 'à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸ªà¸³à¹€à¸£à¹‡à¸ˆ!' : 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™à¸ªà¸³à¹€à¸£à¹‡à¸ˆ!');
+                showSuccess(isEditMode ? 'แก้ไขข้อมูลสำเร็จ!' : 'เพิ่มแอดมินสำเร็จ!');
                 
                 setTimeout(() => {
                     closeModal();
@@ -931,10 +839,10 @@
                 }, 1500);
                 
             } catch (error) {
-                console.error('âŒ Form submission error:', error);
+                console.error('❌ Form submission error:', error);
                 showError(error.message);
             } finally {
-                document.getElementById('submitText').textContent = isEditMode ? 'à¸šà¸±à¸™à¸—à¸¶à¸à¸à¸²à¸£à¹à¸à¹‰à¹„à¸‚' : 'à¹€à¸žà¸´à¹ˆà¸¡à¹à¸­à¸”à¸¡à¸´à¸™';
+                document.getElementById('submitText').textContent = isEditMode ? 'บันทึกการแก้ไข' : 'เพิ่มแอดมิน';
             }
         }
 
@@ -943,7 +851,7 @@
             const admin = admins.find(a => a.id === adminId);
             if (!admin) return;
             
-            if (confirm(`à¸„à¸¸à¸“à¹à¸™à¹ˆà¹ƒà¸ˆà¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆà¸—à¸µà¹ˆà¸ˆà¸°à¸¥à¸šà¹à¸­à¸”à¸¡à¸´à¸™ "${admin.fullName || admin.username}"?\n\nà¸à¸²à¸£à¸à¸£à¸°à¸—à¸³à¸™à¸µà¹‰à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸¢à¹‰à¸­à¸™à¸à¸¥à¸±à¸šà¹„à¸”à¹‰`)) {
+            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบแอดมิน "${admin.fullName || admin.username}"?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้`)) {
                 deleteAdmin(adminId);
             }
         }
@@ -957,18 +865,18 @@
                 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.message || 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¸¥à¸š');
+                    throw new Error(error.message || 'เกิดข้อผิดพลาดในการลบ');
                 }
                 
-                showSuccess('à¸¥à¸šà¹à¸­à¸”à¸¡à¸´à¸™à¸ªà¸³à¹€à¸£à¹‡à¸ˆ!');
+                showSuccess('ลบแอดมินสำเร็จ!');
                 
                 // Reset detail view if deleted admin was selected
                 if (selectedAdminId === adminId) {
                     document.getElementById('adminDetail').innerHTML = `
                         <div class="empty-state">
-                            <div class="empty-icon">ðŸ‘¥</div>
-                            <h3>à¹€à¸¥à¸·à¸­à¸à¹à¸­à¸”à¸¡à¸´à¸™à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</h3>
-                            <p>à¸„à¸¥à¸´à¸à¸—à¸µà¹ˆà¹à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸™à¸£à¸²à¸¢à¸à¸²à¸£à¸”à¹‰à¸²à¸™à¸‹à¹‰à¸²à¸¢à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹à¸¥à¸°à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥</p>
+                            <div class="empty-icon">👥</div>
+                            <h3>เลือกแอดมินเพื่อดูข้อมูล</h3>
+                            <p>คลิกที่แอดมินในรายการด้านซ้ายเพื่อดูและแก้ไขข้อมูล</p>
                         </div>
                     `;
                 }
@@ -976,8 +884,8 @@
                 loadAdmins();
                 
             } catch (error) {
-                console.error('âŒ Delete error:', error);
-                showError('à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¸¥à¸š: ' + error.message);
+                console.error('❌ Delete error:', error);
+                showError('เกิดข้อผิดพลาดในการลบ: ' + error.message);
             }
         }
 
@@ -1004,6 +912,8 @@
             }
         }
     </script>
+    
+    <!-- Include admin management functions -->
+    <script src="js/admin-management.js"></script>
 </body>
 </html>
-

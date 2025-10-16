@@ -1,33 +1,19 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet')console.log('🎯 PRODUCTION MODE: Using PostgreSQL Database Connection');
-
-// Production database connection
-const connectDatabase = async () => {
-  console.log('🔌 Connecting to Railway PostgreSQL database...');
-  console.log('📍 Database: postgresql://postgres:***@postgres-kbtt.railway.internal:5432/railway');
-  
-  try {
-    await initializeDatabase();
-    console.log('✅ Production PostgreSQL database ready for use');
-  } catch (error) {
-    console.error('❌ CRITICAL: Production database connection failed:', error.message);
-    console.error('   Please check Railway PostgreSQL database status');
-  }
-};teLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
 
+console.log('🎯 PRODUCTION MODE: Using PostgreSQL Database Connection');
+
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-// Import database models (PRODUCTION POSTGRESQL)
-const { getPool, isDatabaseConnected, executeQuery, initializeDatabase } = require('./models/database-production');
-
-// Initialize admin table on startup
-const { createAdminTable } = require('./init-admin-table');
+// Import database models (PRODUCTION POSTGRESQL WITH FALLBACK)
+const { getPool, isDatabaseConnected, executeQuery, initializeDatabase, getStatus } = require('./models/database-production-fallback');
 
 // Debug environment variables
 console.log('🔧 Environment check:');
@@ -41,20 +27,13 @@ console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT ? 'SET' :
 const app = express();
 const server = http.createServer(app);
 
-// Security middleware
+// Trust proxy for Railway deployment
+app.set('trust proxy', 1);
+
+// Security middleware - Disable CSP for development
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "ws:", "wss:", "https:", "http:"],
-      fontSrc: ["'self'", "data:", "https:"],
-      mediaSrc: ["'self'", "data:", "blob:"],
-      frameSrc: ["'self'"]
-    }
-  }
+  contentSecurityPolicy: false, // Disable CSP entirely
+  crossOriginEmbedderPolicy: false
 }));
 
 // Rate limiting (more lenient for development)
@@ -111,33 +90,35 @@ const io = socketIO(server, {
   }
 });
 
-console.log('🎯 Using DIRECT database connection - NO FALLBACKS TO MOCK DATA');
-
-// Force Railway to use fallback-primary (no database connection attempts)
-process.env.FORCE_FALLBACK_PRIMARY = 'true';
-console.log('� FORCE_FALLBACK_PRIMARY enabled - bypassing all database connections');
-
-// Disable database connection attempts entirely
+// Production database connection
 const connectDatabase = async () => {
-  console.log('⚠️ Database connection disabled - using fallback-primary mode only');
-  console.log('✅ Fallback-primary system ready for immediate use');
+  console.log('🔌 Connecting to Railway PostgreSQL database...');
+  console.log('📍 Database: postgresql://postgres:***@postgres-kbtt.railway.internal:5432/railway');
+  
+  try {
+    await initializeDatabase();
+    console.log('✅ Production PostgreSQL database ready for use');
+  } catch (error) {
+    console.error('❌ CRITICAL: Production database connection failed:', error.message);
+    console.error('   Please check Railway PostgreSQL database status');
+  }
 };
 
 // Start database connection (non-blocking)
 connectDatabase();
 
-// Import routes with direct database connection (NO FALLBACKS)
+// Import routes with production database connection
 let authRoutes, adminAuthRoutes, adminRoutes, lineAccountRoutes, rolesRoutes;
 
-console.log('🎯 Loading DIRECT database routes (NO MOCK DATA)...');
+console.log('🎯 Loading PRODUCTION database routes...');
 
-// Load auth routes with fallback-primary system (no database timeouts)
+// Load auth routes with production database connection
 try {
-  authRoutes = require('./routes/auth-fallback-primary');
-  console.log('✅ Auth routes loaded from auth-fallback-primary.js (FALLBACK-FIRST)');
+  authRoutes = require('./routes/auth-production');
+  console.log('✅ Auth routes loaded from auth-production.js (POSTGRESQL DATABASE)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load auth-fallback-primary routes:', error.message);
-  process.exit(1); // Exit if fallback-primary routes fail
+  console.error('❌ CRITICAL: Failed to load auth-production routes:', error.message);
+  process.exit(1); // Exit if production routes fail
 }
 
 // Load admin authentication routes
@@ -152,19 +133,19 @@ try {
   });
 }
 
-// Load admin routes with hybrid system (database + fallback)
+// Load admin routes with production database connection
 try {
-  adminRoutes = require('./routes/admin-hybrid');
-  console.log('✅ Admin routes loaded from admin-hybrid.js (DATABASE + FALLBACK)');
+  adminRoutes = require('./routes/admin-production');
+  console.log('✅ Admin routes loaded from admin-production.js (POSTGRESQL DATABASE)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load admin-hybrid routes:', error.message);
-  process.exit(1); // Exit if hybrid routes fail
+  console.error('❌ CRITICAL: Failed to load admin-production routes:', error.message);
+  process.exit(1); // Exit if production routes fail
 }
 
 try {
   lineAccountRoutes = require('./routes/lineAccounts');
   rolesRoutes = require('./routes/roles');
-  console.log('✅ Routes loaded successfully');
+  console.log('✅ Additional routes loaded successfully');
 } catch (error) {
   console.error('❌ Error loading additional routes:', error.message);
   console.log('⚠️  Server will start with limited functionality');
@@ -181,560 +162,210 @@ try {
   });
 }
 
-// API routes
-console.log('🔗 Mounting API routes...');
-app.use('/api/auth', authRoutes);
-console.log('✅ Auth routes mounted at /api/auth');
-app.use('/api/admin-auth', adminAuthRoutes);  // Admin authentication
-app.use('/api/admin', adminRoutes);           // Admin CRUD operations
-app.use('/api/line', lineAccountRoutes);
-app.use('/api/roles', rolesRoutes);
-
-// Customers API endpoint
-app.get('/api/customers', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM customers ORDER BY created_at DESC');
-    res.json({ 
-      success: true, 
-      data: result.rows 
+// Main route - redirect to login
+app.get('/', (req, res) => {
+  // Check if this is an API request
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    res.json({
+      status: 'online',
+      message: 'KingChat Server - Production Mode',
+      timestamp: new Date().toISOString(),
+      database: isDatabaseConnected() ? 'connected' : 'disconnected',
+      environment: process.env.NODE_ENV || 'development'
     });
-  } catch (error) {
-    console.error('Error fetching customers:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to fetch customers',
-      data: []
-    });
+  } else {
+    // Serve login page for browser requests
+    res.sendFile(path.join(__dirname, '../client/login.html'));
   }
 });
 
-// Test endpoint
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    success: true, 
-    message: 'API is working', 
-    timestamp: new Date().toISOString(),
-    auth_routes_loaded: !!authRoutes
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    database: isDatabaseConnected(),
+    timestamp: new Date().toISOString()
   });
 });
 
-// Serve static files from client directory (for Railway deployment)
-if (process.env.NODE_ENV === 'production' && process.env.RAILWAY_ENVIRONMENT) {
-  console.log('🌐 Serving static files from client directory');
-  
-  // Primary static files - serve both directories for maximum compatibility
-  app.use(express.static(path.join(__dirname, 'client'), {
-    maxAge: '1d',
-    etag: false,
-    setHeaders: (res, path) => {
-      if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      }
-    }
-  }));
-  
-  // Serve from parent client directory
-  app.use(express.static(path.join(__dirname, '../client'), {
-    maxAge: '1d',
-    etag: false,
-    setHeaders: (res, path) => {
-      if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      }
-    }
-  }));
-  
-  // Serve from root directory for files like admin-working.html
-  app.use(express.static(path.join(__dirname, '../'), {
-    maxAge: '1d',
-    etag: false,
-    setHeaders: (res, path) => {
-      if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      }
-    }
-  }));
-  
-  // Serve CSS and JS specifically
-  app.get('/css/*', (req, res) => {
-    const filePath = path.join(__dirname, 'client', req.path);
-    res.setHeader('Content-Type', 'text/css');
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        const fallbackPath = path.join(__dirname, '../client', req.path);
-        res.sendFile(fallbackPath, (err2) => {
-          if (err2) {
-            res.status(404).send('CSS file not found');
-          }
-        });
-      }
-    });
+// API status endpoint for debugging
+app.get('/api/server-status', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'KingChat Server - Production Mode',
+    timestamp: new Date().toISOString(),
+    database: isDatabaseConnected() ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV || 'development'
   });
-  
-  app.get('/js/*', (req, res) => {
-    const filePath = path.join(__dirname, 'client', req.path);
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        const fallbackPath = path.join(__dirname, '../client', req.path);
-        res.sendFile(fallbackPath, (err2) => {
-          if (err2) {
-            res.status(404).send('JS file not found');
-          }
-        });
-      }
-    });
-  });
-  
-  // Serve client pages
-  app.get('/pages/*', (req, res) => {
-    const filePath = path.join(__dirname, '../client', req.path);
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        res.status(404).json({ error: 'Page not found' });
-      }
-    });
-  });
-  
-  // Serve main pages
-  app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/login.html'));
-  });
-  
-  app.get('/login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/login.html'));
-  });
-  
-  app.get('/chat', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/chat.html'));
-  });
-  
-  app.get('/chat.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/chat.html'));
-  });
-  
-  app.get('/accounts', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/accounts-working.html'));
-  });
-  
-  app.get('/line-connect', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/line-connect.html'));
-  });
-  
-  app.get('/line-connect.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/line-connect.html'));
-  });
-  
-  app.get('/customers', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/customers-working.html'));
-  });
-  
-  app.get('/settings', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/settings-working.html'));
-  });
-  
-  app.get('/quick-messages', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/quick-messages-working.html'));
-  });
-  
-  app.get('/quick-messages-working.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/quick-messages-working.html'));
-  });
-  
-  // Alternative route for client folder
-  app.get('/quick-messages-alt.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/quick-messages-working.html'));
-  });
-  
-  app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/admin-working.html'));
-  });
-  
-  app.get('/admin-management', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/admin-working.html'));
-  });
-  
-  app.get('/admin-working', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/admin-working.html'));
-  });
+});
 
-  // Default route serves login page
-  app.get('/', (req, res) => {
-    console.log('🏠 Root route accessed, redirecting to login');
-    res.sendFile(path.join(__dirname, '../client/login.html'));
+// Database status endpoint
+app.get('/api/status', (req, res) => {
+  const dbStatus = getStatus();
+  res.json({
+    status: 'running',
+    mode: 'production',
+    database: isDatabaseConnected() ? 'postgresql' : 'fallback',
+    timestamp: new Date().toISOString(),
+    ...dbStatus
   });
-} else {
-  // Development - API only mode
-  app.get('/', (req, res) => {
-    res.json({ 
-      message: '👑 KingChat API Server',
-      version: '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
-      docs: '/api/docs',
-      health: '/health',
-      frontend: 'http://localhost:3000'
-    });
-  });
-}
+});
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('👤 User connected:', socket.id);
+// API Routes
+console.log('🔗 Mounting API routes...');
+app.use('/api/auth', authRoutes);
+console.log('✅ Auth routes mounted at /api/auth');
 
-  // Join customer room
-  socket.on('join_customer', (customerId) => {
-    socket.join(`customer_${customerId}`);
-    console.log(`👤 User ${socket.id} joined customer room: ${customerId}`);
-  });
+app.use('/api/admin-auth', adminAuthRoutes);
+console.log('✅ Admin auth routes mounted at /api/admin-auth');
 
-  // Handle new message
-  socket.on('new_message', async (data) => {
-    try {
-      const Message = require('./models/Message');
-      const Customer = require('./models/Customer');
+app.use('/api/admin', adminRoutes);
+console.log('✅ Admin routes mounted at /api/admin');
 
-      // Save message to database
-      const newMessage = new Message({
-        customer: data.customerId,
-        lineOA: data.lineOA,
-        sender: data.sender || null,
-        messageType: data.messageType || 'text',
-        content: data.content,
-        direction: data.direction || 'outgoing',
-        status: 'sent',
-        isRead: false
-      });
+app.use('/api/line-accounts', lineAccountRoutes);
+console.log('✅ LINE account routes mounted at /api/line-accounts');
 
-      const savedMessage = await newMessage.save();
-      await savedMessage.populate(['customer', 'sender', 'lineOA']);
+app.use('/api/roles', rolesRoutes);
+console.log('✅ Roles routes mounted at /api/roles');
 
-      // Update customer's last message time
-      await Customer.findByIdAndUpdate(data.customerId, {
-        lastMessageAt: new Date(),
-        hasUnreadMessages: data.direction === 'incoming'
-      });
+// Serve static files from client directory
+console.log('🌐 Serving static files from client directory');
+app.use(express.static(path.join(__dirname, '../client')));
 
-      // Emit to customer room
-      io.to(`customer_${data.customerId}`).emit('message_received', {
-        ...savedMessage.toObject(),
-        timestamp: savedMessage.createdAt
-      });
+// Specific routes for main pages
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/login.html'));
+});
 
-    } catch (error) {
-      console.error('Error saving message:', error);
-      socket.emit('message_error', { error: 'Failed to send message' });
-    }
-  });
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/admin-working.html'));
+});
 
-  // Handle typing indicator
-  socket.on('typing', (data) => {
-    socket.to(`customer_${data.customerId}`).emit('user_typing', data);
-  });
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/chat.html'));
+});
 
-  // Handle message read status
-  socket.on('mark_read', async (data) => {
-    try {
-      const Message = require('./models/Message');
-      await Message.updateMany(
-        { customer: data.customerId, isRead: false, direction: 'incoming' },
-        { isRead: true, readAt: new Date() }
-      );
-      
-      io.to(`customer_${data.customerId}`).emit('messages_read', data);
-    } catch (error) {
-      console.error('Error marking messages as read:', error);
-    }
-  });
+app.get('/customers', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/customers.html'));
+});
 
-  socket.on('disconnect', () => {
-    console.log('👤 User disconnected:', socket.id);
-  });
+app.get('/settings', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/settings.html'));
+});
+
+// Catch-all route for SPA
+app.get('*', (req, res) => {
+  // Check if login.html exists, otherwise serve a simple response
+  const loginPath = path.join(__dirname, '../client/login.html');
+  const fs = require('fs');
+  
+  if (fs.existsSync(loginPath)) {
+    res.sendFile(loginPath);
+  } else {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>KingChat - Production</title>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+          .status { background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0; }
+          .link { background: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+        </style>
+      </head>
+      <body>
+        <h1>🚀 KingChat Production Server</h1>
+        <div class="status">
+          <p>✅ Server is running successfully!</p>
+          <p>📊 Status: Online</p>
+          <p>🗃️ Database: ${isDatabaseConnected() ? 'Connected' : 'Fallback Mode'}</p>
+        </div>
+        <h3>📱 Available Pages:</h3>
+        <a href="/login.html" class="link">Login</a>
+        <a href="/admin-working.html" class="link">Admin</a>
+        <a href="/chat.html" class="link">Chat</a>
+        <a href="/customers.html" class="link">Customers</a>
+        <a href="/settings.html" class="link">Settings</a>
+        <br><br>
+        <h3>🔧 API Endpoints:</h3>
+        <a href="/api/status" class="link">API Status</a>
+        <a href="/api/admin/users" class="link">Admin Users</a>
+      </body>
+      </html>
+    `);
+  }
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  console.error('💥 Server error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
 
-// Admin Management API Endpoints - PostgreSQL Version
-app.get('/api/admins', async (req, res) => {
-  try {
-    console.log('📊 Fetching admins from PostgreSQL database...');
-    
-    const result = await pool.query(
-      'SELECT id, username, role, status, created_at, last_login FROM admins ORDER BY created_at DESC'
-    );
-    
-    console.log(`✅ Retrieved ${result.rows.length} admins from PostgreSQL`);
-    res.json({ success: true, admins: result.rows });
-  } catch (error) {
-    console.error('❌ Error fetching admins from PostgreSQL:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to fetch admins from database',
-      details: error.message 
-    });
-  }
-});
-
-app.post('/api/admins', async (req, res) => {
-  try {
-    const { username, password, role } = req.body;
-    
-    if (!username || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Username and password are required' 
-      });
-    }
-
-    console.log(`➕ Creating new admin: ${username} with role: ${role || 'admin'}`);
-
-    // Check if username already exists
-    const existingUser = await pool.query(
-      'SELECT id FROM admins WHERE username = $1',
-      [username]
-    );
-    
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Username already exists' 
-      });
-    }
-
-    // Hash password
-    const bcrypt = require('bcrypt');
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
-    // Insert new admin
-    const result = await pool.query(
-      'INSERT INTO admins (username, password, role, status, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, username, role, status, created_at',
-      [username, hashedPassword, role || 'admin', 'active']
-    );
-    
-    const newAdmin = result.rows[0];
-    console.log(`✅ Created new admin: ${username}`);
-    res.status(201).json({ success: true, admin: newAdmin, message: 'Admin created successfully' });
-  } catch (error) {
-    console.error('❌ Error creating admin:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to create admin',
-      details: error.message 
-    });
-  }
-});
-
-app.put('/api/admins/:id', async (req, res) => {
-  try {
-    const adminId = parseInt(req.params.id);
-    const { username, password, role } = req.body;
-    
-    if (!username) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Username is required' 
-      });
-    }
-
-    console.log(`✏️ Updating admin ID ${adminId}: ${username}`);
-
-    // Check if admin exists
-    const existingAdmin = await pool.query(
-      'SELECT id FROM admins WHERE id = $1',
-      [adminId]
-    );
-    
-    if (existingAdmin.rows.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Admin not found' 
-      });
-    }
-
-    // Check if username is taken by another user
-    const usernameCheck = await pool.query(
-      'SELECT id FROM admins WHERE username = $1 AND id != $2',
-      [username, adminId]
-    );
-    
-    if (usernameCheck.rows.length > 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Username already exists' 
-      });
-    }
-
-    let updateQuery;
-    let updateParams;
-    
-    if (password) {
-      // Update with password
-      const bcrypt = require('bcrypt');
-      const saltRounds = 12;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-      
-      updateQuery = `
-        UPDATE admins 
-        SET username = $1, password = $2, role = $3, updated_at = NOW()
-        WHERE id = $4
-        RETURNING id, username, role, status, created_at, last_login
-      `;
-      updateParams = [username, hashedPassword, role || 'admin', adminId];
-    } else {
-      // Update without password
-      updateQuery = `
-        UPDATE admins 
-        SET username = $1, role = $2, updated_at = NOW()
-        WHERE id = $3
-        RETURNING id, username, role, status, created_at, last_login
-      `;
-      updateParams = [username, role || 'admin', adminId];
-    }
-
-    const result = await pool.query(updateQuery, updateParams);
-    const updatedAdmin = result.rows[0];
-
-    console.log(`✅ Updated admin: ${username}`);
-    res.json({ success: true, admin: updatedAdmin, message: 'Admin updated successfully' });
-  } catch (error) {
-    console.error('❌ Error updating admin:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to update admin',
-      details: error.message 
-    });
-  }
-});
-
-app.delete('/api/admins/:id', async (req, res) => {
-  try {
-    const adminId = parseInt(req.params.id);
-    console.log(`🗑️ Deleting admin ID ${adminId}`);
-
-    // Check if admin exists
-    const existingAdmin = await pool.query(
-      'SELECT id, username FROM admins WHERE id = $1',
-      [adminId]
-    );
-    
-    if (existingAdmin.rows.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Admin not found' 
-      });
-    }
-
-    // Prevent deleting the last admin
-    const adminCount = await pool.query('SELECT COUNT(*) as count FROM admins');
-    if (parseInt(adminCount.rows[0].count) <= 1) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Cannot delete the last admin' 
-      });
-    }
-
-    // Delete admin
-    await pool.query('DELETE FROM admins WHERE id = $1', [adminId]);
-
-    console.log(`✅ Deleted admin: ${existingAdmin.rows[0].username}`);
-    res.json({ 
-      success: true, 
-      message: `Admin ${existingAdmin.rows[0].username} deleted successfully` 
-    });
-  } catch (error) {
-    console.error('❌ Error deleting admin:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to delete admin',
-      details: error.message 
-    });
-  }
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
-
-// Start server
-// Fix for Railway setting PORT to PostgreSQL port (5432)
-let PORT = process.env.PORT || 5001;
-if (PORT == 5432) {
-  console.log('⚠️  WARNING: Railway set PORT to PostgreSQL port (5432), changing to 8080');
-  PORT = 8080;
-}
-console.log(`🔧 Using PORT: ${PORT}`);
-
-// Health check endpoint for Railway
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    port: PORT,
-    database: isDatabaseConnected ? 'connected' : 'disconnected'
-  });
-});
-
-// Warning for missing environment variables
-if (!process.env.JWT_SECRET) {
-  console.log('⚠️  WARNING: JWT_SECRET not set. Using default (change in production!)');
-}
-
-if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
-  console.log('⚠️  WARNING: No database URL set. Add MONGODB_URI environment variable');
-}
-
-server.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🚀 KingChat Server running on port ${PORT}`);
-  console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('👤 User connected:', socket.id);
   
-  // Only start ngrok in local development
-  if (process.env.NODE_ENV === 'development' && process.env.NGROK_AUTH_TOKEN && !process.env.RAILWAY_ENVIRONMENT) {
-    try {
-      // Connect with ngrok v5 API
-      const url = await ngrok.connect({
-        port: PORT,
-        authtoken: process.env.NGROK_AUTH_TOKEN,
-        region: 'ap',
-        onStatusChange: status => console.log(`📡 Ngrok status: ${status}`),
-        onLogEvent: data => console.log(`📋 Ngrok log: ${data}`)
-      });
-      
-      console.log(`🌐 Ngrok tunnel: ${url}`);
-      console.log(`📱 Use this URL for LINE webhook: ${url}/api/line/webhook`);
-      console.log(`🔗 Public URL: ${url}`);
-    } catch (error) {
-      console.log('⚠️  Ngrok tunnel failed:', error.message);
-      console.log('💡 Possible solutions:');
-      console.log('   - Check if ngrok auth token is valid');
-      console.log('   - Make sure ngrok is installed: npm install ngrok@latest');
-      console.log('   - Verify internet connection');
-      console.log('🚀 Server continues running without ngrok');
-    }
-  } else if (process.env.RAILWAY_ENVIRONMENT) {
-    console.log('🚂 Running on Railway - Ngrok disabled');
-  } else if (process.env.NODE_ENV === 'development') {
-    console.log('💡 Ngrok disabled: Set NGROK_AUTH_TOKEN in .env to enable tunnel');
+  socket.on('disconnect', () => {
+    console.log('👋 User disconnected:', socket.id);
+  });
+  
+  socket.on('join-room', (room) => {
+    socket.join(room);
+    console.log(`📢 User ${socket.id} joined room: ${room}`);
+  });
+  
+  socket.on('send-message', (data) => {
+    socket.to(data.room).emit('receive-message', data);
+    console.log('💬 Message sent to room:', data.room);
+  });
+});
+
+// Server startup
+const PORT = process.env.PORT || 5001;
+
+server.listen(PORT, () => {
+  console.log('🔧 Using PORT:', PORT);
+  console.log('🚀 KingChat Server running on port', PORT);
+  console.log('📱 Environment:', process.env.NODE_ENV || 'development');
+  console.log('🌐 CORS Origin:', process.env.CORS_ORIGIN || 'http://localhost:5001');
+  
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    console.log('🚂 Running on Railway - Production Mode');
+    console.log('🔗 Available at: https://kingchat.up.railway.app');
+  } else {
+    console.log('💻 Running locally');
+    console.log('🔗 Available at: http://localhost:' + PORT);
   }
 });
 
-module.exports = { app, io };
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('💤 Process terminated');
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('👋 SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('💤 Process terminated');
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('💥 Uncaught Exception:', error);
+  // Don't exit, just log
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit, just log
+});
+
+module.exports = { app, server, io };
