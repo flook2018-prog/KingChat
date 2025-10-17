@@ -643,4 +643,38 @@ router.get('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Emergency fallback endpoint for admins (no parameterized routes)
+router.get('/list-all', authenticateToken, async (req, res) => {
+  try {
+    console.log('🚨 Emergency fallback: Getting all admins');
+    
+    if (!pool || !poolInitialized) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database not connected',
+        poolInitialized,
+        poolInitError: poolInitError?.message
+      });
+    }
+
+    const result = await pool.query('SELECT id, username, email, role, status, created_at, updated_at FROM admins ORDER BY id');
+    
+    console.log(`✅ Emergency fallback: Retrieved ${result.rows.length} admins`);
+    res.json({
+      success: true,
+      data: result.rows,
+      message: `Retrieved ${result.rows.length} admins via emergency fallback`,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Emergency fallback error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Database connection error',
+      details: error.message
+    });
+  }
+});
+
 module.exports = router;

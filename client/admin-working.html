@@ -983,9 +983,9 @@
                 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
                 console.log('📡 Fetching admins from API...');
                 console.log('🔑 Token exists:', !!token);
-                console.log('🔗 Calling URL: /api/admin/admins (main endpoint)');
+                console.log('🔗 Calling URL: /api/admin/list-all (emergency fallback)');
                 
-                const response = await fetch('/api/admin/admins', {
+                const response = await fetch('/api/admin/list-all', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
