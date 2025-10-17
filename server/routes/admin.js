@@ -9,7 +9,7 @@ const { Pool } = require('pg');
 // Use Railway DATABASE_PUBLIC_URL directly from Variables
 const DATABASE_URL = process.env.DATABASE_PUBLIC_URL || 
                     process.env.DATABASE_URL || 
-                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@tramway.proxy.rlwy.net:48079/railway';
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@tramway.proxy.rlwy.net:40079/railway';
 
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 console.log('🔧 Environment variables check:');
