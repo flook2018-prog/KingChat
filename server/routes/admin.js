@@ -99,6 +99,49 @@ router.use((req, res, next) => {
   next();
 });
 
+// Simple database connection test
+router.get('/db-simple', async (req, res) => {
+  try {
+    console.log('🔍 Simple database test starting...');
+    
+    // Show what DATABASE_URL we're actually using
+    const urlToUse = DATABASE_URL.replace(/\/\/.*@/, '//***:***@');
+    console.log('🔗 Using URL:', urlToUse);
+    
+    // Try to get a client from the pool
+    const client = await pool.connect();
+    console.log('✅ Got client from pool');
+    
+    // Simple query
+    const result = await client.query('SELECT NOW() as current_time, 1 as test');
+    console.log('✅ Query executed successfully');
+    
+    client.release();
+    console.log('✅ Client released');
+    
+    res.json({
+      success: true,
+      message: 'Database connection successful',
+      result: result.rows[0],
+      database_url: urlToUse,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Simple database test failed:', error.message);
+    console.error('❌ Error stack:', error.stack);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Database connection failed',
+      details: error.message,
+      code: error.code,
+      database_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
   let token = null;
@@ -136,7 +179,24 @@ router.get('/test', (req, res) => {
     success: true, 
     message: 'Admin v2 routes working!',
     timestamp: new Date().toISOString(),
-    version: '2.0'
+    version: '2.0',
+    deployment: 'latest-with-retry-mechanism'
+  });
+});
+
+// Simple status endpoint without database
+router.get('/status', (req, res) => {
+  res.json({ 
+    success: true, 
+    server: 'online',
+    routes: 'loaded',
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      DATABASE_URL_EXISTS: !!process.env.DATABASE_URL,
+      DATABASE_PUBLIC_URL_EXISTS: !!process.env.DATABASE_PUBLIC_URL,
+      RAILWAY_ENVIRONMENT: process.env.RAILWAY_ENVIRONMENT
+    },
+    timestamp: new Date().toISOString()
   });
 });
 
