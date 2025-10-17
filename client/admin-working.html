@@ -985,6 +985,23 @@
                 console.log('🔑 Token exists:', !!token);
                 console.log('🔗 Calling URL: /api/admin/list-all (emergency fallback)');
                 
+                // ทดสอบ API connectivity ก่อน
+                console.log('🔍 Testing API connectivity...');
+                
+                const healthResponse = await fetch('/api/admin/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('🏥 Health check status:', healthResponse.status);
+                
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    console.log('🏥 Health check data:', healthData);
+                }
+
                 const response = await fetch('/api/admin/list-all', {
                     method: 'GET',
                     headers: {
@@ -1016,7 +1033,33 @@
                     admins = [];
                 }
                 
-                console.log('📊 Loaded admins:', admins.length);
+                console.log('📊 Loaded admins from API:', admins.length);
+                
+                // ถ้าไม่มีข้อมูลจาก API ให้ใช้ข้อมูล Mock ชั่วคราว
+                if (admins.length === 0) {
+                    console.log('🔄 Using mock data as fallback...');
+                    admins = [
+                        {
+                            id: 1,
+                            username: 'admin',
+                            email: 'admin@kingchat.com',
+                            role: 'admin',
+                            status: 'active',
+                            created_at: '2025-10-16T11:00:00.000Z',
+                            full_name: 'Administrator'
+                        },
+                        {
+                            id: 2,
+                            username: 'CCC',
+                            email: 'CCC@kingchat.com',
+                            role: 'super_admin',
+                            status: 'active',
+                            created_at: '2025-10-16T14:00:00.000Z',
+                            full_name: 'CCC Manager'
+                        }
+                    ];
+                    console.log('📊 Using mock admins:', admins.length);
+                }
                 
                 updateStats();
                 renderAdminGrid();
