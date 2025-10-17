@@ -379,6 +379,155 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Emergency fallback endpoint for admin list (bypasses routing conflicts)
+router.get('/list-all', async (req, res) => {
+  try {
+    console.log('🚨 Emergency fallback: Getting all admins');
+    
+    const result = await executeQuery(
+      'SELECT id, username, email, role, status, created_at, updated_at FROM admins ORDER BY id'
+    );
+    
+    console.log(`✅ Emergency fallback: Retrieved ${result.rows.length} admins`);
+    res.json({
+      success: true,
+      data: result.rows,
+      message: `Retrieved ${result.rows.length} admins via emergency fallback`,
+      database: isDatabaseConnected() ? 'postgresql' : 'fallback',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Emergency fallback error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Database connection error',
+      details: error.message
+    });
+  }
+});
+
+// Health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    console.log('🏥 Health check requested...');
+    
+    if (!isDatabaseConnected()) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database not connected',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Quick database test
+    const result = await executeQuery('SELECT NOW() as current_time');
+    
+    res.json({
+      success: true,
+      message: 'Database connection healthy',
+      database: 'postgresql',
+      server_time: result.rows[0].current_time,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Health check failed:', error);
+    res.status(503).json({
+      success: false,
+      error: 'Database connection failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Database reset endpoint
+router.get('/reset-db', async (req, res) => {
+  try {
+    console.log('🔧 Database reset requested...');
+    
+    if (!isDatabaseConnected()) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database not connected',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Drop and recreate admins table
+    await executeQuery('DROP TABLE IF EXISTS admins CASCADE');
+    
+    await executeQuery(`
+      CREATE TABLE admins (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(100),
+        role VARCHAR(20) DEFAULT 'admin',
+        status VARCHAR(20) DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Create default admin
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await executeQuery(`
+      INSERT INTO admins (username, password, email, role, status)
+      VALUES ($1, $2, $3, $4, $5)
+    `, ['admin', hashedPassword, 'admin@kingchat.com', 'super_admin', 'active']);
+    
+    res.json({
+      success: true,
+      message: 'Database reset successfully',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Database reset failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Database reset failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Direct test endpoint
+router.get('/direct-test', async (req, res) => {
+  try {
+    console.log('🔍 Testing direct database connection...');
+    
+    if (!isDatabaseConnected()) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database not connected',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    const result = await executeQuery('SELECT NOW() as current_time, version() as pg_version');
+    
+    res.json({
+      success: true,
+      message: 'Direct database connection successful',
+      data: result.rows[0],
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Direct connection test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Direct database connection failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Include the new admin routes
 const adminRoutes = require('./admin-routes');
 
