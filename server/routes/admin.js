@@ -293,7 +293,90 @@ router.get('/db-test-alt', async (req, res) => {
   });
 });
 
-// Health check endpoint
+// Comprehensive database connection test
+router.get('/db-debug', async (req, res) => {
+  const connectionTests = [];
+  
+  // Test 1: Environment variables
+  const envTest = {
+    test: 'Environment Variables',
+    DATABASE_URL: process.env.DATABASE_URL ? 'Available' : 'Missing',
+    DATABASE_PUBLIC_URL: process.env.DATABASE_PUBLIC_URL ? 'Available' : 'Missing',
+    NODE_ENV: process.env.NODE_ENV,
+    RAILWAY_ENVIRONMENT: process.env.RAILWAY_ENVIRONMENT ? 'Available' : 'Missing'
+  };
+  connectionTests.push(envTest);
+  
+  // Test 2: Direct connection strings
+  const testConnections = [
+    {
+      name: 'Railway Public URL (from env)',
+      url: process.env.DATABASE_PUBLIC_URL,
+      expectedToWork: true
+    },
+    {
+      name: 'Railway Internal URL (from env)', 
+      url: process.env.DATABASE_URL,
+      expectedToWork: false // Internal might not work from external
+    },
+    {
+      name: 'Hardcoded Public URL',
+      url: 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway',
+      expectedToWork: true
+    }
+  ];
+  
+  for (const conn of testConnections) {
+    if (!conn.url) {
+      connectionTests.push({
+        name: conn.name,
+        status: 'SKIPPED',
+        reason: 'URL not available'
+      });
+      continue;
+    }
+    
+    try {
+      const testPool = new Pool({
+        connectionString: conn.url,
+        ssl: conn.url.includes('railway.internal') ? false : { rejectUnauthorized: false },
+        max: 1,
+        connectionTimeoutMillis: 10000
+      });
+      
+      const client = await testPool.connect();
+      const result = await client.query('SELECT NOW() as current_time, current_database() as db_name');
+      client.release();
+      await testPool.end();
+      
+      connectionTests.push({
+        name: conn.name,
+        status: 'SUCCESS',
+        url: conn.url.replace(/\/\/.*@/, '//***:***@'),
+        result: result.rows[0],
+        expectedToWork: conn.expectedToWork
+      });
+      
+    } catch (error) {
+      connectionTests.push({
+        name: conn.name,
+        status: 'FAILED',
+        url: conn.url.replace(/\/\/.*@/, '//***:***@'),
+        error: error.message,
+        code: error.code,
+        expectedToWork: conn.expectedToWork
+      });
+    }
+  }
+  
+  res.json({
+    success: true,
+    message: 'Database connection debugging complete',
+    tests: connectionTests,
+    recommendation: 'Use the connection that shows SUCCESS status',
+    timestamp: new Date().toISOString()
+  });
+});
 router.get('/health', (req, res) => {
   res.json({
     success: true,
