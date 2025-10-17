@@ -69,59 +69,66 @@ async function testDatabaseConnection(retries = 3) {
 }
 
 let pool;
-try {
-  pool = new Pool({
-    connectionString: DATABASE_URL,
-    ssl: { 
-      rejectUnauthorized: false,
-      require: true
-    },
-    max: 10,
-    idleTimeoutMillis: 60000,
-    connectionTimeoutMillis: 30000,
-    acquireTimeoutMillis: 60000,
-    // Additional connection options for Railway
-    keepAlive: true,
-    keepAliveInitialDelayMillis: 10000,
-    statement_timeout: 30000,
-    query_timeout: 30000
-  });
+let poolInitialized = false;
+let poolInitError = null;
 
-  // Handle pool errors
-  pool.on('error', (err) => {
-    console.error('❌ PostgreSQL pool error:', err);
-  });
+// Initialize pool with error handling
+async function initializePool() {
+  try {
+    console.log('🔄 Initializing PostgreSQL pool...');
+    
+    pool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: { 
+        rejectUnauthorized: false,
+        require: true
+      },
+      max: 10,
+      idleTimeoutMillis: 60000,
+      connectionTimeoutMillis: 30000,
+      acquireTimeoutMillis: 60000,
+      // Additional connection options for Railway
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
+      statement_timeout: 30000,
+      query_timeout: 30000
+    });
 
-  // Test connection on startup with retry logic
-  pool.on('connect', () => {
-    console.log('✅ PostgreSQL client connected successfully');
-  });
+    // Handle pool errors
+    pool.on('error', (err) => {
+      console.error('❌ PostgreSQL pool error:', err);
+      poolInitialized = false;
+      poolInitError = err;
+    });
 
-  // Test initial connection
-  (async () => {
-    try {
-      console.log('🔍 Testing initial database connection...');
-      const client = await pool.connect();
-      const result = await client.query('SELECT NOW() as current_time');
-      console.log('✅ Initial database test successful:', result.rows[0].current_time);
-      client.release();
-    } catch (error) {
-      console.error('❌ Initial database connection failed:', error.message);
-    }
-  })();
+    // Test connection on startup with retry logic
+    pool.on('connect', () => {
+      console.log('✅ PostgreSQL client connected successfully');
+    });
 
-  console.log('✅ Admin routes v2 loading with PostgreSQL database connection only');
-} catch (error) {
-  console.error('❌ CRITICAL: Failed to create PostgreSQL pool:', error);
-  console.log('⚠️  Admin routes will load with limited functionality');
-  
-  // Create a dummy pool for fallback
-  pool = {
-    query: async () => {
-      throw new Error('Database connection not available');
-    }
-  };
+    // Test initial connection
+    console.log('🔍 Testing initial database connection...');
+    const client = await pool.connect();
+    const result = await client.query('SELECT NOW() as current_time, version() as pg_version');
+    console.log('✅ Initial database test successful:', result.rows[0]);
+    client.release();
+    
+    poolInitialized = true;
+    poolInitError = null;
+    console.log('✅ PostgreSQL pool initialized successfully');
+    
+  } catch (error) {
+    console.error('❌ CRITICAL: Failed to initialize PostgreSQL pool:', error);
+    poolInitialized = false;
+    poolInitError = error;
+    
+    // Don't create dummy pool, let endpoints handle the error
+    pool = null;
+  }
 }
+
+// Initialize pool immediately
+initializePool();
 
 // Middleware to log all admin requests
 router.use((req, res, next) => {
@@ -176,6 +183,7 @@ router.get('/db-simple', async (req, res) => {
 router.get('/direct-test', authenticateToken, async (req, res) => {
   console.log('🔍 Testing direct database connection...');
   console.log('🔧 Using DATABASE_URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
+  console.log('🏊 Pool status - initialized:', poolInitialized, 'error:', poolInitError?.message);
   
   const { Pool } = require('pg');
   const directPool = new Pool({
@@ -234,6 +242,8 @@ router.get('/direct-test', authenticateToken, async (req, res) => {
 // Direct admins endpoint with fresh connection
 router.get('/admins-direct', authenticateToken, async (req, res) => {
   console.log('🔍 Getting admins with direct database connection...');
+  console.log('🔧 Using DATABASE_URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
+  console.log('🏊 Pool status - initialized:', poolInitialized, 'error:', poolInitError?.message);
   
   const { Pool } = require('pg');
   const directPool = new Pool({
@@ -247,13 +257,17 @@ router.get('/admins-direct', authenticateToken, async (req, res) => {
   });
 
   try {
+    console.log('🔗 Connecting to database for admins query...');
     const client = await directPool.connect();
+    console.log('✅ Connected successfully');
     
     // Check if admins table exists
+    console.log('📋 Checking if admins table exists...');
     const tableCheck = await client.query(`
       SELECT table_name FROM information_schema.tables 
       WHERE table_schema = 'public' AND table_name = 'admins'
     `);
+    console.log('🔍 Table check result:', tableCheck.rows.length > 0 ? 'exists' : 'does not exist');
     
     if (tableCheck.rows.length === 0) {
       // Create admins table
@@ -334,8 +348,51 @@ router.get('/test', (req, res) => {
     message: 'Admin v2 routes working!',
     timestamp: new Date().toISOString(),
     version: '2.0',
-    deployment: 'latest-with-retry-mechanism'
+    deployment: 'latest-with-retry-mechanism',
+    pool_status: pool ? 'initialized' : 'not_initialized',
+    pool_total_count: pool ? pool.totalCount : 0,
+    pool_idle_count: pool ? pool.idleCount : 0,
+    pool_waiting_count: pool ? pool.waitingCount : 0
   });
+});
+
+// Health check endpoint without authentication
+router.get('/health', async (req, res) => {
+  console.log('🏥 Health check requested...');
+  
+  try {
+    if (!pool) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database pool not initialized',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Quick connection test with timeout
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    
+    res.json({
+      success: true,
+      message: 'Database connection healthy',
+      pool_status: 'connected',
+      pool_total_count: pool.totalCount,
+      pool_idle_count: pool.idleCount,
+      pool_waiting_count: pool.waitingCount,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Health check failed:', error.message);
+    res.status(503).json({
+      success: false,
+      error: 'Database connection failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Simple status endpoint without database
