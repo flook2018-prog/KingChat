@@ -6,9 +6,9 @@ const router = express.Router();
 // Use direct database connection with Railway PostgreSQL
 const { Pool } = require('pg');
 
-// Use Railway DATABASE_PUBLIC_URL directly since we know it exists
+// Use Railway DATABASE_PUBLIC_URL directly from Variables
 const DATABASE_URL = process.env.DATABASE_PUBLIC_URL || 
-                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway';
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@tramway.proxy.rlwy.net:48079/railway';
 
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 console.log('🔧 Environment variables check:');
@@ -262,7 +262,7 @@ router.get('/db-test-alt', async (req, res) => {
   const testUrls = [
     process.env.DATABASE_PUBLIC_URL,
     process.env.DATABASE_URL, 
-    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway',
+    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@tramway.proxy.rlwy.net:48079/railway',
     'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway'
   ].filter(Boolean);
 
@@ -320,8 +320,8 @@ router.get('/db-debug', async (req, res) => {
       expectedToWork: false // Internal might not work from external
     },
     {
-      name: 'Hardcoded Public URL',
-      url: 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway',
+      name: 'Hardcoded Public URL (Correct)',
+      url: 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@tramway.proxy.rlwy.net:48079/railway',
       expectedToWork: true
     }
   ];
