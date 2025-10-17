@@ -143,6 +143,146 @@ router.get('/db-simple', async (req, res) => {
   }
 });
 
+// Direct database connection test
+router.get('/direct-test', async (req, res) => {
+  console.log('🔍 Testing direct database connection...');
+  
+  const { Pool } = require('pg');
+  const directPool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: { 
+      rejectUnauthorized: false,
+      require: true
+    },
+    max: 1,
+    connectionTimeoutMillis: 10000
+  });
+
+  try {
+    const client = await directPool.connect();
+    const result = await client.query('SELECT NOW() as current_time, version() as pg_version');
+    client.release();
+    await directPool.end();
+    
+    res.json({
+      success: true,
+      message: 'Direct database connection successful',
+      data: result.rows[0],
+      connection_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    await directPool.end();
+    console.error('❌ Direct database connection failed:', error.message);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Direct database connection failed',
+      details: error.message,
+      code: error.code,
+      connection_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Direct admins endpoint with fresh connection
+router.get('/admins-direct', authenticateToken, async (req, res) => {
+  console.log('🔍 Getting admins with direct database connection...');
+  
+  const { Pool } = require('pg');
+  const directPool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: { 
+      rejectUnauthorized: false,
+      require: true
+    },
+    max: 1,
+    connectionTimeoutMillis: 10000
+  });
+
+  try {
+    const client = await directPool.connect();
+    
+    // Check if admins table exists
+    const tableCheck = await client.query(`
+      SELECT table_name FROM information_schema.tables 
+      WHERE table_schema = 'public' AND table_name = 'admins'
+    `);
+    
+    if (tableCheck.rows.length === 0) {
+      // Create admins table
+      console.log('📋 Creating admins table...');
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS admins (
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(50) UNIQUE NOT NULL,
+          password VARCHAR(255) NOT NULL,
+          email VARCHAR(100),
+          role VARCHAR(20) DEFAULT 'admin',
+          status VARCHAR(20) DEFAULT 'active',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      console.log('✅ Admins table created successfully');
+    }
+    
+    // Get all admins
+    const result = await client.query('SELECT id, username, email, role, status, created_at, updated_at FROM admins ORDER BY id');
+    
+    // If no admins exist, create default admin
+    if (result.rows.length === 0) {
+      console.log('👤 Creating default admin...');
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      
+      await client.query(`
+        INSERT INTO admins (username, password, email, role, status)
+        VALUES ($1, $2, $3, $4, $5)
+      `, ['admin', hashedPassword, 'admin@kingchat.com', 'super_admin', 'active']);
+      
+      // Get admins again
+      const newResult = await client.query('SELECT id, username, email, role, status, created_at, updated_at FROM admins ORDER BY id');
+      client.release();
+      await directPool.end();
+      
+      return res.json({
+        success: true,
+        data: newResult.rows,
+        message: 'Admins retrieved with direct connection (default admin created)',
+        connection: 'direct',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    client.release();
+    await directPool.end();
+    
+    res.json({
+      success: true,
+      data: result.rows,
+      message: 'Admins retrieved with direct connection',
+      connection: 'direct',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    await directPool.end();
+    console.error('❌ Direct admins query failed:', error.message);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Direct admins query failed',
+      details: error.message,
+      code: error.code,
+      connection_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
   let token = null;
