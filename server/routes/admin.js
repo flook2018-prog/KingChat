@@ -6,14 +6,9 @@ const router = express.Router();
 // Use direct database connection with Railway PostgreSQL
 const { Pool } = require('pg');
 
-// Try multiple environment variable names that Railway might use
+// Use Railway DATABASE_PUBLIC_URL directly since we know it exists
 const DATABASE_URL = process.env.DATABASE_PUBLIC_URL || 
-                    process.env.DATABASE_URL || 
-                    process.env.POSTGRES_URL || 
-                    process.env.DATABASE_PRIVATE_URL ||
-                    process.env.POSTGRES_PRIVATE_URL ||
-                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway' || // Railway public URL from Variables tab
-                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:27936/railway'; // Railway public URL as fallback
+                    'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@roundhouse.proxy.rlwy.net:48079/railway';
 
 console.log('🔗 Database connection URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 console.log('🔧 Environment variables check:');
@@ -48,13 +43,19 @@ let pool;
 try {
   pool = new Pool({
     connectionString: DATABASE_URL,
-    ssl: DATABASE_URL.includes('railway.internal') ? false : { rejectUnauthorized: false }, // No SSL for internal, SSL for external
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    ssl: { 
+      rejectUnauthorized: false,
+      require: true
+    },
+    max: 10,
+    idleTimeoutMillis: 60000,
+    connectionTimeoutMillis: 30000,
+    acquireTimeoutMillis: 60000,
     // Additional connection options for Railway
     keepAlive: true,
-    keepAliveInitialDelayMillis: 0
+    keepAliveInitialDelayMillis: 10000,
+    statement_timeout: 30000,
+    query_timeout: 30000
   });
 
   // Handle pool errors
@@ -307,12 +308,36 @@ router.get('/admins', async (req, res) => {
     
     console.log('✅ Database connection verified for /admins');
     
-    const result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
+    // Check if admins table has data, if not create default admin
+    let result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
+    
+    if (result.rows.length === 0) {
+      console.log('📝 No admins found, creating default admin...');
+      
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash('admin123', 12);
+      
+      await pool.query(
+        'INSERT INTO admins (username, password, full_name, role, status) VALUES ($1, $2, $3, $4, $5)',
+        ['admin', hashedPassword, 'ผู้ดูแลระบบหลัก', 'super-admin', 'active']
+      );
+      
+      console.log('✅ Default admin created');
+      
+      // Re-fetch after creating default admin
+      result = await pool.query('SELECT id, username, full_name, role, status, created_at, last_login FROM admins ORDER BY created_at DESC');
+    }
     
     console.log(`✅ Admin v2: Retrieved ${result.rows.length} admins from database`);
     console.log('📊 Sample admin data:', result.rows.length > 0 ? result.rows[0] : 'No admins found');
     
-    res.json({ success: true, admins: result.rows, count: result.rows.length, source: 'postgresql' });
+    res.json({ 
+      success: true, 
+      admins: result.rows, 
+      count: result.rows.length, 
+      source: 'railway-postgresql',
+      database_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@')
+    });
   } catch (error) {
     console.error('❌ Admin v2: Error fetching admins:', error);
     console.error('❌ Error details:', {
