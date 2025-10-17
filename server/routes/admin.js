@@ -356,6 +356,79 @@ router.get('/test', (req, res) => {
   });
 });
 
+// Database reset and fix endpoint
+router.get('/reset-db', async (req, res) => {
+  console.log('🔧 Database reset requested...');
+  
+  if (!pool || !poolInitialized) {
+    return res.status(503).json({
+      success: false,
+      error: 'Database pool not initialized',
+      poolInitialized,
+      poolInitError: poolInitError?.message
+    });
+  }
+
+  try {
+    const client = await pool.connect();
+    
+    // Drop existing table to fix schema issues
+    console.log('🗑️ Dropping existing admins table...');
+    await client.query('DROP TABLE IF EXISTS admins CASCADE');
+    
+    // Create clean table
+    console.log('📋 Creating clean admins table...');
+    await client.query(`
+      CREATE TABLE admins (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(100),
+        role VARCHAR(20) DEFAULT 'admin',
+        status VARCHAR(20) DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Create default admin
+    console.log('👤 Creating default admin...');
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    
+    await client.query(`
+      INSERT INTO admins (username, password, email, role, status)
+      VALUES ($1, $2, $3, $4, $5)
+    `, ['admin', hashedPassword, 'admin@kingchat.com', 'super_admin', 'active']);
+    
+    // Verify table structure
+    const tableInfo = await client.query(`
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns 
+      WHERE table_name = 'admins' 
+      ORDER BY ordinal_position
+    `);
+    
+    client.release();
+    
+    res.json({
+      success: true,
+      message: 'Database reset successfully',
+      table_structure: tableInfo.rows,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Database reset failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Database reset failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Health check endpoint without authentication
 router.get('/health', async (req, res) => {
   console.log('🏥 Health check requested...');
@@ -916,33 +989,30 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/admin/:id - Get specific admin (parameterized route MUST come last)
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     console.log(`🚨 ROUTE CALLED: /:id endpoint with param: ${req.params.id}`);
     
-    // Special case: if someone calls /admins, they should use the /admins route instead
-    if (req.params.id === 'admins') {
-      console.log('🔄 Redirecting /admins call from /:id route to /admins route');
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Use /api/admin/admins endpoint for getting all admins, not /:id route'
-      });
-    }
-    
-    const adminId = parseInt(req.params.id);
-    
     // Validate that id is actually a number
+    const adminId = parseInt(req.params.id);
     if (isNaN(adminId)) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Invalid admin ID format' 
+        error: 'Invalid admin ID format - must be numeric' 
       });
     }
     
-    console.log(`📁 Admin v2: Fetching admin ID ${adminId} from PostgreSQL database`);
+    if (!pool || !poolInitialized) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database not connected'
+      });
+    }
+    
+    console.log(`📁 Admin: Fetching admin ID ${adminId} from database`);
     
     const result = await pool.query(
-      'SELECT id, username, full_name, role, status, created_at, last_login FROM admins WHERE id = $1',
+      'SELECT id, username, email, role, status, created_at, updated_at FROM admins WHERE id = $1',
       [adminId]
     );
     
@@ -953,10 +1023,11 @@ router.get('/:id', async (req, res) => {
       });
     }
     
-    console.log(`✅ Admin v2: Retrieved admin: ${result.rows[0].username}`);
-    res.json({ success: true, admin: result.rows[0] });
+    console.log(`✅ Admin: Retrieved admin: ${result.rows[0].username}`);
+    res.json({ success: true, data: result.rows[0] });
+    
   } catch (error) {
-    console.error('❌ Admin v2: Error fetching admin:', error);
+    console.error('❌ Admin: Error fetching admin:', error);
     res.status(500).json({ 
       success: false, 
       error: 'Database connection error',
