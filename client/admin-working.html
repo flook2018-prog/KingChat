@@ -878,12 +878,19 @@
                 });
 
                 const result = await response.json();
+                console.log('🔍 Direct test response:', result);
                 
                 if (response.ok) {
-                    alert(`✅ การเชื่อมต่อฐานข้อมูลสำเร็จ!\n\nเวลา: ${result.data.current_time}\nเวอร์ชัน: ${result.data.pg_version}\nTimestamp: ${result.timestamp}`);
+                    const time = result.data?.current_time || 'N/A';
+                    const version = result.data?.pg_version || 'N/A';
+                    const timestamp = result.timestamp || 'N/A';
+                    alert(`✅ การเชื่อมต่อฐานข้อมูลสำเร็จ!\n\nเวลา: ${time}\nเวอร์ชัน: ${version}\nTimestamp: ${timestamp}`);
                     console.log('✅ Direct DB connection test successful:', result);
                 } else {
-                    alert(`❌ การเชื่อมต่อฐานข้อมูลล้มเหลว!\n\nข้อผิดพลาด: ${result.details}\nรหัส: ${result.code}\nTimestamp: ${result.timestamp}`);
+                    const details = result.details || result.error || 'Unknown error';
+                    const code = result.code || 'N/A';
+                    const timestamp = result.timestamp || 'N/A';
+                    alert(`❌ การเชื่อมต่อฐานข้อมูลล้มเหลว!\n\nข้อผิดพลาด: ${details}\nรหัส: ${code}\nTimestamp: ${timestamp}`);
                     console.error('❌ Direct DB connection test failed:', result);
                 }
                 

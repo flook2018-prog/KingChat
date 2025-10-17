@@ -19,6 +19,35 @@ console.log('   DATABASE_PRIVATE_URL:', process.env.DATABASE_PRIVATE_URL ? 'Avai
 console.log('   NODE_ENV:', process.env.NODE_ENV);
 console.log('🎯 Final DATABASE_URL used:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
 
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+  let token = null;
+  const authHeader = req.headers.authorization;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  }
+  
+  if (!token) {
+    return res.status(401).json({ 
+      success: false, 
+      error: 'Access token required' 
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET || 'kingchat-secret-key', (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Invalid or expired token',
+        details: err.message 
+      });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
 // Helper function to test database connection with retry
 async function testDatabaseConnection(retries = 3) {
   for (let i = 0; i < retries; i++) {
@@ -144,8 +173,9 @@ router.get('/db-simple', async (req, res) => {
 });
 
 // Direct database connection test
-router.get('/direct-test', async (req, res) => {
+router.get('/direct-test', authenticateToken, async (req, res) => {
   console.log('🔍 Testing direct database connection...');
+  console.log('🔧 Using DATABASE_URL:', DATABASE_URL.replace(/\/\/.*@/, '//***:***@'));
   
   const { Pool } = require('pg');
   const directPool = new Pool({
@@ -159,31 +189,45 @@ router.get('/direct-test', async (req, res) => {
   });
 
   try {
+    console.log('🔗 Attempting to connect to database...');
     const client = await directPool.connect();
+    console.log('✅ Database connection established');
+    
+    console.log('📊 Executing test query...');
     const result = await client.query('SELECT NOW() as current_time, version() as pg_version');
+    console.log('✅ Query executed successfully:', result.rows[0]);
+    
     client.release();
     await directPool.end();
+    console.log('🔐 Connection pool closed');
     
-    res.json({
+    const response = {
       success: true,
       message: 'Direct database connection successful',
       data: result.rows[0],
       connection_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    console.log('📤 Sending success response:', response);
+    res.json(response);
     
   } catch (error) {
     await directPool.end();
     console.error('❌ Direct database connection failed:', error.message);
+    console.error('❌ Error details:', error);
     
-    res.status(500).json({
+    const errorResponse = {
       success: false,
       error: 'Direct database connection failed',
       details: error.message,
       code: error.code,
       connection_url: DATABASE_URL.replace(/\/\/.*@/, '//***:***@'),
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    console.log('📤 Sending error response:', errorResponse);
+    res.status(500).json(errorResponse);
   }
 });
 
@@ -282,37 +326,6 @@ router.get('/admins-direct', authenticateToken, async (req, res) => {
     });
   }
 });
-
-// Authentication middleware
-const authenticateToken = (req, res, next) => {
-  let token = null;
-  const authHeader = req.headers.authorization;
-  
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7);
-  }
-  
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Access token required' 
-    });
-  }
-  
-  try {
-    console.log('🔐 Verifying admin token...');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-key');
-    console.log('✅ Token verified for user:', decoded.username);
-    req.admin = decoded;
-    next();
-  } catch (error) {
-    console.error('❌ Token verification failed:', error.message);
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Invalid token' 
-    });
-  }
-};
 
 // Apply authentication to all admin routes EXCEPT test endpoint
 router.get('/test', (req, res) => {
