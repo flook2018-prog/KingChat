@@ -1023,7 +1023,9 @@
                 console.log('📊 API Response:', result);
                 
                 // ตรวจสอบว่า API ส่งข้อมูลมาในรูปแบบไหน
-                if (result.success && result.users) {
+                if (result.success && result.data) {
+                    admins = result.data;
+                } else if (result.success && result.users) {
                     admins = result.users;
                 } else if (result.success && result.admins) {
                     admins = result.admins;
