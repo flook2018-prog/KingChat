@@ -3,8 +3,8 @@ const bcrypt = require('bcrypt');
 
 console.log('🔧 PostgreSQL Production Connection: Loading Railway database...');
 
-// Railway PostgreSQL connection
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@postgres-kbtt.railway.internal:5432/railway';
+// Railway PostgreSQL connection - UPDATED WITH CORRECT URL
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:BGNklLjDXFDrpUQnosJWAWoBFiCjdNiR@tramway.proxy.rlwy.net:40079/railway';
 
 console.log('🔗 Database URL configured');
 console.log('📍 Target: Railway PostgreSQL');
@@ -16,7 +16,9 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 30000, // 30 seconds for Railway startup
   queryTimeout: 60000, // 60 seconds for queries  
-  ssl: false // Railway internal connection doesn't need SSL
+  ssl: {
+    rejectUnauthorized: false // Railway external connection requires SSL
+  }
 });
 
 let isConnected = false;

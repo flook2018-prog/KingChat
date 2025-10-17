@@ -125,11 +125,20 @@ try {
 
 // Load admin routes with production database connection
 try {
-  adminRoutes = require('./routes/admin');
-  console.log('✅ Admin routes loaded from admin.js (POSTGRESQL DATABASE WITH FALLBACK)');
+  adminRoutes = require('./routes/admin-production');
+  console.log('✅ Admin routes loaded from admin-production.js (POSTGRESQL DATABASE)');
 } catch (error) {
-  console.error('❌ CRITICAL: Failed to load admin routes:', error.message);
-  process.exit(1); // Exit if production routes fail
+  console.error('❌ CRITICAL: Failed to load admin-production routes:', error.message);
+  
+  // Fallback to regular admin routes
+  console.log('⚠️  Attempting fallback to admin.js...');
+  try {
+    adminRoutes = require('./routes/admin');
+    console.log('✅ Admin routes loaded from admin.js (FALLBACK)');
+  } catch (fallbackError) {
+    console.error('❌ CRITICAL: Both admin-production and admin routes failed:', fallbackError.message);
+    process.exit(1); // Exit if all routes fail
+  }
 }
 
 try {
