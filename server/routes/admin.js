@@ -296,6 +296,7 @@ router.get('/db-test-alt', async (req, res) => {
 // GET /api/admin/admins - Get all admins (NO AUTH REQUIRED FOR TESTING)
 router.get('/admins', async (req, res) => {
   try {
+    console.log('🎯 ROUTE CALLED: /admins endpoint - NOT /:id endpoint!');
     console.log('📁 Admin v2: Fetching admins from PostgreSQL via /admins endpoint');
     console.log('🔗 Database URL check:', DATABASE_URL ? 'Available' : 'Missing');
     console.log('🔐 Auth header:', req.headers.authorization ? 'Present' : 'Missing');
@@ -579,6 +580,17 @@ router.get('/', async (req, res) => {
 // GET /api/admin/:id - Get specific admin (parameterized route MUST come last)
 router.get('/:id', async (req, res) => {
   try {
+    console.log(`🚨 ROUTE CALLED: /:id endpoint with param: ${req.params.id}`);
+    
+    // Special case: if someone calls /admins, they should use the /admins route instead
+    if (req.params.id === 'admins') {
+      console.log('🔄 Redirecting /admins call from /:id route to /admins route');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Use /api/admin/admins endpoint for getting all admins, not /:id route'
+      });
+    }
+    
     const adminId = parseInt(req.params.id);
     
     // Validate that id is actually a number
