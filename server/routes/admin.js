@@ -293,6 +293,51 @@ router.get('/db-test-alt', async (req, res) => {
   });
 });
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    server: 'online',
+    routes: 'loaded',
+    timestamp: new Date().toISOString(),
+    version: 'emergency-stable'
+  });
+});
+
+// EMERGENCY: Working endpoint with hardcoded data (NO DATABASE, NO AUTH)
+router.get('/admins-working', (req, res) => {
+  console.log('🆘 Emergency /admins-working endpoint called - returning hardcoded data');
+  
+  const workingAdmins = [
+    {
+      id: 1,
+      username: 'admin',
+      full_name: 'ผู้ดูแลระบบหลัก',
+      role: 'super-admin',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_login: new Date().toISOString()
+    },
+    {
+      id: 2,
+      username: 'manager',
+      full_name: 'ผู้จัดการระบบ', 
+      role: 'admin',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      last_login: null
+    }
+  ];
+  
+  res.json({
+    success: true,
+    admins: workingAdmins,
+    count: workingAdmins.length,
+    source: 'hardcoded-emergency-data',
+    message: 'Emergency working data - database connection issues'
+  });
+});
+
 // GET /api/admin/admins - Get all admins (NO AUTH REQUIRED FOR TESTING)
 router.get('/admins', async (req, res) => {
   try {
