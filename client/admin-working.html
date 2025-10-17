@@ -679,9 +679,17 @@
                     <input type="text" class="search-input" placeholder="ค้นหาแอดมิน..." id="searchInput" onkeyup="searchAdmins()">
                 </div>
             </div>
+            <button class="btn-primary" onclick="testHealth()" style="margin-right: 10px; background: #17a2b8;">
+                <span>🏥</span>
+                Health Check
+            </button>
             <button class="btn-primary" onclick="testDirectConnection()" style="margin-right: 10px; background: #28a745;">
                 <span>🔗</span>
                 ทดสอบ DB
+            </button>
+            <button class="btn-primary" onclick="resetDatabase()" style="margin-right: 10px; background: #dc3545;">
+                <span>🔧</span>
+                Reset DB
             </button>
             <button class="btn-primary" onclick="openAddModal()">
                 <span>➕</span>
@@ -900,6 +908,67 @@
             }
         }
 
+        async function testHealth() {
+            console.log('🏥 Testing health check...');
+            
+            try {
+                const response = await fetch('/api/admin/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`✅ สุขภาพระบบดี!\n\nสถานะ: ${result.message}\nPool Total: ${result.pool_total_count}\nPool Idle: ${result.pool_idle_count}\nTimestamp: ${result.timestamp}`);
+                    console.log('✅ Health check successful:', result);
+                } else {
+                    alert(`❌ ระบบมีปัญหา!\n\nข้อผิดพลาด: ${result.error || result.details}\nTimestamp: ${result.timestamp}`);
+                    console.error('❌ Health check failed:', result);
+                }
+                
+            } catch (error) {
+                alert(`❌ ข้อผิดพลาดในการตรวจสุขภาพ!\n\nข้อผิดพลาด: ${error.message}`);
+                console.error('❌ Health check error:', error);
+            }
+        }
+
+        async function resetDatabase() {
+            console.log('🔧 Requesting database reset...');
+            
+            if (!confirm('⚠️ คุณแน่ใจหรือไม่ที่จะ Reset ฐานข้อมูล?\n\nการกระทำนี้จะ:\n- ลบตาราง admins ทั้งหมด\n- สร้างตารางใหม่\n- สร้าง admin เริ่มต้น (admin/admin123)\n\nกด OK เพื่อดำเนินการต่อ')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/reset-db', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`✅ Reset ฐานข้อมูลสำเร็จ!\n\nข้อความ: ${result.message}\nจำนวนคอลัมน์: ${result.table_structure?.length || 0}\nTimestamp: ${result.timestamp}\n\n🔑 Login ใหม่ด้วย: admin / admin123`);
+                    console.log('✅ Database reset successful:', result);
+                    
+                    // Reload admins after reset
+                    loadAdmins();
+                } else {
+                    alert(`❌ Reset ฐานข้อมูลล้มเหลว!\n\nข้อผิดพลาด: ${result.error || result.details}\nTimestamp: ${result.timestamp}`);
+                    console.error('❌ Database reset failed:', result);
+                }
+                
+            } catch (error) {
+                alert(`❌ ข้อผิดพลาดในการ Reset ฐานข้อมูล!\n\nข้อผิดพลาด: ${error.message}`);
+                console.error('❌ Database reset error:', error);
+            }
+        }
+
         async function loadAdmins() {
             const loading = document.getElementById('loading');
             const adminGrid = document.getElementById('adminGrid');
@@ -914,9 +983,9 @@
                 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
                 console.log('📡 Fetching admins from API...');
                 console.log('🔑 Token exists:', !!token);
-                console.log('🔗 Calling URL: /api/admin/admins-direct (direct connection test)');
+                console.log('🔗 Calling URL: /api/admin/admins (main endpoint)');
                 
-                const response = await fetch('/api/admin/admins-direct', {
+                const response = await fetch('/api/admin/admins', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
