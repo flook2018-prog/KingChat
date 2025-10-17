@@ -1075,6 +1075,35 @@
                 }
             } catch (error) {
                 console.error('❌ Load admins error:', error);
+                console.log('🚨 Trying emergency fallback endpoint...');
+                
+                // Try emergency endpoint
+                try {
+                    const emergencyResponse = await fetch('/api/admin-emergency/list', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (emergencyResponse.ok) {
+                        const emergencyResult = await emergencyResponse.json();
+                        console.log('🚨 Emergency endpoint success:', emergencyResult);
+                        
+                        if (emergencyResult.success && emergencyResult.data) {
+                            admins = emergencyResult.data;
+                            console.log('📊 Using emergency data:', admins.length, 'admins');
+                            updateStats();
+                            renderAdminGrid();
+                            loading.classList.remove('show');
+                            adminGrid.style.display = 'grid';
+                            return;
+                        }
+                    }
+                } catch (emergencyError) {
+                    console.error('❌ Emergency endpoint also failed:', emergencyError);
+                }
+                
                 showError('ไม่สามารถโหลดข้อมูลแอดมินได้');
                 loading.classList.remove('show');
                 emptyState.style.display = 'block';

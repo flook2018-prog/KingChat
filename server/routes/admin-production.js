@@ -6,6 +6,16 @@ const { executeQuery, isDatabaseConnected } = require('../models/database-produc
 
 console.log('📁 Admin Production Routes: Loading with PostgreSQL database connection');
 
+// Simple test endpoint to verify deployment
+router.get('/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Admin production routes loaded successfully',
+    timestamp: new Date().toISOString(),
+    version: '2025-10-17-fallback'
+  });
+});
+
 // GET /api/admin/users - Alias for getting all admins
 router.get('/users', async (req, res) => {
   try {

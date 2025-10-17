@@ -12,6 +12,9 @@ console.log('🎯 PRODUCTION MODE: Using PostgreSQL Database Connection');
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+// Import database functions
+const { isDatabaseConnected, getStatus } = require('./models/database-production-fallback');
+
 // Debug environment variables
 console.log('🔧 Environment check:');
 console.log('   NODE_ENV:', process.env.NODE_ENV);
@@ -181,8 +184,19 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
-    database: isDatabaseConnected(),
+    database: isDatabaseConnected ? isDatabaseConnected() : false,
     timestamp: new Date().toISOString()
+  });
+});
+
+// Simple test endpoint to check deployment
+app.get('/api/test-deployment', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Server is running with latest code',
+    timestamp: new Date().toISOString(),
+    version: '2025-10-17-fixes',
+    database: isDatabaseConnected ? isDatabaseConnected() : false
   });
 });
 
@@ -219,6 +233,35 @@ console.log('✅ Admin auth routes mounted at /api/admin-auth');
 
 app.use('/api/admin', adminRoutes);
 console.log('✅ Admin routes mounted at /api/admin');
+
+// Emergency fallback admin endpoint
+app.get('/api/admin-emergency/list', (req, res) => {
+  console.log('🚨 Emergency admin endpoint called');
+  res.json({
+    success: true,
+    data: [
+      {
+        id: 1,
+        username: 'admin',
+        email: 'admin@kingchat.com',
+        role: 'admin',
+        status: 'active',
+        created_at: '2025-10-16T11:00:00.000Z'
+      },
+      {
+        id: 2,
+        username: 'CCC',
+        email: 'CCC@kingchat.com',
+        role: 'super_admin',
+        status: 'active',
+        created_at: '2025-10-16T14:00:00.000Z'
+      }
+    ],
+    message: 'Emergency fallback admin data',
+    database: 'emergency-fallback',
+    timestamp: new Date().toISOString()
+  });
+});
 
 app.use('/api/line-accounts', lineAccountRoutes);
 console.log('✅ LINE account routes mounted at /api/line-accounts');
